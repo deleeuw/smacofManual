@@ -1,7 +1,7 @@
 ---
 title: |
-    | Smacof at 50
-    | A Manual
+    | Smacof at 50: A Manual
+    | Part 1: Smacof with B-Splines
 author: 
 - Jan de Leeuw - University of California Los Angeles
 date: '`r paste("Started February 21 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
@@ -85,7 +85,7 @@ smacofCumulateBasis <- function(basis) {
 }
 ```
 
-**Note:** This is a working paper which will be expanded/updated
+**Note:** This is a working manuscript which will be expanded/updated
 frequently. All suggestions for improvement are welcome. All Rmd, tex,
 html, pdf, R, and C files are in the public domain. Attribution will be
 appreciated, but is not required. The files can be found at
@@ -449,6 +449,57 @@ $$ Also note that in the unweighted case with complete data $V=nJ$,
 where $J$ is the centering matrix $I-\frac{1}{n}ee'$, and thus
 $V^+=\frac{1}{n}J$. The Guttman transform is then simply
 $G(X)=n^{-1}B(X)X$.
+
+# Intermezzo: Explicit Normalization
+
+$$
+\sigma(X,\hat D)=\frac12\frac{\sum w_{ij}(\hat d_{ij}-d_{ij}(X))^2}{\sum w_{ij}d_{ij}^2(X)}
+$$
+Majorize
+
+$$
+\sigma(X,\hat D)\leq\frac12\frac{\eta^2(\hat D)-2\text{tr}\ X'V\overline{Y}+\text{tr}\ X'VX}{\text{tr}\ X'VX}=\frac{\omega(X,Y)}{\eta^2(X)}
+$$
+Stationary equations
+$$
+\eta^2(X)(VX-VG(Y))-\omega(X,Y)VX=V\{(\eta^2(X)-\omega(X,Y))X-\eta^2(X)\overline Y\}
+$$
+So at a minimum $X$ is proportional to $\overline{Y}$ or $X=\alpha\overline{Y}$ for some $\alpha$. For ... to be zero we must have
+$$
+\alpha(\alpha^2\eta^2(\overline Y)-(\eta^2(\hat D)-2\alpha\eta^2(\overline Y)+\alpha^2\eta^2(\overline Y))=\alpha^2\eta^2(\overline Y)
+$$
+which works out to be
+$$
+\alpha=\frac{\eta^2(\hat D)}{\eta^2(\overline Y)}
+$$
+$$
+\hat X=\frac{\eta^2(\hat D)}{\eta^2(\overline Y)}\ \overline{Y}
+$$
+The minimum is equal to
+
+$$
+\frac{-\frac{(\eta^2(\overline Y))^2}{\eta^2(\hat D)}+\eta^2(\overline Y)}{\eta^2(\overline Y)}=1-\frac{\eta^2(\overline Y)}{\eta^2(\hat D)}
+$$
+Use homogeneity of the Guttman transform.
+
+More generally $X=\overline Y+\alpha(Y-\overline Y)$ Write
+$$
+\omega(X,Y)=\eta^2(\hat D)+\text{tr}\ (X-\overline Y)'V(X-\overline Y)-\eta^2(\overline Y)
+$$
+Thus if $X(\alpha)=\overline Y+\alpha(Y-\overline Y)$ we have
+$$
+\omega(\alpha)=\eta^2(\hat D)+\alpha^2\text{tr}\ (Y-\overline Y)'V(Y-\overline Y)-\eta^2(\overline Y)
+$$
+and 
+$$
+\eta^2(\alpha)=\eta^2(\overline Y)+2\alpha\text{tr}\ (Y-\overline Y)'V\overline Y+\alpha^2\text{tr}\ (Y-\overline Y)'V(Y-\overline Y)
+$$
+$$
+\omega(Y,Y)=\eta^2(\hat D)+\text{tr}\ (Y-\overline Y)'V(Y-\overline Y)-\eta^2(\overline Y)
+$$
+$$
+\sigma(Y)=\frac{\omega(Y,Y)}{\eta^2(Y)}\leq\frac{\omega(\alpha)}{\eta^2(\alpha)}
+$$
 
 # Properties of Smacof Loss
 

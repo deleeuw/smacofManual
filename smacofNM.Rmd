@@ -1,0 +1,109 @@
+---
+title: |
+    | Smacof at 50: A Manual
+    | Part 2: Non-metric Smacof
+author: 
+- Jan de Leeuw - University of California Los Angeles
+date: '`r paste("Started March 30 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
+output:
+  bookdown::html_document2:
+    keep_md: yes
+    css: preamble.css
+    toc: true
+    toc_depth: 4
+    number_sections: yes
+  bookdown::pdf_document2:
+    latex_engine: lualatex
+    includes:
+      in_header: preamble.tex
+    keep_tex: yes
+    toc: true
+    toc_depth: 4
+    number_sections: yes
+graphics: yes
+mainfont: Times New Roman
+fontsize: 12pt
+bibliography: ["mypubs.bib","total.bib"]
+abstract: TBD
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r loadpackages, echo = FALSE}
+suppressPackageStartupMessages(library(knitr, quietly = TRUE))
+suppressPackageStartupMessages(library(tinytex, quietly = TRUE))
+suppressPackageStartupMessages(library(smacofRR, quietly = TRUE))
+```
+
+**Note:** This is a working manuscript which will be expanded/updated
+frequently. All suggestions for improvement are welcome. All Rmd, tex,
+html, pdf, R, and C files are in the public domain. Attribution will be
+appreciated, but is not required. The files can be found at
+<https://github.com/deleeuw/smacofCode>.
+
+\sectionbreak
+
+# Introduction
+
+pick and rank
+
+$$
+\sigma_R(X)=\sum_{r=1}^s\min_{\delta\in\mathcal{K}_r}(\delta-d(X))'W_r(\delta-d(X))
+$$
+with $\mathcal{K}_r$ pointed polyhedral convex cones, defined by a partial order 
+$\leq_r$ and with $W_r$ diagonal and positive semi-definite.
+
+$$
+\sigma_R(X)=\sum_{r=1}^s(\hat d_r-d(X))'W_r(\hat d_r-d(X))
+$$
+Let
+$$
+W_\star:=\sum_{r=1}^s W_r
+$$
+and
+$$
+\hat d_\star=\sum_{r=1}^s W_r\hat d_r
+$$
+$$
+\sum w_{\star ij}d_{ij}^2(X)=\text{tr}\ X'VX
+$$
+$$
+\sum\hat d_{\star ij}d_{ij}(X)=\text{tr}\ X'B(X)X
+$$
+
+# Paired Comparisons
+
+Positive Orthant / Absolute Value / Pairwise
+
+$$
+\min_{\hat D}r_{ijkl}(X,\hat D)=\begin{cases}0&\text{ if  correct},\\\frac12w_{ijkl}(d_{ij}(X)-d_{kl}(X))^2&\text{ if wrong}.\end{cases}
+$$
+
+$$
+w_{ijkl}\{(\hat d_{ij}-d_{ij}(X))^2+(\hat d_{kl}-d_{kl}(X))^2\}
+$$
+$$
+\sigma(X,\hat D)=\sum_{i=1}^n\sum_{j=1}^n\sum_{k=1}^n\sum_{l=1}^nw_{ijkl}\{(\hat d_{ij}-d_{ij}(X))^2+(\hat d_{kl}-d_{kl}(X))^2\}.
+$$
+
+$$
+\text{sign}(\hat d_{ij}-\hat d_{kl})=s_{ijkl}
+$$
+
+$$
+\begin{bmatrix}
+0&0&1\\
+1&0&1\\
+1&0&0
+\end{bmatrix}
+\begin{bmatrix}
+0&0&1\\
+0&0&0\\
+1&0&0
+\end{bmatrix}
+$$
+
+# Triads
+
+# Rank Orders
