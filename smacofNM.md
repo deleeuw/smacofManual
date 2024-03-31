@@ -72,6 +72,12 @@ $$
 
 Positive Orthant / Absolute Value / Pairwise
 
+@deleeuw_R_70a
+@deleeuw_E_18d
+@hartman_79
+@guttman_69
+@johnson_73
+
 $$
 \min_{\hat D}r_{ijkl}(X,\hat D)=\begin{cases}0&\text{ if  correct},\\\frac12w_{ijkl}(d_{ij}(X)-d_{kl}(X))^2&\text{ if wrong}.\end{cases}
 $$
@@ -103,3 +109,5 @@ $$
 # Triads
 
 # Rank Orders
+
+# References

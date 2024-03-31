@@ -39,8 +39,10 @@ suppressPackageStartupMessages(library(smacofRR, quietly = TRUE))
 **Note:** This is a working manuscript which will be expanded/updated
 frequently. All suggestions for improvement are welcome. All Rmd, tex,
 html, pdf, R, and C files are in the public domain. Attribution will be
-appreciated, but is not required. The files can be found at
-<https://github.com/deleeuw/smacofCode>.
+appreciated, but is not required. The code files can be found at
+<https://github.com/deleeuw/smacofCode>, the manual files at
+<https://github.com/deleeuw/smacofManual>, and the example files
+at <https://github.com/deleeuw/smacofExamples>.
 
 \sectionbreak
 
@@ -76,6 +78,12 @@ $$
 
 Positive Orthant / Absolute Value / Pairwise
 
+@deleeuw_R_70a
+@deleeuw_E_18d
+@hartman_79
+@guttman_69
+@johnson_73
+
 $$
 \min_{\hat D}r_{ijkl}(X,\hat D)=\begin{cases}0&\text{ if  correct},\\\frac12w_{ijkl}(d_{ij}(X)-d_{kl}(X))^2&\text{ if wrong}.\end{cases}
 $$
@@ -106,4 +114,18 @@ $$
 
 # Triads
 
-# Rank Orders
+# pick 1/3 Method of triads
+Pick the two most similar 
+$(i,j)<(i,k)$ and $(i,j)<(j,k)$
+
+# order 3/3 Complete method of triads
+$(i,j)<(i,k)<(j,k)$
+
+# Richardson -- 
+each triple presented three times, with a different hub each time
+which one of the two is maximally similar to the hub stimulus. Thus the data
+is the single inequality $(i,k) < (j,k)$
+
+# Conditional rank Orders -- Klingberg
+
+# References

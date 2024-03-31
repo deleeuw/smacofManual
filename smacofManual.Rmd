@@ -116,15 +116,20 @@ in which some dissimilarities are known numbers while others are
 unknown. MDS with missing data is a form of *distance matrix completion*
 (@fang_oleary_12).
 
-## Kruskal's Stress
+# Krukal's Stress
 
 In the pioneering papers @kruskal_64a and @kruskal_64b the MDS problem
 was formulated for the first time as minimization of an explicit loss
 function, which measures the quality of the approximation of the
-dissimilarities by the distances. The loss function in least squares
+dissimilarities by the distances. 
+
+## Metric MDS
+
+The loss function in least squares
 metric Euclidean MDS is called *raw stress* or *Kruskal's raw stress*
-and is defined as \begin{equation}
-\sigma(X):=\frac12\sum w_{ij}(\delta_{ij}-d_{ij}(X))^2.
+and is defined as 
+\begin{equation}
+\sigma_R(X):=\frac12\sum w_{ij}(\delta_{ij}-d_{ij}(X))^2.
 (\#eq:stressdef)
 \end{equation}
 
@@ -134,7 +139,8 @@ $\delta_{ij}$ are the known non-negative *dissimilarities* between
 objects $o_i$ and $o_j$, and the $d_{ij}(X)$ are the *distances* between
 the corresponding points $x_i$ and $x_j$. The summation is over all
 $\binom{n}{2}$ pairs $(i,j)$ with $j>i$, i.e. over elements below the
-diagonal of the matrices $W$ and $\Delta$. From now on we use "metric
+diagonal of the matrices $W$ and $\Delta$. The subscript $R$ in $\sigma_R$
+stands for "raw". From now on we use "metric
 MDS" to mean Least Squares Metric Euclidean MDS.
 
 The $n\times p$ matrix $X$, which has the coordinates $x_i$ of the $n$
@@ -152,9 +158,7 @@ precision or importance of the corresponding dissimilarities. Some of
 the weights may be zero, which can be used to code *missing data*. If
 all weights are positive we have *complete data*. If we have complete
 data, and all weights are equal to one, we have *unweighted* metric MDS.
-Weights were only introduced in MDS in @deleeuw_C_77, the pioneering
-papers by Shepard, Kruskal, and Guttman only consider the unweighted
-case.
+The pioneering papers by Shepard, Kruskal, and Guttman only consider the unweighted case. Weights were only introduced in MDS in @deleeuw_C_77. 
 
 We assume throughout that the weights are *irreducible* (@deleeuw_C_77).
 This means there is no partitioning of the index set
@@ -170,6 +174,8 @@ well (they are assumed to be equal to the corresponding elements below
 the diagonal). The somewhat mysterious factor $\frac12$ in definition
 \@ref(eq:stressdef) is there because it simplifies some of the formulas
 in later sections of this paper.
+
+## Non-metric MDS
 
 Kruskal was not really interested in metric MDS and the "raw" loss
 function \@ref(eq:stressdef). His papers are really about non-metric
@@ -187,78 +193,87 @@ transformations). If the dissimilarities are non-numerical, for example
 rank orders or partitionings, we choose from the set of admissible
 *quantifications*.
 
-In non-metric MDS the loss function becomes \begin{equation}
-\sigma(X,\hat D):=\frac12\sum w_{ij}(\hat d_{ij}-d_{ij}(X))^2,
+In non-metric MDS raw stress becomes 
+\begin{equation}
+\sigma_R(X,\Delta):=\frac12\sum w_{ij}(\delta_{ij}-d_{ij}(X))^2,
 (\#eq:rawstressdef)
-\end{equation} where $\hat D$ are now the quantified or transformed
+\end{equation} 
+where $\Delta$ varies over the quantified or transformed
 dissimilarities. In MDS parlance they are also called *pseudo-distances*
 or *disparities*. Loss function \@ref(eq:rawstressdef) must be minimized
 over both configurations and disparities, with the condition that the
-disparities $\hat D$ are an admissible transformation of the
-dissimilarities $\Delta$. In Kruskal's non-metric MDS this means
+disparities $\Delta$ are an admissible transformation or quantification
+of the data. In Kruskal's non-metric MDS this means
 requiring monotonicity. In this paper we will consider various other
 choices for the set of admissible transformations. We will use the
 symbol $\mathfrak{D}$ for the set of admissible transformations
 
-The most familiar sets of admissible transformations (linear,
-polynomial, monotone) define convex cones with apex at the origin. This
-means that if $\hat D\in\mathfrak{D}$ then so is $\lambda\hat D$ for all
+The most familiar examples of  $\mathfrak{D}$ (linear,
+polynomial, splines, monotone) define convex cones with apex at the origin. This
+means that if $\Delta\in\mathfrak{D}$ then so is $\lambda\Delta$ for all
 $\lambda\geq 0$. But consequently minimizing \@ref(eq:rawstressdef) over
-all $\hat D\in\mathfrak{D}$ and over all configurations has the trivial
-solution $\hat D=0$ and $X=0$, corresponding with the global minimum
-$\sigma(X,\hat D)=0$. We need additional constraints to rule out this
+all $\Delta\in\mathfrak{D}$ and over all configurations has the trivial
+solution $\Delta=0$ and $X=0$, corresponding with the global minimum
+$\sigma(X,\Delta)=0$. We need additional constraints to rule out this
 trivial solution, and in non-metric MDS this is done by choosing a
 *normalization* that keeps the solution away from zero.
 
-Kruskal's solution is to normalize the raw stress by defining
+Kruskal's original solution is to define *normalized stress* as
 \begin{equation}
-\sigma(X,\Delta):=\frac{\sum w_{ij}(\hat d_{ij}-d_{ij}(X))^2}{\sum w_{ij}d_{ij}^2(X)}.
+\sigma(X,\Delta):=\frac{\sum w_{ij}(\delta_{ij}-d_{ij}(X))^2}{\sum w_{ij}d_{ij}^2(X)}.
 (\#eq:nstressdef)
-\end{equation} In fact in Kruskal's formulation there are no weights,
+\end{equation} 
+To be precise, in Kruskal's formulation there are no weights,
 and he actually takes the square root of \@ref(eq:nstressdef) to define
-*Kruskal's stress*. The non-metric Euclidean MDS problem is to minimize
+*Kruskal's stress*. The non-metric Euclidean MDS problem now is to minimize
 loss function \@ref(eq:nstressdef) over all $n\times p$ configurations
 $X$ and all admissible disparities $\Delta$.
 
 ## Normalization
 
-Normalization in non-metric MDS has been discussed in detail in
+Equation \@ref(eq:nstressdef) is only one way to normalize raw stress. Some obvious alternatives are discussed in detail in
 @kruskal_carroll_69 and @deleeuw_U_75a. In the terminology of
 @deleeuw_U_75a there are *explicit* and *implicit* normalizations.
 
-In implicit normalization we minimize either \begin{equation}
+In implicit normalization we minimize either 
+\begin{equation}
 \sigma(X,\hat D):=\frac{\sum  w_{ij}(\hat d_{ij} -d_{ij}(X))^2}{\sum   w_{ij}^{\ }\hat d_{ij}^2}
 (\#eq:implicit1)
-\end{equation} or \begin{equation}
+\end{equation} 
+or 
+\begin{equation}
 \sigma(X,\hat D):=\frac{\sum   w_{ij}(\hat d_{ij}-d_{ij}(X))^2}{\sum   w_{ij}^{\ }d_{ij}^2(X) }
 (\#eq:implicit2)
-\end{equation} @kruskal_64a chooses definition \@ref(eq:implicit2) and
-calls the explicitly normalized loss function *normalized stress*. In
-fact, he takes the square root, which does not change the minimization
-problem, and only considers the unweighted case. Note that we overload
-the symbol $\sigma$ to denote any one of the least squares loss
+\end{equation} 
+over $X$ and $\Delta\in\mathfrak{D}$.
+
+As we have seen, @kruskal_64a chooses definition \@ref(eq:implicit2) and
+calls the explicitly normalized loss function *normalized stress*. Note that we overload the symbol $\sigma$ to denote any one of the least squares loss
 functions. It will always be clear from the text which $\sigma$ we are
 talking about.
 
-In explicit normalization we minimize the raw stress $\sigma(X,\hat D)$
-from \@ref(eq:rawstressdef), but we add the constraint \begin{equation}
+In explicit normalization we minimize the raw stress $\sigma_R(X,\hat D)$
+from \@ref(eq:rawstressdef), but we add the explicit constraint 
+\begin{equation}
 \sum   w_{ij}^{\ }d_{ij}^2(X)=1,
 (\#eq:explicit1)
-\end{equation} or the constraint \begin{equation}
+\end{equation} 
+or the constraint 
+\begin{equation}
 \sum   w_{ij}^{\ }\hat d_{ij}^2=1.
 (\#eq:explicit2)
-\end{equation} @kruskal_carroll_69 and @deleeuw_E_19d show that these
+\end{equation} 
+@kruskal_carroll_69 and @deleeuw_E_19d show that these
 four normalizations all lead to essentially the same solution for $X$
-and $\hat D$, up to scale factors dictated by the choice of
+and $\hat D$, up to scale factors dictated by the choice of the particular
 normalization. It is also possible to normalize both $X$ and $\hat D$,
 either explicitly or implicitly, and again this will give the same
 solutions, suitably normalized. These invariance results assume the
 admissible transformations form a closed cone with apex at the origin,
 i.e. if $\hat D$ is admissible and $\lambda\geq 0$ then $\lambda\hat D$
 is admissible as well. The matrices of Euclidean distances $D(X)$ form a
-similar closed cone as well. The LSNE-MDS problem is to find an element
-of the $\hat D$ cone and an element of the $D(X)$ cone where the angle
-between the two is a small as possible.
+similar closed cone as well. The non-metric MDS problem is to find an element
+of the $\hat D$ cone $\mathcal{D}$ and an element of the $D(X)$ cone where the angle between the two is a small as possible.
 
 In the R version of smacof (@deleeuw_mair_A_09c,
 @mair_groenen_deleeuw_A_22) we use explicit normalization
@@ -268,12 +283,9 @@ disparities and the sphere defined by \@ref(eq:explicit2) is equivalent
 to first projecting on the cone and then normalizing the projection (see
 also @bauschke_bui_wang_18).
 
-In our version of non-metric MDS we need more flexibility. For
-algorithmic reasons that will become clear later on, we will go with the
-other explicit normalization \@ref(eq:explicit1) and minimize $\sigma$
-from \@ref(eq:rawstressdef) over normalized $X$ and unnormalized
-$\hat D$. For the final results the choice between \@ref(eq:explicit1)
-and \@ref(eq:explicit2) should not make a difference.
+In the version of non-metric MDS discussed in this manualwe need more flexibility. For algorithmic reasons that may become clear later on, we will go with the original \@ref(eq:nstressdef), i.e. with the implicitly normalized
+Kruskal's stress. For the final results the choice between normalizations should not make a difference, but the iterative computations will be different for the
+diufferent choices.
 
 ## Some thoughts on ALS
 
@@ -282,41 +294,54 @@ confusions that have haunted the early development of non-metric MDS.
 
 ### The Single-Phase approach
 
-In @kruskal_64a defines \begin{equation}
+In @kruskal_64a defines 
+\begin{equation}
 \sigma(X):=\min_{\hat D\in\mathfrak{D}}\ \sigma(\hat D,X)=\sigma(X,\hat D(X)),
 (\#eq:project)
-\end{equation} where $\sigma(\hat D,X)$ is defined by
-\@ref(eq:implicit2). where the minimum is over admissible
-transformations. In definition \@ref(eq:project) \begin{equation}
+\end{equation} 
+where $\sigma(\hat D,X)$ is defined by
+\@ref(eq:implicit2). The minimum in \@ref(eq:project) is over admissible
+transformations. In definition \@ref(eq:project) 
+\begin{equation}
 \hat D(X):=\mathop{\text{argmin}}_{\hat D\in\mathfrak{D}}\sigma(X, \hat D).
 (\#eq:optscal)
-\end{equation} Normalized stress defined by \@ref(eq:project) is now a
+\end{equation} 
+Normalized stress defined by \@ref(eq:project) is now a
 function of $X$ only. Under some conditions, which are true in Kruskal's
-definition of non-metric MDS, \begin{equation}
+definition of non-metric MDS, there is a simple relation between the 
+partials of \@ref(eq:implicit2) and those of \@ref(eq:project). 
+\begin{equation}
 \mathcal{D}\sigma(X)=\mathcal{D}_1\sigma(X,\hat D(X)),
 (\#eq:partials)
-\end{equation} where $\mathcal{D}\sigma(X)$ are the derivatives of
+\end{equation} 
+where $\mathcal{D}\sigma(X)$ are the derivatives of
 $\sigma$ from \@ref(eq:project) and $\mathcal{D}_1\sigma(X,\hat D(X))$
 are the partial derivatives of $\sigma$ from \@ref(eq:implicit2) with
 respect to $X$. Thus the partials of $\sigma$ from \@ref(eq:project) can
 be computed by evaluating the partials of $\sigma$ from
 \@ref(eq:implicit2) with respect to $X$ at $(X,\hat D(X))$. This has
-created much confusion in the past. The non-metric MDS problem is now to
+created much confusion in the past. The non-metric MDS problem in Kruskal's original formulation is now to
 minimize $\sigma$ from \@ref(eq:project), which is a function of $X$
 alone.
 
 @guttman_68 calls this the *single-phase approach*. A variation of
-Kruskal's single-phase approach defines $$
-\sigma(X)=\sum   w_{ij}(d_{ij}^\#(X)-d_{ij}(X))^2
-$$ where the $d_{ij}^\#(X)$ are *Guttman's rank images*, i.e. the
+Kruskal's single-phase approach defines 
+\begin{equation}
+\sigma(X)=\sum w_{ij}(d_{ij}^\#(X)-d_{ij}(X))^2,
+(\#eq:rankimage)
+\end{equation}
+where the $d_{ij}^\#(X)$ are *Guttman's rank images*, i.e. the
 permutation of the $d_{ij}(X)$ that makes them monotone with the
-$\delta_{ij}$ (@guttman_68). Or, alternatively, define $$
-\sigma(X):=\sum   w_{ij}(d_{ij}^\%(X)-d_{ij}(X))^2
-$$ where the $\hat d_{ij}^\%(X)$ are *Shepard's rank images*, i.e. the
+$\delta_{ij}$ (@guttman_68). Or, alternatively, define
+\begin{equation}
+\sigma(X):=\sum   w_{ij}(d_{ij}^\%(X)-d_{ij}(X))^2,
+(\#eq:shepard)
+\end{equation}
+where the $\hat d_{ij}^\%(X)$ are *Shepard's rank images*, i.e. the
 permutation of the $\delta_{ij}$ that makes them monotone with the
 $d_{ij}(X)$ (@shepard_62a, @shepard_62b, @deleeuw_E_17e).
 
-Minimizing the Shepard and Guttman single-phase loss functions is
+Minimizing the Shepard or Guttman single-phase loss functions is
 computationally more complicated than Kruskal's *monotone regression*
 approach, mostly because the rank-image transformations are not
 differentiable, and there is no analog of \@ref(eq:partials) and of the
@@ -482,7 +507,11 @@ $$
 $$
 Use homogeneity of the Guttman transform.
 
-More generally $X=\overline Y+\alpha(Y-\overline Y)$ Write
+More generally suppose we update with 
+$$
+X=\overline Y+\alpha(Y-\overline Y)
+$$ 
+Write
 $$
 \omega(X,Y)=\eta^2(\hat D)+\text{tr}\ (X-\overline Y)'V(X-\overline Y)-\eta^2(\overline Y)
 $$
@@ -498,7 +527,7 @@ $$
 \omega(Y,Y)=\eta^2(\hat D)+\text{tr}\ (Y-\overline Y)'V(Y-\overline Y)-\eta^2(\overline Y)
 $$
 $$
-\sigma(Y)=\frac{\omega(Y,Y)}{\eta^2(Y)}\leq\frac{\omega(\alpha)}{\eta^2(\alpha)}
+\frac{\omega(\alpha)}{\eta^2(\alpha)}\leq\sigma(Y)
 $$
 
 # Properties of Smacof Loss
@@ -844,6 +873,8 @@ Integral, I-splines
 ### Ordinal MDS
 
 ### Interval and Ratio MDS
+
+Additive constant
 
 ### Cyclic Coordinate Decent
 
