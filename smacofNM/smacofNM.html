@@ -382,7 +382,7 @@ display: none;
 <h1 class="title toc-ignore"><div class="line-block">Smacof at 50: A Manual<br />
 Part 2: Non-metric Smacof</div></h1>
 <h4 class="author">Jan de Leeuw - University of California Los Angeles</h4>
-<h4 class="date">Started March 30 2024, Version of March 30, 2024</h4>
+<h4 class="date">Started March 30 2024, Version of April 02, 2024</h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 TBD
@@ -393,9 +393,13 @@ TBD
 <div id="TOC">
 <ul>
 <li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">1</span> Introduction</a></li>
-<li><a href="#paired-comparisons" id="toc-paired-comparisons"><span class="toc-section-number">2</span> Paired Comparisons</a></li>
-<li><a href="#triads" id="toc-triads"><span class="toc-section-number">3</span> Triads</a></li>
-<li><a href="#rank-orders" id="toc-rank-orders"><span class="toc-section-number">4</span> Rank Orders</a></li>
+<li><a href="#loss-function" id="toc-loss-function"><span class="toc-section-number">2</span> Loss Function</a></li>
+<li><a href="#paired-comparisons" id="toc-paired-comparisons"><span class="toc-section-number">3</span> Paired Comparisons</a></li>
+<li><a href="#triads" id="toc-triads"><span class="toc-section-number">4</span> Triads</a></li>
+<li><a href="#pick-13-method-of-triads" id="toc-pick-13-method-of-triads"><span class="toc-section-number">5</span> pick 1/3 Method of triads</a></li>
+<li><a href="#order-33-complete-method-of-triads" id="toc-order-33-complete-method-of-triads"><span class="toc-section-number">6</span> order 3/3 Complete method of triads</a></li>
+<li><a href="#richardson" id="toc-richardson"><span class="toc-section-number">7</span> Richardson –</a></li>
+<li><a href="#conditional-rank-orders-klingberg" id="toc-conditional-rank-orders-klingberg"><span class="toc-section-number">8</span> Conditional rank Orders – Klingberg</a></li>
 <li><a href="#references" id="toc-references">References</a></li>
 </ul>
 </div>
@@ -403,54 +407,86 @@ TBD
 <p><strong>Note:</strong> This is a working manuscript which will be expanded/updated
 frequently. All suggestions for improvement are welcome. All Rmd, tex,
 html, pdf, R, and C files are in the public domain. Attribution will be
-appreciated, but is not required. The files can be found at
-<a href="https://github.com/deleeuw/smacofCode" class="uri">https://github.com/deleeuw/smacofCode</a>.</p>
+appreciated, but is not required. The code files can be found at
+<a href="https://github.com/deleeuw/smacofCode" class="uri">https://github.com/deleeuw/smacofCode</a>, the manual files at
+<a href="https://github.com/deleeuw/smacofManual" class="uri">https://github.com/deleeuw/smacofManual</a>, and the example files
+at <a href="https://github.com/deleeuw/smacofExamples" class="uri">https://github.com/deleeuw/smacofExamples</a>.</p>
 <div id="introduction" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Introduction</h1>
 <p>pick and rank</p>
-<p><span class="math display">\[
-\sigma_R(X)=\sum_{r=1}^s\min_{\delta\in\mathcal{K}_r}(\delta-d(X))&#39;W_r(\delta-d(X))
-\]</span>
-with <span class="math inline">\(\mathcal{K}_r\)</span> pointed polyhedral convex cones, defined by a partial order
-<span class="math inline">\(\leq_r\)</span> and with <span class="math inline">\(W_r\)</span> diagonal and positive semi-definite.</p>
-<p><span class="math display">\[
-\sigma_R(X)=\sum_{r=1}^s(\hat d_r-d(X))&#39;W_r(\hat d_r-d(X))
-\]</span>
-Let
-<span class="math display">\[
-W_\star:=\sum_{r=1}^s W_r
-\]</span>
-and
-<span class="math display">\[
-\hat d_\star=\sum_{r=1}^s W_r\hat d_r
-\]</span>
-<span class="math display">\[
-\sum w_{\star ij}d_{ij}^2(X)=\text{tr}\ X&#39;VX
-\]</span>
-<span class="math display">\[
-\sum\hat d_{\star ij}d_{ij}(X)=\text{tr}\ X&#39;B(X)X
-\]</span></p>
 </div>
-<div id="paired-comparisons" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> Paired Comparisons</h1>
+<div id="loss-function" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Loss Function</h1>
+<p><span class="math display">\[
+\sigma(X,\delta_1,\cdots,\delta_s)=\frac{\sum_{r=1}^s\omega_r\sum_{i,j} w_{ijr}(\delta_{ijr}-d_{ij}(X))^2}{\sum_{r=1}^s\omega_r\sum_{i,j} w_{ijr}d_{ij}^2(X))}
+\]</span>
+which must be minimized over <span class="math inline">\(X\)</span> and over <span class="math inline">\(\delta_r\in\mathcal{K}_r\)</span>, with <span class="math inline">\(\mathcal{K}_r\)</span> pointed polyhedral convex cones, defined by a partial order
+<span class="math inline">\(\leq_r\)</span>.</p>
+<p>Minimize of <span class="math inline">\(X\)</span> for given <span class="math inline">\(\delta_{ijr}\)</span>.
+<span class="math display">\[
+\sigma_R(X,\delta_1,\cdots,\delta_s)=\sum_{r=1}^s\omega_r\sum_{i,j} w_{ijr}\delta_{ijr}^2-2\sum_{r=1}^s\omega_r\sum_{i,j} w_{ijr}\delta_{ijr}d_{ij}(X)+\sum_{r=1}^s\omega_r\sum_{i,j} w_{ijr}d_{ij}^2(X))
+\]</span>
+Nor use
+<span class="math display">\[
+d_{ij}(X)\geq\frac{1}{d_{ij}(Y)}\text{tr}\ X&#39;A_{ij}Y
+\]</span>
+so that
+<span class="math display">\[
+\sum_{r=1}^s\omega_r\sum_{i,j} w_{ijr}\delta_{ijr}d_{ij}(X)\geq
+\text{tr}\ X&#39;B(Y)Y
+\]</span>
+<span class="math display">\[
+B(Y):=\sum_{r=1}^s\omega_r\sum_{i,j} w_{ijr}\frac{\delta_{ijr}}{d_{ij}(Y)}A_{ij}
+\]</span>
+Also
+<span class="math display">\[
+V:=\sum_{r=1}^s\omega_r\sum_{i,j} w_{ijr}A_{ij}
+\]</span>
+So that
+<span class="math display">\[
+\sigma_R(X)\leq K-2\text{tr}\ X&#39;B(Y)Y+\text{tr}\ X&#39;VX
+\]</span>
+and the smacof update over <span class="math inline">\(X\)</span> with <span class="math inline">\(\text{tr}\ X&#39;VX=1\)</span> is the same
+as in smacofRR.</p>
+</div>
+<div id="paired-comparisons" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Paired Comparisons</h1>
 <p>Positive Orthant / Absolute Value / Pairwise</p>
 <p><span class="citation">De Leeuw (1970)</span>
 <span class="citation">De Leeuw (2018)</span>
-<span class="citation">(<strong>hartman_79?</strong>)</span>
+<span class="citation">Hartmann (1979)</span>
 <span class="citation">Guttman (1969)</span>
 <span class="citation">Johnson (1973)</span></p>
+<p>Suppose datum <span class="math inline">\(r\)</span> says that that <span class="math inline">\((i,j)&lt;(k,l)\)</span>. Then <span class="math inline">\(w_{ijr}\)</span> and <span class="math inline">\(w_{klr}\)</span>
+are non-zero and all other elements of <span class="math inline">\(W_r\)</span> are zero.
+Thus
+<span class="math display">\[
+w_{ijr}(\delta_{ijr}-d_{ij})^2+w_{klr}(\delta_{klr}-d_{kl})^2
+\]</span>
+Must be minimized over <span class="math inline">\(\delta_{ijr}\leq\delta_{klr}\)</span>. If <span class="math inline">\(d_{ij}\leq d_{kl}\)</span>
+then <span class="math inline">\(\hat d_{ijr}=d_{ij}\)</span> and <span class="math inline">\(\hat d_{klr}=d_{kl}\)</span>, and otherwise
+<span class="math display">\[
+\hat d_{ijr}=\hat d_{klr}=\frac{w_{ijr}d_{ij}+w_{klr}d_{kl}}{w_{ijr}+w_{klr}}
+\]</span>
+Thus</p>
+<p><span class="math display">\[w_{ijr}(\delta_{ijr}-d_{ij})^2+w_{klr}(\delta_{klr}-d_{kl})^2\]</span>
+is zero if the order of <span class="math inline">\(d_{ij}\)</span> and <span class="math inline">\(d_{kl}\)</span> is the same as the order in the data
+and</p>
 <p><span class="math display">\[
-\min_{\hat D}r_{ijkl}(X,\hat D)=\begin{cases}0&amp;\text{ if  correct},\\\frac12w_{ijkl}(d_{ij}(X)-d_{kl}(X))^2&amp;\text{ if wrong}.\end{cases}
-\]</span></p>
-<p><span class="math display">\[
-w_{ijkl}\{(\hat d_{ij}-d_{ij}(X))^2+(\hat d_{kl}-d_{kl}(X))^2\}
+w_{ijr}(\frac{w_{ijr}d_{ij}+w_{klr}d_{kl}}{w_{ijr}+w_{klr}}-d_{ij})^2
++w_{klr}(\frac{w_{ijr}d_{ij}+w_{klr}d_{kl}}{w_{ijr}+w_{klr}}-d_{kl})^2
 \]</span>
 <span class="math display">\[
-\sigma(X,\hat D)=\sum_{i=1}^n\sum_{j=1}^n\sum_{k=1}^n\sum_{l=1}^nw_{ijkl}\{(\hat d_{ij}-d_{ij}(X))^2+(\hat d_{kl}-d_{kl}(X))^2\}.
-\]</span></p>
-<p><span class="math display">\[
-\text{sign}(\hat d_{ij}-\hat d_{kl})=s_{ijkl}
-\]</span></p>
+\frac{w_{ijr}w_{klr}^2}{(w_{ijr}+w_{klr})^2}(d_{ij}-d_{kl})^2+
+\frac{w_{ijr}^2w_{klr}}{(w_{ijr}+w_{klr})^2}(d_{ij}-d_{kl})^2
+\]</span>
+<span class="math display">\[
+\frac{w_{ijr}w_{klr}}{w_{ijr}+w_{klr}}(d_{ij}-d_{kl})^2
+\]</span>
+<span class="math inline">\(B\)</span> matrix</p>
+<p>So far we have only considered the forced-choice situation in which
+the subject has to choose one of the pairs. If we allow for the alternative
+that <span class="math inline">\((i,j)\)</span> and <span class="math inline">\((k,l)\)</span> are equally similar then we have two approaches. In the primary approach we</p>
 <p><span class="math display">\[
 \begin{bmatrix}
 0&amp;0&amp;1\\
@@ -464,11 +500,26 @@ w_{ijkl}\{(\hat d_{ij}-d_{ij}(X))^2+(\hat d_{kl}-d_{kl}(X))^2\}
 \end{bmatrix}
 \]</span></p>
 </div>
-<div id="triads" class="section level1" number="3">
-<h1><span class="header-section-number">3</span> Triads</h1>
+<div id="triads" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Triads</h1>
 </div>
-<div id="rank-orders" class="section level1" number="4">
-<h1><span class="header-section-number">4</span> Rank Orders</h1>
+<div id="pick-13-method-of-triads" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> pick 1/3 Method of triads</h1>
+<p>Pick the two most similar
+<span class="math inline">\((i,j)&lt;(i,k)\)</span> and <span class="math inline">\((i,j)&lt;(j,k)\)</span></p>
+</div>
+<div id="order-33-complete-method-of-triads" class="section level1" number="6">
+<h1><span class="header-section-number">6</span> order 3/3 Complete method of triads</h1>
+<p><span class="math inline">\((i,j)&lt;(i,k)&lt;(j,k)\)</span></p>
+</div>
+<div id="richardson" class="section level1" number="7">
+<h1><span class="header-section-number">7</span> Richardson –</h1>
+<p>each triple presented three times, with a different hub each time
+which one of the two is maximally similar to the hub stimulus. Thus the data
+is the single inequality <span class="math inline">\((i,k) &lt; (j,k)\)</span></p>
+</div>
+<div id="conditional-rank-orders-klingberg" class="section level1" number="8">
+<h1><span class="header-section-number">8</span> Conditional rank Orders – Klingberg</h1>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1>References</h1>
@@ -481,6 +532,9 @@ De Leeuw, J. 1970. <span>“The Positive Orthant Method for Nonmetric Multidimen
 </div>
 <div id="ref-guttman_69" class="csl-entry">
 Guttman, L. 1969. <span>“<span class="nocase">Smallest Space Analysis by the Absolute Value Principle</span>.”</span> In <em><span class="nocase">Proceedings of the XIX International Congress of Psychology, London</span></em>.
+</div>
+<div id="ref-hartmann_79" class="csl-entry">
+Hartmann, W. 1979. <em><span class="nocase">Geometrische Modelle zur Analyse empirischer Data</span></em>. Akademie Verlag.
 </div>
 <div id="ref-johnson_73" class="csl-entry">
 Johnson, R. M. 1973. <span>“<span>Pairwise Nonmetrc Multidimensional Scaling</span>.”</span> <em>Psychometrika</em> 38 (12–18).

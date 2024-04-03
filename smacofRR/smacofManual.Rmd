@@ -9,21 +9,21 @@ output:
   bookdown::pdf_document2:
     latex_engine: lualatex
     includes:
-      in_header: preamble.tex
+      in_header: ../preamble.tex
     keep_tex: yes
     toc: true
     toc_depth: 4
     number_sections: yes
   bookdown::html_document2:
     keep_md: yes
-    css: preamble.css
+    css: ../preamble.css
     toc: true
     toc_depth: 4
     number_sections: yes
 graphics: yes
 mainfont: Times New Roman
 fontsize: 12pt
-bibliography: ["mypubs.bib","total.bib"]
+bibliography: ["../mypubs.bib","../total.bib"]
 abstract: TBD
 editor_options: 
   markdown: 
