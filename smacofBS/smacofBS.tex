@@ -144,6 +144,7 @@
 \usepackage{yfonts}
 \usepackage{bm}
 \usepackage{titlesec}
+\usepackage{kbordermatrix}
 
 
 \newtcolorbox{greybox}{
@@ -195,7 +196,7 @@
 \title{Smacof at 50: A Manual\\
 Part 1: Smacof with B-Splines}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started February 21 2024, Version of April 02, 2024}
+\date{Started February 21 2024, Version of April 03, 2024}
 
 \begin{document}
 \maketitle
@@ -918,7 +919,7 @@ The first three iterations are shown in the figure below. The vertical
 lines indicate the value of \(x\), function is in red, and the first three
 majorizations are in blue.
 
-\begin{center}\includegraphics{smacofManual_files/figure-latex/majplot-1} \end{center}
+\begin{center}\includegraphics{smacofBS_files/figure-latex/majplot-1} \end{center}
 
 \subsubsection{Majorizing Stress}\label{majorizing-stress}
 
@@ -1105,9 +1106,9 @@ Our best solution so far is \(\beta^{(k)}\geq 0\). Minimize
 
 \subsubsection{Front-end}\label{front-end}
 
-The front-end for both smacofRR and smacofRC is written in R. The
+The front-end for both smacofBS and smacofRC is written in R. The
 analysis is started in the user's working directory by the command
-smacofRR(foo) or smacofRC(foo), where foo is a user-chosen name (without
+smacofBS(foo) or smacofRC(foo), where foo is a user-chosen name (without
 quotes).
 
 Two text files need to be present in the working directory. The first is
@@ -1235,7 +1236,7 @@ ALS First Phase Second Phase
 \subsubsection{Back-end}\label{back-end}
 
 The back-end consists of a number of R functions that have the list
-returned by smacofRR or smacofRC as an argument. They can be used to
+returned by smacofBS or smacofRC as an argument. They can be used to
 make plots, compute derivatives, convert matrices to an easily
 printable format, do sensitivity analysis, and so on. The philosophy
 is that in the backend the main computing is finished and we
@@ -1275,7 +1276,7 @@ can set some base R plot parameters such as col, cex, lwd, and pch
 
 The smacofConfigurationPlot() function is much simpler than
 smacofShepardPlot(). It sets pch, col, and cex. It uses
-the smacofRR/RC labels parameter to decide how to label
+the smacofBS/RC labels parameter to decide how to label
 the points in the configuration. If labels = 1 it reads
 a character vector of labels from fooLabels.txt, where
 foo is of course the name of the run. If labels = 2
@@ -1421,7 +1422,16 @@ itel
 
 \begin{figure}
 
-{\centering \includegraphics{smacofManual_files/figure-latex/ekmancubic-1} 
+{\centering \includegraphics{smacofBS_files/figure-latex/ekmanmetric-1} 
+
+}
+
+\caption{Ekman example, metric}\label{fig:ekmanmetric}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofBS_files/figure-latex/ekmancubic-1} 
 
 }
 
@@ -1430,11 +1440,11 @@ itel
 
 \begin{figure}
 
-{\centering \includegraphics{smacofManual_files/figure-latex/ekmanordinal-1} 
+{\centering \includegraphics{smacofBS_files/figure-latex/ekmanordinal-1} 
 
 }
 
-\caption{Ekman example, nonmetric analysis}\label{fig:ekmanordinal}
+\caption{Ekman example, pseudo-nonmetric analysis}\label{fig:ekmanordinal}
 \end{figure}
 
 \section*{References}\label{references}

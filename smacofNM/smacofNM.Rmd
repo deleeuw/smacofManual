@@ -6,17 +6,17 @@ author:
 - Jan de Leeuw - University of California Los Angeles
 date: '`r paste("Started March 30 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
 output:
-  bookdown::html_document2:
-    keep_md: yes
-    css: preamble.css
-    toc: true
-    toc_depth: 4
-    number_sections: yes
   bookdown::pdf_document2:
     latex_engine: lualatex
     includes:
       in_header: preamble.tex
     keep_tex: yes
+    toc: true
+    toc_depth: 4
+    number_sections: yes
+  bookdown::html_document2:
+    keep_md: yes
+    css: preamble.css
     toc: true
     toc_depth: 4
     number_sections: yes
@@ -33,7 +33,6 @@ editor_options:
 ```{r loadpackages, echo = FALSE}
 suppressPackageStartupMessages(library(knitr, quietly = TRUE))
 suppressPackageStartupMessages(library(tinytex, quietly = TRUE))
-suppressPackageStartupMessages(library(smacofRR, quietly = TRUE))
 ```
 
 **Note:** This is a working manuscript which will be expanded/updated

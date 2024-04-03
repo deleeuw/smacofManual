@@ -4,7 +4,7 @@ title: |
     | Part 2: Non-metric Smacof
 author: 
 - Jan de Leeuw - University of California Los Angeles
-date: 'Started March 30 2024, Version of April 02, 2024'
+date: 'Started March 30 2024, Version of April 03, 2024'
 output:
   bookdown::html_document2:
     keep_md: yes
@@ -57,7 +57,7 @@ Minimize of $X$ for given $\delta_{ijr}$.
 $$
 \sigma_R(X,\delta_1,\cdots,\delta_s)=\sum_{r=1}^s\omega_r\sum_{i,j} w_{ijr}\delta_{ijr}^2-2\sum_{r=1}^s\omega_r\sum_{i,j} w_{ijr}\delta_{ijr}d_{ij}(X)+\sum_{r=1}^s\omega_r\sum_{i,j} w_{ijr}d_{ij}^2(X))
 $$
-Nor use
+Nor use the basic smacof inequality
 $$
 d_{ij}(X)\geq\frac{1}{d_{ij}(Y)}\text{tr}\ X'A_{ij}Y 
 $$
@@ -150,7 +150,8 @@ $(i,j)<(i,k)<(j,k)$
 # Richardson -- 
 each triple presented three times, with a different hub each time
 which one of the two is maximally similar to the hub stimulus. Thus the data
-is the single inequality $(i,k) < (j,k)$
+is the single inequality $(i,k) < (j,k)$. Coombs calls this the ...
+
 
 # Conditional rank Orders -- Klingberg
 

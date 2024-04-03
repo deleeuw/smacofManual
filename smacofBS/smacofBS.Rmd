@@ -1,22 +1,22 @@
 ---
 title: |
-    | Smacof at 50
-    | A Manual
+    | Smacof at 50: A Manual
+    | Part 1: Smacof with B-Splines
 author: 
 - Jan de Leeuw - University of California Los Angeles
-date: 'Started February 21 2024, Version of March 27, 2024'
+date: '`r paste("Started February 21 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
 output:
-  bookdown::html_document2:
-    keep_md: yes
-    css: preamble.css
-    toc: true
-    toc_depth: 4
-    number_sections: yes
   bookdown::pdf_document2:
     latex_engine: lualatex
     includes:
       in_header: preamble.tex
     keep_tex: yes
+    toc: true
+    toc_depth: 4
+    number_sections: yes
+  bookdown::html_document2:
+    keep_md: yes
+    css: preamble.css
     toc: true
     toc_depth: 4
     number_sections: yes
@@ -30,11 +30,15 @@ editor_options:
     wrap: 72
 ---
 
+```{r loadpackages, echo = FALSE}
+suppressPackageStartupMessages(library(splines, quietly = TRUE))
+suppressPackageStartupMessages(library(splines2, quietly = TRUE))
+suppressPackageStartupMessages(library(knitr, quietly = TRUE))
+suppressPackageStartupMessages(library(tinytex, quietly = TRUE))
+suppressPackageStartupMessages(library(smacofBS, quietly = TRUE))
+```
 
-
-
-
-**Note:** This is a working paper which will be expanded/updated
+**Note:** This is a working manuscript which will be expanded/updated
 frequently. All suggestions for improvement are welcome. All Rmd, tex,
 html, pdf, R, and C files are in the public domain. Attribution will be
 appreciated, but is not required. The files can be found at
@@ -65,15 +69,20 @@ in which some dissimilarities are known numbers while others are
 unknown. MDS with missing data is a form of *distance matrix completion*
 (@fang_oleary_12).
 
-## Kruskal's Stress
+# Krukal's Stress
 
 In the pioneering papers @kruskal_64a and @kruskal_64b the MDS problem
 was formulated for the first time as minimization of an explicit loss
 function, which measures the quality of the approximation of the
-dissimilarities by the distances. The loss function in least squares
+dissimilarities by the distances. 
+
+## Metric MDS
+
+The loss function in least squares
 metric Euclidean MDS is called *raw stress* or *Kruskal's raw stress*
-and is defined as \begin{equation}
-\sigma(X):=\frac12\sum w_{ij}(\delta_{ij}-d_{ij}(X))^2.
+and is defined as 
+\begin{equation}
+\sigma_R(X):=\frac12\sum w_{ij}(\delta_{ij}-d_{ij}(X))^2.
 (\#eq:stressdef)
 \end{equation}
 
@@ -83,7 +92,8 @@ $\delta_{ij}$ are the known non-negative *dissimilarities* between
 objects $o_i$ and $o_j$, and the $d_{ij}(X)$ are the *distances* between
 the corresponding points $x_i$ and $x_j$. The summation is over all
 $\binom{n}{2}$ pairs $(i,j)$ with $j>i$, i.e. over elements below the
-diagonal of the matrices $W$ and $\Delta$. From now on we use "metric
+diagonal of the matrices $W$ and $\Delta$. The subscript $R$ in $\sigma_R$
+stands for "raw". From now on we use "metric
 MDS" to mean Least Squares Metric Euclidean MDS.
 
 The $n\times p$ matrix $X$, which has the coordinates $x_i$ of the $n$
@@ -101,9 +111,7 @@ precision or importance of the corresponding dissimilarities. Some of
 the weights may be zero, which can be used to code *missing data*. If
 all weights are positive we have *complete data*. If we have complete
 data, and all weights are equal to one, we have *unweighted* metric MDS.
-Weights were only introduced in MDS in @deleeuw_C_77, the pioneering
-papers by Shepard, Kruskal, and Guttman only consider the unweighted
-case.
+The pioneering papers by Shepard, Kruskal, and Guttman only consider the unweighted case. Weights were only introduced in MDS in @deleeuw_C_77. 
 
 We assume throughout that the weights are *irreducible* (@deleeuw_C_77).
 This means there is no partitioning of the index set
@@ -119,6 +127,8 @@ well (they are assumed to be equal to the corresponding elements below
 the diagonal). The somewhat mysterious factor $\frac12$ in definition
 \@ref(eq:stressdef) is there because it simplifies some of the formulas
 in later sections of this paper.
+
+## Non-metric MDS
 
 Kruskal was not really interested in metric MDS and the "raw" loss
 function \@ref(eq:stressdef). His papers are really about non-metric
@@ -136,78 +146,87 @@ transformations). If the dissimilarities are non-numerical, for example
 rank orders or partitionings, we choose from the set of admissible
 *quantifications*.
 
-In non-metric MDS the loss function becomes \begin{equation}
-\sigma(X,\hat D):=\frac12\sum w_{ij}(\hat d_{ij}-d_{ij}(X))^2,
+In non-metric MDS raw stress becomes 
+\begin{equation}
+\sigma_R(X,\Delta):=\frac12\sum w_{ij}(\delta_{ij}-d_{ij}(X))^2,
 (\#eq:rawstressdef)
-\end{equation} where $\hat D$ are now the quantified or transformed
+\end{equation} 
+where $\Delta$ varies over the quantified or transformed
 dissimilarities. In MDS parlance they are also called *pseudo-distances*
 or *disparities*. Loss function \@ref(eq:rawstressdef) must be minimized
 over both configurations and disparities, with the condition that the
-disparities $\hat D$ are an admissible transformation of the
-dissimilarities $\Delta$. In Kruskal's non-metric MDS this means
+disparities $\Delta$ are an admissible transformation or quantification
+of the data. In Kruskal's non-metric MDS this means
 requiring monotonicity. In this paper we will consider various other
 choices for the set of admissible transformations. We will use the
 symbol $\mathfrak{D}$ for the set of admissible transformations
 
-The most familiar sets of admissible transformations (linear,
-polynomial, monotone) define convex cones with apex at the origin. This
-means that if $\hat D\in\mathfrak{D}$ then so is $\lambda\hat D$ for all
+The most familiar examples of  $\mathfrak{D}$ (linear,
+polynomial, splines, monotone) define convex cones with apex at the origin. This
+means that if $\Delta\in\mathfrak{D}$ then so is $\lambda\Delta$ for all
 $\lambda\geq 0$. But consequently minimizing \@ref(eq:rawstressdef) over
-all $\hat D\in\mathfrak{D}$ and over all configurations has the trivial
-solution $\hat D=0$ and $X=0$, corresponding with the global minimum
-$\sigma(X,\hat D)=0$. We need additional constraints to rule out this
+all $\Delta\in\mathfrak{D}$ and over all configurations has the trivial
+solution $\Delta=0$ and $X=0$, corresponding with the global minimum
+$\sigma(X,\Delta)=0$. We need additional constraints to rule out this
 trivial solution, and in non-metric MDS this is done by choosing a
 *normalization* that keeps the solution away from zero.
 
-Kruskal's solution is to normalize the raw stress by defining
+Kruskal's original solution is to define *normalized stress* as
 \begin{equation}
-\sigma(X,\Delta):=\frac{\sum w_{ij}(\hat d_{ij}-d_{ij}(X))^2}{\sum w_{ij}d_{ij}^2(X)}.
+\sigma(X,\Delta):=\frac{\sum w_{ij}(\delta_{ij}-d_{ij}(X))^2}{\sum w_{ij}d_{ij}^2(X)}.
 (\#eq:nstressdef)
-\end{equation} In fact in Kruskal's formulation there are no weights,
+\end{equation} 
+To be precise, in Kruskal's formulation there are no weights,
 and he actually takes the square root of \@ref(eq:nstressdef) to define
-*Kruskal's stress*. The non-metric Euclidean MDS problem is to minimize
+*Kruskal's stress*. The non-metric Euclidean MDS problem now is to minimize
 loss function \@ref(eq:nstressdef) over all $n\times p$ configurations
 $X$ and all admissible disparities $\Delta$.
 
 ## Normalization
 
-Normalization in non-metric MDS has been discussed in detail in
+Equation \@ref(eq:nstressdef) is only one way to normalize raw stress. Some obvious alternatives are discussed in detail in
 @kruskal_carroll_69 and @deleeuw_U_75a. In the terminology of
 @deleeuw_U_75a there are *explicit* and *implicit* normalizations.
 
-In implicit normalization we minimize either \begin{equation}
+In implicit normalization we minimize either 
+\begin{equation}
 \sigma(X,\hat D):=\frac{\sum  w_{ij}(\hat d_{ij} -d_{ij}(X))^2}{\sum   w_{ij}^{\ }\hat d_{ij}^2}
 (\#eq:implicit1)
-\end{equation} or \begin{equation}
+\end{equation} 
+or 
+\begin{equation}
 \sigma(X,\hat D):=\frac{\sum   w_{ij}(\hat d_{ij}-d_{ij}(X))^2}{\sum   w_{ij}^{\ }d_{ij}^2(X) }
 (\#eq:implicit2)
-\end{equation} @kruskal_64a chooses definition \@ref(eq:implicit2) and
-calls the explicitly normalized loss function *normalized stress*. In
-fact, he takes the square root, which does not change the minimization
-problem, and only considers the unweighted case. Note that we overload
-the symbol $\sigma$ to denote any one of the least squares loss
+\end{equation} 
+over $X$ and $\Delta\in\mathfrak{D}$.
+
+As we have seen, @kruskal_64a chooses definition \@ref(eq:implicit2) and
+calls the explicitly normalized loss function *normalized stress*. Note that we overload the symbol $\sigma$ to denote any one of the least squares loss
 functions. It will always be clear from the text which $\sigma$ we are
 talking about.
 
-In explicit normalization we minimize the raw stress $\sigma(X,\hat D)$
-from \@ref(eq:rawstressdef), but we add the constraint \begin{equation}
+In explicit normalization we minimize the raw stress $\sigma_R(X,\hat D)$
+from \@ref(eq:rawstressdef), but we add the explicit constraint 
+\begin{equation}
 \sum   w_{ij}^{\ }d_{ij}^2(X)=1,
 (\#eq:explicit1)
-\end{equation} or the constraint \begin{equation}
+\end{equation} 
+or the constraint 
+\begin{equation}
 \sum   w_{ij}^{\ }\hat d_{ij}^2=1.
 (\#eq:explicit2)
-\end{equation} @kruskal_carroll_69 and @deleeuw_E_19d show that these
+\end{equation} 
+@kruskal_carroll_69 and @deleeuw_E_19d show that these
 four normalizations all lead to essentially the same solution for $X$
-and $\hat D$, up to scale factors dictated by the choice of
+and $\hat D$, up to scale factors dictated by the choice of the particular
 normalization. It is also possible to normalize both $X$ and $\hat D$,
 either explicitly or implicitly, and again this will give the same
 solutions, suitably normalized. These invariance results assume the
 admissible transformations form a closed cone with apex at the origin,
 i.e. if $\hat D$ is admissible and $\lambda\geq 0$ then $\lambda\hat D$
 is admissible as well. The matrices of Euclidean distances $D(X)$ form a
-similar closed cone as well. The LSNE-MDS problem is to find an element
-of the $\hat D$ cone and an element of the $D(X)$ cone where the angle
-between the two is a small as possible.
+similar closed cone as well. The non-metric MDS problem is to find an element
+of the $\hat D$ cone $\mathcal{D}$ and an element of the $D(X)$ cone where the angle between the two is a small as possible.
 
 In the R version of smacof (@deleeuw_mair_A_09c,
 @mair_groenen_deleeuw_A_22) we use explicit normalization
@@ -217,12 +236,9 @@ disparities and the sphere defined by \@ref(eq:explicit2) is equivalent
 to first projecting on the cone and then normalizing the projection (see
 also @bauschke_bui_wang_18).
 
-In our version of non-metric MDS we need more flexibility. For
-algorithmic reasons that will become clear later on, we will go with the
-other explicit normalization \@ref(eq:explicit1) and minimize $\sigma$
-from \@ref(eq:rawstressdef) over normalized $X$ and unnormalized
-$\hat D$. For the final results the choice between \@ref(eq:explicit1)
-and \@ref(eq:explicit2) should not make a difference.
+In the version of non-metric MDS discussed in this manualwe need more flexibility. For algorithmic reasons that may become clear later on, we will go with the original \@ref(eq:nstressdef), i.e. with the implicitly normalized
+Kruskal's stress. For the final results the choice between normalizations should not make a difference, but the iterative computations will be different for the
+diufferent choices.
 
 ## Some thoughts on ALS
 
@@ -231,41 +247,54 @@ confusions that have haunted the early development of non-metric MDS.
 
 ### The Single-Phase approach
 
-In @kruskal_64a defines \begin{equation}
+In @kruskal_64a defines 
+\begin{equation}
 \sigma(X):=\min_{\hat D\in\mathfrak{D}}\ \sigma(\hat D,X)=\sigma(X,\hat D(X)),
 (\#eq:project)
-\end{equation} where $\sigma(\hat D,X)$ is defined by
-\@ref(eq:implicit2). where the minimum is over admissible
-transformations. In definition \@ref(eq:project) \begin{equation}
+\end{equation} 
+where $\sigma(\hat D,X)$ is defined by
+\@ref(eq:implicit2). The minimum in \@ref(eq:project) is over admissible
+transformations. In definition \@ref(eq:project) 
+\begin{equation}
 \hat D(X):=\mathop{\text{argmin}}_{\hat D\in\mathfrak{D}}\sigma(X, \hat D).
 (\#eq:optscal)
-\end{equation} Normalized stress defined by \@ref(eq:project) is now a
+\end{equation} 
+Normalized stress defined by \@ref(eq:project) is now a
 function of $X$ only. Under some conditions, which are true in Kruskal's
-definition of non-metric MDS, \begin{equation}
+definition of non-metric MDS, there is a simple relation between the 
+partials of \@ref(eq:implicit2) and those of \@ref(eq:project). 
+\begin{equation}
 \mathcal{D}\sigma(X)=\mathcal{D}_1\sigma(X,\hat D(X)),
 (\#eq:partials)
-\end{equation} where $\mathcal{D}\sigma(X)$ are the derivatives of
+\end{equation} 
+where $\mathcal{D}\sigma(X)$ are the derivatives of
 $\sigma$ from \@ref(eq:project) and $\mathcal{D}_1\sigma(X,\hat D(X))$
 are the partial derivatives of $\sigma$ from \@ref(eq:implicit2) with
 respect to $X$. Thus the partials of $\sigma$ from \@ref(eq:project) can
 be computed by evaluating the partials of $\sigma$ from
 \@ref(eq:implicit2) with respect to $X$ at $(X,\hat D(X))$. This has
-created much confusion in the past. The non-metric MDS problem is now to
+created much confusion in the past. The non-metric MDS problem in Kruskal's original formulation is now to
 minimize $\sigma$ from \@ref(eq:project), which is a function of $X$
 alone.
 
 @guttman_68 calls this the *single-phase approach*. A variation of
-Kruskal's single-phase approach defines $$
-\sigma(X)=\sum   w_{ij}(d_{ij}^\#(X)-d_{ij}(X))^2
-$$ where the $d_{ij}^\#(X)$ are *Guttman's rank images*, i.e. the
+Kruskal's single-phase approach defines 
+\begin{equation}
+\sigma(X)=\sum w_{ij}(d_{ij}^\#(X)-d_{ij}(X))^2,
+(\#eq:rankimage)
+\end{equation}
+where the $d_{ij}^\#(X)$ are *Guttman's rank images*, i.e. the
 permutation of the $d_{ij}(X)$ that makes them monotone with the
-$\delta_{ij}$ (@guttman_68). Or, alternatively, define $$
-\sigma(X):=\sum   w_{ij}(d_{ij}^\%(X)-d_{ij}(X))^2
-$$ where the $\hat d_{ij}^\%(X)$ are *Shepard's rank images*, i.e. the
+$\delta_{ij}$ (@guttman_68). Or, alternatively, define
+\begin{equation}
+\sigma(X):=\sum   w_{ij}(d_{ij}^\%(X)-d_{ij}(X))^2,
+(\#eq:shepard)
+\end{equation}
+where the $\hat d_{ij}^\%(X)$ are *Shepard's rank images*, i.e. the
 permutation of the $\delta_{ij}$ that makes them monotone with the
 $d_{ij}(X)$ (@shepard_62a, @shepard_62b, @deleeuw_E_17e).
 
-Minimizing the Shepard and Guttman single-phase loss functions is
+Minimizing the Shepard or Guttman single-phase loss functions is
 computationally more complicated than Kruskal's *monotone regression*
 approach, mostly because the rank-image transformations are not
 differentiable, and there is no analog of \@ref(eq:partials) and of the
@@ -398,6 +427,61 @@ $$ Also note that in the unweighted case with complete data $V=nJ$,
 where $J$ is the centering matrix $I-\frac{1}{n}ee'$, and thus
 $V^+=\frac{1}{n}J$. The Guttman transform is then simply
 $G(X)=n^{-1}B(X)X$.
+
+# Intermezzo: Explicit Normalization
+
+$$
+\sigma(X,\hat D)=\frac12\frac{\sum w_{ij}(\hat d_{ij}-d_{ij}(X))^2}{\sum w_{ij}d_{ij}^2(X)}
+$$
+Majorize
+
+$$
+\sigma(X,\hat D)\leq\frac12\frac{\eta^2(\hat D)-2\text{tr}\ X'V\overline{Y}+\text{tr}\ X'VX}{\text{tr}\ X'VX}=\frac{\omega(X,Y)}{\eta^2(X)}
+$$
+Stationary equations
+$$
+\eta^2(X)(VX-VG(Y))-\omega(X,Y)VX=V\{(\eta^2(X)-\omega(X,Y))X-\eta^2(X)\overline Y\}
+$$
+So at a minimum $X$ is proportional to $\overline{Y}$ or $X=\alpha\overline{Y}$ for some $\alpha$. For ... to be zero we must have
+$$
+\alpha(\alpha^2\eta^2(\overline Y)-(\eta^2(\hat D)-2\alpha\eta^2(\overline Y)+\alpha^2\eta^2(\overline Y))=\alpha^2\eta^2(\overline Y)
+$$
+which works out to be
+$$
+\alpha=\frac{\eta^2(\hat D)}{\eta^2(\overline Y)}
+$$
+$$
+\hat X=\frac{\eta^2(\hat D)}{\eta^2(\overline Y)}\ \overline{Y}
+$$
+The minimum is equal to
+
+$$
+\frac{-\frac{(\eta^2(\overline Y))^2}{\eta^2(\hat D)}+\eta^2(\overline Y)}{\eta^2(\overline Y)}=1-\frac{\eta^2(\overline Y)}{\eta^2(\hat D)}
+$$
+Use homogeneity of the Guttman transform.
+
+More generally suppose we update with 
+$$
+X=\overline Y+\alpha(Y-\overline Y)
+$$ 
+Write
+$$
+\omega(X,Y)=\eta^2(\hat D)+\text{tr}\ (X-\overline Y)'V(X-\overline Y)-\eta^2(\overline Y)
+$$
+Thus if $X(\alpha)=\overline Y+\alpha(Y-\overline Y)$ we have
+$$
+\omega(\alpha)=\eta^2(\hat D)+\alpha^2\text{tr}\ (Y-\overline Y)'V(Y-\overline Y)-\eta^2(\overline Y)
+$$
+and 
+$$
+\eta^2(\alpha)=\eta^2(\overline Y)+2\alpha\text{tr}\ (Y-\overline Y)'V\overline Y+\alpha^2\text{tr}\ (Y-\overline Y)'V(Y-\overline Y)
+$$
+$$
+\omega(Y,Y)=\eta^2(\hat D)+\text{tr}\ (Y-\overline Y)'V(Y-\overline Y)-\eta^2(\overline Y)
+$$
+$$
+\frac{\omega(\alpha)}{\eta^2(\alpha)}\leq\sigma(Y)
+$$
 
 # Properties of Smacof Loss
 
@@ -644,30 +728,44 @@ minimizer (i.e. from 4), the second shows how far$\sigma(x^{(k)})$
 deviates from the minimum (i.e. from $2-\log 4$). We clearly see the
 convergence rates $\frac12$ and $\frac14$ in action.
 
-
-```
-## itel   1 2.5000000000 0.2055741244 
-## itel   2 1.5505102572 0.0554992066 
-## itel   3 0.8698308399 0.0144357214 
-## itel   4 0.4615431837 0.0036822877 
-## itel   5 0.2378427379 0.0009299530 
-## itel   6 0.1207437506 0.0002336744 
-## itel   7 0.0608344795 0.0000585677 
-## itel   8 0.0305337787 0.0000146606 
-## itel   9 0.0152961358 0.0000036675 
-## itel  10 0.0076553935 0.0000009172 
-## itel  11 0.0038295299 0.0000002293 
-## itel  12 0.0019152235 0.0000000573 
-## itel  13 0.0009577264 0.0000000143 
-## itel  14 0.0004788919 0.0000000036 
-## itel  15 0.0002394531 0.0000000009
+```{r majiter, echo = FALSE}
+x <- 1.5
+f <- sqrt(x) - log(x)
+f0 <- 2 - log(4)
+for (i in  1:15) {
+  cat("itel ", formatC(i, digits = 0, width = 2, format = "d"),
+      formatC(4 - x, digits = 10, format = "f"),
+      formatC(f - f0, digits = 10, format = "f"),
+      "\n")
+  x <- 2 * sqrt(x)
+  f <- sqrt(x) - log(x)
+}
 ```
 
 The first three iterations are shown in the figure below. The vertical
 lines indicate the value of $x$, function is in red, and the first three
 majorizations are in blue.
 
-<img src="smacofManual_files/figure-html/majplot-1.png" style="display: block; margin: auto;" />
+```{r majplot, fig.align = "center", echo = FALSE, cache = TRUE}
+x <- 100:500/100
+y <- sqrt(x) - log(x)
+plot(x, y, type = "l", lwd = 3, col = "RED")
+g <- function(x, y) {
+return(sqrt(y)+ (x - y) / (2 * sqrt(y)) - log(x))
+}
+x1 <- 1.5
+abline(v = x1)
+z1 <- g(x, x1)
+lines(x, z1, col = "BLUE")
+x2 <- 2 * sqrt(x1)
+abline(v = x2)
+z2 <- g(x, x2)
+lines(x, z2, col = "BLUE")
+x3 <- 2 * sqrt(x2)
+abline(v = x3)
+z3 <- g(x, x3)
+lines(x, z3, col = "BLUE")
+```
 
 ### Majorizing Stress
 
@@ -694,16 +792,10 @@ of the same degree) comes from the number and placement of the interior knots, n
 ### Berstein PolynomiaLS
 
 
-
-Table: (\#tab:bsplinekable)B spline parameters
-
-| degree | order | ninner | nknots | span |
-|:------:|:-----:|:------:|:------:|:----:|
-|   0    |   1   |   4    |   6    |  5   |
-|   1    |   2   |   4    |   8    |  6   |
-|   2    |   3   |   4    |   10   |  7   |
-|   3    |   4   |   4    |   12   |  8   |
-|   4    |   5   |   4    |   14   |  9   |
+```{r bsplinekable, echo = FALSE}
+x <- matrix(c(0:4, 1:5, rep(4,5), c(6, 8, 10, 12, 14), 5:9), 5, 5)
+kable(x, format = "pipe", digits = 0, col.names = c("degree", "order", "ninner", "nknots", "span"), align = 'c', caption = "B spline parameters")
+```
 
 $$
 \sum_i B_{i,k}(x)=1
@@ -734,6 +826,8 @@ Integral, I-splines
 ### Ordinal MDS
 
 ### Interval and Ratio MDS
+
+Additive constant
 
 ### Cyclic Coordinate Decent
 
@@ -845,9 +939,9 @@ $$
 
 ### Front-end
 
-The front-end for both smacofRR and smacofRC is written in R. The
+The front-end for both smacofBS and smacofRC is written in R. The
 analysis is started in the user's working directory by the command
-smacofRR(foo) or smacofRC(foo), where foo is a user-chosen name (without
+smacofBS(foo) or smacofRC(foo), where foo is a user-chosen name (without
 quotes).
 
 Two text files need to be present in the working directory. The first is
@@ -857,8 +951,7 @@ below the diagonal in row-major order.
 
 The parameter file has key-value format. Here is an example.
 
-
-```r
+```{r parfile, eval = FALSE}
 nobj   9
 ndim   3
 init   2
@@ -974,7 +1067,7 @@ ALS First Phase Second Phase
 ### Back-end
 
 The back-end consists of a number of R functions that have the list
-returned by smacofRR or smacofRC as an argument. They can be used to 
+returned by smacofBS or smacofRC as an argument. They can be used to 
 make plots, compute derivatives, convert matrices to an easily
 printable format, do sensitivity analysis, and so on. The philosophy
 is that in the backend the main computing is finished and we
@@ -1014,7 +1107,7 @@ can set some base R plot parameters such as col, cex, lwd, and pch
 
 The smacofConfigurationPlot() function is much simpler than
 smacofShepardPlot(). It sets pch, col, and cex. It uses
-the smacofRR/RC labels parameter to decide how to label
+the smacofBS/RC labels parameter to decide how to label
 the points in the configuration. If labels = 1 it reads
 a character vector of labels from fooLabels.txt, where
 foo is of course the name of the run. If labels = 2
@@ -1044,13 +1137,16 @@ Jacknife
 ## ekman
 
 The @ekman_54 color circle example has been used in many, if not most, multidimensional scaling textbooks and review articles. This is due, no doubt,
-to its astonishing good fit and its easy interpretability.
+to its astonishing good two-dimensional fit and its easy interpretability.
 
-Four analyses this time, all monotone through the origin. In  this case, because
-the minimum dissimilarity is zero anyway, the origin parameter has almost no
-effect.
-
-
+```{r ekmanresults, echo = FALSE, cache = TRUE}
+source("../../smacofExamples/ekman/ekmanMetric.R")
+source("../../smacofExamples/ekman/ekman3Metric.R")
+source("../../smacofExamples/ekman/ekman030.R")
+source("../../smacofExamples/ekman/ekman533.R")
+source("../../smacofExamples/ekman/ekman5002.R")
+source("../../smacofExamples/ekman/ekman5003.R")
+```
 
 :::: {.greybox data-latex=""}
 ::: {.center data-latex=""}
@@ -1080,49 +1176,58 @@ averaged over 100 students. Averaging over a heterogeneous population
 will cause regression to the mean, and thus dissimilarities will tend
 to be more equal than they should be on the basis of the individual 
 results. This means there should be a large difference in fit between
-"ratio" and "interval" (i.e. between the interval parameter equal to
-one or zero).
+the "ratio" and the "interval" options
+(i.e. between the interval parameter equal to one or zero).
 
-
-
-:::: {.greybox data-latex=""}
-::: {.center data-latex=""}
-**INSERT TABLE \@ref(tab:gruijterkable) ABOUT HERE**
-:::
-::::
 
 ## morse
 
-
+```{r morseresults, echo = FALSE, cache = TRUE, eval = FALSE}
+source("results/morseResults.R")
+```
 
 # Tables
 
 
-
-Table: (\#tab:ekmankable)Analyses of the ekman example
-
-| ninner | degree | haveknots | ordinal | intercept | anchor | ndim |    stress    | itel |
-|:------:|:------:|:---------:|:-------:|:---------:|:------:|:----:|:------------:|:----:|
-|   0    |   3    |     0     |    1    |     0     |   1    |  2   | 0.0021309760 |  39  |
-|   5    |   3    |     3     |    1    |     0     |   1    |  2   | 0.0008780736 | 1260 |
-|   50   |   0    |     3     |    1    |     0     |   1    |  2   | 0.0005138551 | 877  |
-|   50   |   0    |     2     |    1    |     0     |   1    |  2   | 0.0010662271 | 492  |
+```{r ekmankable, echo = FALSE, cache = TRUE}
+x <- matrix(c(
+0, 3, 0, 1, 0, 1, 2, ekman030$snew, ekman030$itel,
+5, 3, 3, 1, 0, 1, 2, ekman533$snew, ekman533$itel,
+50, 0, 3, 1, 0, 1, 2, ekman5003$snew, ekman5003$itel, 
+50, 0, 2, 1, 0, 1, 2, ekman5002$snew, ekman5002$itel), 4, 9, byrow = TRUE)
+knitr::kable(x, format = "pipe", digits = 10, col.names = c("ninner", "degree", "haveknots", "ordinal", "intercept", "anchor", "ndim", "stress", "itel"), align = 'c',
+caption = "Analyses of the ekman example")
+```
 ******
-
+```{r gruijterkable, echo = FALSE, cache = TRUE, eval = FALSE}
+x <- matrix(c(
+0, 1, 0, 1, 0, 1, 2, gruijter0100$snew, gruijter0100$itel,
+0, 1, 0, 1, 1, 1, 2, gruijter0101$snew, gruijter0101$itel,
+5, 3, 3, 1, 0, 1, 2, gruijter5332$snew, gruijter5332$itel, 
+5, 3, 3, 1, 0, 1, 3, gruijter5333$snew, gruijter5333$itel), 4, 9, byrow = TRUE)
+knitr::kable(x, format = "pipe", digits = 10, col.names = c("ninner", "degree", "haveknots", "ordinal", "intercept", "anchor", "ndim", "stress", "itel"), align = 'c', caption = "Analyses of the gruijter example")
+```
 ******
 
 # Figures
 
+```{r ekmanmetric, fig.align = "center", fig.cap = "Ekman example, metric", echo = FALSE}
+par(pty = "s", mfrow = c(1, 2))
+smacofShepardPlot(ekmanMetric, main = "Metric Analysis (1-s)", fitlines = TRUE)
+smacofShepardPlot(ekman3Metric, main = "Metric Analysis (1-s)^3", fitlines = TRUE)
+```
 
-<div class="figure" style="text-align: center">
-<img src="smacofManual_files/figure-html/ekmancubic-1.png" alt="Ekman example, cubic analysis"  />
-<p class="caption">(\#fig:ekmancubic)Ekman example, cubic analysis</p>
-</div>
+```{r ekmancubic, fig.align = "center", fig.cap = "Ekman example, cubic analysis", echo = FALSE}
+par(mfrow = c(1, 2))
+smacofShepardPlot(ekman030, main = "Cubic Polynomial", fitlines = TRUE)
+smacofShepardPlot(ekman533, main = "Cubic Spline", fitlines = TRUE, knotlines = TRUE)
+```
 
-<div class="figure" style="text-align: center">
-<img src="smacofManual_files/figure-html/ekmanordinal-1.png" alt="Ekman example, nonmetric analysis"  />
-<p class="caption">(\#fig:ekmanordinal)Ekman example, nonmetric analysis</p>
-</div>
+```{r ekmanordinal, fig.align = "center", fig.cap = "Ekman example, pseudo-nonmetric analysis", echo = FALSE}
+par(mfrow = c(1,2))
+smacofShepardPlot(ekman5003, main = "Equal Percentile Intervals", knotlines = TRUE)
+smacofShepardPlot(ekman5002, main = "Equal Delta Intervals", knotlines = TRUE)
+```
 
 
 # References
