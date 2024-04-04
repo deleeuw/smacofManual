@@ -604,7 +604,7 @@ bozo
 
 ### Introduction to Majorization
 
-Majorization, more recently better known as MM (@lange_16), is a general
+Majorization, these days better known as MM (@lange_16), is a general
 approach for the construction of minimization algorithms. There is also
 minorization, which leads to maximization algorithms, which explains the
 MM acronym: minorization for maximization and majorization for
@@ -646,14 +646,18 @@ x^{(k+1)}\in\mathop{\text{argmin}}_{x\in\mathbb{S}}\eta(x,x^{(k)}),
 (\#eq:majalg)
 \end{equation} assuming that $\eta(\bullet,y)$ attains its (not
 necessarily unique) minimum over $x\in\mathbb{S}$ for each $y$. If
-$x^{(k)}\in\mathop{\text{argmin}}_{x\in\mathbb{S}}\eta(x,x^{(k)})$ we
-stop.
+$x^{(k)}\in\mathop{\text{argmin}}_{x\in\mathbb{S}}\eta(x,x^{(k)})$ 
+then we stop.
 
-If we do not stop, then by update rule \@ref(eq:majalg) \begin{equation}
-\sigma(x^{(k+1)})\leq\eta(x^{(k+1)},x^{(k)}),
-\end{equation} by majorization property \@ref(eq:maj1) \begin{equation}
-\eta(x^{(k+1)},x^{(k)})\leq\eta(x^{(k)},x^{(k)}).
-\end{equation} and by majorization property \@ref(eq:maj1)
+By majorization property \@ref(eq:maj1) 
+\begin{equation}
+\sigma(x^{(k+1)})\leq\eta(x^{(k+1)},x^{(k)}).
+\end{equation}
+Because we did not stop update rule \@ref(eq:majalg) implies 
+\begin{equation}
+\eta(x^{(k+1)},x^{(k)})<\eta(x^{(k)},x^{(k)}).
+\end{equation} 
+and finally by majorization property \@ref(eq:maj1)
 \begin{equation}
 \eta(x^{(k)},x^{(k)})=\sigma(x^{(k)}).
 \end{equation}
@@ -664,7 +668,7 @@ scheme is strict then $\sigma(x^{(k+1)})<\eta(x^{(k+1)},x^{(k)})$. Under
 either of these two additional conditions
 $\sigma(x^{(k+1)})<\sigma(x^{(k)})$, which means that the majorization
 algorithm is a monotone descent algorithm, and if $\sigma$ is bounded
-below on $\mathbb{S}$ then the sequence $\sigma(x^{(k)})$ converges.
+below on $\mathbb{S}$ the sequence $\sigma(x^{(k)})$ converges.
 
 Note that we only use the order relation to prove convergence of the
 sequence of function values. To prove convergence of the $x^{(k)}$ we
@@ -1168,17 +1172,25 @@ source("../../smacofExamples/ekman/ekman5003.R")
 
 ## gruijter
 
-The two previous examples had a good fit. We use the data from @degruijter_67
-for an example with a rather bad fit in two dimensions and a rather good fit in three dimensions.
+The ekman examples had a really good fit. We use the data from @degruijter_67
+for an example with a rather bad fit in two dimensions.
 Dissimilarity judgments between nine Dutch political parties were
 collected in 1966 by the complete method of triads. Results were
 averaged over 100 students. Averaging over a heterogeneous population
 will cause regression to the mean, and thus dissimilarities will tend
 to be more equal than they should be on the basis of the individual 
-results. This means there should be a large difference in fit between
+results. This means there should be a substantial difference in fit between
 the "ratio" and the "interval" options
 (i.e. between the interval parameter equal to one or zero).
 
+```{r gruijterresults, echo = FALSE}
+source("../../smacofExamples/gruijter/gruijter0100012.R")
+source("../../smacofExamples/gruijter/gruijter0100102.R")
+source("../../smacofExamples/gruijter/gruijter0301012.R")
+source("../../smacofExamples/gruijter/gruijter0301013.R")
+source("../../smacofExamples/gruijter/gruijter5331012.R")
+source("../../smacofExamples/gruijter/gruijter5331013.R")
+```
 
 ## morse
 
@@ -1189,7 +1201,7 @@ source("results/morseResults.R")
 # Tables
 
 
-```{r ekmankable, echo = FALSE, cache = TRUE}
+```{r ekmankable, echo = FALSE}
 x <- matrix(c(
 0, 3, 0, 1, 0, 1, 2, ekman030$snew, ekman030$itel,
 5, 3, 3, 1, 0, 1, 2, ekman533$snew, ekman533$itel,
@@ -1199,34 +1211,71 @@ knitr::kable(x, format = "pipe", digits = 10, col.names = c("ninner", "degree", 
 caption = "Analyses of the ekman example")
 ```
 ******
-```{r gruijterkable, echo = FALSE, cache = TRUE, eval = FALSE}
+```{r gruijterkable, echo = FALSE}
 x <- matrix(c(
-0, 1, 0, 1, 0, 1, 2, gruijter0100$snew, gruijter0100$itel,
-0, 1, 0, 1, 1, 1, 2, gruijter0101$snew, gruijter0101$itel,
-5, 3, 3, 1, 0, 1, 2, gruijter5332$snew, gruijter5332$itel, 
-5, 3, 3, 1, 0, 1, 3, gruijter5333$snew, gruijter5333$itel), 4, 9, byrow = TRUE)
+gruijter0100012$ninner, gruijter0100012$degree, gruijter0100012$haveknots,
+gruijter0100012$ordinal, gruijter0100012$intercept, gruijter0100012$anchor, gruijter0100012$ndim, gruijter0100012$snew, gruijter0100012$itel,
+
+gruijter0100102$ninner, gruijter0100102$degree, gruijter0100102$haveknots,
+gruijter0100102$ordinal, gruijter0100102$intercept, gruijter0100102$anchor, gruijter0100102$ndim, gruijter0100102$snew, gruijter0100102$itel,
+
+gruijter0301012$ninner, gruijter0301012$degree, gruijter0301012$haveknots,
+gruijter0301012$ordinal, gruijter0301012$intercept, gruijter0301012$anchor, gruijter0301012$ndim, gruijter0301012$snew, gruijter0301012$itel,
+
+gruijter0301013$ninner, gruijter0301013$degree, gruijter0301013$haveknots,
+gruijter0301013$ordinal, gruijter0301013$intercept, gruijter0301013$anchor, gruijter0301013$ndim, gruijter0301013$snew, gruijter0301013$itel,
+
+gruijter5331012$ninner, gruijter5331012$degree, gruijter5331012$haveknots,
+gruijter5331012$ordinal, gruijter5331012$intercept, gruijter5331012$anchor, gruijter5331012$ndim, gruijter5331012$snew, gruijter5331012$itel,
+
+gruijter5331013$ninner, gruijter5331013$degree, gruijter5331013$haveknots,
+gruijter5331013$ordinal, gruijter5331013$intercept, gruijter5331013$anchor, gruijter5331013$ndim, gruijter5331013$snew, gruijter5331013$itel), 6, 9, byrow = TRUE)
 knitr::kable(x, format = "pipe", digits = 10, col.names = c("ninner", "degree", "haveknots", "ordinal", "intercept", "anchor", "ndim", "stress", "itel"), align = 'c', caption = "Analyses of the gruijter example")
 ```
 ******
 
 # Figures
 
-```{r ekmanmetric, fig.align = "center", fig.cap = "Ekman example, metric", echo = FALSE}
+```{r ekmanmetric, fig.align = "center", fig.cap = "ekman example, metric", echo = FALSE}
 par(pty = "s", mfrow = c(1, 2))
 smacofShepardPlot(ekmanMetric, main = "Metric Analysis (1-s)", fitlines = TRUE)
 smacofShepardPlot(ekman3Metric, main = "Metric Analysis (1-s)^3", fitlines = TRUE)
 ```
 
-```{r ekmancubic, fig.align = "center", fig.cap = "Ekman example, cubic analysis", echo = FALSE}
+```{r ekmancubic, fig.align = "center", fig.cap = "ekman example, cubic analysis", echo = FALSE}
 par(mfrow = c(1, 2))
 smacofShepardPlot(ekman030, main = "Cubic Polynomial", fitlines = TRUE)
 smacofShepardPlot(ekman533, main = "Cubic Spline", fitlines = TRUE, knotlines = TRUE)
 ```
 
-```{r ekmanordinal, fig.align = "center", fig.cap = "Ekman example, pseudo-nonmetric analysis", echo = FALSE}
+```{r ekmanordinal, fig.align = "center", fig.cap = "ekman example, pseudo-nonmetric analysis", echo = FALSE}
 par(mfrow = c(1,2))
 smacofShepardPlot(ekman5003, main = "Equal Percentile Intervals", knotlines = TRUE)
 smacofShepardPlot(ekman5002, main = "Equal Delta Intervals", knotlines = TRUE)
+```
+
+```{r gruijterlinear, fig.align = "center", fig.cap = "gruijter example, linear analysis", echo = FALSE}
+par(pty = "s", mfrow = c(1,2))
+smacofShepardPlot(gruijter0100012, main = "Line without intercept", fitlines = TRUE)
+smacofShepardPlot(gruijter0100102, main = "Line with intercept", fitlines = TRUE)
+```
+
+```{r gruijterlinearconf, fig.align = "center", fig.cap = "gruijter example, linear analysis", echo = FALSE, eval = FALSE}
+par(pty = "s", mfrow = c(1,2))
+smacofConfigurationPlot(gruijter0100012, main = "Line without intercept", labels = 1)
+smacofConfigurationPlot(gruijter0100102, main = "Line with intercept", labels = 1)
+```
+
+```{r gruijtercubic, fig.align = "center", fig.cap = "gruijter example, cubic polynomial", echo = FALSE}
+par(mfrow = c(1,2))
+smacofShepardPlot(gruijter0301012, main = "Two dimensions", fitlines = TRUE)
+smacofShepardPlot(gruijter0301013, main = "Three dimensions", fitlines = TRUE)
+```
+
+```{r gruijtersplines, fig.align = "center", fig.cap = "gruijter example, cubic spline analysis", echo = FALSE}
+par(mfrow = c(1,2))
+smacofShepardPlot(gruijter5331012, main = "Two dimensions", fitlines = TRUE)
+smacofShepardPlot(gruijter5331013, main = "Three dimensions", fitlines = TRUE)
 ```
 
 

@@ -774,7 +774,7 @@ bozo
 
 \subsubsection{Introduction to Majorization}\label{introduction-to-majorization}
 
-Majorization, more recently better known as MM (Lange (2016)), is a general
+Majorization, these days better known as MM (Lange (2016)), is a general
 approach for the construction of minimization algorithms. There is also
 minorization, which leads to maximization algorithms, which explains the
 MM acronym: minorization for maximization and majorization for
@@ -815,14 +815,18 @@ x^{(k+1)}\in\mathop{\text{argmin}}_{x\in\mathbb{S}}\eta(x,x^{(k)}),
 \label{eq:majalg}
 \end{equation} assuming that \(\eta(\bullet,y)\) attains its (not
 necessarily unique) minimum over \(x\in\mathbb{S}\) for each \(y\). If
-\(x^{(k)}\in\mathop{\text{argmin}}_{x\in\mathbb{S}}\eta(x,x^{(k)})\) we
-stop.
+\(x^{(k)}\in\mathop{\text{argmin}}_{x\in\mathbb{S}}\eta(x,x^{(k)})\)
+then we stop.
 
-If we do not stop, then by update rule \eqref{eq:majalg} \begin{equation}
-\sigma(x^{(k+1)})\leq\eta(x^{(k+1)},x^{(k)}),
-\end{equation} by majorization property \eqref{eq:maj1} \begin{equation}
-\eta(x^{(k+1)},x^{(k)})\leq\eta(x^{(k)},x^{(k)}).
-\end{equation} and by majorization property \eqref{eq:maj1}
+By majorization property \eqref{eq:maj1}
+\begin{equation}
+\sigma(x^{(k+1)})\leq\eta(x^{(k+1)},x^{(k)}).
+\end{equation}
+Because we did not stop update rule \eqref{eq:majalg} implies
+\begin{equation}
+\eta(x^{(k+1)},x^{(k)})<\eta(x^{(k)},x^{(k)}).
+\end{equation}
+and finally by majorization property \eqref{eq:maj1}
 \begin{equation}
 \eta(x^{(k)},x^{(k)})=\sigma(x^{(k)}).
 \end{equation}
@@ -833,7 +837,7 @@ scheme is strict then \(\sigma(x^{(k+1)})<\eta(x^{(k+1)},x^{(k)})\). Under
 either of these two additional conditions
 \(\sigma(x^{(k+1)})<\sigma(x^{(k)})\), which means that the majorization
 algorithm is a monotone descent algorithm, and if \(\sigma\) is bounded
-below on \(\mathbb{S}\) then the sequence \(\sigma(x^{(k)})\) converges.
+below on \(\mathbb{S}\) the sequence \(\sigma(x^{(k)})\) converges.
 
 Note that we only use the order relation to prove convergence of the
 sequence of function values. To prove convergence of the \(x^{(k)}\) we
@@ -1336,14 +1340,14 @@ to its astonishing good two-dimensional fit and its easy interpretability.
 
 \subsection{gruijter}\label{gruijter}
 
-The two previous examples had a good fit. We use the data from De Gruijter (1967)
-for an example with a rather bad fit in two dimensions and a rather good fit in three dimensions.
+The ekman examples had a really good fit. We use the data from De Gruijter (1967)
+for an example with a rather bad fit in two dimensions.
 Dissimilarity judgments between nine Dutch political parties were
 collected in 1966 by the complete method of triads. Results were
 averaged over 100 students. Averaging over a heterogeneous population
 will cause regression to the mean, and thus dissimilarities will tend
 to be more equal than they should be on the basis of the individual
-results. This means there should be a large difference in fit between
+results. This means there should be a substantial difference in fit between
 the ``ratio'' and the ``interval'' options
 (i.e.~between the interval parameter equal to one or zero).
 
@@ -1352,15 +1356,15 @@ the ``ratio'' and the ``interval'' options
 \section{Tables}\label{tables}
 
 \begin{longtable}[]{@{}
-  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0988}}
-  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0988}}
-  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1358}}
-  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1111}}
-  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1358}}
-  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0988}}
-  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0741}}
-  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1728}}
-  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0741}}@{}}
+  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1013}}
+  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1013}}
+  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1392}}
+  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1139}}
+  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1392}}
+  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1013}}
+  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0759}}
+  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1519}}
+  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0759}}@{}}
 \caption{\label{tab:ekmankable}Analyses of the ekman example}\tabularnewline
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\centering
@@ -1408,13 +1412,78 @@ itel
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-0 & 3 & 0 & 1 & 0 & 1 & 2 & 0.0021309760 & 39 \\
-5 & 3 & 3 & 1 & 0 & 1 & 2 & 0.0008780736 & 1260 \\
-50 & 0 & 3 & 1 & 0 & 1 & 2 & 0.0005138551 & 877 \\
-50 & 0 & 2 & 1 & 0 & 1 & 2 & 0.0010662271 & 492 \\
+0 & 3 & 0 & 1 & 0 & 1 & 2 & 0.08686091 & 161 \\
+5 & 3 & 3 & 1 & 0 & 1 & 2 & 0.07869016 & 6577 \\
+50 & 0 & 3 & 1 & 0 & 1 & 2 & 0.04675949 & 3191 \\
+50 & 0 & 2 & 1 & 0 & 1 & 2 & 0.05895209 & 1903 \\
 \end{longtable}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{longtable}[]{@{}
+  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1013}}
+  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1013}}
+  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1392}}
+  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1139}}
+  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1392}}
+  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1013}}
+  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0759}}
+  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1519}}
+  >{\centering\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0759}}@{}}
+\caption{\label{tab:gruijterkable}Analyses of the gruijter example}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\centering
+ninner
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+degree
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+haveknots
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+ordinal
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+intercept
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+anchor
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+ndim
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+stress
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+itel
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\centering
+ninner
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+degree
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+haveknots
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+ordinal
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+intercept
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+anchor
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+ndim
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+stress
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+itel
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0 & 1 & 0 & 0 & 0 & 1 & 2 & 0.80286089 & 85 \\
+0 & 1 & 0 & 0 & 1 & 0 & 2 & 0.34467937 & 20 \\
+0 & 3 & 0 & 1 & 0 & 1 & 2 & 0.34953364 & 106 \\
+0 & 3 & 0 & 1 & 0 & 1 & 3 & 0.07248619 & 115 \\
+5 & 3 & 3 & 1 & 0 & 1 & 2 & 0.34082527 & 667 \\
+5 & 3 & 3 & 1 & 0 & 1 & 3 & 0.04823789 & 614 \\
+\end{longtable}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -1426,7 +1495,7 @@ itel
 
 }
 
-\caption{Ekman example, metric}\label{fig:ekmanmetric}
+\caption{ekman example, metric}\label{fig:ekmanmetric}
 \end{figure}
 
 \begin{figure}
@@ -1435,7 +1504,7 @@ itel
 
 }
 
-\caption{Ekman example, cubic analysis}\label{fig:ekmancubic}
+\caption{ekman example, cubic analysis}\label{fig:ekmancubic}
 \end{figure}
 
 \begin{figure}
@@ -1444,7 +1513,34 @@ itel
 
 }
 
-\caption{Ekman example, pseudo-nonmetric analysis}\label{fig:ekmanordinal}
+\caption{ekman example, pseudo-nonmetric analysis}\label{fig:ekmanordinal}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofBS_files/figure-latex/gruijterlinear-1} 
+
+}
+
+\caption{gruijter example, linear analysis}\label{fig:gruijterlinear}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofBS_files/figure-latex/gruijtercubic-1} 
+
+}
+
+\caption{gruijter example, cubic polynomial}\label{fig:gruijtercubic}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofBS_files/figure-latex/gruijtersplines-1} 
+
+}
+
+\caption{gruijter example, cubic spline analysis}\label{fig:gruijtersplines}
 \end{figure}
 
 \section*{References}\label{references}
