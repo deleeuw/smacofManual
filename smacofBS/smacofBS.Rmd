@@ -750,7 +750,7 @@ The first three iterations are shown in the figure below. The vertical
 lines indicate the value of $x$, function is in red, and the first three
 majorizations are in blue.
 
-```{r majplot, fig.align = "center", echo = FALSE, cache = TRUE}
+```{r majplot, fig.align = "center", echo = FALSE}
 x <- 100:500/100
 y <- sqrt(x) - log(x)
 plot(x, y, type = "l", lwd = 3, col = "RED")
@@ -1143,7 +1143,7 @@ Jacknife
 The @ekman_54 color circle example has been used in many, if not most, multidimensional scaling textbooks and review articles. This is due, no doubt,
 to its astonishing good two-dimensional fit and its easy interpretability.
 
-```{r ekmanresults, echo = FALSE, cache = TRUE}
+```{r ekmanresults, echo = FALSE}
 source("../../smacofExamples/ekman/ekmanMetric.R")
 source("../../smacofExamples/ekman/ekman3Metric.R")
 source("../../smacofExamples/ekman/ekman030.R")
@@ -1194,7 +1194,7 @@ source("../../smacofExamples/gruijter/gruijter5331013.R")
 
 ## morse
 
-```{r morseresults, echo = FALSE, cache = TRUE, eval = FALSE}
+```{r morseresults, echo = FALSE, eval = FALSE}
 source("results/morseResults.R")
 ```
 
@@ -1260,10 +1260,14 @@ smacofShepardPlot(gruijter0100012, main = "Line without intercept", fitlines = T
 smacofShepardPlot(gruijter0100102, main = "Line with intercept", fitlines = TRUE)
 ```
 
-```{r gruijterlinearconf, fig.align = "center", fig.cap = "gruijter example, linear analysis", echo = FALSE, eval = FALSE}
-par(pty = "s", mfrow = c(1,2))
-smacofConfigurationPlot(gruijter0100012, main = "Line without intercept", labels = 1)
-smacofConfigurationPlot(gruijter0100102, main = "Line with intercept", labels = 1)
+```{r gruijterlinearconf, fig.align = "center", fig.cap = "gruijter example, linear analysis", echo = FALSE}
+par(pty = "s", mfrow = c(1, 2))
+smacofConfigurationPlot(
+  gruijter0100012,
+  main = "Line without intercept", cex = .75)
+smacofConfigurationPlot(
+  gruijter0100102,
+  main = "Line with intercept", cex = .75)
 ```
 
 ```{r gruijtercubic, fig.align = "center", fig.cap = "gruijter example, cubic polynomial", echo = FALSE}
