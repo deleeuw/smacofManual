@@ -1140,23 +1140,54 @@ Jacknife
 
 ## ekman
 
-The @ekman_54 color circle example has been used in many, if not most, multidimensional scaling textbooks and review articles. This is due, no doubt,
+The @ekman_54 color circle similarities have been used in many, if not most, multidimensional scaling textbooks and review articles. See, for example,
+@borg_groenen_05, p 63-68. Its popularity is due, no doubt,
 to its astonishing good two-dimensional fit and its easy interpretability.
+
+In brief, Ekman used what he called the *Method of similarity analysis*. The stimuli
+were fourteen color filters, transmitting light of wave lengths 434 $m\mu$ mp to 674 $m\mu$. The subjects were 31 students with normal color vision. They judged
+the similarity between all 91 pairs of colors on a five-point rating scale
+with categories 0-4. The similarity judgments were then averaged over students
+and the average was divided by four to create similarties $s_{ij}$ between zero 
+and one. For MDS purposes we set $\delta_{ij}=1-s_{ij}$.
 
 ```{r ekmanresults, echo = FALSE}
 source("../../smacofExamples/ekman/ekmanMetric.R")
 source("../../smacofExamples/ekman/ekman3Metric.R")
-source("../../smacofExamples/ekman/ekman030.R")
-source("../../smacofExamples/ekman/ekman533.R")
-source("../../smacofExamples/ekman/ekman5002.R")
-source("../../smacofExamples/ekman/ekman5003.R")
+source("../../smacofExamples/ekman/ekman0301012.R")
+source("../../smacofExamples/ekman/ekman5331012.R")
+source("../../smacofExamples/ekman/ekman50021012.R")
+source("../../smacofExamples/ekman/ekman50031012.R")
 ```
+
+We start with a metric analysis in two dimensions. In all analyses in this section of the manual we start with the Torgerson initial configuration, and we iterate until the change in stress from one outer iteration to the next is less than or equal to 1e-10. 
+
+After `r ekmanMetric$itel` iterations we find a minimum stress of `r ekmanMetric$snew`. The Shepardplot in the left panel of figure \@ref(fig:ekmanmetric) shows a reasonably
+good fit, but strongly suggests making a non-linear transformation to improve the fit.
+
+It is known that if we use $\delta_{ij}=(1-s_{ij})^3$ then the two-dimensional solution computed by smacof is the
+global minimum of stress for all dimensions $p\geq 2$ (@deleeuw_U_14b, @deleeuw_E_19e). So we repeated the metric analysis using the cubic transformation.
+After `r ekman3Metric$itel` iterations we find stress `r ekman3Metric$snew` and the Shepardplot in the right panel of figure \@ref(fig:ekmanmetric). A better fit, and
+the deviations from linearity are what one expects from least squares: overestimation
+of the smaller dissimilarities and underestimation of the larger ones.
+
+
+:::: {.greybox data-latex=""}
+::: {.center data-latex=""}
+**INSERT FIGURE \@ref(fig:ekmanmetric) ABOUT HERE**
+:::
+::::
+
+We present four additional non-metric analyses, using the seven-digit coding
+illustrated in table \@ref(tab:ekmankable). Stress values cannot be compared directly with the metric solutions, because in the non-metric analysis the dissimilarities
+are normalized. We can look at the various Shepard plots, however.
 
 :::: {.greybox data-latex=""}
 ::: {.center data-latex=""}
 **INSERT TABLE \@ref(tab:ekmankable) ABOUT HERE**
 :::
 ::::
+
 
 :::: {.greybox data-latex=""}
 ::: {.center data-latex=""}
@@ -1203,10 +1234,10 @@ source("results/morseResults.R")
 
 ```{r ekmankable, echo = FALSE}
 x <- matrix(c(
-0, 3, 0, 1, 0, 1, 2, ekman030$snew, ekman030$itel,
-5, 3, 3, 1, 0, 1, 2, ekman533$snew, ekman533$itel,
-50, 0, 3, 1, 0, 1, 2, ekman5003$snew, ekman5003$itel, 
-50, 0, 2, 1, 0, 1, 2, ekman5002$snew, ekman5002$itel), 4, 9, byrow = TRUE)
+0, 3, 0, 1, 0, 1, 2, ekman0301012$snew, ekman0301012$itel,
+5, 3, 3, 1, 0, 1, 2, ekman5331012$snew, ekman5331012$itel,
+50, 0, 3, 1, 0, 1, 2, ekman50031012$snew, ekman50031012$itel, 
+50, 0, 2, 1, 0, 1, 2, ekman50021012$snew, ekman50021012$itel), 4, 9, byrow = TRUE)
 knitr::kable(x, format = "pipe", digits = 10, col.names = c("ninner", "degree", "haveknots", "ordinal", "intercept", "anchor", "ndim", "stress", "itel"), align = 'c',
 caption = "Analyses of the ekman example")
 ```
@@ -1244,14 +1275,14 @@ smacofShepardPlot(ekman3Metric, main = "Metric Analysis (1-s)^3", fitlines = TRU
 
 ```{r ekmancubic, fig.align = "center", fig.cap = "ekman example, cubic analysis", echo = FALSE}
 par(mfrow = c(1, 2))
-smacofShepardPlot(ekman030, main = "Cubic Polynomial", fitlines = TRUE)
-smacofShepardPlot(ekman533, main = "Cubic Spline", fitlines = TRUE, knotlines = TRUE)
+smacofShepardPlot(ekman0301012, main = "Cubic Polynomial", fitlines = TRUE)
+smacofShepardPlot(ekman5331012, main = "Cubic Spline", fitlines = TRUE, knotlines = TRUE)
 ```
 
 ```{r ekmanordinal, fig.align = "center", fig.cap = "ekman example, pseudo-nonmetric analysis", echo = FALSE}
 par(mfrow = c(1,2))
-smacofShepardPlot(ekman5003, main = "Equal Percentile Intervals", knotlines = TRUE)
-smacofShepardPlot(ekman5002, main = "Equal Delta Intervals", knotlines = TRUE)
+smacofShepardPlot(ekman50031012, main = "Equal Percentile Intervals", knotlines = TRUE)
+smacofShepardPlot(ekman50021012, main = "Equal Delta Intervals", knotlines = TRUE)
 ```
 
 ```{r gruijterlinear, fig.align = "center", fig.cap = "gruijter example, linear analysis", echo = FALSE}

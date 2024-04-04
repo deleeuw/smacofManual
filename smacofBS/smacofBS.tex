@@ -386,7 +386,7 @@ or the constraint
 \sum   w_{ij}^{\ }\hat d_{ij}^2=1.
 \label{eq:explicit2}
 \end{equation}
-Kruskal and Carroll (1969) and De Leeuw (2019) show that these
+Kruskal and Carroll (1969) and De Leeuw (2019b) show that these
 four normalizations all lead to essentially the same solution for \(X\)
 and \(\hat D\), up to scale factors dictated by the choice of the particular
 normalization. It is also possible to normalize both \(X\) and \(\hat D\),
@@ -1308,8 +1308,40 @@ Jacknife
 
 \subsection{ekman}\label{ekman}
 
-The Ekman (1954) color circle example has been used in many, if not most, multidimensional scaling textbooks and review articles. This is due, no doubt,
+The Ekman (1954) color circle similarities have been used in many, if not most, multidimensional scaling textbooks and review articles. See, for example,
+Borg and Groenen (2005), p 63-68. Its popularity is due, no doubt,
 to its astonishing good two-dimensional fit and its easy interpretability.
+
+In brief, Ekman used what he called the \emph{Method of similarity analysis}. The stimuli
+were fourteen color filters, transmitting light of wave lengths 434 \(m\mu\) mp to 674 \(m\mu\). The subjects were 31 students with normal color vision. They judged
+the similarity between all 91 pairs of colors on a five-point rating scale
+with categories 0-4. The similarity judgments were then averaged over students
+and the average was divided by four to create similarties \(s_{ij}\) between zero
+and one. For MDS purposes we set \(\delta_{ij}=1-s_{ij}\).
+
+We start with a metric analysis in two dimensions. In all analyses in this section of the manual we start with the Torgerson initial configuration, and we iterate until the change in stress from one outer iteration to the next is less than or equal to 1e-10.
+
+After 53 iterations we find a minimum stress of 0.5278528. The Shepardplot in the left panel of figure \ref{fig:ekmanmetric} shows a reasonably
+good fit, but strongly suggests making a non-linear transformation to improve the fit.
+
+It is known that if we use \(\delta_{ij}=(1-s_{ij})^3\) then the two-dimensional solution computed by smacof is the
+global minimum of stress for all dimensions \(p\geq 2\) (De Leeuw (2014), De Leeuw (2019a)). So we repeated the metric analysis using the cubic transformation.
+After 26 iterations we find stress 0.2426954 and the Shepardplot in the right panel of figure \ref{fig:ekmanmetric}. A better fit, and
+the deviations from linearity are what one expects from least squares: overestimation
+of the smaller dissimilarities and underestimation of the larger ones.
+
+\begin{greybox}
+
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:ekmanmetric} ABOUT HERE}
+
+\end{center}
+
+\end{greybox}
+
+We present four additional non-metric analyses, using the seven-digit coding
+illustrated in table \ref{tab:ekmankable}. Stress values cannot be compared directly with the metric solutions, because in the non-metric analysis the dissimilarities
+are normalized. We can look at the various Shepard plots, however.
 
 \begin{greybox}
 
@@ -1412,10 +1444,10 @@ itel
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-0 & 3 & 0 & 1 & 0 & 1 & 2 & 0.08686091 & 161 \\
-5 & 3 & 3 & 1 & 0 & 1 & 2 & 0.07869016 & 6577 \\
-50 & 0 & 3 & 1 & 0 & 1 & 2 & 0.04675949 & 3191 \\
-50 & 0 & 2 & 1 & 0 & 1 & 2 & 0.05895209 & 1903 \\
+0 & 3 & 0 & 1 & 0 & 1 & 2 & 0.08686091 & 118 \\
+5 & 3 & 3 & 1 & 0 & 1 & 2 & 0.07869019 & 2944 \\
+50 & 0 & 3 & 1 & 0 & 1 & 2 & 0.04675950 & 1296 \\
+50 & 0 & 2 & 1 & 0 & 1 & 2 & 0.05895210 & 885 \\
 \end{longtable}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
@@ -1563,6 +1595,9 @@ Bauschke, H. H., M. N. Bui, and X. Wang. 2018. {``{Projecting onto the Intersect
 \bibitem[\citeproctext]{ref-boehning_lindsay_88}
 Böhning, D., and B. G. Lindsay. 1988. {``{Monotonicity of Quadratic-approximation Algorithms}.''} \emph{Annals of the Institute of Statistical Mathematics} 40 (4): 641--63.
 
+\bibitem[\citeproctext]{ref-borg_groenen_05}
+Borg, I., and P. J. F. Groenen. 2005. \emph{Modern Multidimensional Scaling}. Second Edition. Springer.
+
 \bibitem[\citeproctext]{ref-bro_dejong_97}
 Bro, R., and S. De Jong. 1997. {``A Fast Non-Negatively-Constrained Least Squares Algorithm.''} \emph{Journal of Chemometrics} 11: 393--401.
 
@@ -1590,8 +1625,11 @@ De Leeuw, J. 1975. {``{A Normalized Cone Regression Approach to Alternating Leas
 \bibitem[\citeproctext]{ref-deleeuw_E_17e}
 ---------. 2017b. {``{Shepard Non-metric Multidimensional Scaling}.''} 2017. \url{https://jansweb.netlify.app/publication/deleeuw-e-17-e/deleeuw-e-17-e.pdf}.
 
+\bibitem[\citeproctext]{ref-deleeuw_E_19e}
+---------. 2019a. {``{Global Minima by Penalized Full-dimensional Scaling}.''} 2019. \url{https://jansweb.netlify.app/publication/deleeuw-e-19-e/deleeuw-e-19-e.pdf}.
+
 \bibitem[\citeproctext]{ref-deleeuw_E_19d}
----------. 2019. {``Normalized Cone Regression.''} 2019. \url{https://jansweb.netlify.app/publication/deleeuw-e-19-d/deleeuw-e-19-d.pdf}.
+---------. 2019b. {``Normalized Cone Regression.''} 2019. \url{https://jansweb.netlify.app/publication/deleeuw-e-19-d/deleeuw-e-19-d.pdf}.
 
 \bibitem[\citeproctext]{ref-deleeuw_mair_A_09c}
 De Leeuw, J., and P. Mair. 2009. {``{Multidimensional Scaling Using Majorization: SMACOF in R}.''} \emph{Journal of Statistical Software} 31 (3): 1--30. \url{https://www.jstatsoft.org/article/view/v031i03}.
