@@ -508,6 +508,20 @@ condition for a local minimum is that $V^+B(X)$ has at least $p$
 eigenvalues equal to one. @deleeuw_U_14b has shown that if
 $V^+B(X)\lesssim I$ then actually $X$ is a global minimizer of stress.
 
+###
+
+$$
+\rho(X)=\sum w_{ij\delta_{ij}(X)
+$$
+$$
+\nabla d_{ij}(X)=\begin{bmatrix}0\\
+\frac{x_i-x_j}{d_{ij}(X)}\\0\\-\frac{x_i-x_j}{d_{ij}(X)}\\0\end{bmatrix}
+$$
+$$
+\partial d_{ij}(X)=\left\{\begin{bmatrix}0\\
+y\\0\\-y\\0\end{bmatrix}\mid y'y\leq 1\right\}.
+$$
+
 ### Hessian
 
 The results on the Hessian of stress are largely unpublished. So we

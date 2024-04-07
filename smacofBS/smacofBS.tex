@@ -1321,14 +1321,15 @@ and one. For MDS purposes we set \(\delta_{ij}=1-s_{ij}\).
 
 We start with a metric analysis in two dimensions. In all analyses in this section of the manual we start with the Torgerson initial configuration, and we iterate until the change in stress from one outer iteration to the next is less than or equal to 1e-10.
 
-After 53 iterations we find a minimum stress of 0.5278528. The Shepardplot in the left panel of figure \ref{fig:ekmanmetric} shows a reasonably
+After 32 iterations we find a minimum stress of 0.5278528. The Shepardplot in the left panel of figure \ref{fig:ekmanmetric} shows a reasonably
 good fit, but strongly suggests making a non-linear transformation to improve the fit.
 
 It is known that if we use \(\delta_{ij}=(1-s_{ij})^3\) then the two-dimensional solution computed by smacof is the
 global minimum of stress for all dimensions \(p\geq 2\) (De Leeuw (2014), De Leeuw (2019a)). So we repeated the metric analysis using the cubic transformation.
-After 26 iterations we find stress 0.2426954 and the Shepardplot in the right panel of figure \ref{fig:ekmanmetric}. A better fit, and
+After 17 iterations we find stress 0.2426954 and the Shepardplot in the right panel of figure \ref{fig:ekmanmetric}. A better fit, and
 the deviations from linearity are what one expects from least squares: overestimation
-of the smaller dissimilarities and underestimation of the larger ones.
+of the smaller dissimilarities and underestimation of the larger ones. Nevertheless,
+the configurations for the two solutions in figure \ref{fig:ekmanmetricconf} are remarkably similar, showing once again that configurations tend to be more stable than Shepardplots.
 
 \begin{greybox}
 
@@ -1339,9 +1340,17 @@ of the smaller dissimilarities and underestimation of the larger ones.
 
 \end{greybox}
 
+\begin{greybox}
+
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:ekmanmetricconf} ABOUT HERE}
+
+\end{center}
+
+\end{greybox}
+
 We present four additional non-metric analyses, using the seven-digit coding
-illustrated in table \ref{tab:ekmankable}. Stress values cannot be compared directly with the metric solutions, because in the non-metric analysis the dissimilarities
-are normalized. We can look at the various Shepard plots, however.
+illustrated in table \ref{tab:ekmankable}. The stress values in the table cannot be compared directly with those of the metric solutions, because in the non-metric analysis the dissimilarities are normalized and thus the stress scale is different. We can compare within the table, however, and compare all Shepard plots.
 
 \begin{greybox}
 
@@ -1528,6 +1537,15 @@ itel
 }
 
 \caption{ekman example, metric}\label{fig:ekmanmetric}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofBS_files/figure-latex/ekmanmetricconf-1} 
+
+}
+
+\caption{ekman example, metric}\label{fig:ekmanmetricconf}
 \end{figure}
 
 \begin{figure}
