@@ -1169,7 +1169,8 @@ It is known that if we use $\delta_{ij}=(1-s_{ij})^3$ then the two-dimensional s
 global minimum of stress for all dimensions $p\geq 2$ (@deleeuw_U_14b, @deleeuw_E_19e). So we repeated the metric analysis using the cubic transformation.
 After `r ekman3Metric$itel` iterations we find stress `r ekman3Metric$snew` and the Shepardplot in the right panel of figure \@ref(fig:ekmanmetric). A better fit, and
 the deviations from linearity are what one expects from least squares: overestimation
-of the smaller dissimilarities and underestimation of the larger ones.
+of the smaller dissimilarities and underestimation of the larger ones. Nevertheless,
+the configurations for the two solutions in figure \@ref(fig:ekmanmetricconf) are remarkably similar, showing once again that configurations tend to be more stable than Shepardplots.
 
 
 :::: {.greybox data-latex=""}
@@ -1178,9 +1179,14 @@ of the smaller dissimilarities and underestimation of the larger ones.
 :::
 ::::
 
+:::: {.greybox data-latex=""}
+::: {.center data-latex=""}
+**INSERT FIGURE \@ref(fig:ekmanmetricconf) ABOUT HERE**
+:::
+::::
+
 We present four additional non-metric analyses, using the seven-digit coding
-illustrated in table \@ref(tab:ekmankable). Stress values cannot be compared directly with the metric solutions, because in the non-metric analysis the dissimilarities
-are normalized. We can look at the various Shepard plots, however.
+illustrated in table \@ref(tab:ekmankable). The stress values in the table cannot be compared directly with those of the metric solutions, because in the non-metric analysis the dissimilarities are normalized and thus the stress scales are different. We can compare within the table, however, and compare all Shepard plots.
 
 :::: {.greybox data-latex=""}
 ::: {.center data-latex=""}
@@ -1231,13 +1237,18 @@ source("results/morseResults.R")
 
 # Tables
 
-
 ```{r ekmankable, echo = FALSE}
 x <- matrix(c(
-0, 3, 0, 1, 0, 1, 2, ekman0301012$snew, ekman0301012$itel,
-5, 3, 3, 1, 0, 1, 2, ekman5331012$snew, ekman5331012$itel,
-50, 0, 3, 1, 0, 1, 2, ekman50031012$snew, ekman50031012$itel, 
-50, 0, 2, 1, 0, 1, 2, ekman50021012$snew, ekman50021012$itel), 4, 9, byrow = TRUE)
+ekman0301012$ninner, ekman0301012$degree, ekman0301012$haveknots,
+ekman0301012$ordinal, ekman0301012$intercept, ekman0301012$anchor, 
+ekman0301012$ndim, ekman0301012$snew, ekman0301012$itel,
+ekman5331012$ninner, ekman5331012$degree, ekman5331012$haveknots,
+ekman5331012$ordinal, ekman5331012$intercept, ekman5331012$anchor, 
+ekman5331012$ndim, ekman5331012$snew, ekman5331012$itel,
+ekman50031012$ninner, ekman50031012$degree, ekman50031012$haveknots,
+ekman50031012$ordinal, ekman50031012$intercept, ekman50031012$anchor, ekman50031012$ndim, ekman50031012$snew, ekman50031012$itel,
+ekman50021012$ninner, ekman50021012$degree, ekman50021012$haveknots,
+ekman50021012$ordinal, ekman50021012$intercept, ekman50021012$anchor, ekman50021012$ndim, ekman50021012$snew, ekman50021012$itel), 4, 9, byrow = TRUE)
 knitr::kable(x, format = "pipe", digits = 10, col.names = c("ninner", "degree", "haveknots", "ordinal", "intercept", "anchor", "ndim", "stress", "itel"), align = 'c',
 caption = "Analyses of the ekman example")
 ```
@@ -1271,6 +1282,17 @@ knitr::kable(x, format = "pipe", digits = 10, col.names = c("ninner", "degree", 
 par(pty = "s", mfrow = c(1, 2))
 smacofShepardPlot(ekmanMetric, main = "Metric Analysis (1-s)", fitlines = TRUE)
 smacofShepardPlot(ekman3Metric, main = "Metric Analysis (1-s)^3", fitlines = TRUE)
+```
+
+
+```{r ekmanmetricconf, fig.align = "center", fig.cap = "ekman example, metric", echo = FALSE}
+par(pty = "s", mfrow = c(1, 2))
+smacofConfigurationPlot(
+  ekmanMetric,
+  main = "Metric Analysis (1-s)", cex = .75)
+smacofConfigurationPlot(
+  ekman3Metric,
+  main = "Metric Analysis (1-s)^3", cex = .75)
 ```
 
 ```{r ekmancubic, fig.align = "center", fig.cap = "ekman example, cubic analysis", echo = FALSE}
