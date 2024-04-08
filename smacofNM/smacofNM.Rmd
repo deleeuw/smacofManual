@@ -56,6 +56,10 @@ $$
 which must be minimized over $X$ and over $\delta_r\in\mathcal{K}_r$, with $\mathcal{K}_r$ pointed polyhedral convex cones, defined by a partial order 
 $\leq_r$.
 
+We assume $\omega_{ijr}=w_{ij}\epsilon_{ijr}$ where
+$\epsilon_{ijr}=1$ if pair $(i,j)$ is in presentation
+$r$ and $\epsilon_{ijr}=1$ otherwise.
+
 Minimize of $X$ for given $\delta_{ijr}$. 
 $$
 \sigma_R(X,\Delta_1,\cdots,\Delta_s)=\sum_{r=1}^s\sum_{i,j} w_{ijr}\delta_{ijr}^2-2\sum_{r=1}^s\sum_{i,j} w_{ijr}\delta_{ijr}d_{ij}(X)+\sum_{r=1}^s\sum_{i,j} w_{ijr}d_{ij}^2(X))
@@ -148,9 +152,20 @@ $n\binom{n-1}{2}=\frac12n(n-1)(n-2)\approx\frac12n^3$
 presentations for a complete set. Since there is only
 one comparision involved, this is a special case of
 the paired comparisons method, in which the pairs always
-have excetly one stimulus in common. @coombs_54 call this the *method of propellors* because we only draw lines
-from the bottom  stimulus (the "hub") to the two stimuli
-at the top.
+have exactly one stimulus in common. @coombs_54 call this the *method of propellors* because we have only drawn lines from the bottom stimulus (the "hub") to the two stimuli at the top.
+
+It is clear that the judments by the subjects in the each presentation of the complete method of triads can also be
+coded as three paired comparisons. We could then us the
+smacof method for paired comparison for the data thus 
+generated. But this ignores the information that stimuli were presented in triples. It also has the problem that
+if we code the data as paired comparisons then we could also code only use only two pairs of pairs per presentation and still have the same information. 
+
+Of course if the number of stimuli is at all large
+then the number of triads is too large for a subject to handle, even if they are highly motivated, paid, or
+undergraduate. In this case we could use either
+a random sample from the set of all triads, or a 
+balanced design, as in @levelt_vandegeer_plomp_66.
+
 
 
 
