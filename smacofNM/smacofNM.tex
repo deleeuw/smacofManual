@@ -39,46 +39,6 @@
 \makeatother
 \usepackage{xcolor}
 \usepackage[margin=1in]{geometry}
-\usepackage{color}
-\usepackage{fancyvrb}
-\newcommand{\VerbBar}{|}
-\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
-\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
-% Add ',fontsize=\small' for more characters per line
-\usepackage{framed}
-\definecolor{shadecolor}{RGB}{248,248,248}
-\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
-\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
-\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
-\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
-\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
-\newcommand{\BuiltInTok}[1]{#1}
-\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
-\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
-\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
-\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
-\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
-\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
-\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
-\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
-\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
-\newcommand{\ExtensionTok}[1]{#1}
-\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
-\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
-\newcommand{\ImportTok}[1]{#1}
-\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
-\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
-\newcommand{\NormalTok}[1]{#1}
-\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
-\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
-\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
-\newcommand{\RegionMarkerTok}[1]{#1}
-\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
-\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
-\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
-\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
-\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
-\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
 \usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
 % Correct order of tables after \paragraph or \subparagraph
@@ -196,7 +156,7 @@
 \title{Smacof at 50: A Manual\\
 Part 2: Non-metric Smacof}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started March 30 2024, Version of April 07, 2024}
+\date{Started March 30 2024, Version of April 12, 2024}
 
 \begin{document}
 \maketitle
@@ -224,43 +184,185 @@ pick and rank
 
 \section{Loss Function}\label{loss-function}
 
-\[
-\sigma(X,\Delta_1,\cdots,\Delta_s)=\frac{\sum_{r=1}^s\sum_{i,j} w_{ijr}(\delta_{ijr}-d_{ij}(X))^2}{\sum_{r=1}^s\sum_{i,j} w_{ijr}d_{ij}^2(X))}
-\]
-which must be minimized over \(X\) and over \(\delta_r\in\mathcal{K}_r\), with \(\mathcal{K}_r\) pointed polyhedral convex cones, defined by a partial order
-\(\leq_r\).
+We start with a general non-metric MDS problem. The formulas for the general case are simpler than those for the various special cases implemented
+in smacofNM.
 
-Minimize of \(X\) for given \(\delta_{ijr}\).
-\[
-\sigma_R(X,\Delta_1,\cdots,\Delta_s)=\sum_{r=1}^s\sum_{i,j} w_{ijr}\delta_{ijr}^2-2\sum_{r=1}^s\sum_{i,j} w_{ijr}\delta_{ijr}d_{ij}(X)+\sum_{r=1}^s\sum_{i,j} w_{ijr}d_{ij}^2(X))
-\]
-Nor use the basic smacof inequality
-\[
-d_{ij}(X)\geq\frac{1}{d_{ij}(Y)}\text{tr}\ X'A_{ij}Y 
-\]
+The loss function is
+\begin{equation}
+\sigma(X,\Delta_1,\cdots,\Delta_s):=\sum_{r=1}^R\sigma_r(X,\Delta_r),
+\label{eq:stressdef}
+\end{equation}
+with
+\begin{equation}
+\sigma_r(X,\Delta_r):=\sum_{i=1}^n\sum_{j=1}^n w_{ijr}(\delta_{ijr}-d_{ij}(X))^2.
+\label{eq:rstressdef}
+\end{equation}
+As usual, the symbol \(:=\) is used for definitions.
+
+The \emph{weights} \(W_r=\{w_{ijr}\}\) are known non-negative
+numbers and \(D(X):=\{d_{ij}(X)\}\) is a matrix of Euclidean distances
+between the rows of the \(n\times p\) \emph{configuration} \(X=\{x_{is}\}\), which are interpreted as \(n\) points in \(\mathbb{R}^p\).
+
+Loss function \eqref{eq:stressdef} must be minimized over \emph{configurations} \(X\) and over the \(K\) matrices of \emph{disparities} \(\Delta_r=\{\delta_{ijr}\}\). The minimization problem has some constraints, both on \(X\) and on the \(\Delta_r\).
+We require that \(X\in\mathcal{X}\subseteq\mathbb{R}^{n\times p}\). Here \(\mathcal{X}\) is the set of \emph{column-centered} (columns add up to zero) \(n\times p\) matrices that are \emph{normalized} by
+\begin{equation}
+\sum_{i=1}^n\sum_{j=1}^n w_{ij}^\star d_{ij}^2(X))=1,
+\label{eq:xscale}
+\end{equation}
+where
+\begin{equation}
+w_{ij}^\star:=\sum_{r=1}^R w_{ijr}.
+\label{eq:wstardef}
+\end{equation}
+
+The \emph{disparities} \(\Delta_r=\{\delta_{ijr}\}\) are required to satisfy \(\Delta_r\in\mathcal{C}_r\). The \(\mathcal{C}_r\) are polyhedral convex cones, which are subcones of the cone of non-negative matrices. Each of the cones is defined by partial orders \(\leq_r\) over the elements of the \(\Delta_r\). In general, neither the (known) weight matrices \(W_r\) nor the (unknown) disparity matrices \(\Delta_r\) need to be symmetric and/or hollow (i.e.~have zero diagonal).
+
+The \emph{data} of the MDS problem are the weights \(W_r\) and the cones \(\mathcal{C}_r\). Each pair \((W_r,\mathcal{C}_r)\) is called a \emph{slice} of the data. The \emph{unknowns} or \emph{parameters} of the problem are \(X\in\mathcal{X}\) and the \(\Delta_r\in\mathcal{C}_r\).
+
+\section{Algorithm}\label{algorithm}
+
+\subsection{Initial Configuration}\label{initial-configuration}
+
+In smacofBS and smacofAC the default initial configuration is the
+classical Torgerson metric MDS solution. That is not available for
+smacofNM, because there are no numerical dissimilarities. In
+De Leeuw (1970) (section 5.1) and De Leeuw (1974) (chapter 4) a different eigenvalue-eigenvector based initial solution is proposed. We discuss a somewhat modernized version here. It is sometime known as the
+\emph{maximum sum method}.
+
+Let us interpret our data as an order over a number of pairs of pairs. For purposes of the initial configuration triads, propellors, and rank orders are also coded as pairs of pairs.
+Consider
+\begin{equation}
+\omega(X):=\mathop{\sum\sum}_{(i,j)\prec(k,l)}(d_{ij}^2(X)-d_{kl}^2(X)),
+\label{eq:omegadef}
+\end{equation}
+where \((i,j)\prec(k,l)\) means that we want \(d_{ij}(X)\leq d_{kl}(X)\).
+We want all terms in \(\omega(X)\) to be positive, but for purposes of
+the initial configuration we relax this to wanting their sum to be
+large. This explains the ``maximum sum'' label.
+
+The sum \eqref{eq:omegadef} can be written as the quadratic form
+\(\omega(X)=\text{tr}\ X'A^\star X,\)
+with
+\begin{equation}
+A^\star:=\left\{\sum_{(i,j)}\sum_{(k,l)}(A_{ij}-A_{kl})\right\} 
+\label{eq:astardef}
+\end{equation}
+Note that \(A^\star\) is symmetric and doubly-centered. Moreover
+its trace is zero, and consequently it has one zero, some negative,
+and some positive eigenvalues.
+
+Because \(X\) is column centered we have
+\(\omega(X)=\text{tr}\ X'(A^\star + \theta J)X\) where \(J\) is the
+centering matrix \(I-n^{-1}ee'\) and \(\theta\) is arbitrary. For
+the non-zero eigenvalues we have
+\(\lambda_s(A^\star + \theta J))=\lambda_s(A^\star) + \theta,\)
+and thus for \(\theta\geq-\lambda_{\text{min}}(A^\star)\) the matrix \(A^\star + \theta J\) is positive semi-definite.
+
+Of course maximizing \(\omega\) over all \(X\) does not make sense, because
+by making \(X\) larger we make \(\omega\) larger. Thus the supremum over all
+\(X\) is \(+\infty\) and the maximum is not attained. We need some
+kind of normalization. The obvious choice is \(\text{tr}\ X'X=1\), but
+unfortunately that does not work. It gives a rank-one solution
+with all columns of \(X\) equal to the eigenvector corresponding with the
+dominant eigenvalue of \(A^\star\). Instead we use \(\text{tr}\ (X'X)^2=1\).
+This gives the solution \(X=K\Lambda^\frac12\) with \(\Lambda\) the largest \(p\) eigenvalues of \(A^\star\) (assumed to be non-negative) and \(K\) the
+corresponding normalized eigenvectors. This is our version of
+the Torgerson initial solution for non-metric MDS.
+
+We have been deliberately vague about what to do if the number of
+positive eigenvalues of \(A^\star\) is less than \(p\), which is of
+course a problem the Torgerson metric MDS solution has as well. In the
+program we simply choose \(\theta\) equal to \(-\lambda_p(A^\star)\)
+if \(\lambda_p(A^\star)<0\). We expect the problem to be rare, and
+the actual choice of \(\theta\) to be fairly inconsequential.
+
+\subsection{The Iterations}\label{the-iterations}
+
+As in other smacof implementations our minimization method is based on the \emph{alternating least squares} principle. Start
+iteration \(\nu=0\) with the initial normalized configuration \(X^{(0)}\). We do not need an initial \((\Delta_1^{(0)},\cdots,\Delta_1^{(0)})\). Then in each iteration \(\nu\) we improve the configuration and the disparities by solving two subproblems. They are
+\begin{align}
+\text{Step  }\nu.1:\quad&\text{For }k=1,\cdots,K\text{ set } \Delta_r^{(\nu+1)}=\mathop{\text{argmin}}_{\Delta_r\in\mathcal{C}_r}\sigma_r(X^{(\nu)},\Delta_r),\label{eq:alsprob1}\\
+\text{Step  }\nu.2:\quad&\text{select }X^{(\nu+1)}\text{ from }\mathop{\text{argmin}}_{X\in\mathcal{X}}\sigma(X,\Delta_1^{(\nu+1)},\cdots,\Delta_s^{(k+1)}).\label{eq:alsprob2}
+\end{align}
+
+\subsection{First Subproblem}\label{first-subproblem}
+
+In formulating the first subproblem \eqref{eq:alsprob1} we have used the fact that the projections on the cones \(\mathcal{C}_r\) can be carried out separately for each \(k\). We also know that the projections exist and are unique.
+
+\subsection{Second Subproblem}\label{second-subproblem}
+
+To minimize loss over \(X\in\mathcal{X}\) for the current best value of the \(\Delta_r\). This subproblem is simplified by using the least squares partitioning
+\begin{equation}
+\sigma(X,\Delta_1,\cdots,\Delta_s)=\sum_{r=1}^R\sum_{i=1}^n\sum_{j=1}^nw_{ijr}(\delta_{ijr}-\delta_{ij}^\star)^2+\sum_{i=1}^n\sum_{j=1}^nw_{ij}^\star(\delta_{ij}^\star-d_{ij}(X))^2,
+\label{eq:stresspart}
+\end{equation}
+where
+\begin{equation}
+\delta_{ij}^\star=\frac{\sum_{r=1}^R w_{ijr}\delta_{ijr}}{\sum_{r=1}^R w_{ijr}}.
+\label{eq:deltastardef}
+\end{equation}
+
+Minimizing over \(X\) can be done by minimizing the second term on the right in
+\eqref{eq:stresspart}, which is a standard metric smacof problem. But unfortunately there is no closed form solution for this problem, and the
+minimizer must be computed by an infinite iterative process. Of course
+we do not want to have an infinite iterative process with the infinite alternating least square process, and thus we truncate the minimizations
+in the second subproblem. Although the resulting algorithm is not
+strictly of the form \eqref{eq:alsprob1}-\eqref{eq:alsprob2} any more, it does
+decrease the loss function in each iteration and consequently
+produces a stable and convergent algorithm. Since the smacof iterations
+use majorization (or MM), our overall algorithm combines alternating
+least squares and majorization.
+
+\section{Special Cases}\label{special-cases}
+
+\subsection{Slice-Independence}\label{slice-independence}
+
+We will assume throughout that \(w_{ijr}=w_{ij}\epsilon_{ijr}\), where
+\(\epsilon_{ijr}=1\) is either zero or one. If \(\epsilon_{ijr}\) is one, we say that pair \((i,j)\) \emph{participates} in slice \(r\). Thus \(\epsilon_{ijr}=0\) for all pairs that do not particpate. We refer to the assumption \(w_{ijr}=w_{ij}\epsilon_{ijr}\) on the weights as the \emph{slice-independent} case.
+
+To see the consequences of slice-independence for our equations
+we define
+\begin{equation}
+\mathcal{I}_r:=\{(i, j)\mid \epsilon_{ijr}= 1\}
+\label{eq:irdef}
+\end{equation}
 so that
-\[
-\sum_{r=1}^s\sum_{i,j} w_{ijr}\delta_{ijr}d_{ij}(X)\geq
-\text{tr}\ X'B(Y)Y
-\]
-\[
-B(Y):=\sum_{r=1}^s\sum_{i,j} w_{ijr}\frac{\delta_{ijr}}{d_{ij}(Y)}A_{ij}
-\]
-Also
-\[
-V:=\sum_{r=1}^s\sum_{i,j} w_{ijr}A_{ij}
-\]
-So that
-\[
-\sigma_R(X)\leq K-2\text{tr}\ X'B(Y)Y+\text{tr}\ X'VX
-\]
-and the smacof update over \(X\) with \(\text{tr}\ X'VX=1\) is the same
-as in smacofRR.
+\begin{equation}
+\sigma_r(X,\Delta_1,\cdots,\Delta_s)=\sum_{(i,j)\in\mathcal{I}_r} w_{ij}(\delta_{ijr}-d_{ij}(X))^2
+\label{eq:stressdefred}
+\end{equation}
 
-\section{Paired Comparisons}\label{paired-comparisons}
+Equation \eqref{eq:wstardef} gives \(w_{ij}^\star=w_{ij}\epsilon_{ij}^\star,\)
+where \(\epsilon_{ij}^\star\) is the number of times pair \((i,j)\) occurs in
+the \(R\) slices. A set of slices is \emph{balanced} if all \(\epsilon_{ij}^\star\) are equal. Also, from \eqref{eq:deltastardef},
+\begin{equation}
+\delta_{ij}^\star=\frac{\sum_{r=1}^R \epsilon_{ijr}\delta_{ijr}}{\sum_{r=1}^R \epsilon_{ijr}}
+\label{eq:deltastarsimp}
+\end{equation}
+which does not depend on the \(w_{ij}\).
+
+It follows that in our computations we have to deal with various
+different sets of weights. There are the \(w_{ijr}\), the \(w_{ij}^\star\),
+the \(w_{ij}\), and the \(\epsilon_{ij}^\star\). In the first ALS subproblem
+where we minimize over the \(\Delta_r\) for fixed \(X\) we use
+equation \eqref{eq:stressdefred}, i.e.~we use the \(w_{ij}\). If we minimize over \(X\) for fixed \(\Delta_r\) we use \eqref{eq:stresspart}, which means we
+use \(w_{ij}^\star=w_{ij}\epsilon_{ij}^\star\) and \(\delta_{ij}^\star\)
+given by \eqref{eq:deltastarsimp}. Of course this all simplifies dramatically
+if \(w_{ij}=1\) for all pairs \((i,j)\) (the \emph{unweighted} case).
+
+\subsection{Rank Order}\label{rank-order}
+
+Ordinary non-metric multidimensional scaling is the special case in which
+there is only one slice (\(R=1\)) and the cone \(\mathcal{C}\) is the isotone cone (possibly with provisions for ties). We have \(\epsilon_{ij}=\epsilon_{ij}^\star=1\) for all
+\((i,j)\), and thus \(w_{ij}^\star=w_{ij}\). There is only a single sets of weights we have to deal with, same as in smacofBS and smacofAC.
+
+Finding the optimum \(\Delta\) for given \(X\) is a single monotone regression
+problem, possibly using the primary or secondary approach to ties (De Leeuw (1977)).
+
+\subsection{Paired Comparisons}\label{paired-comparisons}
 
 THe paired comparison method of data collection is the simplest and
-the most basic one of the Cartwheel methods.
+the most basic one of the cartwheel methods.
 
 Positive Orthant / Absolute Value / Pairwise
 
@@ -270,33 +372,41 @@ Hartmann (1979)
 Guttman (1969)
 Johnson (1973)
 
-Suppose datum \(r\) says that that \((i,j)<(k,l)\). Then \(w_{ijr}\) and \(w_{klr}\)
-are non-zero and all other elements of \(W_r\) are zero.
+Suppose datum \(r\) says that that \((i,j)\prec(k,l)\). In the slice independent case \(w_{ijr}=w_{ij}\) and \(w_{klr}=w_{kl}\)
+can be non-zero and all other elements of \(W_r\) are zero.
+
+Use \(w_{(i,j)_r}\)
 Thus
 \[
-w_{ijr}(\delta_{ijr}-d_{ij})^2+w_{klr}(\delta_{klr}-d_{kl})^2
+w_{ij}(\delta_{ijr}-d_{ij})^2+w_{kl}(\delta_{klr}-d_{kl})^2
 \]
 Must be minimized over \(\delta_{ijr}\leq\delta_{klr}\). If \(d_{ij}\leq d_{kl}\)
 then \(\hat d_{ijr}=d_{ij}\) and \(\hat d_{klr}=d_{kl}\), and otherwise
 \[
-\hat d_{ijr}=\hat d_{klr}=\frac{w_{ijr}d_{ij}+w_{klr}d_{kl}}{w_{ijr}+w_{klr}}
+\hat d_{ijr}=\hat d_{klr}=\frac{w_{ij}d_{ij}+w_{kl}d_{kl}}{w_{ij}+w_{kl}}
 \]
 Thus
 
-\[w_{ijr}(\hat d_{ijr}-d_{ij})^2+w_{klr}(\hat d_{klr}-d_{kl})^2\]
+\[w_{ij}(\hat d_{ijr}-d_{ij})^2+w_{kl}(\hat d_{klr}-d_{kl})^2\]
 is zero if the order of \(d_{ij}\) and \(d_{kl}\) is the same as the order in the data
 and
 
 \[
-\frac{w_{ijr}w_{klr}}{w_{ijr}+w_{klr}}(d_{ij}-d_{kl})^2
+\frac{w_{ij}w_{kl}}{w_{ij}+w_{kl}}(d_{ij}-d_{kl})^2
+\]
+Also
+
+\[w_{ij}(\hat d_{ijr}-d_{ij})^2+w_{kl}(\hat d_{klr}-d_{kl})^2=\]
+\[
+w_{ij}\hat d_{ijr}^2+w_{kl}\hat d_{klr}^2+\\
+-2w_{ij}\hat d_{ijr}d_{ij}-2w_{kl}\hat d_{klr}d_{kl}+
 \]
 
 So far we have only considered the forced-choice situation in which
-the subject has to choose one of the pairs. If we allow for the alternative
-that \((i,j)\) and \((k,l)\) are equally similar then we can choose between two approaches. In the \emph{primary approach} we incur no loss for this pair, no matter what \(d_{ij}(X)\) and \(d_{kl}(X)\) are. In the \emph{secondary approach} we require that \(\delta_{ijr}=\delta_{klr}\) and consequently we add to the loss if
+the subject has to choose one of the two pairs. If we allow for the alternative that \((i,j)\) and \((k,l)\) are equally similar then we can choose between two different approaches. In the \emph{primary approach} we incur no loss for this pair, no matter what \(d_{ij}(X)\) and \(d_{kl}(X)\) are. In the \emph{secondary approach} we require that \(\delta_{ijr}=\delta_{klr}\) and consequently we use \ldots{} and add to the loss if
 \(d_{ij}X)\not= d_{kl}(X)\).
 
-\section{Triads}\label{triads}
+\subsection{Triads}\label{triads}
 
 We have implemented three different versions of the method of triads, in which stimuli are presented three at a time,
 at the corners of an equilateral triangle, as in
@@ -310,608 +420,35 @@ and we interpret the responses as giving us a rank order.
 Coombs (1954) calls this the \emph{method of similarities},
 and Torgerson (1958) calls it the \emph{complete method of triads}.
 
+\subsection{Propellors}\label{propellors}
+
 The second method was first proposed by Richardson (1938),
-as the \emph{method of triadic cobinations}. Every triad is presented three times using a slightly different layout.
+as the \emph{method of triadic combinations}. Every triad is presented three times using a layout that is slightly dfferent from the complete method of triads.
 \ldots{}
 We ask the subject which one of the top stimuli is most similar to the bottom stimulus. This requires
 \(n\binom{n-1}{2}=\frac12n(n-1)(n-2)\approx\frac12n^3\)
 presentations for a complete set. Since there is only
 one comparision involved, this is a special case of
 the paired comparisons method, in which the pairs always
-have excetly one stimulus in common. Coombs (1954) call this the \emph{method of propellors} because we only draw lines
-from the bottom stimulus (the ``hub'') to the two stimuli
-at the top.
+have exactly one stimulus in common. Coombs (1954) call this the \emph{method of propellors} because we have only drawn lines from the bottom stimulus (the ``hub'') to the two stimuli at the top.
 
-\section{Richardson Hub Method}\label{richardson-hub-method}
+It is clear that the judments by the subjects in the each presentation of the complete method of triads can also be
+coded as three paired comparisons. We could then us the
+smacof method for paired comparison for the data thus
+generated. But this ignores the information that stimuli were presented in triples. It also has the problem that
+if we code the data as paired comparisons then we could also code only use only two pairs of pairs per presentation and still have the same information.
 
-each triple presented three times, with a different hub each time
-which one of the two is maximally similar to the hub stimulus. Thus the data
-is the single inequality \((i,k) < (j,k)\). Coombs calls this the \ldots{}
+Of course if the number of stimuli is at all large
+then the number of triads is too large for a subject to handle, even if they are highly motivated, paid, or
+undergraduate. In this case we could use either
+a random sample from the set of all triads, or a
+balanced design, as in Levelt, Van De Geer, and Plomp (1966).
 
-\section{Conditional Rank Orders -- Klingberg}\label{conditional-rank-orders-klingberg}
+\subsection{Conditional Rank Orders -- Klingberg}\label{conditional-rank-orders-klingberg}
 
-\section{Full Rank Orders}\label{full-rank-orders}
+\section{Data Collection Programs}\label{data-collection-programs}
 
-\section{A Paired Comparison Example}\label{a-paired-comparison-example}
-
-The objects that we want to scale are 10 Dutch political parties.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{parties}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-##  [1] "GL"   "PvdA" "VVD"  "D66"  "CDA"  "SP"   "PvdD" "CU"   "FVD"  "SGP"
-\end{verbatim}
-
-There is only one subject, and it is me. I used the program \texttt{smacofMakeRandomPairs()} to generate
-and present to me 50 random pairs of pairs \((i,j)\) and \((k,l)\). One such pair looks like
-
-\begin{center}\includegraphics{smacofNM_files/figure-latex/apair-1} \end{center}
-
-\begin{verbatim}
-## (D66,VVD) and (PvdD,CU)
-## most similar pair:
-\end{verbatim}
-
-In Rstudio the graphics are in the plot window, the text is in the console. If
-you run R from the terminal the text will be in the terminal, and the graphics will
-be in the R graphics device for the session.
-
-It took me about
-5 minutes to make the 50 binary choices, duly recorded by the program. I left The Netherlands almost 40 years ago, so I am far from an expert on Dutch politics, so
-my choices may be far off the mark.
-
-The data, with the four indices first and then the choice, are
-
-\begin{verbatim}
-##     i  j  k  l  
-## 1   8  5  2  9 1
-## 2   4  1  1  2 2
-## 3   1  3  2  7 2
-## 4   5  2  2  7 2
-## 5   2  9  9  8 2
-## 6   7  5  9 10 1
-## 7   1 10 10  8 2
-## 8   9 10  9  4 2
-## 9   5  2  5  9 2
-## 10  4  1 10  7 1
-## 11  1  3  5 10 2
-## 12  4 10  1 10 1
-## 13  5  4  8  5 2
-## 14  5  1  4  2 2
-## 15  4 10  5  2 2
-## 16  1  3  9 10 2
-## 17  4  7  4  3 2
-## 18  4  1 10  7 1
-## 19  6  4  5  4 2
-## 20  6  1  9  3 2
-## 21  8  3  4  3 1
-## 22 10  7  6  1 2
-## 23  4  1  9  8 1
-## 24 10  7  2  6 2
-## 25  8  6  5  4 2
-## 26  8  7  4  1 2
-## 27  6  7  1  2 2
-## 28  9  7  4  3 2
-## 29  4  8  6  4 1
-## 30  2  7  9  7 1
-## 31  2  8  9  4 1
-## 32  4  7  6  4 1
-## 33  5  9  9 10 1
-## 34  1  8  4  2 2
-## 35  1  3  9  7 1
-## 36 10  8  3  6 1
-## 37  1  3  6  7 1
-## 38  1 10  9  8 2
-## 39  1  2 10  2 1
-## 40  2  9  9  8 2
-## 41  6 10  9  4 2
-## 42 10  2  6  5 2
-## 43  1  7  7  5 1
-## 44  3  5 10  8 1
-## 45  5  9  2  8 1
-## 46  9  8  9 10 1
-## 47  9  8  6  4 1
-## 48  9  4  6  1 1
-## 49  2  8  4  7 2
-## 50  4  1  9  4 1
-\end{verbatim}
-
-Thus in the first row I say that the pair \((8,5)\) is more similar than \((2,9)\), in other words (CU, CDA) is more similar than (PvdA, FVD).
-
-In order to start the iterative process we need an initial configuration. Insipred by De Gruijter (1967) I used
-the infamous left-right horseshoe.
-
-\begin{center}\includegraphics{smacofNM_files/figure-latex/partiesxold-1} \end{center}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{source}\NormalTok{(}\StringTok{"../../smacofCode/smacofNM/smacofNMforPairs.R"}\NormalTok{)}
-\NormalTok{partiesResult }\OtherTok{\textless{}{-}} \FunctionTok{smacofNMforPairs}\NormalTok{(partiesData, partiesXold, }
-                                  \AttributeTok{eps =} \FloatTok{1e{-}15}\NormalTok{, }\AttributeTok{itmax =} \DecValTok{1000}\NormalTok{, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-We have nice smooth monotone convergence. The convergence criterion is reached
-in 344 iterations and the stress is \ensuremath{1.3573576\times 10^{-14}}, i.e.
-practically zero. Thus we have actually found a solution to the system of
-50 nonlinear inequalities defined by the data. This means two things. In the
-first place I am consistent in my choices, and in the second place the solution
-is undoubtedly far from unique. The map is
-
-\begin{center}\includegraphics{smacofNM_files/figure-latex/partiesxnew-1} \end{center}
-
-We are still reasonably close to the horseshoe, showing the influence of the
-initial configuration. Of course the main reason for the non-uniqueness is
-not the consistency of my choices, but the fact that we have used only 50
-pairs from the \texttt{choose(choose(10,\ 2),\ 2)} = 990 possible
-ones. The solution will become much tighter if there are more pairs, either
-from a single subject, or from a number of subjects (in which case we would
-certainly prefer MDS with parameters for individual differences).
-
-\section{A Rank Order Example}\label{a-rank-order-example}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{library}\NormalTok{(MASS)}
-
-\FunctionTok{source}\NormalTok{(}\StringTok{"../../smacofCode/smacofNM/smacofConvert.R"}\NormalTok{)}
-\FunctionTok{source}\NormalTok{(}\StringTok{"../../smacofCode/smacofNM/smacofMakeData.R"}\NormalTok{)}
-\FunctionTok{source}\NormalTok{(}\StringTok{"../../smacofCode/smacofNM/smacofMonotoneRegression.R"}\NormalTok{)}
-\FunctionTok{source}\NormalTok{(}\StringTok{"../../smacofCode/smacofNM/smacofPlots.R"}\NormalTok{)}
-
-\FunctionTok{data}\NormalTok{(ekman, }\AttributeTok{package =} \StringTok{"smacof"}\NormalTok{)}
-\NormalTok{ekman }\OtherTok{\textless{}{-}} \DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ ekman }
-\NormalTok{ekmanData }\OtherTok{\textless{}{-}} \FunctionTok{smacofMakeRankOrderData}\NormalTok{(ekman)}
-\NormalTok{ekmanXold }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\FloatTok{0.1576320}\NormalTok{, }\SpecialCharTok{{-}}\FloatTok{0.54429773}\NormalTok{,}
-                      \SpecialCharTok{{-}}\FloatTok{0.2169837}\NormalTok{, }\SpecialCharTok{{-}}\FloatTok{0.50815312}\NormalTok{,}
-                      \SpecialCharTok{{-}}\FloatTok{0.4778581}\NormalTok{, }\SpecialCharTok{{-}}\FloatTok{0.31203061}\NormalTok{,}
-                      \SpecialCharTok{{-}}\FloatTok{0.5131424}\NormalTok{, }\SpecialCharTok{{-}}\FloatTok{0.23393512}\NormalTok{,}
-                      \SpecialCharTok{{-}}\FloatTok{0.5338027}\NormalTok{,  }\FloatTok{0.09175252}\NormalTok{,}
-                      \SpecialCharTok{{-}}\FloatTok{0.4368053}\NormalTok{,  }\FloatTok{0.36071649}\NormalTok{,}
-                      \SpecialCharTok{{-}}\FloatTok{0.2650675}\NormalTok{,  }\FloatTok{0.52174944}\NormalTok{,}
-                      \SpecialCharTok{{-}}\FloatTok{0.1374662}\NormalTok{, }\FloatTok{0.57443857}\NormalTok{,}
-                      \FloatTok{0.3162169}\NormalTok{,  }\FloatTok{0.46015778}\NormalTok{,}
-                      \FloatTok{0.4575480}\NormalTok{,  }\FloatTok{0.24454905}\NormalTok{,}
-                      \FloatTok{0.5210238}\NormalTok{,  }\FloatTok{0.03357499}\NormalTok{,}
-                      \FloatTok{0.5128727}\NormalTok{, }\SpecialCharTok{{-}}\FloatTok{0.13074190}\NormalTok{,}
-                      \FloatTok{0.4824539}\NormalTok{, }\SpecialCharTok{{-}}\FloatTok{0.22250509}\NormalTok{,}
-                      \FloatTok{0.4486425}\NormalTok{, }\SpecialCharTok{{-}}\FloatTok{0.33527525}\NormalTok{), }\DecValTok{14}\NormalTok{, }\DecValTok{2}\NormalTok{, }\AttributeTok{byrow =} \ConstantTok{TRUE}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\section{Code}\label{code}
-
-\subsection{Make the cartwheels and ask for choices}\label{make-the-cartwheels-and-ask-for-choices}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{smacofMakeAllTriads }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(names, }\AttributeTok{complete =} \ConstantTok{TRUE}\NormalTok{) \{}
-\NormalTok{  outfile }\OtherTok{\textless{}{-}} \FunctionTok{file}\NormalTok{(}\StringTok{"./output.txt"}\NormalTok{, }\AttributeTok{open =} \StringTok{"w"}\NormalTok{)}
-\NormalTok{  n }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(names)}
-\NormalTok{  m }\OtherTok{\textless{}{-}} \FunctionTok{choose}\NormalTok{(n, }\DecValTok{3}\NormalTok{)}
-\NormalTok{  z }\OtherTok{\textless{}{-}} \FunctionTok{t}\NormalTok{(}\FunctionTok{combn}\NormalTok{(n, }\DecValTok{3}\NormalTok{))[}\FunctionTok{sample}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\NormalTok{m, m), ]}
-\NormalTok{  z }\OtherTok{\textless{}{-}} \FunctionTok{t}\NormalTok{(}\FunctionTok{apply}\NormalTok{(z, }\DecValTok{1}\NormalTok{, }\ControlFlowTok{function}\NormalTok{(x)}
-    \FunctionTok{sample}\NormalTok{(x, }\FunctionTok{length}\NormalTok{(x))))}
-\NormalTok{  y }\OtherTok{\textless{}{-}} \DecValTok{8} \SpecialCharTok{{-}} \DecValTok{3} \SpecialCharTok{*} \FunctionTok{sqrt}\NormalTok{(}\DecValTok{3}\NormalTok{)}
-  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{m) \{}
-\NormalTok{    x }\OtherTok{\textless{}{-}}\NormalTok{ z[i, ]}
-    \FunctionTok{plot}\NormalTok{(}
-      \DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{,}
-      \AttributeTok{axes =} \ConstantTok{FALSE}\NormalTok{,}
-      \AttributeTok{type =} \StringTok{"n"}\NormalTok{,}
-      \AttributeTok{xlab =} \StringTok{""}\NormalTok{,}
-      \AttributeTok{ylab =} \StringTok{""}
-\NormalTok{    )}
-    \FunctionTok{lines}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{8}\NormalTok{), }\FunctionTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{, }\DecValTok{8}\NormalTok{), }\AttributeTok{col =} \StringTok{"RED"}\NormalTok{)}
-    \FunctionTok{lines}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{5}\NormalTok{), }\FunctionTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{, y), }\AttributeTok{col =} \StringTok{"RED"}\NormalTok{)}
-    \FunctionTok{lines}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{, }\DecValTok{5}\NormalTok{), }\FunctionTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{, y), }\AttributeTok{col =} \StringTok{"RED"}\NormalTok{)}
-    \FunctionTok{text}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{5}\NormalTok{), }\FunctionTok{c}\NormalTok{(}\FloatTok{8.2}\NormalTok{, }\FloatTok{8.2}\NormalTok{, y }\SpecialCharTok{{-}}\NormalTok{ .}\DecValTok{2}\NormalTok{),}
-         \FunctionTok{c}\NormalTok{(names[x[}\DecValTok{1}\NormalTok{]], names[x[}\DecValTok{2}\NormalTok{]], names[x[}\DecValTok{3}\NormalTok{]]), }\AttributeTok{cex =} \FloatTok{1.5}\NormalTok{)}
-    \FunctionTok{text}\NormalTok{(}\DecValTok{5}\NormalTok{, }\FloatTok{8.5}\NormalTok{, }\StringTok{"1"}\NormalTok{)}
-    \FunctionTok{text}\NormalTok{(}\DecValTok{3}\NormalTok{, }\FloatTok{5.40}\NormalTok{, }\StringTok{"2"}\NormalTok{)}
-    \FunctionTok{text}\NormalTok{(}\DecValTok{7}\NormalTok{, }\FloatTok{5.40}\NormalTok{, }\StringTok{"3"}\NormalTok{)}
-    \FunctionTok{print}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\FunctionTok{noquote}\NormalTok{(names[x[}\DecValTok{1}\NormalTok{]]), }\FunctionTok{noquote}\NormalTok{(names[x[}\DecValTok{2}\NormalTok{]]), }\FunctionTok{noquote}\NormalTok{(names[x[}\DecValTok{3}\NormalTok{]])))}
-\NormalTok{    u }\OtherTok{\textless{}{-}} \FunctionTok{readline}\NormalTok{(}\StringTok{"most similar pair: "}\NormalTok{)}
-    \ControlFlowTok{if}\NormalTok{ (complete) \{}
-\NormalTok{      v }\OtherTok{\textless{}{-}} \FunctionTok{readline}\NormalTok{(}\StringTok{"least similar pair: "}\NormalTok{)}
-      \FunctionTok{write}\NormalTok{(}\FunctionTok{c}\NormalTok{(x, u, v), }\AttributeTok{ncolumns =} \DecValTok{5}\NormalTok{, }\AttributeTok{file =}\NormalTok{ outfile)}
-\NormalTok{    \} }\ControlFlowTok{else}\NormalTok{ \{}
-      \FunctionTok{write}\NormalTok{(}\FunctionTok{c}\NormalTok{(x, u), }\AttributeTok{ncolumns =} \DecValTok{4}\NormalTok{, }\AttributeTok{file =}\NormalTok{ outfile)}
-\NormalTok{    \}}
-\NormalTok{  \}}
-  \FunctionTok{close}\NormalTok{(outfile)}
-\NormalTok{\}}
-
-\NormalTok{smacofMakeRandomTriads }\OtherTok{\textless{}{-}}
-  \ControlFlowTok{function}\NormalTok{(names, nrandom, }\AttributeTok{complete =} \ConstantTok{TRUE}\NormalTok{) \{}
-\NormalTok{    outfile }\OtherTok{\textless{}{-}} \FunctionTok{file}\NormalTok{(}\StringTok{"./output.txt"}\NormalTok{, }\AttributeTok{open =} \StringTok{"w"}\NormalTok{)}
-\NormalTok{    n }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(names)}
-\NormalTok{    y }\OtherTok{\textless{}{-}} \DecValTok{8} \SpecialCharTok{{-}} \DecValTok{3} \SpecialCharTok{*} \FunctionTok{sqrt}\NormalTok{(}\DecValTok{3}\NormalTok{)}
-    \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{nrandom) \{}
-\NormalTok{      x }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\NormalTok{n, }\DecValTok{3}\NormalTok{)}
-      \FunctionTok{plot}\NormalTok{(}
-        \DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{,}
-        \AttributeTok{axes =} \ConstantTok{FALSE}\NormalTok{,}
-        \AttributeTok{type =} \StringTok{"n"}\NormalTok{,}
-        \AttributeTok{xlab =} \StringTok{""}\NormalTok{,}
-        \AttributeTok{ylab =} \StringTok{""}
-\NormalTok{      )}
-      \FunctionTok{lines}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{8}\NormalTok{), }\FunctionTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{, }\DecValTok{8}\NormalTok{), }\AttributeTok{col =} \StringTok{"RED"}\NormalTok{)}
-      \FunctionTok{lines}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{5}\NormalTok{), }\FunctionTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{, y), }\AttributeTok{col =} \StringTok{"RED"}\NormalTok{)}
-      \FunctionTok{lines}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{, }\DecValTok{5}\NormalTok{), }\FunctionTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{, y), }\AttributeTok{col =} \StringTok{"RED"}\NormalTok{)}
-      \FunctionTok{text}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{5}\NormalTok{), }\FunctionTok{c}\NormalTok{(}\FloatTok{8.2}\NormalTok{, }\FloatTok{8.2}\NormalTok{, y }\SpecialCharTok{{-}}\NormalTok{ .}\DecValTok{2}\NormalTok{),}
-           \FunctionTok{c}\NormalTok{(names[x[}\DecValTok{1}\NormalTok{]], names[x[}\DecValTok{2}\NormalTok{]], names[x[}\DecValTok{3}\NormalTok{]]), }\AttributeTok{cex =} \FloatTok{1.5}\NormalTok{)}
-      \FunctionTok{text}\NormalTok{(}\DecValTok{5}\NormalTok{, }\FloatTok{8.5}\NormalTok{, }\StringTok{"1"}\NormalTok{)}
-      \FunctionTok{text}\NormalTok{(}\DecValTok{3}\NormalTok{, }\FloatTok{5.40}\NormalTok{, }\StringTok{"2"}\NormalTok{)}
-      \FunctionTok{text}\NormalTok{(}\DecValTok{7}\NormalTok{, }\FloatTok{5.40}\NormalTok{, }\StringTok{"3"}\NormalTok{)}
-      \FunctionTok{print}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\FunctionTok{noquote}\NormalTok{(names[x[}\DecValTok{1}\NormalTok{]]), }\FunctionTok{noquote}\NormalTok{(names[x[}\DecValTok{2}\NormalTok{]]), }\FunctionTok{noquote}\NormalTok{(names[x[}\DecValTok{3}\NormalTok{]])))}
-\NormalTok{      u }\OtherTok{\textless{}{-}} \FunctionTok{readline}\NormalTok{(}\StringTok{"most similar pair: "}\NormalTok{)}
-      \ControlFlowTok{if}\NormalTok{ (complete) \{}
-\NormalTok{        v }\OtherTok{\textless{}{-}} \FunctionTok{readline}\NormalTok{(}\StringTok{"least similar pair: "}\NormalTok{)}
-        \FunctionTok{write}\NormalTok{(}\FunctionTok{c}\NormalTok{(x, u, v), }\AttributeTok{ncolumns =} \DecValTok{5}\NormalTok{, }\AttributeTok{file =}\NormalTok{ outfile)}
-\NormalTok{      \} }\ControlFlowTok{else}\NormalTok{ \{}
-        \FunctionTok{write}\NormalTok{(}\FunctionTok{c}\NormalTok{(x, u), }\AttributeTok{ncolumns =} \DecValTok{4}\NormalTok{, }\AttributeTok{file =}\NormalTok{ outfile)}
-\NormalTok{      \}}
-\NormalTok{    \}}
-    \FunctionTok{close}\NormalTok{(outfile)}
-\NormalTok{  \}}
-
-\NormalTok{smacofMakeAllPairs }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(names) \{}
-\NormalTok{  outfile }\OtherTok{\textless{}{-}} \FunctionTok{file}\NormalTok{(}\StringTok{"./output.txt"}\NormalTok{, }\AttributeTok{open =} \StringTok{"w"}\NormalTok{)}
-\NormalTok{  n }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(names)}
-\NormalTok{  l }\OtherTok{\textless{}{-}} \FunctionTok{choose}\NormalTok{(n, }\DecValTok{2}\NormalTok{)}
-\NormalTok{  u }\OtherTok{\textless{}{-}} \FunctionTok{combn}\NormalTok{(n, }\DecValTok{2}\NormalTok{)}
-\NormalTok{  u }\OtherTok{\textless{}{-}} \FunctionTok{apply}\NormalTok{(u, }\DecValTok{2}\NormalTok{, }\ControlFlowTok{function}\NormalTok{(x)}
-    \FunctionTok{sample}\NormalTok{(x, }\FunctionTok{length}\NormalTok{(x)))}
-\NormalTok{  m }\OtherTok{\textless{}{-}} \FunctionTok{choose}\NormalTok{(l, }\DecValTok{2}\NormalTok{)}
-\NormalTok{  v }\OtherTok{\textless{}{-}} \FunctionTok{combn}\NormalTok{(l, }\DecValTok{2}\NormalTok{)[, }\FunctionTok{sample}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\NormalTok{m, m)]}
-\NormalTok{  v }\OtherTok{\textless{}{-}} \FunctionTok{apply}\NormalTok{(v, }\DecValTok{2}\NormalTok{, }\ControlFlowTok{function}\NormalTok{(x)}
-    \FunctionTok{sample}\NormalTok{(x, }\FunctionTok{length}\NormalTok{(x)))}
-  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{m) \{}
-\NormalTok{    x }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(u[, v[}\DecValTok{1}\NormalTok{, i]], u[, v[}\DecValTok{2}\NormalTok{, i]])}
-    \FunctionTok{plot}\NormalTok{(}
-      \DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{,}
-      \AttributeTok{axes =} \ConstantTok{FALSE}\NormalTok{,}
-      \AttributeTok{type =} \StringTok{"n"}\NormalTok{,}
-      \AttributeTok{xlab =} \StringTok{""}\NormalTok{,}
-      \AttributeTok{ylab =} \StringTok{""}
-\NormalTok{    )}
-    \FunctionTok{lines}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{8}\NormalTok{), }\FunctionTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{, }\DecValTok{8}\NormalTok{), }\AttributeTok{col =} \StringTok{"RED"}\NormalTok{)}
-    \FunctionTok{lines}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{8}\NormalTok{), }\FunctionTok{c}\NormalTok{(}\DecValTok{4}\NormalTok{, }\DecValTok{4}\NormalTok{), }\AttributeTok{col =} \StringTok{"RED"}\NormalTok{)}
-    \FunctionTok{text}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{8}\NormalTok{),}
-         \FunctionTok{c}\NormalTok{(}\FloatTok{8.5}\NormalTok{, }\FloatTok{8.5}\NormalTok{, }\FloatTok{4.5}\NormalTok{, }\FloatTok{4.5}\NormalTok{),}
-         \FunctionTok{c}\NormalTok{(names[x[}\DecValTok{1}\NormalTok{]], names[x[}\DecValTok{2}\NormalTok{]], names[x[}\DecValTok{3}\NormalTok{]], names[x[}\DecValTok{4}\NormalTok{]]),}
-         \AttributeTok{cex =} \FloatTok{1.5}\NormalTok{)}
-    \FunctionTok{text}\NormalTok{(}\DecValTok{5}\NormalTok{, }\FloatTok{8.5}\NormalTok{, }\StringTok{"1"}\NormalTok{)}
-    \FunctionTok{text}\NormalTok{(}\DecValTok{5}\NormalTok{, }\FloatTok{4.5}\NormalTok{, }\StringTok{"2"}\NormalTok{)}
-    \FunctionTok{cat}\NormalTok{(}\StringTok{"("}\NormalTok{,}
-\NormalTok{        names[x[}\DecValTok{1}\NormalTok{]],}
-        \StringTok{","}\NormalTok{,}
-\NormalTok{        names[x[}\DecValTok{2}\NormalTok{]],}
-        \StringTok{") and ("}\NormalTok{,}
-\NormalTok{        names[x[}\DecValTok{3}\NormalTok{]],}
-        \StringTok{","}\NormalTok{,}
-\NormalTok{        names[x[}\DecValTok{4}\NormalTok{]],}
-        \StringTok{")}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{,}
-        \AttributeTok{sep =} \StringTok{""}\NormalTok{)}
-\NormalTok{    r }\OtherTok{\textless{}{-}} \FunctionTok{readline}\NormalTok{(}\StringTok{"most similar pair: "}\NormalTok{)}
-    \FunctionTok{write}\NormalTok{(}\FunctionTok{c}\NormalTok{(x, r), }\AttributeTok{ncolumns =} \DecValTok{5}\NormalTok{, }\AttributeTok{file =}\NormalTok{ outfile)}
-\NormalTok{  \}}
-  \FunctionTok{close}\NormalTok{(outfile)}
-\NormalTok{\}}
-
-\NormalTok{smacofMakeRandomPairs }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(names, nrandom) \{}
-\NormalTok{  outfile }\OtherTok{\textless{}{-}} \FunctionTok{file}\NormalTok{(}\StringTok{"./output.txt"}\NormalTok{, }\AttributeTok{open =} \StringTok{"w"}\NormalTok{)}
-\NormalTok{  n }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(names)}
-\NormalTok{  l }\OtherTok{\textless{}{-}} \FunctionTok{choose}\NormalTok{(n, }\DecValTok{2}\NormalTok{)}
-\NormalTok{  u }\OtherTok{\textless{}{-}} \FunctionTok{combn}\NormalTok{(n, }\DecValTok{2}\NormalTok{)}
-\NormalTok{  u }\OtherTok{\textless{}{-}} \FunctionTok{apply}\NormalTok{(u, }\DecValTok{2}\NormalTok{, }\ControlFlowTok{function}\NormalTok{(x)}
-    \FunctionTok{sample}\NormalTok{(x, }\FunctionTok{length}\NormalTok{(x)))}
-  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{nrandom) \{}
-\NormalTok{    k }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(l, }\DecValTok{2}\NormalTok{)}
-\NormalTok{    x }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(u[, k[}\DecValTok{1}\NormalTok{]], u[, k[}\DecValTok{2}\NormalTok{]])}
-    \FunctionTok{plot}\NormalTok{(}
-      \DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{,}
-      \AttributeTok{axes =} \ConstantTok{FALSE}\NormalTok{,}
-      \AttributeTok{type =} \StringTok{"n"}\NormalTok{,}
-      \AttributeTok{xlab =} \StringTok{""}\NormalTok{,}
-      \AttributeTok{ylab =} \StringTok{""}
-\NormalTok{    )}
-    \FunctionTok{lines}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{8}\NormalTok{), }\FunctionTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{, }\DecValTok{8}\NormalTok{), }\AttributeTok{col =} \StringTok{"RED"}\NormalTok{)}
-    \FunctionTok{lines}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{8}\NormalTok{), }\FunctionTok{c}\NormalTok{(}\DecValTok{4}\NormalTok{, }\DecValTok{4}\NormalTok{), }\AttributeTok{col =} \StringTok{"RED"}\NormalTok{)}
-    \FunctionTok{text}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{8}\NormalTok{),}
-         \FunctionTok{c}\NormalTok{(}\FloatTok{8.5}\NormalTok{, }\FloatTok{8.5}\NormalTok{, }\FloatTok{4.5}\NormalTok{, }\FloatTok{4.5}\NormalTok{),}
-         \FunctionTok{c}\NormalTok{(names[x[}\DecValTok{1}\NormalTok{]], names[x[}\DecValTok{2}\NormalTok{]], names[x[}\DecValTok{3}\NormalTok{]], names[x[}\DecValTok{4}\NormalTok{]]),}
-         \AttributeTok{cex =} \FloatTok{1.5}\NormalTok{)}
-    \FunctionTok{text}\NormalTok{(}\DecValTok{5}\NormalTok{, }\FloatTok{8.5}\NormalTok{, }\StringTok{"1"}\NormalTok{)}
-    \FunctionTok{text}\NormalTok{(}\DecValTok{5}\NormalTok{, }\FloatTok{4.5}\NormalTok{, }\StringTok{"2"}\NormalTok{)}
-    \FunctionTok{cat}\NormalTok{(}\StringTok{"("}\NormalTok{,}
-\NormalTok{        names[x[}\DecValTok{1}\NormalTok{]],}
-        \StringTok{","}\NormalTok{,}
-\NormalTok{        names[x[}\DecValTok{2}\NormalTok{]],}
-        \StringTok{") and ("}\NormalTok{,}
-\NormalTok{        names[x[}\DecValTok{3}\NormalTok{]],}
-        \StringTok{","}\NormalTok{,}
-\NormalTok{        names[x[}\DecValTok{4}\NormalTok{]],}
-        \StringTok{")}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{,}
-        \AttributeTok{sep =} \StringTok{""}\NormalTok{)}
-\NormalTok{    r }\OtherTok{\textless{}{-}} \FunctionTok{readline}\NormalTok{(}\StringTok{"most similar pair: "}\NormalTok{)}
-    \FunctionTok{write}\NormalTok{(}\FunctionTok{c}\NormalTok{(x, r), }\AttributeTok{ncolumns =} \DecValTok{5}\NormalTok{, }\AttributeTok{file =}\NormalTok{ outfile)}
-\NormalTok{  \}}
-  \FunctionTok{close}\NormalTok{(outfile)}
-\NormalTok{\}}
-
-\NormalTok{smacofMakeRankOrderData }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(delta, }\AttributeTok{tieblocks =} \ConstantTok{TRUE}\NormalTok{) \{}
-  \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{any}\NormalTok{(}\FunctionTok{class}\NormalTok{(delta) }\SpecialCharTok{==} \StringTok{"dist"}\NormalTok{)) \{}
-\NormalTok{    n }\OtherTok{\textless{}{-}} \FunctionTok{attr}\NormalTok{(delta, }\StringTok{"Size"}\NormalTok{)}
-\NormalTok{    delta }\OtherTok{\textless{}{-}} \FunctionTok{smacofDistToRMVector}\NormalTok{(delta)}
-\NormalTok{  \}}
-  \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{is.matrix}\NormalTok{(delta)) \{}
-\NormalTok{    delta }\OtherTok{\textless{}{-}} \FunctionTok{as.dist}\NormalTok{(delta)}
-\NormalTok{    n }\OtherTok{\textless{}{-}} \FunctionTok{attr}\NormalTok{(delta, }\StringTok{"Size"}\NormalTok{)}
-\NormalTok{    delta }\OtherTok{\textless{}{-}} \FunctionTok{smacofDistToRMVector}\NormalTok{(delta)}
-\NormalTok{  \}}
-\NormalTok{  delta }\OtherTok{\textless{}{-}} \FunctionTok{rank}\NormalTok{(delta)}
-\NormalTok{  x }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{3}\NormalTok{)}
-\NormalTok{  k }\OtherTok{\textless{}{-}} \DecValTok{1}
-  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{2}\SpecialCharTok{:}\NormalTok{n) \{}
-    \ControlFlowTok{for}\NormalTok{ (j }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{(i }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)) \{}
-\NormalTok{      x }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(x, }\FunctionTok{c}\NormalTok{(i, j, delta[k]))}
-\NormalTok{      k }\OtherTok{\textless{}{-}}\NormalTok{ k }\SpecialCharTok{+} \DecValTok{1}
-\NormalTok{    \}}
-\NormalTok{  \}}
-\NormalTok{  r }\OtherTok{\textless{}{-}} \FunctionTok{order}\NormalTok{(delta)}
-\NormalTok{  x }\OtherTok{\textless{}{-}}\NormalTok{ x[r, ]}
-  \FunctionTok{return}\NormalTok{(x)}
-\NormalTok{\}}
-
-\NormalTok{smacofMakeConditionalRankOrderData }\OtherTok{\textless{}{-}}
-  \ControlFlowTok{function}\NormalTok{(delta, nr, nc, }\AttributeTok{tieblocks =} \ConstantTok{TRUE}\NormalTok{) \{}
-\NormalTok{    x }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{3}\NormalTok{)}
-    \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{nr) \{}
-      \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{is.matrix}\NormalTok{(delta)) \{}
-\NormalTok{        d }\OtherTok{\textless{}{-}}\NormalTok{ delta[i, ]}
-\NormalTok{      \} }\ControlFlowTok{else}\NormalTok{ \{}
-\NormalTok{        d }\OtherTok{\textless{}{-}}\NormalTok{ delta[(i }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{) }\SpecialCharTok{*}\NormalTok{ nc }\SpecialCharTok{+}\NormalTok{ (}\DecValTok{1}\SpecialCharTok{:}\NormalTok{nc)]}
-\NormalTok{      \}}
-\NormalTok{      d }\OtherTok{\textless{}{-}} \FunctionTok{rank}\NormalTok{(d)}
-\NormalTok{      u }\OtherTok{\textless{}{-}} \FunctionTok{order}\NormalTok{(d)}
-\NormalTok{      v }\OtherTok{\textless{}{-}} \FunctionTok{unname}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(i, }\DecValTok{1}\SpecialCharTok{:}\NormalTok{nc, d)[u,])}
-\NormalTok{      x }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(x, v)}
-\NormalTok{    \}}
-    \FunctionTok{return}\NormalTok{(x)}
-\NormalTok{  \}}
-\end{Highlighting}
-\end{Shaded}
-
-\subsection{Smacof for Pairs}\label{smacof-for-pairs}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{smacofNMforPairs }\OtherTok{\textless{}{-}}
-  \ControlFlowTok{function}\NormalTok{(data,}
-\NormalTok{           xold,}
-           \AttributeTok{itmax =} \DecValTok{10}\NormalTok{,}
-           \AttributeTok{eps =} \FloatTok{1e{-}10}\NormalTok{,}
-           \AttributeTok{verbose =} \ConstantTok{TRUE}\NormalTok{) \{}
-\NormalTok{    n }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(xold)}
-\NormalTok{    m }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(data)}
-\NormalTok{    itel }\OtherTok{\textless{}{-}} \DecValTok{1}
-\NormalTok{    dold }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xold))}
-\NormalTok{    w }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\DecValTok{0}\NormalTok{, n, n)}
-    \ControlFlowTok{for}\NormalTok{ (r }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{m) \{}
-\NormalTok{      i }\OtherTok{\textless{}{-}}\NormalTok{ data[r, }\DecValTok{1}\NormalTok{]}
-\NormalTok{      j }\OtherTok{\textless{}{-}}\NormalTok{ data[r, }\DecValTok{2}\NormalTok{]}
-\NormalTok{      k }\OtherTok{\textless{}{-}}\NormalTok{ data[r, }\DecValTok{3}\NormalTok{]}
-\NormalTok{      l }\OtherTok{\textless{}{-}}\NormalTok{ data[r, }\DecValTok{4}\NormalTok{]}
-\NormalTok{      w[i, j] }\OtherTok{\textless{}{-}}\NormalTok{ w[i, j] }\SpecialCharTok{+} \DecValTok{1}
-\NormalTok{      w[k, l] }\OtherTok{\textless{}{-}}\NormalTok{ w[k, l] }\SpecialCharTok{+} \DecValTok{1}
-\NormalTok{      w[j, i] }\OtherTok{\textless{}{-}}\NormalTok{ w[i, j]}
-\NormalTok{      w[l, k] }\OtherTok{\textless{}{-}}\NormalTok{ w[k, l]}
-\NormalTok{    \}}
-\NormalTok{    ssqd }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(w }\SpecialCharTok{*}\NormalTok{ (dold }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{))}
-\NormalTok{    dold }\OtherTok{\textless{}{-}}\NormalTok{ dold }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(ssqd)}
-\NormalTok{    xold }\OtherTok{\textless{}{-}}\NormalTok{ xold }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(ssqd)}
-\NormalTok{    v }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{w}
-    \FunctionTok{diag}\NormalTok{(v) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(v)}
-\NormalTok{    vinv }\OtherTok{\textless{}{-}} \FunctionTok{ginv}\NormalTok{(v)}
-\NormalTok{    sold }\OtherTok{\textless{}{-}} \ConstantTok{Inf}
-    \ControlFlowTok{repeat}\NormalTok{ \{}
-\NormalTok{      bold }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\DecValTok{0}\NormalTok{, n, n)}
-\NormalTok{      snew }\OtherTok{\textless{}{-}} \DecValTok{0}
-      \ControlFlowTok{for}\NormalTok{ (r }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{m) \{}
-\NormalTok{        i }\OtherTok{\textless{}{-}}\NormalTok{ data[r, }\DecValTok{1}\NormalTok{]}
-\NormalTok{        j }\OtherTok{\textless{}{-}}\NormalTok{ data[r, }\DecValTok{2}\NormalTok{]}
-\NormalTok{        k }\OtherTok{\textless{}{-}}\NormalTok{ data[r, }\DecValTok{3}\NormalTok{]}
-\NormalTok{        l }\OtherTok{\textless{}{-}}\NormalTok{ data[r, }\DecValTok{4}\NormalTok{]}
-\NormalTok{        x }\OtherTok{\textless{}{-}}\NormalTok{ data[r, }\DecValTok{5}\NormalTok{]}
-\NormalTok{        dij }\OtherTok{\textless{}{-}}\NormalTok{ dold[i, j]}
-\NormalTok{        dkl }\OtherTok{\textless{}{-}}\NormalTok{ dold[k, l]}
-        \ControlFlowTok{if}\NormalTok{ (x }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) \{}
-          \ControlFlowTok{if}\NormalTok{ (dij }\SpecialCharTok{\textless{}=}\NormalTok{ dkl) \{}
-\NormalTok{            dhatij }\OtherTok{\textless{}{-}}\NormalTok{ dij}
-\NormalTok{            dhatkl }\OtherTok{\textless{}{-}}\NormalTok{ dkl}
-\NormalTok{          \} }\ControlFlowTok{else}\NormalTok{ \{}
-\NormalTok{            ave }\OtherTok{\textless{}{-}}\NormalTok{ (dij }\SpecialCharTok{+}\NormalTok{ dkl) }\SpecialCharTok{/} \DecValTok{2}
-\NormalTok{            dhatij }\OtherTok{\textless{}{-}}\NormalTok{ ave}
-\NormalTok{            dhatkl }\OtherTok{\textless{}{-}}\NormalTok{ ave}
-\NormalTok{            snew }\OtherTok{\textless{}{-}}\NormalTok{ snew }\SpecialCharTok{+}\NormalTok{ ((dij }\SpecialCharTok{{-}}\NormalTok{ dkl) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{2}
-\NormalTok{          \}}
-\NormalTok{        \}}
-        \ControlFlowTok{if}\NormalTok{ (x }\SpecialCharTok{==} \DecValTok{2}\NormalTok{) \{}
-          \ControlFlowTok{if}\NormalTok{ (dkl }\SpecialCharTok{\textless{}=}\NormalTok{ dij) \{}
-\NormalTok{            dhatij }\OtherTok{\textless{}{-}}\NormalTok{ dij}
-\NormalTok{            dhatkl }\OtherTok{\textless{}{-}}\NormalTok{ dkl}
-\NormalTok{          \} }\ControlFlowTok{else}\NormalTok{ \{}
-\NormalTok{            ave }\OtherTok{\textless{}{-}}\NormalTok{ (dij }\SpecialCharTok{+}\NormalTok{ dkl) }\SpecialCharTok{/} \DecValTok{2}
-\NormalTok{            dhatij }\OtherTok{\textless{}{-}}\NormalTok{ ave}
-\NormalTok{            dhatkl }\OtherTok{\textless{}{-}}\NormalTok{ ave}
-\NormalTok{            snew }\OtherTok{\textless{}{-}}\NormalTok{ snew }\SpecialCharTok{+}\NormalTok{ ((dij }\SpecialCharTok{{-}}\NormalTok{ dkl) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{2}
-\NormalTok{          \}}
-\NormalTok{        \}}
-\NormalTok{        bold[i, j] }\OtherTok{\textless{}{-}}\NormalTok{ bold[i, j] }\SpecialCharTok{+}\NormalTok{ dhatij }\SpecialCharTok{/}\NormalTok{ dij}
-\NormalTok{        bold[k, l] }\OtherTok{\textless{}{-}}\NormalTok{ bold[k, l] }\SpecialCharTok{+}\NormalTok{ dhatkl }\SpecialCharTok{/}\NormalTok{ dkl}
-\NormalTok{        bold[j, i] }\OtherTok{\textless{}{-}}\NormalTok{ bold[i, j]}
-\NormalTok{        bold[l, k] }\OtherTok{\textless{}{-}}\NormalTok{ bold[k, l]}
-\NormalTok{      \}}
-\NormalTok{      bold }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{bold}
-      \FunctionTok{diag}\NormalTok{(bold) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(bold)}
-\NormalTok{      xnew }\OtherTok{\textless{}{-}}\NormalTok{ vinv }\SpecialCharTok{\%*\%}\NormalTok{ bold }\SpecialCharTok{\%*\%}\NormalTok{ xold}
-\NormalTok{      dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
-\NormalTok{      ssqd }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(w }\SpecialCharTok{*}\NormalTok{ (dnew }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{))}
-\NormalTok{      xnew }\OtherTok{\textless{}{-}}\NormalTok{ xnew }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(ssqd)}
-\NormalTok{      dnew }\OtherTok{\textless{}{-}}\NormalTok{ dnew }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(ssqd)}
-      \ControlFlowTok{if}\NormalTok{ (verbose) \{}
-        \FunctionTok{cat}\NormalTok{(}
-          \StringTok{"itel = "}\NormalTok{,}
-          \FunctionTok{formatC}\NormalTok{(itel, }\AttributeTok{format =} \StringTok{"d"}\NormalTok{),}
-          \StringTok{"sold = "}\NormalTok{,}
-          \FunctionTok{formatC}\NormalTok{(sold, }\AttributeTok{digits =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
-          \StringTok{"snew = "}\NormalTok{,}
-          \FunctionTok{formatC}\NormalTok{(snew, }\AttributeTok{digits =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
-          \StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}
-\NormalTok{        )}
-\NormalTok{      \}}
-      \ControlFlowTok{if}\NormalTok{ ((itel }\SpecialCharTok{==}\NormalTok{ itmax) }\SpecialCharTok{||}\NormalTok{ ((sold }\SpecialCharTok{{-}}\NormalTok{ snew) }\SpecialCharTok{\textless{}}\NormalTok{ eps)) \{}
-        \ControlFlowTok{break}
-\NormalTok{      \}}
-\NormalTok{      xold }\OtherTok{\textless{}{-}}\NormalTok{ xnew}
-\NormalTok{      dold }\OtherTok{\textless{}{-}}\NormalTok{ dnew}
-\NormalTok{      sold }\OtherTok{\textless{}{-}}\NormalTok{ snew}
-\NormalTok{      itel }\OtherTok{\textless{}{-}}\NormalTok{ itel }\SpecialCharTok{+} \DecValTok{1}
-\NormalTok{    \}}
-    \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
-      \AttributeTok{b =}\NormalTok{ bold,}
-      \AttributeTok{v =}\NormalTok{ v,}
-      \AttributeTok{x =}\NormalTok{ xnew,}
-      \AttributeTok{loss =}\NormalTok{ snew,}
-      \AttributeTok{itel =}\NormalTok{ itel}
-\NormalTok{    ))}
-\NormalTok{  \}}
-\end{Highlighting}
-\end{Shaded}
-
-\subsection{Smacof for Rank Orders}\label{smacof-for-rank-orders}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{library}\NormalTok{(MASS)}
-
-
-\NormalTok{smacofNMforRankOrder }\OtherTok{\textless{}{-}}
-  \ControlFlowTok{function}\NormalTok{(data,}
-\NormalTok{           xold,}
-           \AttributeTok{ties =} \DecValTok{1}\NormalTok{,}
-           \AttributeTok{itmax =} \DecValTok{1000}\NormalTok{,}
-           \AttributeTok{eps =} \FloatTok{1e{-}10}\NormalTok{,}
-           \AttributeTok{verbose =} \ConstantTok{TRUE}\NormalTok{) \{}
-\NormalTok{    n }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(xold)}
-\NormalTok{    m }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(data)}
-\NormalTok{    itel }\OtherTok{\textless{}{-}} \DecValTok{1}
-    \CommentTok{\# put the w in a matrix}
-\NormalTok{    w }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\DecValTok{0}\NormalTok{, n, n)}
-\NormalTok{    wvec }\OtherTok{\textless{}{-}}\NormalTok{ data[, }\DecValTok{4}\NormalTok{]}
-    \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{m) \{}
-\NormalTok{      w[data[i, }\DecValTok{1}\NormalTok{], data[i, }\DecValTok{2}\NormalTok{]] }\OtherTok{\textless{}{-}}\NormalTok{ wvec[i]}
-\NormalTok{      w[data[i, }\DecValTok{2}\NormalTok{], data[i, }\DecValTok{1}\NormalTok{]] }\OtherTok{\textless{}{-}}\NormalTok{ wvec[i]}
-\NormalTok{    \}}
-\NormalTok{    v }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{w}
-    \FunctionTok{diag}\NormalTok{(v) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(v)}
-\NormalTok{    vinv }\OtherTok{\textless{}{-}} \FunctionTok{ginv}\NormalTok{(v)}
-\NormalTok{    dold }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xold))}
-\NormalTok{    ssqd }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(w }\SpecialCharTok{*}\NormalTok{ (dold }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{))}
-\NormalTok{    dold }\OtherTok{\textless{}{-}}\NormalTok{ dold }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(ssqd)}
-\NormalTok{    xold }\OtherTok{\textless{}{-}}\NormalTok{ xold }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(ssqd)}
-    \CommentTok{\# put dold in the correct order in a vector}
-\NormalTok{    dord }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, m)}
-    \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{m) \{}
-\NormalTok{      dord[i] }\OtherTok{\textless{}{-}}\NormalTok{ dold[data[i, }\DecValTok{1}\NormalTok{], data[i, }\DecValTok{2}\NormalTok{]]}
-\NormalTok{    \}}
-    \ControlFlowTok{if}\NormalTok{ (ties }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) \{}
-\NormalTok{      dprim }\OtherTok{\textless{}{-}} \FunctionTok{smacofPrimaryMonotoneRegression}\NormalTok{(data, dord)}
-\NormalTok{      dord }\OtherTok{\textless{}{-}}\NormalTok{ dprim}\SpecialCharTok{$}\NormalTok{result}
-\NormalTok{      data }\OtherTok{\textless{}{-}}\NormalTok{ dprim}\SpecialCharTok{$}\NormalTok{data}
-\NormalTok{    \}}
-    \ControlFlowTok{if}\NormalTok{ (ties }\SpecialCharTok{==} \DecValTok{2}\NormalTok{) \{}
-\NormalTok{      dord }\OtherTok{\textless{}{-}} \FunctionTok{smacofSecondaryMonotoneRegression}\NormalTok{(data, dord)}
-\NormalTok{    \}}
-    \CommentTok{\# put the dhat in a matrix}
-\NormalTok{    dhat }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\DecValTok{0}\NormalTok{, n, n)}
-    \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{m) \{}
-\NormalTok{      dhat[data[i, }\DecValTok{1}\NormalTok{], data[i, }\DecValTok{2}\NormalTok{]] }\OtherTok{\textless{}{-}}\NormalTok{ dord[i]}
-\NormalTok{      dhat[data[i, }\DecValTok{2}\NormalTok{], data[i, }\DecValTok{1}\NormalTok{]] }\OtherTok{\textless{}{-}}\NormalTok{ dord[i]}
-\NormalTok{    \}}
-\NormalTok{    sold }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(w }\SpecialCharTok{*}\NormalTok{ (dhat }\SpecialCharTok{{-}}\NormalTok{ dold) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
-    \ControlFlowTok{repeat}\NormalTok{ \{}
-\NormalTok{      bold }\OtherTok{\textless{}{-}}\NormalTok{ dhat }\SpecialCharTok{/}\NormalTok{ (dold }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(n))}
-\NormalTok{      bold }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{bold}
-      \FunctionTok{diag}\NormalTok{(bold) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(bold)}
-\NormalTok{      xnew }\OtherTok{\textless{}{-}}\NormalTok{ vinv }\SpecialCharTok{\%*\%}\NormalTok{ bold }\SpecialCharTok{\%*\%}\NormalTok{ xold}
-\NormalTok{      dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
-\NormalTok{      ssqd }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(w }\SpecialCharTok{*}\NormalTok{ (dnew }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{))}
-\NormalTok{      xnew }\OtherTok{\textless{}{-}}\NormalTok{ xnew }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(ssqd)}
-\NormalTok{      dnew }\OtherTok{\textless{}{-}}\NormalTok{ dnew }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(ssqd)}
-\NormalTok{      smid }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(w }\SpecialCharTok{*}\NormalTok{ (dhat }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
-      \CommentTok{\# put dold in the correct order in a vector}
-\NormalTok{      dord }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, m)}
-      \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{m) \{}
-\NormalTok{        dord[i] }\OtherTok{\textless{}{-}}\NormalTok{ dold[data[i, }\DecValTok{1}\NormalTok{], data[i, }\DecValTok{2}\NormalTok{]]}
-\NormalTok{      \}}
-      \ControlFlowTok{if}\NormalTok{ (ties }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) \{}
-\NormalTok{        dpri }\OtherTok{\textless{}{-}} \FunctionTok{smacofPrimaryMonotoneRegression}\NormalTok{(data, dord)}
-\NormalTok{        dord }\OtherTok{\textless{}{-}}\NormalTok{ dpri}\SpecialCharTok{$}\NormalTok{result}
-\NormalTok{        data }\OtherTok{\textless{}{-}}\NormalTok{ dpri}\SpecialCharTok{$}\NormalTok{data}
-\NormalTok{      \}}
-      \ControlFlowTok{if}\NormalTok{ (ties }\SpecialCharTok{==} \DecValTok{2}\NormalTok{) \{}
-\NormalTok{        dord }\OtherTok{\textless{}{-}} \FunctionTok{smacofSecondaryMonotoneRegression}\NormalTok{(data, dord)}
-\NormalTok{      \}}
-      \CommentTok{\# put the dhat in a matrix}
-      \CommentTok{\# put the dhat in a matrix}
-\NormalTok{      dhat }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\DecValTok{0}\NormalTok{, n, n)}
-      \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{m) \{}
-\NormalTok{        dhat[data[i, }\DecValTok{1}\NormalTok{], data[i, }\DecValTok{2}\NormalTok{]] }\OtherTok{\textless{}{-}}\NormalTok{ dord[i]}
-\NormalTok{        dhat[data[i, }\DecValTok{2}\NormalTok{], data[i, }\DecValTok{1}\NormalTok{]] }\OtherTok{\textless{}{-}}\NormalTok{ dord[i]}
-\NormalTok{      \}}
-\NormalTok{      snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(w }\SpecialCharTok{*}\NormalTok{ (dhat }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
-      \ControlFlowTok{if}\NormalTok{ (verbose) \{}
-        \FunctionTok{cat}\NormalTok{(}
-          \StringTok{"itel = "}\NormalTok{,}
-          \FunctionTok{formatC}\NormalTok{(itel, }\AttributeTok{format =} \StringTok{"d"}\NormalTok{),}
-          \StringTok{"sold = "}\NormalTok{,}
-          \FunctionTok{formatC}\NormalTok{(sold, }\AttributeTok{digits =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
-          \StringTok{"smid = "}\NormalTok{,}
-          \FunctionTok{formatC}\NormalTok{(smid, }\AttributeTok{digits =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
-          \StringTok{"snew = "}\NormalTok{,}
-          \FunctionTok{formatC}\NormalTok{(snew, }\AttributeTok{digits =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
-          \StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}
-\NormalTok{        )}
-\NormalTok{      \}}
-      \ControlFlowTok{if}\NormalTok{ ((itel }\SpecialCharTok{==}\NormalTok{ itmax) }\SpecialCharTok{||}\NormalTok{ ((sold }\SpecialCharTok{{-}}\NormalTok{ snew) }\SpecialCharTok{\textless{}}\NormalTok{ eps)) \{}
-        \ControlFlowTok{break}
-\NormalTok{      \}}
-\NormalTok{      xold }\OtherTok{\textless{}{-}}\NormalTok{ xnew}
-\NormalTok{      dold }\OtherTok{\textless{}{-}}\NormalTok{ dnew}
-\NormalTok{      sold }\OtherTok{\textless{}{-}}\NormalTok{ snew}
-\NormalTok{      itel }\OtherTok{\textless{}{-}}\NormalTok{ itel }\SpecialCharTok{+} \DecValTok{1}
-\NormalTok{    \}}
-    \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
-      \AttributeTok{b =}\NormalTok{ bold,}
-      \AttributeTok{v =}\NormalTok{ v,}
-      \AttributeTok{ranks =}\NormalTok{ data[,}\DecValTok{3}\NormalTok{],}
-      \AttributeTok{dvec =}\NormalTok{ dord,}
-      \AttributeTok{dnew =} \FunctionTok{as.dist}\NormalTok{(dnew),}
-      \AttributeTok{dhat =} \FunctionTok{as.dist}\NormalTok{(dhat),}
-      \AttributeTok{xnew =}\NormalTok{ xnew,}
-      \AttributeTok{loss =}\NormalTok{ snew,}
-      \AttributeTok{itel =}\NormalTok{ itel}
-\NormalTok{    ))}
-\NormalTok{  \}}
-\end{Highlighting}
-\end{Shaded}
+\subsection{Data Format}\label{data-format}
 
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
@@ -921,11 +458,14 @@ certainly prefer MDS with parameters for individual differences).
 \bibitem[\citeproctext]{ref-coombs_54}
 Coombs, C. H. 1954. {``A Method for the Study of Interstimulus Similarity.''} \emph{Psychometrika} 19: 183--94.
 
-\bibitem[\citeproctext]{ref-degruijter_67}
-De Gruijter, D. N. M. 1967. {``{The Cognitive Structure of Dutch Political Parties in 1966}.''} Report E019-67. Psychological Institute, University of Leiden.
-
 \bibitem[\citeproctext]{ref-deleeuw_R_70a}
 De Leeuw, J. 1970. {``The Positive Orthant Method for Nonmetric Multidimensional Scaling.''} Research Report 001-70. Leiden, The Netherlands: Department of Data Theory FSW/RUL.
+
+\bibitem[\citeproctext]{ref-deleeuw_B_74}
+---------. 1974. \emph{Canonical Analysis of Categorical Data}. Leiden, The Netherlands: Psychological Institute, Leiden University.
+
+\bibitem[\citeproctext]{ref-deleeuw_A_77}
+---------. 1977. {``Correctness of Kruskal's Algorithms for Monotone Regression with Ties.''} \emph{Psychometrika} 42: 141--44.
 
 \bibitem[\citeproctext]{ref-deleeuw_E_18d}
 ---------. 2018. {``{The Positive Orthant Method }.''} 2018.
@@ -938,6 +478,9 @@ Hartmann, W. 1979. \emph{{Geometrische Modelle zur Analyse empirischer Data}}. A
 
 \bibitem[\citeproctext]{ref-johnson_73}
 Johnson, R. M. 1973. {``{Pairwise Nonmetric Multidimensional Scaling}.''} \emph{Psychometrika} 38 (12--18).
+
+\bibitem[\citeproctext]{ref-levelt_vandegeer_plomp_66}
+Levelt, W. J. M., J. P. Van De Geer, and R. Plomp. 1966. {``{Triadic Comparions of Musical Intervals}.''} \emph{British Journal of Mathematical and Statistical Psychology} 19: 163--79.
 
 \bibitem[\citeproctext]{ref-richardson_38}
 Richardson, M. W. 1938. {``Multidimensional Psychophysics.''} \emph{Psychological Bulletin} 35: 659--60.

@@ -1,0 +1,518 @@
+# A Paired Comparison Example
+
+```{r read, echo = FALSE, eval= FALSE}
+source("../../smacofExamples/smacofNM/parties/parties.R")
+source("../../smacofCode/smacofNM/smacofNMforPairs.R")
+```
+
+The objects that we want to scale are 10 Dutch political parties. 
+```{r eval= FALSE}
+parties
+```
+
+There is only one subject, and it is me. I used the program  `smacofMakeRandomPairs()` to generate
+and present to me 50 random pairs of pairs $(i,j)$ and $(k,l)$. One such pair looks like
+```{r apair, echo = FALSE, fig.align = "center", eval= FALSE}
+source("../../smacofCode/smacofNM/smacofMakeData.R")
+smacofMakeRandomPairs(parties, 1)
+```
+In Rstudio the graphics are in the plot window, the text is in the console. If
+you run R from the terminal the text will be in the terminal, and the graphics will
+be in the R graphics device for the session.
+
+It took me about
+5 minutes to make the 50 binary choices, duly recorded by the program. I left The Netherlands almost 40 years ago, so I am far from an expert on Dutch politics, so
+my choices may be far off the mark.
+
+The data, with the four indices first and then the choice, are
+```{r partiesdata, echo = FALSE, eval= FALSE}
+names(partiesData) <- c("i", "j", "k", "l", "")
+partiesData
+```
+Thus in the first row I say that the pair $(8,5)$ is more similar than $(2,9)$, in other words (`r c(parties[8],parties[5])`) is more similar than (`r c(parties[2],parties[9])`).
+
+In order to start the iterative process we need an initial configuration. Insipred by @degruijter_67 I used
+the infamous left-right horseshoe.
+```{r partiesxold, echo = FALSE, fig.align = "center", eval= FALSE}
+par(pty = "s")
+plot(partiesXold, type = "n", xlab = "dim1", ylab = "dim2")
+text(partiesXold, parties, col = "RED")
+```
+```{r eval= FALSE}
+source("../../smacofCode/smacofNM/smacofNMforPairs.R")
+partiesResult <- smacofNMforPairs(partiesData, partiesXold, 
+                                  eps = 1e-15, itmax = 1000, verbose = FALSE)
+```
+We have nice smooth monotone convergence. The convergence criterion is reached
+in `r partiesResult$itel` iterations and the stress is `r partiesResult$loss`, i.e.
+practically zero. Thus we have actually found a solution to the system of
+50 nonlinear inequalities defined by the data. This means two things. In the
+first place I am consistent in my choices, and in the second place the solution
+is undoubtedly far from unique. The map is
+```{r partiesxnew, echo = FALSE, fig.align = "center"}
+par(pty = "s")
+plot(partiesResult$x, type = "n", xlab = "dim1", ylab = "dim2")
+text(partiesResult$x, parties, col = "RED")
+```
+We are still reasonably close to the horseshoe, showing the influence of the
+initial configuration. Of course the main reason for the non-uniqueness is
+not the consistency of my choices, but the fact that we have used only 50
+pairs from the `choose(choose(10, 2), 2)` = `r choose(choose(10,2), 2)` possible 
+ones. The solution will become much tighter if there are more pairs, either
+from a single subject, or from a number of subjects (in which case we would
+                                                     certainly prefer MDS with parameters for individual differences).
+
+# A Rank Order Example
+
+```{r}
+library(MASS)
+
+source("../../smacofCode/smacofNM/smacofConvert.R")
+source("../../smacofCode/smacofNM/smacofMakeData.R")
+source("../../smacofCode/smacofNM/smacofMonotoneRegression.R")
+source("../../smacofCode/smacofNM/smacofPlots.R")
+
+data(ekman, package = "smacof")
+ekman <- 1 - ekman 
+ekmanData <- smacofMakeRankOrderData(ekman)
+ekmanXold <- matrix(c(-0.1576320, -0.54429773,
+                      -0.2169837, -0.50815312,
+                      -0.4778581, -0.31203061,
+                      -0.5131424, -0.23393512,
+                      -0.5338027,  0.09175252,
+                      -0.4368053,  0.36071649,
+                      -0.2650675,  0.52174944,
+                      -0.1374662, 0.57443857,
+                      0.3162169,  0.46015778,
+                      0.4575480,  0.24454905,
+                      0.5210238,  0.03357499,
+                      0.5128727, -0.13074190,
+                      0.4824539, -0.22250509,
+                      0.4486425, -0.33527525), 14, 2, byrow = TRUE)
+```
+
+# Code
+
+## Make the cartwheels and ask for choices
+
+```{r}
+
+smacofMakeAllTriads <- function(names, complete = TRUE) {
+  outfile <- file("./output.txt", open = "w")
+  n <- length(names)
+  m <- choose(n, 3)
+  z <- t(combn(n, 3))[sample(1:m, m), ]
+  z <- t(apply(z, 1, function(x)
+    sample(x, length(x))))
+  y <- 8 - 3 * sqrt(3)
+  for (i in 1:m) {
+    x <- z[i, ]
+    plot(
+      1:10,
+      axes = FALSE,
+      type = "n",
+      xlab = "",
+      ylab = ""
+    )
+    lines(c(2, 8), c(8, 8), col = "RED")
+    lines(c(2, 5), c(8, y), col = "RED")
+    lines(c(8, 5), c(8, y), col = "RED")
+    text(c(2, 8, 5), c(8.2, 8.2, y - .2),
+         c(names[x[1]], names[x[2]], names[x[3]]), cex = 1.5)
+    text(5, 8.5, "1")
+    text(3, 5.40, "2")
+    text(7, 5.40, "3")
+    print(c(noquote(names[x[1]]), noquote(names[x[2]]), noquote(names[x[3]])))
+    u <- readline("most similar pair: ")
+    if (complete) {
+      v <- readline("least similar pair: ")
+      write(c(x, u, v), ncolumns = 5, file = outfile)
+    } else {
+      write(c(x, u), ncolumns = 4, file = outfile)
+    }
+  }
+  close(outfile)
+}
+
+smacofMakeRandomTriads <-
+  function(names, nrandom, complete = TRUE) {
+    outfile <- file("./output.txt", open = "w")
+    n <- length(names)
+    y <- 8 - 3 * sqrt(3)
+    for (i in 1:nrandom) {
+      x <- sample(1:n, 3)
+      plot(
+        1:10,
+        axes = FALSE,
+        type = "n",
+        xlab = "",
+        ylab = ""
+      )
+      lines(c(2, 8), c(8, 8), col = "RED")
+      lines(c(2, 5), c(8, y), col = "RED")
+      lines(c(8, 5), c(8, y), col = "RED")
+      text(c(2, 8, 5), c(8.2, 8.2, y - .2),
+           c(names[x[1]], names[x[2]], names[x[3]]), cex = 1.5)
+      text(5, 8.5, "1")
+      text(3, 5.40, "2")
+      text(7, 5.40, "3")
+      print(c(noquote(names[x[1]]), noquote(names[x[2]]), noquote(names[x[3]])))
+      u <- readline("most similar pair: ")
+      if (complete) {
+        v <- readline("least similar pair: ")
+        write(c(x, u, v), ncolumns = 5, file = outfile)
+      } else {
+        write(c(x, u), ncolumns = 4, file = outfile)
+      }
+    }
+    close(outfile)
+  }
+
+smacofMakeAllPairs <- function(names) {
+  outfile <- file("./output.txt", open = "w")
+  n <- length(names)
+  l <- choose(n, 2)
+  u <- combn(n, 2)
+  u <- apply(u, 2, function(x)
+    sample(x, length(x)))
+  m <- choose(l, 2)
+  v <- combn(l, 2)[, sample(1:m, m)]
+  v <- apply(v, 2, function(x)
+    sample(x, length(x)))
+  for (i in 1:m) {
+    x <- c(u[, v[1, i]], u[, v[2, i]])
+    plot(
+      1:10,
+      axes = FALSE,
+      type = "n",
+      xlab = "",
+      ylab = ""
+    )
+    lines(c(2, 8), c(8, 8), col = "RED")
+    lines(c(2, 8), c(4, 4), col = "RED")
+    text(c(2, 8, 2, 8),
+         c(8.5, 8.5, 4.5, 4.5),
+         c(names[x[1]], names[x[2]], names[x[3]], names[x[4]]),
+         cex = 1.5)
+    text(5, 8.5, "1")
+    text(5, 4.5, "2")
+    cat("(",
+        names[x[1]],
+        ",",
+        names[x[2]],
+        ") and (",
+        names[x[3]],
+        ",",
+        names[x[4]],
+        ")\n",
+        sep = "")
+    r <- readline("most similar pair: ")
+    write(c(x, r), ncolumns = 5, file = outfile)
+  }
+  close(outfile)
+}
+
+smacofMakeRandomPairs <- function(names, nrandom) {
+  outfile <- file("./output.txt", open = "w")
+  n <- length(names)
+  l <- choose(n, 2)
+  u <- combn(n, 2)
+  u <- apply(u, 2, function(x)
+    sample(x, length(x)))
+  for (i in 1:nrandom) {
+    k <- sample(l, 2)
+    x <- c(u[, k[1]], u[, k[2]])
+    plot(
+      1:10,
+      axes = FALSE,
+      type = "n",
+      xlab = "",
+      ylab = ""
+    )
+    lines(c(2, 8), c(8, 8), col = "RED")
+    lines(c(2, 8), c(4, 4), col = "RED")
+    text(c(2, 8, 2, 8),
+         c(8.5, 8.5, 4.5, 4.5),
+         c(names[x[1]], names[x[2]], names[x[3]], names[x[4]]),
+         cex = 1.5)
+    text(5, 8.5, "1")
+    text(5, 4.5, "2")
+    cat("(",
+        names[x[1]],
+        ",",
+        names[x[2]],
+        ") and (",
+        names[x[3]],
+        ",",
+        names[x[4]],
+        ")\n",
+        sep = "")
+    r <- readline("most similar pair: ")
+    write(c(x, r), ncolumns = 5, file = outfile)
+  }
+  close(outfile)
+}
+
+smacofMakeRankOrderData <- function(delta, tieblocks = TRUE) {
+  if (any(class(delta) == "dist")) {
+    n <- attr(delta, "Size")
+    delta <- smacofDistToRMVector(delta)
+  }
+  if (is.matrix(delta)) {
+    delta <- as.dist(delta)
+    n <- attr(delta, "Size")
+    delta <- smacofDistToRMVector(delta)
+  }
+  delta <- rank(delta)
+  x <- matrix(0, 0, 3)
+  k <- 1
+  for (i in 2:n) {
+    for (j in 1:(i - 1)) {
+      x <- rbind(x, c(i, j, delta[k]))
+      k <- k + 1
+    }
+  }
+  r <- order(delta)
+  x <- x[r, ]
+  return(x)
+}
+
+smacofMakeConditionalRankOrderData <-
+  function(delta, nr, nc, tieblocks = TRUE) {
+    x <- matrix(0, 0, 3)
+    for (i in 1:nr) {
+      if (is.matrix(delta)) {
+        d <- delta[i, ]
+      } else {
+        d <- delta[(i - 1) * nc + (1:nc)]
+      }
+      d <- rank(d)
+      u <- order(d)
+      v <- unname(cbind(i, 1:nc, d)[u,])
+      x <- rbind(x, v)
+    }
+    return(x)
+  }
+```
+
+## Smacof for Pairs
+
+```{r paircode, eval = FALSE}
+
+smacofNMforPairs <-
+  function(data,
+           xold,
+           itmax = 10,
+           eps = 1e-10,
+           verbose = TRUE) {
+    n <- nrow(xold)
+    m <- nrow(data)
+    itel <- 1
+    dold <- as.matrix(dist(xold))
+    w <- matrix(0, n, n)
+    for (r in 1:m) {
+      i <- data[r, 1]
+      j <- data[r, 2]
+      k <- data[r, 3]
+      l <- data[r, 4]
+      w[i, j] <- w[i, j] + 1
+      w[k, l] <- w[k, l] + 1
+      w[j, i] <- w[i, j]
+      w[l, k] <- w[k, l]
+    }
+    ssqd <- sum(w * (dold ^ 2))
+    dold <- dold / sqrt(ssqd)
+    xold <- xold / sqrt(ssqd)
+    v <- -w
+    diag(v) <- -rowSums(v)
+    vinv <- ginv(v)
+    sold <- Inf
+    repeat {
+      bold <- matrix(0, n, n)
+      snew <- 0
+      for (r in 1:m) {
+        i <- data[r, 1]
+        j <- data[r, 2]
+        k <- data[r, 3]
+        l <- data[r, 4]
+        x <- data[r, 5]
+        dij <- dold[i, j]
+        dkl <- dold[k, l]
+        if (x == 1) {
+          if (dij <= dkl) {
+            dhatij <- dij
+            dhatkl <- dkl
+          } else {
+            ave <- (dij + dkl) / 2
+            dhatij <- ave
+            dhatkl <- ave
+            snew <- snew + ((dij - dkl) ^ 2) / 2
+          }
+        }
+        if (x == 2) {
+          if (dkl <= dij) {
+            dhatij <- dij
+            dhatkl <- dkl
+          } else {
+            ave <- (dij + dkl) / 2
+            dhatij <- ave
+            dhatkl <- ave
+            snew <- snew + ((dij - dkl) ^ 2) / 2
+          }
+        }
+        bold[i, j] <- bold[i, j] + dhatij / dij
+        bold[k, l] <- bold[k, l] + dhatkl / dkl
+        bold[j, i] <- bold[i, j]
+        bold[l, k] <- bold[k, l]
+      }
+      bold <- -bold
+      diag(bold) <- -rowSums(bold)
+      xnew <- vinv %*% bold %*% xold
+      dnew <- as.matrix(dist(xnew))
+      ssqd <- sum(w * (dnew ^ 2))
+      xnew <- xnew / sqrt(ssqd)
+      dnew <- dnew / sqrt(ssqd)
+      if (verbose) {
+        cat(
+          "itel = ",
+          formatC(itel, format = "d"),
+          "sold = ",
+          formatC(sold, digits = 10, format = "f"),
+          "snew = ",
+          formatC(snew, digits = 10, format = "f"),
+          "\n"
+        )
+      }
+      if ((itel == itmax) || ((sold - snew) < eps)) {
+        break
+      }
+      xold <- xnew
+      dold <- dnew
+      sold <- snew
+      itel <- itel + 1
+    }
+    return(list(
+      b = bold,
+      v = v,
+      x = xnew,
+      loss = snew,
+      itel = itel
+    ))
+  }
+```
+
+## Smacof for Rank Orders
+
+```{r rankcode, eval = FALSE}
+library(MASS)
+
+
+smacofNMforRankOrder <-
+  function(data,
+           xold,
+           ties = 1,
+           itmax = 1000,
+           eps = 1e-10,
+           verbose = TRUE) {
+    n <- nrow(xold)
+    m <- nrow(data)
+    itel <- 1
+    # put the w in a matrix
+    w <- matrix(0, n, n)
+    wvec <- data[, 4]
+    for (i in 1:m) {
+      w[data[i, 1], data[i, 2]] <- wvec[i]
+      w[data[i, 2], data[i, 1]] <- wvec[i]
+    }
+    v <- -w
+    diag(v) <- -rowSums(v)
+    vinv <- ginv(v)
+    dold <- as.matrix(dist(xold))
+    ssqd <- sum(w * (dold ^ 2))
+    dold <- dold / sqrt(ssqd)
+    xold <- xold / sqrt(ssqd)
+    # put dold in the correct order in a vector
+    dord <- rep(0, m)
+    for (i in 1:m) {
+      dord[i] <- dold[data[i, 1], data[i, 2]]
+    }
+    if (ties == 1) {
+      dprim <- smacofPrimaryMonotoneRegression(data, dord)
+      dord <- dprim$result
+      data <- dprim$data
+    }
+    if (ties == 2) {
+      dord <- smacofSecondaryMonotoneRegression(data, dord)
+    }
+    # put the dhat in a matrix
+    dhat <- matrix(0, n, n)
+    for (i in 1:m) {
+      dhat[data[i, 1], data[i, 2]] <- dord[i]
+      dhat[data[i, 2], data[i, 1]] <- dord[i]
+    }
+    sold <- sum(w * (dhat - dold) ^ 2)
+    repeat {
+      bold <- dhat / (dold + diag(n))
+      bold <- -bold
+      diag(bold) <- -rowSums(bold)
+      xnew <- vinv %*% bold %*% xold
+      dnew <- as.matrix(dist(xnew))
+      ssqd <- sum(w * (dnew ^ 2))
+      xnew <- xnew / sqrt(ssqd)
+      dnew <- dnew / sqrt(ssqd)
+      smid <- sum(w * (dhat - dnew) ^ 2)
+      # put dold in the correct order in a vector
+      dord <- rep(0, m)
+      for (i in 1:m) {
+        dord[i] <- dold[data[i, 1], data[i, 2]]
+      }
+      if (ties == 1) {
+        dpri <- smacofPrimaryMonotoneRegression(data, dord)
+        dord <- dpri$result
+        data <- dpri$data
+      }
+      if (ties == 2) {
+        dord <- smacofSecondaryMonotoneRegression(data, dord)
+      }
+      # put the dhat in a matrix
+      # put the dhat in a matrix
+      dhat <- matrix(0, n, n)
+      for (i in 1:m) {
+        dhat[data[i, 1], data[i, 2]] <- dord[i]
+        dhat[data[i, 2], data[i, 1]] <- dord[i]
+      }
+      snew <- sum(w * (dhat - dnew) ^ 2)
+      if (verbose) {
+        cat(
+          "itel = ",
+          formatC(itel, format = "d"),
+          "sold = ",
+          formatC(sold, digits = 10, format = "f"),
+          "smid = ",
+          formatC(smid, digits = 10, format = "f"),
+          "snew = ",
+          formatC(snew, digits = 10, format = "f"),
+          "\n"
+        )
+      }
+      if ((itel == itmax) || ((sold - snew) < eps)) {
+        break
+      }
+      xold <- xnew
+      dold <- dnew
+      sold <- snew
+      itel <- itel + 1
+    }
+    return(list(
+      b = bold,
+      v = v,
+      ranks = data[,3],
+      dvec = dord,
+      dnew = as.dist(dnew),
+      dhat = as.dist(dhat),
+      xnew = xnew,
+      loss = snew,
+      itel = itel
+    ))
+  }
+```
