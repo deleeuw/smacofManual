@@ -328,8 +328,13 @@ balanced design, as in @levelt_vandegeer_plomp_66.
 
 # Data Collection Programs
 
-## Data Format
+# Examples
 
+## Hoogeveen
+
+## Parties
+
+## Ekman
 
 
 
