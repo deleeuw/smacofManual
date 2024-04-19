@@ -154,9 +154,9 @@
   pdfcreator={LaTeX via pandoc}}
 
 \title{Smacof at 50: A Manual\\
-Part 1: Smacof Notation and Theory}
+Part 1: Smacof Basics}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started February 21 2024, Version of April 16, 2024}
+\date{Started February 21 2024, Version of April 17, 2024}
 
 \begin{document}
 \maketitle
@@ -182,29 +182,75 @@ In \emph{Multidimensional Scaling (MDS)} the data consists of information
 about the similarity or dissimilarity between pairs of objects selected
 from a finite set \(\mathcal{O}=\{o_1,\cdots,o_n\}\).
 
-In \emph{metric MDS} we have numerical dissimilarity measures and we want to
+In \emph{metric MDS} we have numerical dissimilarity measures \(\delta\) on
+a subset of \(\mathcal{O}\times\mathcal{O}\) and we want to
 map the objects \(o_i\) into \(n\) points \(x_i\) of some metric space in such
 a way that the distances between the points approximate the
 dissimilarities between the objects. In \emph{smacof}, our framework for MDS
 theory, algorithms, and computer programs, the metric space is
-\(\mathbb{R}^p\), the space of all \(p\)-tuples of real numbers, and in the
-code documented in this manual we assume the distance is the usual
-Euclidean distance.
+\(\mathbb{R}^p\), the space of all \(p\)-tuples of real numbers, and the distance is the usual Euclidean distance. Thus we are looking for
+\(x_i\), with \(i=1,\cdots,n\), such that
+\begin{equation}
+\delta_{ij}:=\delta(o_i,o_j)\approx d_{ij}(X):=\sqrt{\sum_{s=1}^p(x_{is}-x_{js})^2}.
+\label{eq:mdsdef}
+\end{equation}
+(the symbol \(:=\) is used for definitions). Note that \emph{distance matrix completion} (Fang and O'Leary (2012)) is an example of metric MDS.
 
-In \emph{non-metric MDS} the information about the dissimilarities is
-incomplete. It is usually \emph{ordinal}, i.e.~it tells us in some way or
-another that some dissimilarties are larger or smaller than others.
-Somewhere between metric and non-metric MDS is MDS with \emph{missing data},
-in which some dissimilarities are known numbers while others are
-unknown. MDS with missing data is a form of \emph{distance matrix completion}
-(Fang and O'Leary (2012)).
+There is also something called \emph{non-metric MDS}. The terms is ambiguous and can mean either one of two things. One definition is that
+we do not have numerical information about the dissimilarities, but only
+ordinal of nominal information. In the ordinal case we know that some dissimilarities are larger or smaller than others, in the nominal case
+that the objects are partitioned into groups and within-group
+distances are smaller than between-group distances. An MDS analysis
+is also non-metric if we have numerical dissimilarities but we decide
+to use only the ordinal or nominal information as data in out MDS
+analysis. Thus our approximation problem is of the form
+\begin{equation}
+\alpha\{(o_i,o_j),(o_k,o_l)\}\approx \beta(d_{ij}(X),d_{kl}(X)),
+\label{eq:mdsnonmetricformdef}
+\end{equation}
+where \(\alpha\) and \(\beta\) are appropriate binary relations.
 
-\section{Krukal's Stress}\label{krukals-stress}
+The term ``non-metric'' is also used in the case in which we do have numerical dissmilarities \(\delta_{ij}\), but the MDS problem is to find Euclidean distances which approximate some partially unknown function of the dissimilarities. The function should be member of a well-defined class of functions, for
+instance a third degree polynomial or a piecewise linear spline on a
+given knot sequence. The MDS techniquw not only find the map of
+\(\mathcal{O}\) into \(\mathbb{R}^p\), but also chooses a function \(f\)
+from the set \(\mathfrak{D}\) to improve the approximation.
+\begin{equation}
+f(\delta_{ij})\approx d_{ij}(X).
+\label{eq:mdsnonlineardef}
+\end{equation}
+Note that \eqref{eq:mdsnonlineardef} implies that \(f\) is applied to each
+dissimilarity separately. Thus \(\mathfrak{D}\) consists of real-valued
+functions of a single non-negative real variable.
+
+To avoid confusion, we will refer to this class
+of MDS techniques as \emph{non-linear MDS}. This choice of terminology
+has the unfortunately side-effect that \(\mathfrak{D}\) in non-linear
+MDS can be the set of all linear transformations. One important
+example of this linear non-linear MDS is classical MDS with an
+additive constant (Messick and Abelson (1956)). And, as another consequence, \(\mathfrak{D}\) can also be the set of all monotone or all one-one transformations, in which case the non-linear MDS technique is also a non-metric MDS technique. And finally the set \(\mathfrak{D}\) can have
+only a single element, the identity transformation, in which case
+non-linear MDS is metric MDS.
+
+One radical way to solve this terminological dilemma is to simply define
+MDS as solving
+\begin{subequations}
+\begin{align}
+D(X)&\approx\Delta,\label{eq:gmdsdef1}\\
+\Delta&\in\mathfrak{D},\label{eq:gmdsdef2}
+\end{align}
+\end{subequations}
+where \(D(X)\) is the matrix of Euclidean distances and \(\mathfrak{D}\) is a set of \emph{transformed dissimilarities} in the non-linear case or a set of \emph{quantified dissimilarities} in the non-metric case. We can then freely discuss
+metric MDS, linear MDS, non-linear MDS, and non-metric MDS as special cases,
+defined by different sets \(\mathfrak{D}\).
+
+\section{Kruskal's Stress}\label{kruskals-stress}
 
 In the pioneering papers Kruskal (1964a) and Kruskal (1964b) the MDS problem
 was formulated for the first time as minimization of an explicit loss
 function, which measures the quality of the approximation of the
-dissimilarities by the distances.
+dissimilarities by the distances. To be historically accurate, we should
+also mention that the non-metric MDS technique proposed by Shepard (1962a) and Shepard (1962b) can be reformulated as minimization of an explicit loss function (see, for example, De Leeuw (2017b)). In fact the classical Young-Householder-Torgerson MDS technique (Torgerson (1952)) for metric MDS also can be formulated as minimizing an explicit least squares loss function (De Leeuw and Heiser (1982)).
 
 \subsection{Metric MDS}\label{metric-mds}
 
@@ -216,7 +262,7 @@ and is defined as
 \label{eq:stressdef}
 \end{equation}
 
-The symbol \(:=\) is used for definitions. In definition
+In definition
 \eqref{eq:stressdef} the \(w_{ij}\) are known non-negative \emph{weights}, the
 \(\delta_{ij}\) are the known non-negative \emph{dissimilarities} between
 objects \(o_i\) and \(o_j\), and the \(d_{ij}(X)\) are the \emph{distances} between
@@ -228,11 +274,7 @@ MDS'' to mean Least Squares Metric Euclidean MDS.
 
 The \(n\times p\) matrix \(X\), which has the coordinates \(x_i\) of the \(n\)
 points as its rows, is called the \emph{configuration}, where \(p\) is the
-\emph{dimension} of the Euclidean space in which we make the map. Thus
-\begin{equation}
-d_{ij}(X)=\sqrt{\sum_{s=1}^p(x_{is}-x_{js})^2}.
-\label{eq:ddef}
-\end{equation} The metric MDS problem (of dimension \(p\), for given \(W\)
+\emph{dimension} of the Euclidean space in which we make the map. The metric MDS problem (of dimension \(p\), for given \(W\)
 and \(\Delta\)) is the minimization of \eqref{eq:stressdef} over the
 \(n\times p\) configurations \(X\).
 
@@ -252,13 +294,13 @@ assumption causes no real loss of generality.
 
 The fact that the summation in \eqref{eq:stressdef} is over all \(j<i\)
 indicates that the diagonal elements of \(\Delta\) are not used (they are
-assumed to be zero) and the elements above the diagonal are not used as
-well (they are assumed to be equal to the corresponding elements below
+assumed to be zero) and the elements above the diagonal are not used either
+(they are assumed to be equal to the corresponding elements below
 the diagonal). The somewhat mysterious factor \(\frac12\) in definition
 \eqref{eq:stressdef} is there because it simplifies some of the formulas
 in later sections of this paper.
 
-\subsection{Non-metric MDS}\label{non-metric-mds}
+\subsection{Non-linear and Non-metricMDS}\label{non-linear-and-non-metricmds}
 
 Kruskal was not really interested in metric MDS and the ``raw'' loss
 function \eqref{eq:stressdef}. His papers are really about non-metric
@@ -437,10 +479,12 @@ alternates minimization of \(\sigma(\hat D,X)\) over \(X\) for our current
 best estimate of \(\hat D\) with minimization of \(\sigma(\hat D,X)\) over
 \(\Delta\in\mathfrak{D}\) for our current best value of \(X\). Thus an
 update from iteration \(k\) to iteration \(k+1\) looks like
+\begin{subequations}
 \begin{align}
 \hat D^{(k)}&=\mathop{\text{argmin}}_{\hat D\in\mathfrak{D}}\sigma(\hat D,X^{(k)}),\label{eq:step1}\\
 X^{(k+1)}&=\mathop{\text{argmin}}_X\sigma(\hat D^{(k)},X).\label{eq:step2}
-\end{align}
+\end{align} 
+\end{subequations}
 This ALS approach to MDS was in the air since the early
 (unsuccessful) attempts around 1968 of Young and De Leeuw to combine
 Torgerson's classic metric MDS method with Kruskal's monotone regression
@@ -781,6 +825,163 @@ H(X)\gtrsim I_p\otimes (\rho(X)V - B(X))
 
 bozo
 
+\section{Smacof Algorithm}\label{smacof-algorithm}
+
+\subsubsection{Introduction to Majorization}\label{introduction-to-majorization}
+
+Majorization, these days better known as MM (Lange (2016)), is a general
+approach for the construction of minimization algorithms. There is also
+minorization, which leads to maximization algorithms, which explains the
+MM acronym: minorization for maximization and majorization for
+minimization.
+
+Before the MM principle was formulated as a general approach to
+algorithm construction there were some important predecessors. Major
+classes of MM algorithms avant la lettre were the \emph{EM Algorithm} for
+maximum likelihood estimation of Dempster, Laird, and Rubin (1977), the \emph{Smacof
+Algorithm} for MDS of De Leeuw (1977), the \emph{Generalized Weiszfeldt Method}
+of Vosz and Eckhardt (1980), and the \emph{Quadratic Approximation Method} of
+Böhning and Lindsay (1988). The first formulation of the general majorization
+principle seems to be De Leeuw (1994).
+
+Let's start with a brief introduction to majorization. Minimize a real
+valued function \(\sigma\) over \(x\in\mathbb{S}\), where \(\mathbb{S}\) is
+some subset of \(\mathbb{R}^n\). There are obvious extensions of
+majorization to functions defined on more general spaces, with values in
+any partially ordered set, but we do not need that level of generality
+in this manual. Also majorization applied to \(\sigma\) is minorization
+applied to \(-\sigma\), so concentrating on majorization-minimization and
+ignoring minorization-maximization causes no loss of generality
+
+Suppose there is a real-valued function \(\eta\) on
+\(\mathbb{S}\otimes\mathbb{S}\) such that
+
+\begin{align}
+\sigma(x)&\leq\eta(x,y)\qquad\forall x,y\in\mathbb{S},\label{eq:maj1}\\
+\sigma(x)&=\eta(x,x)\qquad\forall x\in\mathbb{S}.\label{eq:maj2}
+\end{align}
+
+The function \(\eta\) is called a \emph{majorization scheme} for \(\sigma\) on
+\(S\). A majorization scheme is \emph{strict} if \(\sigma(x)<\eta(x,y)\) for all
+\(x,y\in S\) withj \(x\not=y\).
+
+Define \begin{equation}
+x^{(k+1)}\in\mathop{\text{argmin}}_{x\in\mathbb{S}}\eta(x,x^{(k)}),
+\label{eq:majalg}
+\end{equation} assuming that \(\eta(\bullet,y)\) attains its (not
+necessarily unique) minimum over \(x\in\mathbb{S}\) for each \(y\). If
+\(x^{(k)}\in\mathop{\text{argmin}}_{x\in\mathbb{S}}\eta(x,x^{(k)})\)
+then we stop.
+
+By majorization property \eqref{eq:maj1}
+\begin{equation}
+\sigma(x^{(k+1)})\leq\eta(x^{(k+1)},x^{(k)}).
+\end{equation}
+Because we did not stop update rule \eqref{eq:majalg} implies
+\begin{equation}
+\eta(x^{(k+1)},x^{(k)})<\eta(x^{(k)},x^{(k)}).
+\end{equation}
+and finally by majorization property \eqref{eq:maj1}
+\begin{equation}
+\eta(x^{(k)},x^{(k)})=\sigma(x^{(k)}).
+\end{equation}
+
+If the minimum in \eqref{eq:majalg} is attained for a unique \(x\) then
+\(\eta(x^{(k+1)},x^{(k)})<\eta(x^{(k)},x^{(k)})\). If the majorization
+scheme is strict then \(\sigma(x^{(k+1)})<\eta(x^{(k+1)},x^{(k)})\). Under
+either of these two additional conditions
+\(\sigma(x^{(k+1)})<\sigma(x^{(k)})\), which means that the majorization
+algorithm is a monotone descent algorithm, and if \(\sigma\) is bounded
+below on \(\mathbb{S}\) the sequence \(\sigma(x^{(k)})\) converges.
+
+Note that we only use the order relation to prove convergence of the
+sequence of function values. To prove convergence of the \(x^{(k)}\) we
+need stronger compactness and continuity assumptions to apply the
+general theory of Zangwill (1969). For such a proof the argmin in update
+formula \eqref{eq:majalg} can be generalized to
+\(x^{(k+1)}=\phi(x^{(k)})\), where \(\phi\) maps \(\mathbb{S}\) into
+\(\mathbb{S}\) such that \(\eta(\phi(x),x)\leq\sigma(x)\) for all \(x\).
+
+We give a small illustration in which we minimize \(\sigma\) with
+\(\sigma(x)=\sqrt{x}-\log{x}\) over \(x>0\). Obviously we do not need
+majorization here, because solving \(\mathcal{D}\sigma(x)=0\) immediately
+gives \(x=4\) as the solution we are looking for.
+
+To arrive at this solution using majorization we start with
+\begin{equation}
+\sqrt{x}\leq\sqrt{y}+\frac12\frac{x-y}{\sqrt{y}},
+\label{eq:sqrtmaj}
+\end{equation} which is true because a differentiable concave function
+such as the square root is majorized by its tangent everywhere.
+Inequality \eqref{eq:sqrtmaj} implies \begin{equation}
+\sigma(x)\leq\eta(x,y):=\sqrt{y}+\frac12\frac{x-y}{\sqrt{y}}-\log{x}.
+\label{eq:examplemaj}
+\end{equation} Note that \(\eta(\bullet,y)\) is convex in its first
+argument for each \(y\). We have \(\mathcal{D}_1\eta(x,y)=0\) if and only if
+\(x=2\sqrt{y}\) and thus the majorization algorithm is \begin{equation}
+x^{(k+1)}=2\sqrt{x^{(k)}}
+\label{eq:examplealg}
+\end{equation} The sequence \(x^{(k)}\) converges monotonically to the
+fixed point \(x=2\sqrt{x}\), i.e.~to \(x=4\). If \(x^{(0)}<4\) the sequence is
+increasing, if \(x^{(0)}<4\) it is decreasing. Also, by l'Hôpital,
+\begin{equation}
+\lim_{x\rightarrow 4}\frac{2\sqrt{x}-4}{x-4}=\frac12
+\label{eq:hopi1}
+\end{equation} and thus convergence to the minimizer is linear with
+asymptotic convergence rate \(\frac12\). By another application of
+l'Hôpital \begin{equation}
+\lim_{x\rightarrow 4}\frac{\sigma(2\sqrt{x)})-\sigma(4)}{\sigma(x)-\sigma(4)}=\frac14,
+\label{eq:hopi2}
+\end{equation} and convergence to the minimum is linear with asymptotic
+convergence rate \(\frac14\). Linear convergence to the minimizer is
+typical for majorization algorithms, as is the twice-as-fast linear
+convergence to the minimum value.
+
+This small example is also of interest, because we minimize a \emph{DC
+function}, the difference of two convex functions. In our example the
+convex functions are minus the square root and minus the logarithm.
+Algorithms for minimizing DC functions define other important subclasses
+of MM algorithms, the \emph{DC Algorithm} of Tao Pham Dinh (see Le Thi and Tao (2018)
+for a recent overview), the \emph{Concave-Convex Procedure} of
+Yuille and Rangarajan (2003), and the \emph{Half-Quadratic Method} of Donald Geman
+(see Niikolova and Ng (2005) for a recent overview). For each of these methods
+there is a huge literature, with surprisingly little non-overlapping
+literatures. The first phase of the smacof algorithm, in which we
+improve the configuration for given disparities, is DC, concave-convex,
+and half-quadratic.
+
+In the table below we show convergence of \eqref{eq:examplealg} starting
+at \(x=1.5\). The first column show how far \(x^{(k)}\) deviates from the
+minimizer (i.e.~from 4), the second shows how far\(\sigma(x^{(k)})\)
+deviates from the minimum (i.e.~from \(2-\log 4\)). We clearly see the
+convergence rates \(\frac12\) and \(\frac14\) in action.
+
+\begin{verbatim}
+## itel   1 2.5000000000 0.2055741244 
+## itel   2 1.5505102572 0.0554992066 
+## itel   3 0.8698308399 0.0144357214 
+## itel   4 0.4615431837 0.0036822877 
+## itel   5 0.2378427379 0.0009299530 
+## itel   6 0.1207437506 0.0002336744 
+## itel   7 0.0608344795 0.0000585677 
+## itel   8 0.0305337787 0.0000146606 
+## itel   9 0.0152961358 0.0000036675 
+## itel  10 0.0076553935 0.0000009172 
+## itel  11 0.0038295299 0.0000002293 
+## itel  12 0.0019152235 0.0000000573 
+## itel  13 0.0009577264 0.0000000143 
+## itel  14 0.0004788919 0.0000000036 
+## itel  15 0.0002394531 0.0000000009
+\end{verbatim}
+
+The first three iterations are shown in the figure below. The vertical
+lines indicate the value of \(x\), function is in red, and the first three
+majorizations are in blue.
+
+\begin{center}\includegraphics{smacofIntro_files/figure-latex/majplot-1} \end{center}
+
+\subsubsection{Majorizing Stress}\label{majorizing-stress}
+
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
 
@@ -788,6 +989,9 @@ bozo
 \begin{CSLReferences}{1}{0}
 \bibitem[\citeproctext]{ref-bauschke_bui_wang_18}
 Bauschke, H. H., M. N. Bui, and X. Wang. 2018. {``{Projecting onto the Intersection of a Cone and a Sphere}.''} \emph{SIAM Journal on Optimization} 28: 2158--88.
+
+\bibitem[\citeproctext]{ref-boehning_lindsay_88}
+Böhning, D., and B. G. Lindsay. 1988. {``{Monotonicity of Quadratic-approximation Algorithms}.''} \emph{Annals of the Institute of Statistical Mathematics} 40 (4): 641--63.
 
 \bibitem[\citeproctext]{ref-deleeuw_U_75a}
 De Leeuw, J. 1975. {``{A Normalized Cone Regression Approach to Alternating Least Squares Algorithms}.''} Department of Data Theory FSW/RUL.
@@ -797,6 +1001,9 @@ De Leeuw, J. 1975. {``{A Normalized Cone Regression Approach to Alternating Leas
 
 \bibitem[\citeproctext]{ref-deleeuw_A_84f}
 ---------. 1984. {``{Differentiability of Kruskal's Stress at a Local Minimum}.''} \emph{Psychometrika} 49: 111--13.
+
+\bibitem[\citeproctext]{ref-deleeuw_C_94c}
+---------. 1994. {``{Block Relaxation Algorithms in Statistics}.''} In \emph{Information Systems and Data Analysis}, edited by H. H. Bock, W. Lenski, and M. M. Richter, 308--24. Berlin: Springer Verlag. \url{https://jansweb.netlify.app/publication/deleeuw-c-94-c/deleeuw-c-94-c.pdf}.
 
 \bibitem[\citeproctext]{ref-deleeuw_U_14b}
 ---------. 2014. {``{Bounding, and Sometimes Finding, the Global Minimum in Multidimensional Scaling}.''} UCLA Department of Statistics. \url{https://jansweb.netlify.app/publication/deleeuw-u-14-b/deleeuw-u-14-b.pdf}.
@@ -810,8 +1017,14 @@ De Leeuw, J. 1975. {``{A Normalized Cone Regression Approach to Alternating Leas
 \bibitem[\citeproctext]{ref-deleeuw_E_19d}
 ---------. 2019. {``Normalized Cone Regression.''} 2019. \url{https://jansweb.netlify.app/publication/deleeuw-e-19-d/deleeuw-e-19-d.pdf}.
 
+\bibitem[\citeproctext]{ref-deleeuw_heiser_C_82}
+De Leeuw, J., and W. J. Heiser. 1982. {``Theory of Multidimensional Scaling.''} In \emph{Handbook of Statistics, Volume {II}}, edited by P. R. Krishnaiah and L. Kanal. Amsterdam, The Netherlands: North Holland Publishing Company.
+
 \bibitem[\citeproctext]{ref-deleeuw_mair_A_09c}
 De Leeuw, J., and P. Mair. 2009. {``{Multidimensional Scaling Using Majorization: SMACOF in R}.''} \emph{Journal of Statistical Software} 31 (3): 1--30. \url{https://www.jstatsoft.org/article/view/v031i03}.
+
+\bibitem[\citeproctext]{ref-dempster_laird_rubin_77}
+Dempster, A. P., N. M. Laird, and D. B. Rubin. 1977. {``{Maximum Likelihood for Incomplete Data via the EM Algorithm}.''} \emph{Journal of the Royal Statistical Society} B39: 1--38.
 
 \bibitem[\citeproctext]{ref-fang_oleary_12}
 Fang, H., and D. P. O'Leary. 2012. {``Euclidean Distance Matrix Completion Problems Euclidean Distance Matrix Completion Problems Euclidean Distance Matrix Completion Problems.''} \emph{Oprtimization Methods and Software} 27 (4-5): 695--717.
@@ -828,14 +1041,38 @@ Kruskal, J. B. 1964a. {``{Multidimensional Scaling by Optimizing Goodness of Fit
 \bibitem[\citeproctext]{ref-kruskal_carroll_69}
 Kruskal, J. B., and J. D. Carroll. 1969. {``{Geometrical Models and Badness of Fit Functions}.''} In \emph{Multivariate Analysis, Volume II}, edited by P. R. Krishnaiah, 639--71. North Holland Publishing Company.
 
+\bibitem[\citeproctext]{ref-lange_16}
+Lange, K. 2016. \emph{MM Optimization Algorithms}. SIAM.
+
+\bibitem[\citeproctext]{ref-lethi_tao_18}
+Le Thi, H. A., and P. D. Tao. 2018. {``{DC Programming and DCA: Thirty Years of Developments}.''} \emph{Mathematical Programming, Series B}.
+
 \bibitem[\citeproctext]{ref-mair_groenen_deleeuw_A_22}
 Mair, P., P. J. F. Groenen, and J. De Leeuw. 2022. {``{More on Multidimensional Scaling in R: smacof Version 2}.''} \emph{Journal of Statistical Software} 102 (10): 1--47. \url{https://www.jstatsoft.org/article/view/v102i10}.
+
+\bibitem[\citeproctext]{ref-messick_abelson_56}
+Messick, S. J., and R. P. Abelson. 1956. {``{The Additive Constant Problem in Multidimensional Scaling}.''} \emph{Psychometrika} 21 (1--17).
+
+\bibitem[\citeproctext]{ref-nikolova_ng_05}
+Niikolova, M., and M. Ng. 2005. {``Analysis of Half-Quadratic Minimization Methods for Signal and Image Recovery.''} \emph{SIAM Journal Scientific Computing} 27 (3): 937--66.
 
 \bibitem[\citeproctext]{ref-shepard_62a}
 Shepard, R. N. 1962a. {``{The Analysis of Proximities: Multidimensional Scaling with an Unknown Distance Function. I}.''} \emph{Psychometrika} 27: 125--40.
 
 \bibitem[\citeproctext]{ref-shepard_62b}
 ---------. 1962b. {``{The Analysis of Proximities: Multidimensional Scaling with an Unknown Distance Function. II}.''} \emph{Psychometrika} 27: 219--46.
+
+\bibitem[\citeproctext]{ref-torgerson_52}
+Torgerson, W. S. 1952. {``{Multidimensional Scaling: I. Theory and Method}.''} \emph{Psychometrika} 17 (4): 401--19.
+
+\bibitem[\citeproctext]{ref-vosz_eckhardt_80}
+Vosz, H., and U. Eckhardt. 1980. {``{Linear Convergence of Generalized {W}eiszfeld's Method}.''} \emph{Computing} 25: 243--51.
+
+\bibitem[\citeproctext]{ref-yuille_rangarajan_03}
+Yuille, A. L., and A. Rangarajan. 2003. {``{The Concave-Convex Procedure}.''} \emph{Neural Computation} 15: 915--36.
+
+\bibitem[\citeproctext]{ref-zangwill_69a}
+Zangwill, W. I. 1969. \emph{{Nonlinear Programming: a Unified Approach}}. Englewood-Cliffs, N.J.: Prentice-Hall.
 
 \end{CSLReferences}
 

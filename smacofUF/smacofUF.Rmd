@@ -1,0 +1,63 @@
+---
+title: |
+    | Smacof at 50: A Manual
+    | Part 4: Unfolding in Smacof
+author: 
+- Jan de Leeuw - University of California Los Angeles
+date: '`r paste("Started December 12 2022, Version of",format(Sys.Date(),"%B %d, %Y"))`'
+output:
+  bookdown::pdf_document2:
+    latex_engine: lualatex 
+    includes:
+      in_header: preamble.tex
+    keep_tex: yes
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+  bookdown::html_document2:
+    keep_md: yes
+    css: preamble.css
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+graphics: yes
+mainfont: Times New Roman
+fontsize: 12pt
+bibliography: ["mypubs.bib","total.bib"]
+abstract: TBD
+---
+```{r loadpackages, echo = FALSE}
+#suppressPackageStartupMessages (library (foo, quietly = TRUE))
+```
+
+```{r load code, echo = FALSE}
+#dyn.load("foo.so")
+#source("janUtil.R")
+```
+
+
+**Note:** This is a working paper which will be expanded/updated frequently. All suggestions for improvement are welcome. 
+
+# Elegant
+
+$$
+\sigma(C)=\sigma(\tilde C+(C-\tilde C))=\sum_{i=1}^n\sum_{j=1}^m((\delta_{ij}^2-\text{tr}\ A_{ij}\tilde C)-\text{tr}\ A_{ij}(C-\tilde C))^2
+$$
+$$
+\sigma(C)=\sigma(\tilde C)-2\sum_{i=1}^n\sum_{j=1}^m(\delta_{ij}^2-\text{tr}\ A_{ij}\tilde C)\text{tr}\ A_{ij}(C-\tilde C)+\sum_{i=1}^n\sum_{j=1}^m\{\text{tr}\ A_{ij}(C-\tilde C)\}^2
+$$
+
+From @deleeuw_groenen_pietersz
+$$
+\sum_{i=1}^n\sum_{j=1}^m\{\text{tr}\ A_{ij}(C-\tilde C)\}^2\leq (n+m+2)\text{tr}\ (C-\tilde C)^2
+$$
+Define 
+$$
+B(\tilde C):=\frac{1}{n+m+2}\sum_{i=1}^n\sum_{j=1}^m(\delta_{ij}^2-\text{tr}\ A_{ij}\tilde C)A_{ij}
+$$
+So we minimize
+$$
+-2\ \text{tr}\ B(\tilde C)C+\text{tr}\ C^2-2\text{tr}\ C\tilde C=\\
+\text{tr}\ (C-\{\tilde C + B(\tilde C)\})^2
+$$
+# References

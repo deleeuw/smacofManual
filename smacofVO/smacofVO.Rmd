@@ -59,10 +59,14 @@ If we have data where the same individuals give preference
 judgments over multiple domains, or over the same domain on multiple occasions, or over the same domain with different experimental conditions,
 then we can use the loss function
 $$
-\sigma(X,Y_1,\cdots,Y_s)=\sum_{r=1}^s\sum_{i=1}^n\min_{\delta_i^r\in\Delta_i^r}\sum_{j=1}^{m_r}w_{ij}^r(\delta_{ij}^r-d(x_i,y_r^r))^2
+\sigma(X,Y_1,\cdots,Y_s)=\sum_{r=1}^s\sum_{i=1}^n\min_{\delta_i^r\in\Delta_i^r}\sum_{j=1}^{m_r}w_{ij}^r(\delta_{ij}^r-d(x_i,y_j^r))^2
 $$
 Note that for each occasion there are different transformations $\Delta_r$
 and different matrices of column scores $Y_r$, but there is only a single matrix of row scores $X$.
+
+$$
+y_j^r=\alpha_{j}^ry_r
+$$
 
 ## Homogeneity Analysis
 

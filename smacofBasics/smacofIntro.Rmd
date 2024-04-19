@@ -49,29 +49,75 @@ In *Multidimensional Scaling (MDS)* the data consists of information
 about the similarity or dissimilarity between pairs of objects selected
 from a finite set $\mathcal{O}=\{o_1,\cdots,o_n\}$.
 
-In *metric MDS* we have numerical dissimilarity measures and we want to
+In *metric MDS* we have numerical dissimilarity measures $\delta$ on 
+a subset of $\mathcal{O}\times\mathcal{O}$ and we want to
 map the objects $o_i$ into $n$ points $x_i$ of some metric space in such
 a way that the distances between the points approximate the
 dissimilarities between the objects. In *smacof*, our framework for MDS
 theory, algorithms, and computer programs, the metric space is
-$\mathbb{R}^p$, the space of all $p$-tuples of real numbers, and in the
-code documented in this manual we assume the distance is the usual
-Euclidean distance.
+$\mathbb{R}^p$, the space of all $p$-tuples of real numbers, and the distance is the usual Euclidean distance. Thus we are looking for 
+$x_i$, with $i=1,\cdots,n$, such that
+\begin{equation}
+\delta_{ij}:=\delta(o_i,o_j)\approx d_{ij}(X):=\sqrt{\sum_{s=1}^p(x_{is}-x_{js})^2}.
+(\#eq:mdsdef)
+\end{equation}
+(the symbol $:=$ is used for definitions). Note that *distance matrix completion* (@fang_oleary_12) is an example of metric MDS.
 
-In *non-metric MDS* the information about the dissimilarities is
-incomplete. It is usually *ordinal*, i.e. it tells us in some way or
-another that some dissimilarties are larger or smaller than others.
-Somewhere between metric and non-metric MDS is MDS with *missing data*,
-in which some dissimilarities are known numbers while others are
-unknown. MDS with missing data is a form of *distance matrix completion*
-(@fang_oleary_12).
+There is also something called *non-metric MDS*. The terms is ambiguous and can mean either one of two things. One definition is that
+we do not have numerical information about the dissimilarities, but only
+ordinal of nominal information. In the ordinal case we know that some dissimilarities are larger or smaller than others, in the nominal case
+that the objects are partitioned into groups and  within-group
+distances are smaller than between-group distances. An MDS analysis
+is also non-metric if we have numerical dissimilarities but we decide
+to use only the ordinal or nominal information as data in out MDS 
+analysis. Thus our approximation problem is of the form
+\begin{equation}
+\alpha\{(o_i,o_j),(o_k,o_l)\}\approx \beta(d_{ij}(X),d_{kl}(X)),
+(\#eq:mdsnonmetricformdef)
+\end{equation}
+where $\alpha$ and $\beta$ are appropriate binary relations.
 
-# Krukal's Stress
+The term "non-metric" is also used in the case in which we do have numerical dissmilarities $\delta_{ij}$, but the MDS problem is to find Euclidean distances which approximate some partially unknown function of the dissimilarities.  The function should be member of a well-defined class of functions, for
+instance a third degree polynomial or a piecewise linear spline on a
+given knot sequence. The MDS techniquw not only find the map of 
+$\mathcal{O}$ into $\mathbb{R}^p$, but also chooses a function $f$
+from the set $\mathfrak{D}$ to improve the approximation. 
+\begin{equation}
+f(\delta_{ij})\approx d_{ij}(X).
+(\#eq:mdsnonlineardef)
+\end{equation}
+Note that \@ref(eq:mdsnonlineardef) implies that $f$ is applied to each 
+dissimilarity separately. Thus $\mathfrak{D}$ consists of real-valued
+functions of a single non-negative real variable.
+
+To avoid confusion, we will refer to this class
+of MDS techniques as *non-linear MDS*. This choice of terminology
+has the unfortunately side-effect that $\mathfrak{D}$ in non-linear
+MDS can be the set of all linear transformations. One important
+example of this linear non-linear MDS is classical MDS with an 
+additive constant (@messick_abelson_56). And, as another consequence, $\mathfrak{D}$ can also be the set of all monotone or all one-one transformations, in which case the non-linear MDS technique is also a non-metric MDS technique. And finally the set $\mathfrak{D}$ can have
+only a single element, the identity transformation, in which case
+non-linear MDS is metric MDS.
+
+One radical way to solve this terminological dilemma is to simply define 
+MDS as solving
+\begin{subequations}
+\begin{align}
+D(X)&\approx\Delta,(\#eq:gmdsdef1)\\
+\Delta&\in\mathfrak{D},(\#eq:gmdsdef2)
+\end{align}
+\end{subequations}
+where $D(X)$ is the matrix of Euclidean distances and $\mathfrak{D}$ is a set of *transformed dissimilarities* in the non-linear case or a set of *quantified dissimilarities* in the non-metric case. We can then freely discuss
+metric MDS, linear MDS, non-linear MDS, and non-metric MDS as special cases,
+defined by different sets $\mathfrak{D}$.
+
+# Kruskal's Stress
 
 In the pioneering papers @kruskal_64a and @kruskal_64b the MDS problem
 was formulated for the first time as minimization of an explicit loss
 function, which measures the quality of the approximation of the
-dissimilarities by the distances. 
+dissimilarities by the distances. To be historically accurate, we should
+also mention that the non-metric MDS technique proposed by @shepard_62a and @shepard_62b can be reformulated as minimization of an explicit loss function (see, for example, @deleeuw_E_17e). In fact the classical Young-Householder-Torgerson MDS technique (@torgerson_52) for metric MDS also can be formulated as minimizing an explicit least squares loss function (@deleeuw_heiser_C_82).
 
 ## Metric MDS
 
@@ -83,7 +129,7 @@ and is defined as
 (\#eq:stressdef)
 \end{equation}
 
-The symbol $:=$ is used for definitions. In definition
+In definition
 \@ref(eq:stressdef) the $w_{ij}$ are known non-negative *weights*, the
 $\delta_{ij}$ are the known non-negative *dissimilarities* between
 objects $o_i$ and $o_j$, and the $d_{ij}(X)$ are the *distances* between
@@ -95,11 +141,7 @@ MDS" to mean Least Squares Metric Euclidean MDS.
 
 The $n\times p$ matrix $X$, which has the coordinates $x_i$ of the $n$
 points as its rows, is called the *configuration*, where $p$ is the
-*dimension* of the Euclidean space in which we make the map. Thus
-\begin{equation}
-d_{ij}(X)=\sqrt{\sum_{s=1}^p(x_{is}-x_{js})^2}.
-(\#eq:ddef)
-\end{equation} The metric MDS problem (of dimension $p$, for given $W$
+*dimension* of the Euclidean space in which we make the map. The metric MDS problem (of dimension $p$, for given $W$
 and $\Delta$) is the minimization of \@ref(eq:stressdef) over the
 $n\times p$ configurations $X$.
 
@@ -119,13 +161,14 @@ assumption causes no real loss of generality.
 
 The fact that the summation in \@ref(eq:stressdef) is over all $j<i$
 indicates that the diagonal elements of $\Delta$ are not used (they are
-assumed to be zero) and the elements above the diagonal are not used as
-well (they are assumed to be equal to the corresponding elements below
+assumed to be zero) and the elements above the diagonal are not used either
+(they are assumed to be equal to the corresponding elements below
 the diagonal). The somewhat mysterious factor $\frac12$ in definition
 \@ref(eq:stressdef) is there because it simplifies some of the formulas
 in later sections of this paper.
 
-## Non-metric MDS
+## Non-linear and Non-metricMDS
+
 
 Kruskal was not really interested in metric MDS and the "raw" loss
 function \@ref(eq:stressdef). His papers are really about non-metric
@@ -304,10 +347,12 @@ alternates minimization of $\sigma(\hat D,X)$ over $X$ for our current
 best estimate of $\hat D$ with minimization of $\sigma(\hat D,X)$ over
 $\Delta\in\mathfrak{D}$ for our current best value of $X$. Thus an
 update from iteration $k$ to iteration $k+1$ looks like 
+\begin{subequations}
 \begin{align}
 \hat D^{(k)}&=\mathop{\text{argmin}}_{\hat D\in\mathfrak{D}}\sigma(\hat D,X^{(k)}),(\#eq:step1)\\
 X^{(k+1)}&=\mathop{\text{argmin}}_X\sigma(\hat D^{(k)},X).(\#eq:step2)
 \end{align} 
+\end{subequations}
 This ALS approach to MDS was in the air since the early
 (unsuccessful) attempts around 1968 of Young and De Leeuw to combine
 Torgerson's classic metric MDS method with Kruskal's monotone regression
