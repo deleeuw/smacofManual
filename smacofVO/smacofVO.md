@@ -1,8 +1,10 @@
 ---
-title: "Multidimensional Voronoi Scaling of Categorical Data"
+title: |
+    | Smacof at 50: A Manual
+    | Part 6: Smacof with Categorical Data
 author: 
 - Jan de Leeuw - University of California Los Angeles
-date: 'Started April 13 2024, Version of April 15, 2024'
+date: 'Started April 13 2024, Version of April 21, 2024'
 output:
   bookdown::html_document2:
     keep_md: yes
@@ -33,25 +35,39 @@ abstract: smacofVO
 
 # Introduction
 
-## Simultaneous Nonmetric Unfolding
+## Metric Unfolding
 
-In non-metric unfolding
-$$
-\sigma(X,Y)=\sum_{i=1}^n\min_{\delta_i\in\Delta_i}\sum_{j=1}^mw_{ij}(\delta_{ij}-d(x_i,y_r))^2
-$$
+In metric unfolding we minimize a loss function of the form
+\begin{equation}
+\sigma(X,Y)=\sum_{i=1}^n\sum_{j=1}^mw_{ij}(\delta_{ij}-d(x_i,y_j))^2
+\end{equation}
+over the $n\times p$ matrix $X$ and the $m\times p$ matrices $Y$. Both
+the weights $W=\{w_{ij}\}$ and the dissimilarities $\Delta=\{\delta_{ij}\}$
+are known non-negative matrices.
+
+The multidimensional unfolding model for preference judgments is often attributed to @coombs, @kruskal_carroll, @roskam
+
+## Non-metric Unfolding
+
+
+## Simultaneous Non-Metric Unfolding
+
 If we have data where the same individuals give preference
-judgments over multiple domains, or over the same domain at multiple occasions, or over the same domain with different experimental conditions,
+judgments over multiple domains, or over the same domain on multiple occasions, or over the same domain with different experimental conditions,
 then we can use the loss function
-
 $$
-\sigma(X,Y_1,\cdots,Y_s)=\sum_{r=1}^s\sum_{i=1}^n\min_{\delta_i^r\in\Delta_i^r}\sum_{j=1}^{m_r}w_{ij}^r(\delta_{ij}^r-d(x_i,y_r^r))^2
+\sigma(X,Y_1,\cdots,Y_s)=\sum_{r=1}^s\sum_{i=1}^n\min_{\delta_i^r\in\Delta_i^r}\sum_{j=1}^{m_r}w_{ij}^r(\delta_{ij}^r-d(x_i,y_j^r))^2
 $$
 Note that for each occasion there are different transformations $\Delta_r$
 and different matrices of column scores $Y_r$, but there is only a single matrix of row scores $X$.
 
+$$
+y_j^r=\alpha_{j}^ry_r
+$$
+
 ## Homogeneity Analysis
 
-The Gifi System (@gifi_B_90, @michailidis_deleeuw_A_98, @deleeuw_mair_A_09a) presents non-linear versions of the classical linear multivariate analysis techniques (regression, analysis of variance, canonical analysis, discriminant analysis, principal component analysis) as special cases of homogeneity analysis, also known as Multiple Correspondence Analysis.
+The Gifi System (@gifi_B_90, @michailidis_deleeuw_A_98, @deleeuw_mair_A_09a) presents non-linear or non-metric versions of the classical linear multivariate analysis techniques (regression, analysis of variance, canonical analysis, discriminant analysis, principal component analysis) as special cases of Homogeneity Analysis, also known as Multiple Correspondence Analysis.
 
 We give a somewhat non-standard introduction to homogeneity analysis here, to highlight the
 similarities with unfolding and the techniques we will present later on in this paper.
@@ -126,7 +142,7 @@ to ties (@kruskal_64, @deleeuw_A_).
 ###ALS Stage 2
 
 In stage 2 we do one or more metric smacof iterations for given $\Delta_r$
-to decrease the loss. We more or less ignore the fact that we are dealing with a rectangular matrix and use the weights to imbed the problem into a symmetric one (@heiser_deleeuw_A_79).
+to decrease the loss. We more or less ignore the fact that we are dealing with a rectangular matrix and use the weights to transform the problem into a symmetric one (as in @heiser_deleeuw_A_79).
 
 Thus for stage two purposes the loss function is
 $$
@@ -140,8 +156,6 @@ n&X\\
 k_r&Y_r}.
 $$
 The weights in $W_r$ are now zero for the two diagonal blocks.
-
-
 $$
 d^2(x_i,y_\ell^r)=\text{tr}\ Z_r'A^r_{i\ell}Z_r^{\ }
 $$
@@ -162,24 +176,30 @@ $$
 $$
 \sum_{i=1}^n\sum_{\ell=1}^{k_r}w_{il}^r\delta_{i\ell}^rd(x_i,y_\ell^r)=\text{tr}\ Z_r'B_r(Z_r)Z_r\geq\text{tr}\ Z_r'B_r(\tilde Z_r)\tilde Z_r=\text{tr}\ Z_r'V_rG(\tilde Z_r)
 $$
+Using standard smacof majorization theory in an iteration we must minimize
 
-$$
-\sigma(Z_1,\cdots,Z_m)\leq\sum_{j=1}^m\left\{\eta^2(\Delta_r)+\text{tr}\ (Z_r-G(\tilde Z_r))'V_r(Z_r-G(\tilde Z_r))-\text{tr}\ G(\tilde Z_r)'V_rG(\tilde Z_r)\right\}
-$$
-
-$
 $$
 \text{tr}\ (X-\tilde X_r)'V_{11}^r(X-\tilde X_r)+2\text{tr}\ (X-\tilde X_r)'V_{12}^r(Y_r-\tilde Y_r)+\text{tr}\ (Y_r-\tilde Y_r)'V_{22}^r(Y_r-\tilde Y_r)
 $$
-Minimize over $Y_r$, without constraints.
+where $\tilde X_r$ and $\tilde Y_r$ are the two components of the Guttman
+transform $\tilde Z_r$of the current $Z_r$.
+
+First minimize over $Y_r$, without constraints.
 $$
 Y_r-\tilde Y_r=-\{V_{22}^r\}^{-1}V_{21}^r(X-\tilde X_r)
 $$
 and thus
 $$
-\text{tr}\ (X-\tilde X_r)'\left\{V_{11}^r-V_{12}^r\{V_{22}^r\}^{-1}V_{21}^r\right\}(X-\tilde X_r)
+\text{tr}\ (X-\tilde X_r)'V_{1|2}^r(X-\tilde X_r)
 $$
-Schur complement $V_{1|2}^r$. Note: doubly centered. Constraint either (weak)
+where
+$$
+V_{1|2}^r:=V_{11}^r-V_{12}^r\{V_{22}^r\}^{-1}V_{21}^r
+$$
+i.e. Schur complement of .. in .. Note that $V_{1|2}^r$ is doubly-centered.
+
+
+Constraint either (weak)
 $$
 \text{tr}\ X'V_{1|2}^\star X = 1
 $$
@@ -191,7 +211,9 @@ Thus (weak)
 $$
 X=\lambda\{V_{1|2}^\star\}^{-1}\sum_{j=1}^mV_{1|2}^r\tilde X_r
 $$
-with $\lambda$ chosen such that ... is satisfied. Or (strong)
+with $\lambda$ chosen such that ... is satisfied. 
+
+ Or (strong)
 $$
 X=\{V_{1|2}^\star\}^{-\frac12}KL'
 $$
@@ -202,7 +224,7 @@ $V_{12}^r=-e_ne_{k_r}'$. Thus
 $V_{1\mid2}^r=k_rJ_n$ and $V_{1\mid 2}^\star=k_\star J_n$
 with $J_n=I-n^{-1}e_ne_n'$ the centering matrix of order $n.
 
-The Guttman transform also simplifies in the unweighted case. This was already noted in @heiser_deleeuw_A_79.
+The Guttman transform also simplifies in the unweighted case. The formulas were already given in @heiser_deleeuw_A_79.
 
 ## The Constrained Case
 

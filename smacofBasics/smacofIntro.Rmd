@@ -167,7 +167,7 @@ the diagonal). The somewhat mysterious factor $\frac12$ in definition
 \@ref(eq:stressdef) is there because it simplifies some of the formulas
 in later sections of this paper.
 
-## Non-linear and Non-metricMDS
+## Non-linear and Non-metric MDS
 
 
 Kruskal was not really interested in metric MDS and the "raw" loss

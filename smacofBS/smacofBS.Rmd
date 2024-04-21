@@ -1,7 +1,7 @@
 ---
 title: |
     | Smacof at 50: A Manual
-    | Part 2: Smacof with B-Spline Transformation
+    | Part 3: Non-linear Smacof with B-Spline Transformation
 author: 
 - Jan de Leeuw - University of California Los Angeles
 date: '`r paste("Started February 21 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
@@ -42,7 +42,8 @@ suppressPackageStartupMessages(library(smacofBS, quietly = TRUE))
 frequently. All suggestions for improvement are welcome. All Rmd, tex,
 html, pdf, R, and C files are in the public domain. Attribution will be
 appreciated, but is not required. The files can be found at
-<https://github.com/deleeuw/smacofCode>.
+<https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
+and smacofExamples.
 
 \sectionbreak
 

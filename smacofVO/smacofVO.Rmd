@@ -1,5 +1,7 @@
 ---
-title: "Multidimensional Voronoi Scaling of Categorical Data"
+title: |
+    | Smacof at 50: A Manual
+    | Part 6: Smacof with Categorical Data
 author: 
 - Jan de Leeuw - University of California Los Angeles
 date: '`r paste("Started April 13 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
@@ -34,7 +36,12 @@ abstract: smacofVO
 ```
 
 
-**Note:** This is a working paper which will be expanded/updated frequently. All suggestions for improvement are welcome. 
+**Note:** This is a working manuscript which will be expanded/updated
+frequently. All suggestions for improvement are welcome. All Rmd, tex,
+html, pdf, R, and C files are in the public domain. Attribution will be
+appreciated, but is not required. The files can be found at
+<https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
+and smacofExamples.
 
 # Introduction
 
