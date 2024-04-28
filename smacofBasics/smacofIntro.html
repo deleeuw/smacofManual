@@ -380,9 +380,9 @@ display: none;
 
 
 <h1 class="title toc-ignore"><div class="line-block">Smacof at 50: A Manual<br />
-Part 1: Smacof Introduction and Theory</div></h1>
+Part 1: Smacof Basics</div></h1>
 <h4 class="author">Jan de Leeuw - University of California Los Angeles</h4>
-<h4 class="date">Started February 21 2024, Version of April 16, 2024</h4>
+<h4 class="date">Started February 21 2024, Version of April 22, 2024</h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 TBD
@@ -393,15 +393,16 @@ TBD
 <div id="TOC">
 <ul>
 <li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">1</span> Introduction</a></li>
-<li><a href="#krukals-stress" id="toc-krukals-stress"><span class="toc-section-number">2</span> Krukal’s Stress</a>
+<li><a href="#loss-function" id="toc-loss-function"><span class="toc-section-number">2</span> Loss Function</a>
 <ul>
 <li><a href="#metric-mds" id="toc-metric-mds"><span class="toc-section-number">2.1</span> Metric MDS</a></li>
-<li><a href="#non-metric-mds" id="toc-non-metric-mds"><span class="toc-section-number">2.2</span> Non-metric MDS</a></li>
-<li><a href="#normalization" id="toc-normalization"><span class="toc-section-number">2.3</span> Normalization</a></li>
-<li><a href="#some-thoughts-on-als" id="toc-some-thoughts-on-als"><span class="toc-section-number">2.4</span> Some thoughts on ALS</a>
+<li><a href="#non-linear-mds" id="toc-non-linear-mds"><span class="toc-section-number">2.2</span> Non-linear MDS</a></li>
+<li><a href="#non-metric-mds" id="toc-non-metric-mds"><span class="toc-section-number">2.3</span> Non-metric MDS</a></li>
+<li><a href="#normalization" id="toc-normalization"><span class="toc-section-number">2.4</span> Normalization</a></li>
+<li><a href="#some-thoughts-on-als" id="toc-some-thoughts-on-als"><span class="toc-section-number">2.5</span> Some thoughts on ALS</a>
 <ul>
-<li><a href="#the-single-phase-approach" id="toc-the-single-phase-approach"><span class="toc-section-number">2.4.1</span> The Single-Phase approach</a></li>
-<li><a href="#the-two-phase-approach" id="toc-the-two-phase-approach"><span class="toc-section-number">2.4.2</span> The Two-Phase Approach</a></li>
+<li><a href="#the-single-phase-approach" id="toc-the-single-phase-approach"><span class="toc-section-number">2.5.1</span> The Single-Phase approach</a></li>
+<li><a href="#the-two-phase-approach" id="toc-the-two-phase-approach"><span class="toc-section-number">2.5.2</span> The Two-Phase Approach</a></li>
 </ul></li>
 </ul></li>
 <li><a href="#smacof-notation-and-terminology" id="toc-smacof-notation-and-terminology"><span class="toc-section-number">3</span> Smacof Notation and Terminology</a></li>
@@ -418,6 +419,12 @@ TBD
 <li><a href="#kuhn-tucker-points" id="toc-kuhn-tucker-points"><span class="toc-section-number">5.2.1</span> Kuhn-Tucker Points</a></li>
 </ul></li>
 </ul></li>
+<li><a href="#smacof-algorithm" id="toc-smacof-algorithm"><span class="toc-section-number">6</span> Smacof Algorithm</a>
+<ul>
+<li><a href="#introduction-to-majorization" id="toc-introduction-to-majorization"><span class="toc-section-number">6.0.1</span> Introduction to Majorization</a></li>
+<li><a href="#majorizing-stress" id="toc-majorizing-stress"><span class="toc-section-number">6.0.2</span> Majorizing Stress</a></li>
+</ul></li>
+<li><a href="#mds-topics-not-covered" id="toc-mds-topics-not-covered"><span class="toc-section-number">7</span> MDS topics not covered</a></li>
 <li><a href="#references" id="toc-references">References</a></li>
 </ul>
 </div>
@@ -426,59 +433,99 @@ TBD
 frequently. All suggestions for improvement are welcome. All Rmd, tex,
 html, pdf, R, and C files are in the public domain. Attribution will be
 appreciated, but is not required. The files can be found at
-<a href="https://github.com/deleeuw/smacofCode" class="uri">https://github.com/deleeuw/smacofCode</a>.</p>
+<a href="https://github.com/deleeuw" class="uri">https://github.com/deleeuw</a> in the repositories smacofCode, smacofManual,
+and smacofExamples.</p>
 <div id="introduction" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Introduction</h1>
 <p>In <em>Multidimensional Scaling (MDS)</em> the data consists of information
 about the similarity or dissimilarity between pairs of objects selected
 from a finite set <span class="math inline">\(\mathcal{O}=\{o_1,\cdots,o_n\}\)</span>.</p>
-<p>In <em>metric MDS</em> we have numerical dissimilarity measures and we want to
+<p>In <em>metric MDS</em> we have numerical dissimilarity measures <span class="math inline">\(\delta\)</span> on
+a subset of <span class="math inline">\(\mathcal{O}\times\mathcal{O}\)</span> and we want to
 map the objects <span class="math inline">\(o_i\)</span> into <span class="math inline">\(n\)</span> points <span class="math inline">\(x_i\)</span> of some metric space in such
 a way that the distances between the points approximate the
 dissimilarities between the objects. In <em>smacof</em>, our framework for MDS
 theory, algorithms, and computer programs, the metric space is
-<span class="math inline">\(\mathbb{R}^p\)</span>, the space of all <span class="math inline">\(p\)</span>-tuples of real numbers, and in the
-code documented in this manual we assume the distance is the usual
-Euclidean distance.</p>
-<p>In <em>non-metric MDS</em> the information about the dissimilarities is
-incomplete. It is usually <em>ordinal</em>, i.e. it tells us in some way or
-another that some dissimilarties are larger or smaller than others.
-Somewhere between metric and non-metric MDS is MDS with <em>missing data</em>,
-in which some dissimilarities are known numbers while others are
-unknown. MDS with missing data is a form of <em>distance matrix completion</em>
-(<span class="citation">Fang and O’Leary (2012)</span>).</p>
+<span class="math inline">\(\mathbb{R}^p\)</span>, the space of all <span class="math inline">\(p\)</span>-tuples of real numbers, and the distance is the usual Euclidean distance. Thus we are looking for
+<span class="math inline">\(x_i\)</span>, with <span class="math inline">\(i=1,\cdots,n\)</span>, such that
+<span class="math display" id="eq:mdsdef">\[\begin{equation}
+\delta_{ij}:=\delta(o_i,o_j)\approx d_{ij}(X):=\sqrt{\sum_{s=1}^p(x_{is}-x_{js})^2}.
+\tag{1.1}
+\end{equation}\]</span>
+(the symbol <span class="math inline">\(:=\)</span> is used for definitions). Note that <em>distance matrix completion</em> (<span class="citation">Fang and O’Leary (2012)</span>) is an example of metric MDS.</p>
+<p>Besides metric MDS there is also something called <em>non-metric MDS</em>. The terms is ambiguous and can mean either one of two things. One definition is that
+we do not have numerical information about the dissimilarities, but only
+ordinal of nominal information. In the ordinal case we know that some dissimilarities are larger or smaller than others, in the nominal case
+that the objects are partitioned into groups and within-group
+distances are smaller than between-group distances. An MDS analysis
+is also non-metric if we have numerical dissimilarities but we decide
+to use only the ordinal or nominal information in the dissimilarities
+as data for our MDS analysis. The data are a binary relation <span class="math inline">\(\preceq_\delta\)</span> on a subset of
+<span class="math inline">\(\mathcal{O}\times\mathcal{O}\)</span>. There is a second binary relation <span class="math inline">\(\preceq_d\)</span> on
+<span class="math inline">\(\mathbb{R}_+\times\mathbb{R}_+\)</span>. We want to find the configuration <span class="math inline">\(X\)</span>
+such that
+<span class="math display" id="eq:relations">\[\begin{equation}
+(o_i,o_j)\preceq_\delta(o_k,o_l)\quad\Rightarrow\quad d_{ij}(X)\preceq_d d_{kl}(X).
+\tag{1.2}
+\end{equation}\]</span>
+For most non-metric MDS problems both <span class="math inline">\(\preceq_\delta\)</span> and <span class="math inline">\(\prec_d\)</span> are partial orders, but for nominal data they can be equivalence relations.</p>
+<p>The term “non-metric” is sometimes also used in the case in which we do have numerical dissimilarities <span class="math inline">\(\delta_{ij}\)</span>, but the MDS problem is to find Euclidean distances which approximate some partially unknown function of the dissimilarities. The function should be member of a well-defined class of functions, for
+instance a third degree polynomial or a piecewise linear spline on a
+given knot sequence. The MDS technique not only finds the map of
+<span class="math inline">\(\mathcal{O}\)</span> into <span class="math inline">\(\mathbb{R}^p\)</span>, but also chooses a function <span class="math inline">\(f\)</span>
+from the set <span class="math inline">\(\mathfrak{D}\)</span> to improve the approximation.
+<span class="math display" id="eq:mdsnldef">\[\begin{equation}
+f(\delta_{ij})\approx d_{ij}(X).
+\tag{1.3}
+\end{equation}\]</span>
+Note that <a href="#eq:mdsnldef">(1.3)</a> implies that <span class="math inline">\(f\)</span> is applied to each
+dissimilarity separately. Thus <span class="math inline">\(\mathfrak{D}\)</span> consists of real-valued
+functions of a single non-negative real variable.</p>
+<p>To avoid confusion, we will refer to this class
+of MDS techniques as <em>non-linear MDS</em>. This choice of terminology
+has the unfortunately side-effect that <span class="math inline">\(\mathfrak{D}\)</span> in non-linear
+MDS can be the set of all linear transformations. One important
+example of this linear non-linear MDS is classical MDS with an
+additive constant (<span class="citation">Messick and Abelson (1956)</span>). And, as another consequence, <span class="math inline">\(\mathfrak{D}\)</span> can also be the set of all monotone or all one-one transformations, in which case the non-linear MDS technique is also a non-metric MDS technique. And finally the set <span class="math inline">\(\mathfrak{D}\)</span> can have
+only a single element, the identity transformation, in which case
+non-linear MDS is metric MDS.</p>
+<p>One way to solve this terminological dilemma is to simply define
+MDS as finding an approximate solution <span class="math inline">\((X,\Delta)\)</span> to
+where <span class="math inline">\(D(X)\)</span> is the matrix of Euclidean distances and <span class="math inline">\(\mathfrak{D}\)</span> is the set of <em>transformed dissimilarities</em> in the non-linear case or the set of <em>quantified dissimilarities</em> in the non-metric case. We can then freely discuss
+metric MDS, linear MDS, non-linear MDS, and non-metric MDS as special cases,
+defined by different sets <span class="math inline">\(\mathfrak{D}\)</span>.</p>
 </div>
-<div id="krukals-stress" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> Krukal’s Stress</h1>
+<div id="loss-function" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Loss Function</h1>
 <p>In the pioneering papers <span class="citation">Kruskal (1964a)</span> and <span class="citation">Kruskal (1964b)</span> the MDS problem
-was formulated for the first time as minimization of an explicit loss
-function, which measures the quality of the approximation of the
-dissimilarities by the distances.</p>
+was formulated for the first time as minimization of an explicit <em>loss
+function</em> or <em>badness-of-fit function</em>, which measures the quality of the approximation of the dissimilarities by the distances. To be historically accurate, we should
+mention that the non-metric MDS technique proposed by <span class="citation">Shepard (1962a)</span> and <span class="citation">Shepard (1962b)</span> can be reformulated as minimization of an explicit loss function (see, for example, <span class="citation">De Leeuw (2017b)</span>). And the classical Young-Householder-Torgerson MDS technique (<span class="citation">Torgerson (1952)</span>) for metric MDS can be reformulated as minimizing an explicit least squares loss function (<span class="citation">De Leeuw and Heiser (1982)</span>) as well.
+But neither of these two predecessors was formulated originally as an explicit minimization
+problem for a specific loss function</p>
 <div id="metric-mds" class="section level2" number="2.1">
 <h2><span class="header-section-number">2.1</span> Metric MDS</h2>
 <p>The loss function in least squares
-metric Euclidean MDS is called <em>raw stress</em> or <em>Kruskal’s raw stress</em>
+metric Euclidean MDS is called <em>raw stress</em>
 and is defined as
 <span class="math display" id="eq:stressdef">\[\begin{equation}
-\sigma_R(X):=\frac12\sum w_{ij}(\delta_{ij}-d_{ij}(X))^2.
+\sigma_R(X):=\frac12\mathop{\sum\sum}_{1\leq j&lt;i\leq n}w_{ij}(\delta_{ij}-d_{ij}(X))^2.
 \tag{2.1}
-\end{equation}\]</span></p>
-<p>The symbol <span class="math inline">\(:=\)</span> is used for definitions. In definition
+\end{equation}\]</span>
+The subscript R in <span class="math inline">\(\sigma_R\)</span> stands for “raw”, because we will discuss
+other least squares loss functions for which we will also use the
+symbol <span class="math inline">\(\sigma\)</span>, but with other subscripts.</p>
+<p>In definition
 <a href="#eq:stressdef">(2.1)</a> the <span class="math inline">\(w_{ij}\)</span> are known non-negative <em>weights</em>, the
 <span class="math inline">\(\delta_{ij}\)</span> are the known non-negative <em>dissimilarities</em> between
 objects <span class="math inline">\(o_i\)</span> and <span class="math inline">\(o_j\)</span>, and the <span class="math inline">\(d_{ij}(X)\)</span> are the <em>distances</em> between
 the corresponding points <span class="math inline">\(x_i\)</span> and <span class="math inline">\(x_j\)</span>. The summation is over all
-<span class="math inline">\(\binom{n}{2}\)</span> pairs <span class="math inline">\((i,j)\)</span> with <span class="math inline">\(j&gt;i\)</span>, i.e. over elements below the
-diagonal of the matrices <span class="math inline">\(W\)</span> and <span class="math inline">\(\Delta\)</span>. The subscript <span class="math inline">\(R\)</span> in <span class="math inline">\(\sigma_R\)</span>
-stands for “raw”. From now on we use “metric
-MDS” to mean Least Squares Metric Euclidean MDS.</p>
+pairs <span class="math inline">\((i,j)\)</span> with <span class="math inline">\(w_{ij}&gt;0\)</span>. From now on we use “metric
+MDS” to mean the minimization of <span class="math inline">\(\sigma_R\)</span>.</p>
 <p>The <span class="math inline">\(n\times p\)</span> matrix <span class="math inline">\(X\)</span>, which has the coordinates <span class="math inline">\(x_i\)</span> of the <span class="math inline">\(n\)</span>
 points as its rows, is called the <em>configuration</em>, where <span class="math inline">\(p\)</span> is the
-<em>dimension</em> of the Euclidean space in which we make the map. Thus
-<span class="math display" id="eq:ddef">\[\begin{equation}
-d_{ij}(X)=\sqrt{\sum_{s=1}^p(x_{is}-x_{js})^2}.
-\tag{2.2}
-\end{equation}\]</span> The metric MDS problem (of dimension <span class="math inline">\(p\)</span>, for given <span class="math inline">\(W\)</span>
+<em>dimension</em> of the Euclidean space in which we make the map.
+The metric MDS problem (of dimension <span class="math inline">\(p\)</span>, for given <span class="math inline">\(W\)</span>
 and <span class="math inline">\(\Delta\)</span>) is the minimization of <a href="#eq:stressdef">(2.1)</a> over the
 <span class="math inline">\(n\times p\)</span> configurations <span class="math inline">\(X\)</span>.</p>
 <p>The weights <span class="math inline">\(w_{ij}\)</span> can be used to quantify information about the
@@ -486,7 +533,8 @@ precision or importance of the corresponding dissimilarities. Some of
 the weights may be zero, which can be used to code <em>missing data</em>. If
 all weights are positive we have <em>complete data</em>. If we have complete
 data, and all weights are equal to one, we have <em>unweighted</em> metric MDS.
-The pioneering papers by Shepard, Kruskal, and Guttman only consider the unweighted case. Weights were only introduced in MDS in <span class="citation">De Leeuw (1977)</span>.</p>
+The pioneering papers by Shepard, Kruskal, and Guttman only consider the
+unweighted case. Weights were only introduced in MDS in <span class="citation">De Leeuw (1977)</span>.</p>
 <p>We assume throughout that the weights are <em>irreducible</em> (<span class="citation">De Leeuw (1977)</span>).
 This means there is no partitioning of the index set
 <span class="math inline">\(I_n:=\{1,2,\cdots,n\}\)</span> into subsets for which all between-subset
@@ -495,14 +543,14 @@ number of smaller independent metric MDS problems, so the irreducibility
 assumption causes no real loss of generality.</p>
 <p>The fact that the summation in <a href="#eq:stressdef">(2.1)</a> is over all <span class="math inline">\(j&lt;i\)</span>
 indicates that the diagonal elements of <span class="math inline">\(\Delta\)</span> are not used (they are
-assumed to be zero) and the elements above the diagonal are not used as
-well (they are assumed to be equal to the corresponding elements below
+assumed to be zero) and the elements above the diagonal are not used either
+(they are assumed to be equal to the corresponding elements below
 the diagonal). The somewhat mysterious factor <span class="math inline">\(\frac12\)</span> in definition
 <a href="#eq:stressdef">(2.1)</a> is there because it simplifies some of the formulas
 in later sections of this paper.</p>
 </div>
-<div id="non-metric-mds" class="section level2" number="2.2">
-<h2><span class="header-section-number">2.2</span> Non-metric MDS</h2>
+<div id="non-linear-mds" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Non-linear MDS</h2>
 <p>Kruskal was not really interested in metric MDS and the “raw” loss
 function <a href="#eq:stressdef">(2.1)</a>. His papers are really about non-metric
 MDS, by which we mean least squares non-metric Euclidean MDS. Non-metric
@@ -521,11 +569,11 @@ rank orders or partitionings, we choose from the set of admissible
 <p>In non-metric MDS raw stress becomes
 <span class="math display" id="eq:rawstressdef">\[\begin{equation}
 \sigma_R(X,\Delta):=\frac12\sum w_{ij}(\delta_{ij}-d_{ij}(X))^2,
-\tag{2.3}
+\tag{2.2}
 \end{equation}\]</span>
 where <span class="math inline">\(\Delta\)</span> varies over the quantified or transformed
 dissimilarities. In MDS parlance they are also called <em>pseudo-distances</em>
-or <em>disparities</em>. Loss function <a href="#eq:rawstressdef">(2.3)</a> must be minimized
+or <em>disparities</em>. Loss function <a href="#eq:rawstressdef">(2.2)</a> must be minimized
 over both configurations and disparities, with the condition that the
 disparities <span class="math inline">\(\Delta\)</span> are an admissible transformation or quantification
 of the data. In Kruskal’s non-metric MDS this means
@@ -535,7 +583,7 @@ symbol <span class="math inline">\(\mathfrak{D}\)</span> for the set of admissib
 <p>The most familiar examples of <span class="math inline">\(\mathfrak{D}\)</span> (linear,
 polynomial, splines, monotone) define convex cones with apex at the origin. This
 means that if <span class="math inline">\(\Delta\in\mathfrak{D}\)</span> then so is <span class="math inline">\(\lambda\Delta\)</span> for all
-<span class="math inline">\(\lambda\geq 0\)</span>. But consequently minimizing <a href="#eq:rawstressdef">(2.3)</a> over
+<span class="math inline">\(\lambda\geq 0\)</span>. But consequently minimizing <a href="#eq:rawstressdef">(2.2)</a> over
 all <span class="math inline">\(\Delta\in\mathfrak{D}\)</span> and over all configurations has the trivial
 solution <span class="math inline">\(\Delta=0\)</span> and <span class="math inline">\(X=0\)</span>, corresponding with the global minimum
 <span class="math inline">\(\sigma(X,\Delta)=0\)</span>. We need additional constraints to rule out this
@@ -544,44 +592,48 @@ trivial solution, and in non-metric MDS this is done by choosing a
 <p>Kruskal’s original solution is to define <em>normalized stress</em> as
 <span class="math display" id="eq:nstressdef">\[\begin{equation}
 \sigma(X,\Delta):=\frac{\sum w_{ij}(\delta_{ij}-d_{ij}(X))^2}{\sum w_{ij}d_{ij}^2(X)}.
-\tag{2.4}
+\tag{2.3}
 \end{equation}\]</span>
 To be precise, in Kruskal’s formulation there are no weights,
-and he actually takes the square root of <a href="#eq:nstressdef">(2.4)</a> to define
+and he actually takes the square root of <a href="#eq:nstressdef">(2.3)</a> to define
 <em>Kruskal’s stress</em>. The non-metric Euclidean MDS problem now is to minimize
-loss function <a href="#eq:nstressdef">(2.4)</a> over all <span class="math inline">\(n\times p\)</span> configurations
+loss function <a href="#eq:nstressdef">(2.3)</a> over all <span class="math inline">\(n\times p\)</span> configurations
 <span class="math inline">\(X\)</span> and all admissible disparities <span class="math inline">\(\Delta\)</span>.</p>
 </div>
-<div id="normalization" class="section level2" number="2.3">
-<h2><span class="header-section-number">2.3</span> Normalization</h2>
-<p>Equation <a href="#eq:nstressdef">(2.4)</a> is only one way to normalize raw stress. Some obvious alternatives are discussed in detail in
+<div id="non-metric-mds" class="section level2" number="2.3">
+<h2><span class="header-section-number">2.3</span> Non-metric MDS</h2>
+</div>
+<div id="normalization" class="section level2" number="2.4">
+<h2><span class="header-section-number">2.4</span> Normalization</h2>
+<p>Equation <a href="#eq:nstressdef">(2.3)</a> is only one way to normalize raw stress.
+Some obvious alternatives are discussed in detail in
 <span class="citation">Kruskal and Carroll (1969)</span> and <span class="citation">De Leeuw (1975)</span>. In the terminology of
 <span class="citation">De Leeuw (1975)</span> there are <em>explicit</em> and <em>implicit</em> normalizations.</p>
 <p>In implicit normalization we minimize either
 <span class="math display" id="eq:implicit1">\[\begin{equation}
 \sigma(X,\hat D):=\frac{\sum  w_{ij}(\hat d_{ij} -d_{ij}(X))^2}{\sum   w_{ij}^{\ }\hat d_{ij}^2}
-\tag{2.5}
+\tag{2.4}
 \end{equation}\]</span>
 or
 <span class="math display" id="eq:implicit2">\[\begin{equation}
 \sigma(X,\hat D):=\frac{\sum   w_{ij}(\hat d_{ij}-d_{ij}(X))^2}{\sum   w_{ij}^{\ }d_{ij}^2(X) }
-\tag{2.6}
+\tag{2.5}
 \end{equation}\]</span>
 over <span class="math inline">\(X\)</span> and <span class="math inline">\(\Delta\in\mathfrak{D}\)</span>.</p>
-<p>As we have seen, <span class="citation">Kruskal (1964a)</span> chooses definition <a href="#eq:implicit2">(2.6)</a> and
+<p>As we have seen, <span class="citation">Kruskal (1964a)</span> chooses definition <a href="#eq:implicit2">(2.5)</a> and
 calls the explicitly normalized loss function <em>normalized stress</em>. Note that we overload the symbol <span class="math inline">\(\sigma\)</span> to denote any one of the least squares loss
 functions. It will always be clear from the text which <span class="math inline">\(\sigma\)</span> we are
 talking about.</p>
 <p>In explicit normalization we minimize the raw stress <span class="math inline">\(\sigma_R(X,\hat D)\)</span>
-from <a href="#eq:rawstressdef">(2.3)</a>, but we add the explicit constraint
+from <a href="#eq:rawstressdef">(2.2)</a>, but we add the explicit constraint
 <span class="math display" id="eq:explicit1">\[\begin{equation}
 \sum   w_{ij}^{\ }d_{ij}^2(X)=1,
-\tag{2.7}
+\tag{2.6}
 \end{equation}\]</span>
 or the constraint
 <span class="math display" id="eq:explicit2">\[\begin{equation}
 \sum   w_{ij}^{\ }\hat d_{ij}^2=1.
-\tag{2.8}
+\tag{2.7}
 \end{equation}\]</span>
 <span class="citation">Kruskal and Carroll (1969)</span> and <span class="citation">De Leeuw (2019)</span> show that these
 four normalizations all lead to essentially the same solution for <span class="math inline">\(X\)</span>
@@ -596,62 +648,76 @@ similar closed cone as well. The non-metric MDS problem is to find an element
 of the <span class="math inline">\(\hat D\)</span> cone <span class="math inline">\(\mathcal{D}\)</span> and an element of the <span class="math inline">\(D(X)\)</span> cone where the angle between the two is a small as possible.</p>
 <p>In the R version of smacof (<span class="citation">De Leeuw and Mair (2009)</span>,
 <span class="citation">Mair, Groenen, and De Leeuw (2022)</span>) we use explicit normalization
-<a href="#eq:explicit2">(2.8)</a>. This is supported by the result, also due to
+<a href="#eq:explicit2">(2.7)</a>. This is supported by the result, also due to
 <span class="citation">De Leeuw (1975)</span>, that projection on the intersection of the cone of
-disparities and the sphere defined by <a href="#eq:explicit2">(2.8)</a> is equivalent
+disparities and the sphere defined by <a href="#eq:explicit2">(2.7)</a> is equivalent
 to first projecting on the cone and then normalizing the projection (see
 also <span class="citation">Bauschke, Bui, and Wang (2018)</span>).</p>
-<p>In the version of non-metric MDS discussed in this manualwe need more flexibility. For algorithmic reasons that may become clear later on, we will go with the original <a href="#eq:nstressdef">(2.4)</a>, i.e. with the implicitly normalized
+<p>In the version of non-metric MDS discussed in this manual we need more flexibility. For algorithmic reasons that may become clear later on, we will go with the original <a href="#eq:nstressdef">(2.3)</a>, i.e. with the implicitly normalized
 Kruskal’s stress. For the final results the choice between normalizations should not make a difference, but the iterative computations will be different for the
-diufferent choices.</p>
+different choices.</p>
 </div>
-<div id="some-thoughts-on-als" class="section level2" number="2.4">
-<h2><span class="header-section-number">2.4</span> Some thoughts on ALS</h2>
-<p>I will take this opportunity to clear up some misunderstandings and
-confusions that have haunted the early development of non-metric MDS.</p>
-<div id="the-single-phase-approach" class="section level3" number="2.4.1">
-<h3><span class="header-section-number">2.4.1</span> The Single-Phase approach</h3>
+<div id="some-thoughts-on-als" class="section level2" number="2.5">
+<h2><span class="header-section-number">2.5</span> Some thoughts on ALS</h2>
+<p>The formulation in equations <a href="#eq:gdef1">(<strong>??</strong>)</a> and <a href="#eq:gdef2">(<strong>??</strong>)</a> neatly separates the
+metric MDS part <a href="#eq:gdef1">(<strong>??</strong>)</a> and the transformation/quantification part <a href="#eq:gdef2">(<strong>??</strong>)</a>.
+This second part is also often called the <em>optimal scaling</em> part.</p>
+<p>Equations <a href="#eq:gdef1">(<strong>??</strong>)</a> and <a href="#eq:gdef2">(<strong>??</strong>)</a> corresponds with the way most iterative non-linear and non-metric MDS
+techniques are implemented. The algorithms use <em>Alternating Least Squares</em> (ALS).
+There have been quite a few ALS algorithms avant-la-lettre, but as far as I know both the name
+and ALS as a general approach to algorithm construction were first introduced in <span class="citation">De Leeuw (1968)</span>, and then widely disseminated in a series of papers by
+De Leeuw, Young, and Takane in the 1970’s (work summarized in <span class="citation">Young, De Leeuw, and Takane (1980)</span> and <span class="citation">Young (1981)</span>).</p>
+<p>In the ALS implementation of MDS two sub-algorithms are used in each iteration: one to improve the fit of the distances to the current disparities
+<span class="math inline">\(\Delta\)</span> and one to improve the fit of the disparities to the current distances.
+The two sub-algorithms define one major iteration of the MDS technique. In formulas
+(using superscript <span class="math inline">\((k)\)</span> for major iteration number) we start with <span class="math inline">\((X^{(0)},\Delta^{(0)})\)</span>
+and then alternate the mimization problems
+where <span class="math inline">\(\ni\)</span> is short for “such that”.
+In MDS it is more realistic not to minimize loss in the sub-steps but merely to decrease it. Minimization in one or both of the two subproblems may itself require an infinite iterative method, which we have to truncate anyway. Thus
+</p>
+<div id="the-single-phase-approach" class="section level3" number="2.5.1">
+<h3><span class="header-section-number">2.5.1</span> The Single-Phase approach</h3>
 <p>In <span class="citation">Kruskal (1964a)</span> defines
 <span class="math display" id="eq:project">\[\begin{equation}
 \sigma(X):=\min_{\hat D\in\mathfrak{D}}\ \sigma(\hat D,X)=\sigma(X,\hat D(X)),
-\tag{2.9}
+\tag{2.8}
 \end{equation}\]</span>
 where <span class="math inline">\(\sigma(\hat D,X)\)</span> is defined by
-<a href="#eq:implicit2">(2.6)</a>. The minimum in <a href="#eq:project">(2.9)</a> is over admissible
-transformations. In definition <a href="#eq:project">(2.9)</a>
+<a href="#eq:implicit2">(2.5)</a>. The minimum in <a href="#eq:project">(2.8)</a> is over admissible
+transformations. In definition <a href="#eq:project">(2.8)</a>
 <span class="math display" id="eq:optscal">\[\begin{equation}
 \hat D(X):=\mathop{\text{argmin}}_{\hat D\in\mathfrak{D}}\sigma(X, \hat D).
-\tag{2.10}
+\tag{2.9}
 \end{equation}\]</span>
-Normalized stress defined by <a href="#eq:project">(2.9)</a> is now a
+Normalized stress defined by <a href="#eq:project">(2.8)</a> is now a
 function of <span class="math inline">\(X\)</span> only. Under some conditions, which are true in Kruskal’s
 definition of non-metric MDS, there is a simple relation between the
-partials of <a href="#eq:implicit2">(2.6)</a> and those of <a href="#eq:project">(2.9)</a>.
+partials of <a href="#eq:implicit2">(2.5)</a> and those of <a href="#eq:project">(2.8)</a>.
 <span class="math display" id="eq:partials">\[\begin{equation}
 \mathcal{D}\sigma(X)=\mathcal{D}_1\sigma(X,\hat D(X)),
-\tag{2.11}
+\tag{2.10}
 \end{equation}\]</span>
 where <span class="math inline">\(\mathcal{D}\sigma(X)\)</span> are the derivatives of
-<span class="math inline">\(\sigma\)</span> from <a href="#eq:project">(2.9)</a> and <span class="math inline">\(\mathcal{D}_1\sigma(X,\hat D(X))\)</span>
-are the partial derivatives of <span class="math inline">\(\sigma\)</span> from <a href="#eq:implicit2">(2.6)</a> with
-respect to <span class="math inline">\(X\)</span>. Thus the partials of <span class="math inline">\(\sigma\)</span> from <a href="#eq:project">(2.9)</a> can
+<span class="math inline">\(\sigma\)</span> from <a href="#eq:project">(2.8)</a> and <span class="math inline">\(\mathcal{D}_1\sigma(X,\hat D(X))\)</span>
+are the partial derivatives of <span class="math inline">\(\sigma\)</span> from <a href="#eq:implicit2">(2.5)</a> with
+respect to <span class="math inline">\(X\)</span>. Thus the partials of <span class="math inline">\(\sigma\)</span> from <a href="#eq:project">(2.8)</a> can
 be computed by evaluating the partials of <span class="math inline">\(\sigma\)</span> from
-<a href="#eq:implicit2">(2.6)</a> with respect to <span class="math inline">\(X\)</span> at <span class="math inline">\((X,\hat D(X))\)</span>. This has
+<a href="#eq:implicit2">(2.5)</a> with respect to <span class="math inline">\(X\)</span> at <span class="math inline">\((X,\hat D(X))\)</span>. This has
 created much confusion in the past. The non-metric MDS problem in Kruskal’s original formulation is now to
-minimize <span class="math inline">\(\sigma\)</span> from <a href="#eq:project">(2.9)</a>, which is a function of <span class="math inline">\(X\)</span>
+minimize <span class="math inline">\(\sigma\)</span> from <a href="#eq:project">(2.8)</a>, which is a function of <span class="math inline">\(X\)</span>
 alone.</p>
 <p><span class="citation">Guttman (1968)</span> calls this the <em>single-phase approach</em>. A variation of
 Kruskal’s single-phase approach defines
 <span class="math display" id="eq:rankimage">\[\begin{equation}
 \sigma(X)=\sum w_{ij}(d_{ij}^\#(X)-d_{ij}(X))^2,
-\tag{2.12}
+\tag{2.11}
 \end{equation}\]</span>
 where the <span class="math inline">\(d_{ij}^\#(X)\)</span> are <em>Guttman’s rank images</em>, i.e. the
 permutation of the <span class="math inline">\(d_{ij}(X)\)</span> that makes them monotone with the
 <span class="math inline">\(\delta_{ij}\)</span> (<span class="citation">Guttman (1968)</span>). Or, alternatively, define
 <span class="math display" id="eq:shepard">\[\begin{equation}
 \sigma(X):=\sum   w_{ij}(d_{ij}^\%(X)-d_{ij}(X))^2,
-\tag{2.13}
+\tag{2.12}
 \end{equation}\]</span>
 where the <span class="math inline">\(\hat d_{ij}^\%(X)\)</span> are <em>Shepard’s rank images</em>, i.e. the
 permutation of the <span class="math inline">\(\delta_{ij}\)</span> that makes them monotone with the
@@ -659,38 +725,34 @@ permutation of the <span class="math inline">\(\delta_{ij}\)</span> that makes t
 <p>Minimizing the Shepard or Guttman single-phase loss functions is
 computationally more complicated than Kruskal’s <em>monotone regression</em>
 approach, mostly because the rank-image transformations are not
-differentiable, and there is no analog of <a href="#eq:partials">(2.11)</a> and of the
+differentiable, and there is no analog of <a href="#eq:partials">(2.10)</a> and of the
 equivalence of the different implicit and explicit normalizations.</p>
 </div>
-<div id="the-two-phase-approach" class="section level3" number="2.4.2">
-<h3><span class="header-section-number">2.4.2</span> The Two-Phase Approach</h3>
+<div id="the-two-phase-approach" class="section level3" number="2.5.2">
+<h3><span class="header-section-number">2.5.2</span> The Two-Phase Approach</h3>
 <p>The <em>two-phase approach</em> or <em>alternating least squares (ALS)</em> approach
 alternates minimization of <span class="math inline">\(\sigma(\hat D,X)\)</span> over <span class="math inline">\(X\)</span> for our current
 best estimate of <span class="math inline">\(\hat D\)</span> with minimization of <span class="math inline">\(\sigma(\hat D,X)\)</span> over
 <span class="math inline">\(\Delta\in\mathfrak{D}\)</span> for our current best value of <span class="math inline">\(X\)</span>. Thus an
 update from iteration <span class="math inline">\(k\)</span> to iteration <span class="math inline">\(k+1\)</span> looks like
-<span class="math display" id="eq:step2" id="eq:step1">\[\begin{align}
-\hat D^{(k)}&amp;=\mathop{\text{argmin}}_{\hat D\in\mathfrak{D}}\sigma(\hat D,X^{(k)}),\tag{2.14}\\
-X^{(k+1)}&amp;=\mathop{\text{argmin}}_X\sigma(\hat D^{(k)},X).\tag{2.15}
-\end{align}\]</span>
 This ALS approach to MDS was in the air since the early
 (unsuccessful) attempts around 1968 of Young and De Leeuw to combine
 Torgerson’s classic metric MDS method with Kruskal’s monotone regression
 transformation. All previous implementations of non-metric smacof use
 the two-phase approach, and we will do the same in this paper.</p>
 <p>As formulated, however, there are some problems with the ALS algorithm.
-Step <a href="#eq:step1">(2.14)</a> is easy to carry out, using monotone regression.
-Step <a href="#eq:step2">(2.15)</a> means solving a metric scaling problem, which is an
+Step <a href="#eq:step1">(<strong>??</strong>)</a> is easy to carry out, using monotone regression.
+Step <a href="#eq:step2">(<strong>??</strong>)</a> means solving a metric scaling problem, which is an
 iterative proces that requires an infinite number of iterations. Thus,
-in the usual implementations, step <a href="#eq:step1">(2.14)</a> is combined with one
+in the usual implementations, step <a href="#eq:step1">(<strong>??</strong>)</a> is combined with one
 of more iterations of a convergent iterative procedure for metric MDS,
 such as smacof. If we take only one of these <em>inner iterations</em> the
 algorithm becomes indistinguishable from Kruskal’s single-phase method.
 This has also created much confusion in the past.</p>
 <p>In the usual implementations of the ALS approach we solve the first
-subproblem <a href="#eq:step1">(2.14)</a> exactly, while we take only a single step
+subproblem <a href="#eq:step1">(<strong>??</strong>)</a> exactly, while we take only a single step
 towards the solution for given <span class="math inline">\(\hat D\)</span> in the second phase
-<a href="#eq:step2">(2.15)</a>. If we have an infinite iterative procedure to compute
+<a href="#eq:step2">(<strong>??</strong>)</a>. If we have an infinite iterative procedure to compute
 the optimal <span class="math inline">\(\hat D\in\mathfrak{D}\)</span> for given <span class="math inline">\(X\)</span>, then a more balanced
 approach would be to take several inner iterations in the first phase
 and several inner iterations in the second phase. How many of each,
@@ -887,13 +949,13 @@ condition for a local minimum is that <span class="math inline">\(V^+B(X)\)</spa
 eigenvalues equal to one. <span class="citation">De Leeuw (2014)</span> has shown that if
 <span class="math inline">\(V^+B(X)\lesssim I\)</span> then actually <span class="math inline">\(X\)</span> is a global minimizer of stress.</p>
 <p><span class="math display">\[
-\rho(X)=\sum w_{ij\delta_{ij}(X)
+\rho(X)=\sum w_{ij}\delta_{ij}(X)
 \]</span></p>
 <p><span class="math display">\[
 \nabla d_{ij}(X)=\begin{bmatrix}0\\
 \frac{x_i-x_j}{d_{ij}(X)}\\0\\-\frac{x_i-x_j}{d_{ij}(X)}\\0\end{bmatrix}
-\]</span>
-<span class="math display">\[
+\]</span></p>
+<p><span class="math display">\[
 \partial d_{ij}(X)=\left\{\begin{bmatrix}0\\
 y\\0\\-y\\0\end{bmatrix}\mid y&#39;y\leq 1\right\}.
 \]</span></p>
@@ -918,13 +980,20 @@ Kronecker product, then <span class="math display">\[
 \mathcal{D}^2\sigma(X)=I_p\otimes(V - B(X))+ H(X)
 \]</span> <span class="math display">\[
 \sum_{s=1}^p\sum_{t=1}^p y_s&#39;H_{st}y_t=\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{\frac{(\text{tr} \ Y&#39;A_{ij}X)^2}{d_{ij}^2(X)}\right\}\leq\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\text{tr}\ Y&#39;A_{ij}Y=\text{tr}\ Y&#39;B(X)Y.
-\]</span> Thus <span class="math display">\[
+\]</span>
+Thus
+<span class="math display">\[
 0\lesssim H\lesssim I_p\otimes B(X),
-\]</span> and <span class="math display">\[
+\]</span>
+and
+<span class="math display">\[
 I_p\otimes (V-B(X))\lesssim\mathcal{D}^2\sigma(X)\lesssim I_p\otimes V
-\]</span> At a local minimum of <span class="math inline">\(\sigma\)</span> <span class="math display">\[
+\]</span>
+At a local minimum of <span class="math inline">\(\sigma\)</span>
+<span class="math display">\[
 0\lesssim\mathcal{D}^2\sigma(X)\lesssim I_p\otimes V
-\]</span> In comparing the lower bounds on <span class="math inline">\(\mathcal{D}^2\sigma(X)\)</span> in … and
+\]</span>
+In comparing the lower bounds on <span class="math inline">\(\mathcal{D}^2\sigma(X)\)</span> in … and
 … <span class="citation">De Leeuw (2014)</span> shows that <span class="math inline">\(V-B(X)\gtrsim 0\)</span> is sufficient for a
 <em>global</em> minimum of stress (but far from necessary).</p>
 <p>Also <span class="math display">\[
@@ -984,20 +1053,181 @@ H(X)\gtrsim I_p\otimes (\rho(X)V - B(X))
 </div>
 </div>
 </div>
+<div id="smacof-algorithm" class="section level1" number="6">
+<h1><span class="header-section-number">6</span> Smacof Algorithm</h1>
+<div id="introduction-to-majorization" class="section level3" number="6.0.1">
+<h3><span class="header-section-number">6.0.1</span> Introduction to Majorization</h3>
+<p>Majorization, these days better known as MM (<span class="citation">Lange (2016)</span>), is a general
+approach for the construction of minimization algorithms. There is also
+minorization, which leads to maximization algorithms, which explains the
+MM acronym: minorization for maximization and majorization for
+minimization.</p>
+<p>Before the MM principle was formulated as a general approach to
+algorithm construction there were some important predecessors. Major
+classes of MM algorithms avant la lettre were the <em>EM Algorithm</em> for
+maximum likelihood estimation of <span class="citation">Dempster, Laird, and Rubin (1977)</span>, the <em>Smacof
+Algorithm</em> for MDS of <span class="citation">De Leeuw (1977)</span>, the <em>Generalized Weiszfeldt Method</em>
+of <span class="citation">Vosz and Eckhardt (1980)</span>, and the <em>Quadratic Approximation Method</em> of
+<span class="citation">Böhning and Lindsay (1988)</span>. The first formulation of the general majorization
+principle seems to be <span class="citation">De Leeuw (1994)</span>.</p>
+<p>Let’s start with a brief introduction to majorization. Minimize a real
+valued function <span class="math inline">\(\sigma\)</span> over <span class="math inline">\(x\in\mathbb{S}\)</span>, where <span class="math inline">\(\mathbb{S}\)</span> is
+some subset of <span class="math inline">\(\mathbb{R}^n\)</span>. There are obvious extensions of
+majorization to functions defined on more general spaces, with values in
+any partially ordered set, but we do not need that level of generality
+in this manual. Also majorization applied to <span class="math inline">\(\sigma\)</span> is minorization
+applied to <span class="math inline">\(-\sigma\)</span>, so concentrating on majorization-minimization and
+ignoring minorization-maximization causes no loss of generality</p>
+<p>Suppose there is a real-valued function <span class="math inline">\(\eta\)</span> on
+<span class="math inline">\(\mathbb{S}\otimes\mathbb{S}\)</span> such that</p>
+<span class="math display" id="eq:maj2" id="eq:maj1">\[\begin{align}
+\sigma(x)&amp;\leq\eta(x,y)\qquad\forall x,y\in\mathbb{S},\tag{6.1}\\
+\sigma(x)&amp;=\eta(x,x)\qquad\forall x\in\mathbb{S}.\tag{6.2}
+\end{align}\]</span>
+<p>The function <span class="math inline">\(\eta\)</span> is called a <em>majorization scheme</em> for <span class="math inline">\(\sigma\)</span> on
+<span class="math inline">\(S\)</span>. A majorization scheme is <em>strict</em> if <span class="math inline">\(\sigma(x)&lt;\eta(x,y)\)</span> for all
+<span class="math inline">\(x,y\in S\)</span> withj <span class="math inline">\(x\not=y\)</span>.</p>
+<p>Define <span class="math display">\[\begin{equation}
+x^{(k+1)}\in\mathop{\text{argmin}}_{x\in\mathbb{S}}\eta(x,x^{(k)}),
+(\#eq:majalg)
+\end{equation}\]</span> assuming that <span class="math inline">\(\eta(\bullet,y)\)</span> attains its (not
+necessarily unique) minimum over <span class="math inline">\(x\in\mathbb{S}\)</span> for each <span class="math inline">\(y\)</span>. If
+<span class="math inline">\(x^{(k)}\in\mathop{\text{argmin}}_{x\in\mathbb{S}}\eta(x,x^{(k)})\)</span>
+then we stop.</p>
+<p>By majorization property <a href="#eq:maj1">(6.1)</a>
+<span class="math display">\[\begin{equation}
+\sigma(x^{(k+1)})\leq\eta(x^{(k+1)},x^{(k)}).
+\end{equation}\]</span>
+Because we did not stop update rule <a href="#eq:majalg">(<strong>??</strong>)</a> implies
+<span class="math display">\[\begin{equation}
+\eta(x^{(k+1)},x^{(k)})&lt;\eta(x^{(k)},x^{(k)}).
+\end{equation}\]</span>
+and finally by majorization property <a href="#eq:maj1">(6.1)</a>
+<span class="math display">\[\begin{equation}
+\eta(x^{(k)},x^{(k)})=\sigma(x^{(k)}).
+\end{equation}\]</span></p>
+<p>If the minimum in <a href="#eq:majalg">(<strong>??</strong>)</a> is attained for a unique <span class="math inline">\(x\)</span> then
+<span class="math inline">\(\eta(x^{(k+1)},x^{(k)})&lt;\eta(x^{(k)},x^{(k)})\)</span>. If the majorization
+scheme is strict then <span class="math inline">\(\sigma(x^{(k+1)})&lt;\eta(x^{(k+1)},x^{(k)})\)</span>. Under
+either of these two additional conditions
+<span class="math inline">\(\sigma(x^{(k+1)})&lt;\sigma(x^{(k)})\)</span>, which means that the majorization
+algorithm is a monotone descent algorithm, and if <span class="math inline">\(\sigma\)</span> is bounded
+below on <span class="math inline">\(\mathbb{S}\)</span> the sequence <span class="math inline">\(\sigma(x^{(k)})\)</span> converges.</p>
+<p>Note that we only use the order relation to prove convergence of the
+sequence of function values. To prove convergence of the <span class="math inline">\(x^{(k)}\)</span> we
+need stronger compactness and continuity assumptions to apply the
+general theory of <span class="citation">Zangwill (1969)</span>. For such a proof the argmin in update
+formula <a href="#eq:majalg">(<strong>??</strong>)</a> can be generalized to
+<span class="math inline">\(x^{(k+1)}=\phi(x^{(k)})\)</span>, where <span class="math inline">\(\phi\)</span> maps <span class="math inline">\(\mathbb{S}\)</span> into
+<span class="math inline">\(\mathbb{S}\)</span> such that <span class="math inline">\(\eta(\phi(x),x)\leq\sigma(x)\)</span> for all <span class="math inline">\(x\)</span>.</p>
+<p>We give a small illustration in which we minimize <span class="math inline">\(\sigma\)</span> with
+<span class="math inline">\(\sigma(x)=\sqrt{x}-\log{x}\)</span> over <span class="math inline">\(x&gt;0\)</span>. Obviously we do not need
+majorization here, because solving <span class="math inline">\(\mathcal{D}\sigma(x)=0\)</span> immediately
+gives <span class="math inline">\(x=4\)</span> as the solution we are looking for.</p>
+<p>To arrive at this solution using majorization we start with
+<span class="math display" id="eq:sqrtmaj">\[\begin{equation}
+\sqrt{x}\leq\sqrt{y}+\frac12\frac{x-y}{\sqrt{y}},
+\tag{6.3}
+\end{equation}\]</span> which is true because a differentiable concave function
+such as the square root is majorized by its tangent everywhere.
+Inequality <a href="#eq:sqrtmaj">(6.3)</a> implies <span class="math display">\[\begin{equation}
+\sigma(x)\leq\eta(x,y):=\sqrt{y}+\frac12\frac{x-y}{\sqrt{y}}-\log{x}.
+(\#eq:examplemaj)
+\end{equation}\]</span> Note that <span class="math inline">\(\eta(\bullet,y)\)</span> is convex in its first
+argument for each <span class="math inline">\(y\)</span>. We have <span class="math inline">\(\mathcal{D}_1\eta(x,y)=0\)</span> if and only if
+<span class="math inline">\(x=2\sqrt{y}\)</span> and thus the majorization algorithm is <span class="math display">\[\begin{equation}
+x^{(k+1)}=2\sqrt{x^{(k)}}
+(\#eq:examplealg)
+\end{equation}\]</span> The sequence <span class="math inline">\(x^{(k)}\)</span> converges monotonically to the
+fixed point <span class="math inline">\(x=2\sqrt{x}\)</span>, i.e. to <span class="math inline">\(x=4\)</span>. If <span class="math inline">\(x^{(0)}&lt;4\)</span> the sequence is
+increasing, if <span class="math inline">\(x^{(0)}&lt;4\)</span> it is decreasing. Also, by l’Hôpital,
+<span class="math display" id="eq:hopi1">\[\begin{equation}
+\lim_{x\rightarrow 4}\frac{2\sqrt{x}-4}{x-4}=\frac12
+\tag{6.4}
+\end{equation}\]</span> and thus convergence to the minimizer is linear with
+asymptotic convergence rate <span class="math inline">\(\frac12\)</span>. By another application of
+l’Hôpital <span class="math display">\[\begin{equation}
+\lim_{x\rightarrow 4}\frac{\sigma(2\sqrt{x)})-\sigma(4)}{\sigma(x)-\sigma(4)}=\frac14,
+(\#eq:hopi2)
+\end{equation}\]</span> and convergence to the minimum is linear with asymptotic
+convergence rate <span class="math inline">\(\frac14\)</span>. Linear convergence to the minimizer is
+typical for majorization algorithms, as is the twice-as-fast linear
+convergence to the minimum value.</p>
+<p>This small example is also of interest, because we minimize a <em>DC
+function</em>, the difference of two convex functions. In our example the
+convex functions are minus the square root and minus the logarithm.
+Algorithms for minimizing DC functions define other important subclasses
+of MM algorithms, the <em>DC Algorithm</em> of Tao Pham Dinh (see <span class="citation">Le Thi and Tao (2018)</span>
+for a recent overview), the <em>Concave-Convex Procedure</em> of
+<span class="citation">Yuille and Rangarajan (2003)</span>, and the <em>Half-Quadratic Method</em> of Donald Geman
+(see <span class="citation">Niikolova and Ng (2005)</span> for a recent overview). For each of these methods
+there is a huge literature, with surprisingly little non-overlapping
+literatures. The first phase of the smacof algorithm, in which we
+improve the configuration for given disparities, is DC, concave-convex,
+and half-quadratic.</p>
+<p>In the table below we show convergence of <a href="#eq:examplealg">(<strong>??</strong>)</a> starting
+at <span class="math inline">\(x=1.5\)</span>. The first column show how far <span class="math inline">\(x^{(k)}\)</span> deviates from the
+minimizer (i.e. from 4), the second shows how far<span class="math inline">\(\sigma(x^{(k)})\)</span>
+deviates from the minimum (i.e. from <span class="math inline">\(2-\log 4\)</span>). We clearly see the
+convergence rates <span class="math inline">\(\frac12\)</span> and <span class="math inline">\(\frac14\)</span> in action.</p>
+<pre><code>## itel   1 2.5000000000 0.2055741244 
+## itel   2 1.5505102572 0.0554992066 
+## itel   3 0.8698308399 0.0144357214 
+## itel   4 0.4615431837 0.0036822877 
+## itel   5 0.2378427379 0.0009299530 
+## itel   6 0.1207437506 0.0002336744 
+## itel   7 0.0608344795 0.0000585677 
+## itel   8 0.0305337787 0.0000146606 
+## itel   9 0.0152961358 0.0000036675 
+## itel  10 0.0076553935 0.0000009172 
+## itel  11 0.0038295299 0.0000002293 
+## itel  12 0.0019152235 0.0000000573 
+## itel  13 0.0009577264 0.0000000143 
+## itel  14 0.0004788919 0.0000000036 
+## itel  15 0.0002394531 0.0000000009</code></pre>
+<p>The first three iterations are shown in the figure below. The vertical
+lines indicate the value of <span class="math inline">\(x\)</span>, function is in red, and the first three
+majorizations are in blue.</p>
+<p><img role="img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAqAAAAHgCAYAAAB6jN80AAAEDmlDQ1BrQ0dDb2xvclNwYWNlR2VuZXJpY1JHQgAAOI2NVV1oHFUUPpu5syskzoPUpqaSDv41lLRsUtGE2uj+ZbNt3CyTbLRBkMns3Z1pJjPj/KRpKT4UQRDBqOCT4P9bwSchaqvtiy2itFCiBIMo+ND6R6HSFwnruTOzu5O4a73L3PnmnO9+595z7t4LkLgsW5beJQIsGq4t5dPis8fmxMQ6dMF90A190C0rjpUqlSYBG+PCv9rt7yDG3tf2t/f/Z+uuUEcBiN2F2Kw4yiLiZQD+FcWyXYAEQfvICddi+AnEO2ycIOISw7UAVxieD/Cyz5mRMohfRSwoqoz+xNuIB+cj9loEB3Pw2448NaitKSLLRck2q5pOI9O9g/t/tkXda8Tbg0+PszB9FN8DuPaXKnKW4YcQn1Xk3HSIry5ps8UQ/2W5aQnxIwBdu7yFcgrxPsRjVXu8HOh0qao30cArp9SZZxDfg3h1wTzKxu5E/LUxX5wKdX5SnAzmDx4A4OIqLbB69yMesE1pKojLjVdoNsfyiPi45hZmAn3uLWdpOtfQOaVmikEs7ovj8hFWpz7EV6mel0L9Xy23FMYlPYZenAx0yDB1/PX6dledmQjikjkXCxqMJS9WtfFCyH9XtSekEF+2dH+P4tzITduTygGfv58a5VCTH5PtXD7EFZiNyUDBhHnsFTBgE0SQIA9pfFtgo6cKGuhooeilaKH41eDs38Ip+f4At1Rq/sjr6NEwQqb/I/DQqsLvaFUjvAx+eWirddAJZnAj1DFJL0mSg/gcIpPkMBkhoyCSJ8lTZIxk0TpKDjXHliJzZPO50dR5ASNSnzeLvIvod0HG/mdkmOC0z8VKnzcQ2M/Yz2vKldduXjp9bleLu0ZWn7vWc+l0JGcaai10yNrUnXLP/8Jf59ewX+c3Wgz+B34Df+vbVrc16zTMVgp9um9bxEfzPU5kPqUtVWxhs6OiWTVW+gIfywB9uXi7CGcGW/zk98k/kmvJ95IfJn/j3uQ+4c5zn3Kfcd+AyF3gLnJfcl9xH3OfR2rUee80a+6vo7EK5mmXUdyfQlrYLTwoZIU9wsPCZEtP6BWGhAlhL3p2N6sTjRdduwbHsG9kq32sgBepc+xurLPW4T9URpYGJ3ym4+8zA05u44QjST8ZIoVtu3qE7fWmdn5LPdqvgcZz8Ww8BWJ8X3w0PhQ/wnCDGd+LvlHs8dRy6bLLDuKMaZ20tZrqisPJ5ONiCq8yKhYM5cCgKOu66Lsc0aYOtZdo5QCwezI4wm9J/v0X23mlZXOfBjj8Jzv3WrY5D+CsA9D7aMs2gGfjve8ArD6mePZSeCfEYt8CONWDw8FXTxrPqx/r9Vt4biXeANh8vV7/+/16ffMD1N8AuKD/A/8leAvFY9bLAAAAOGVYSWZNTQAqAAAACAABh2kABAAAAAEAAAAaAAAAAAACoAIABAAAAAEAAAKgoAMABAAAAAEAAAHgAAAAABJf29wAAEAASURBVHgB7J0HeBTV18bf2dClCYoIIr2oKKB06QKC0pTee5MmTXrvTVGk914EVECKFAEFRVFAxL8dUVH4RBTpJbvfPXNJCDFlZzbZ7Oy+53mS7M7c+pvJ7pl7TzE8SkAhARIgARIgARIgARIgAT8RcPmpH3ZDAiRAAiRAAiRAAiRAAiYBKqC8EUiABEiABEiABEiABPxKgAqoX3GzMxIgARIgARIgARIgASqgvAdIgARIgARIgARIgAT8SoAKqF9xszMSIAESIAESIAESIAEqoLwHSIAESIAESIAESIAE/EqACqhfcbMzEiABEiABEiABEiABKqC8B0iABEiABEiABEiABPxKgAqoX3GzMxIgARIgARIgARIgASqgvAdIgARIgARIgARIgAT8SoAKqF9xszMSIAESIAESIAESIAEqoLwHSIAESIAESIAESIAE/EqACqhfcbMzEiABEiABEiABEiABKqC8B0iABEiABEiABEiABPxKgAqoX3GzMxIgARIgARIgARIgASqgvAdIgARIgARIgARIgAT8SoAKqF9xszMSIAESIAESIAESIAEqoLwHSIAESIAESIAESIAE/EqACqhfcbMzEiABEiABEiABEiABKqC8B0iABEiABEiABEiABPxKgAqoX3GzMxIgARIgARIgARIgASqgvAdIgARIgARIgARIgAT8SoAKqF9xszMSIAESIAESIAESIAEqoLwHSIAESIAESIAESIAE/EqACqhfcbMzEiABEiABEiABEiABKqC8B0iABEiABEiABEiABPxKgAqoX3GzMxIgARIgARIgARIgASqgvAdIgARIgARIgARIgAT8SoAKqF9xszMSIAESIAESIAESIAEqoLwHSIAESIAESIAESIAE/EqACqhfcbMzEiABEiABEiABEiABKqC8B0iABEiABEiABEiABPxKgAqoX3GzMxIgARIgARIgARIgASqgvAdIgARIgARIgARIgAT8SoAKqF9xszMSIAESIAESIAESIAEqoLwHSIAESIAESIAESIAE/EqACqhfcbMzEiABEiABEiABEiABKqC8B0iABEiABEiABEiABPxKgAqoX3GzMxIgARIgARIgARIgASqgvAdIgARIgARIgARIgAT8SoAKqF9xszMSIAESIAESIAESIAEqoLwHSIAESIAESIAESIAE/EqACqhfcbMzEiABEiABEiABEiABKqC8B0iABEiABEiABEiABPxKgAqoX3GzMxIgARIgARIgARIgASqgvAdIgARIgARIgARIgAT8SoAKqF9xszMSIAESIAESIAESIAEqoLwHSIAESIAESIAESIAE/EqACqhfcbMzEiABEiABEiABEiABKqC8B0iABEiABEiABEiABPxKgAqoX3GzMxIgARIgARIgARIgASqgvAdIgARIgARIgARIgAT8SoAKqF9xszMSIAESIAESIAESIAEqoLwHSIAESIAESIAESIAE/EqACqhfcbMzEiABEiABEiABEiABKqC8B0iABEiABEiABEiABPxKgAqoX3GzMxIgARIgARIgARIgASqgvAdIgARIgARIgARIgAT8SoAKqF9xszMSIAESIAESIAESIAEqoLwHSIAESIAESIAESIAE/EqACqhfcbMzEiABEiABEiABEiABKqC8B0iABEiABEiABEiABPxKgAqoX3GzMxIgARIgARIgARIgASqgvAdIgARIgARIgARIgAT8SoAKqF9xszMSIAESIAESIAESIAEqoLwHSIAESIAESIAESIAE/EqACqhfcbMzEiABEiABEiABEiABKqC8B0iABEiABEiABEiABPxKgAqoX3GzMxIgARIgARIgARIgASqgvAdIgARIgARIgARIgAT8SoAKqF9xszMSIAESIAESIAESIAEqoLwHSIAESIAESIAESIAE/EqACqhfcbMzEiABEiABEiABEiABKqC8B0iABEiABEiABEiABPxKgAqoX3GzMxIgARIgARIgARIgASqgvAdIgARIgARIgARIgAT8SoAKqF9xszMSIAESIAESIAESIIFkRGCPwBtv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U6ipumwKEEiO8U+BZumSqUSA48/oPS1atEi2Ox4/blLTurxYptOeTFfLP3KlS5dG586dU2QImIGJge79we+TepP169dj9erVoJNVKBZ+DVnDGOQ5BAtn7PkfhtfHP8ZkgGF2GjtDTQiOc3xdTo7xF9v46Lr//eQYf/f3Ui2MjwDHn/W+++6L75Brfr9YsWJ49tln7fTk13xyKp0Q9AKUouXXX3+1IedknuAgLdOnT8cnn3xi57UP0i6o2UkgoPFPAjwPnKrx98AgJqELGv8kwPPAqaE6/kE53USvd8YDpcJPZ3Le5smTx3ZGyp49u50TvmfPnjhz5owHvpbqggiIgAiIgAiIgAh4j0DQ2YDu2bMH9erVs5fw2rdvjxIlSoAzn1zS4xImwzJNmjQJX331FebPn4+SJUt6b9TUIxEQAREQAREQAREIYgJBJ0AHDRpkz3zOmzcP6dOnvyr6119/Hc2bN8eYMWMwYMCAqx6jN0VABERABERABERABAJDIOiW4NesWYMHHnggXvFJjGnTpsWDDz6I2bNnB4aq7ioCIiACIiACIiACIhAvgaAToMz97k+5GW+vzAeM51mwYMF/OkSfiYAIiIAIiIAIiIAIBIBA0C3Bd+zYERShDALfqVMn28aT2ZAYvoc2oLt378bnn3+OmTNngsv0KiIgAiIgAiIgAiIgAu4iEHQCtEqVKli3bh0eeeQRdOnSBYx9d2Vp1KgRoqKi0KBBgys/0msREAEREAEREAEREIEAEwg6AUpezFZED/eLFy9i79699qznpUuX7CxChQoVskMyBZirbi8CIiACIiACIiACIhAPgaAPRB9Pv4LubWZBOHbsmO3hH3SNV4OTTEDjn2SEQX0BjX9QD1+SG6/xTzLCoL5AqI6/BGhQf23VeBEQAREQAREQAREIPgJB5wUffIjVYhEQAREQAREQAREQgbgEJEDj0tC+CIiACIiACIiACIhAihOQAE1xxLqBCIiACIiACIiACIhAXAISoHFpaF8EREAEREAEREAERCDFCUiApjhi3UAEREAEREAEREAERCAuAQnQuDS0LwIiIAIiIAIiIAIikOIEJEBTHLFuIAIiIAIiIAIiIAIiEJeABGhcGtoXAREQAREQAREQARFIcQISoCmOWDcQAREQAREQAREQARGIS0ACNC4N7YuACIiACIiACIiACKQ4AQnQFEec+BtER0fj4sWLiT9BR3qKQExMjKf6o84knoDP50v8wTpSBERABDxAQALUJYNI8dGqVSv8+9//dkmL1IzUILBp0ya0aNEC2bJlQ6ZMmRAZGYm5c+emxq11DxcQ2LlzJ3r06IEiRYogX7586Ny5M06ePOmClqkJqU1g0aJFCAsLw+LFi1P71rpfgAh89dVXKFu27N8q3w+FkiYUOun2Pl64cAFPPvkkZs2ahS5duri9uWpfMhE4fvw4GjdujAIFCmDYsGHInTs3hgwZYgvSZcuWoXr16sl0J13GrQS6du0K/v6HDx+O8+fP46WXXkKTJk2wfPlytzZZ7UoBAmfPnsVDDz0EzYSnAFwXX/L777/HuXPn7LGP28wSJUrEfenZfQnQAA/tTz/9ZM96HDp0CHny5Alwa3T71CQwdepUHDx4ENzWqFHDvnXNmjVtQTp69GgJ0NQcjADcKyoqyp7t+vHHH+2ZbzaBYvTee+/F9u3bUbp06QC0SrcMBIFevXohY8aMgbi17hlAAuvWrcPtt9+O/v37B7AVgbu1luADx96+84gRI1CwYEGsWrUKofLUE2Dkrrl91apV8fHHH8eKTzYsa9as9kzob7/95pp2qiEpQ4Cz31yCp9mFvxw+fNjeTZs2rf8tbT1OYMGCBRg/fjwGDx7s8Z6qe1cSWLt2Lfh3gCUUZ78lQK/8RqTyaz750OavePHiqXxn3S7QBPgfT/fu3S9rBpdkdu/ejVq1al32vl54j4BlWbG/+1OnTmHixIkYNGgQWrZsiWLFinmvw+rR3wicPn3aXn7luNMURyV0CPBh8+jRo9i2bRsaNWpkz4DzYZR/A0KlSIAGeKTz5s0b4Bbo9m4hQDuwxx9/3F567datm1uapXakAgEuw91zzz34/fff8Z///CcV7qhbuIHAc889h1KlSuHhhx92Q3PUhlQkwOV3loULF6Jdu3Z44YUXcODAATRs2BAbN25MxZYE7layAQ0ce91ZBGIJnDlzBq1bt8aOHTvs/5DSp08f+5l2vE+Apjj84/Puu++icuXKoH2onNC8Pe5c+Ro3bhz8QsTbvVXvriRQpkwZDB06FPfddx9y5sxpf/zoo4+iUKFCGDBgACZMmHDlKZ57LQHquSFVh4KNAMPuNG3aFFu3bsWcOXNQrVq1YOuC2ptEAhSdrHXr1rXDMY0dO1YCNIlM3Xw6PZ8568lZ7yNHjtiVpjcsDM1GQRIREWG/1j/eJEAzG654xS358+e3/w9Ys2ZN3Lc9uy8B6tmhVceCgQBt/xh2Z8+ePfj2229RpUqVYGi22pgMBPbu3QvWevXqxV4te/bstv0vw3CpeJcARee+ffswcuRIu8btKe3CGRVjxYoVcd/WvscI+B88KlWqdFnPGBOatqGhUGQDGgqjrD66kgC9Hulwsn//fixZskTi05WjlHKNGjVqlG3vtWvXrtibcDacMUAVESMWiSd3uMxKO7+49ZtvvrH7+umnn+LLL7/0ZL/Vqb8IcPmdjqg///xz7JuckJg3b16sZ3zsBx7dkQD16MCqW+4nwFifFJ533XUXGAuS9mD+SsN0FW8T6NixI2jry0xIjPu5fv16OxPapUuX8Mwzz3i78yHeO4bZKl++/GW1ZMmSNhUuzSoqive/IPz9p0uXzv790/yKIZkefPBBMCviiy++6H0Apodagg+JYVYn3UiAy28sH374oV3jtpE2ofSGVPEuAQaanzJlii066ZDAUrhwYUyePPmy2LDeJaCeiUDoEihXrhwmTZpkh+JjOk4WPnjMnz8fVy7Le5WSZZYBfV7tnPolAiIgAm4nwP+CaQvKPOAUoCoiIAKhQ4C/f5phcVY8X758odNx01MJ0JAabnVWBERABERABERABAJPQDaggR8DtUAEREAEREAEREAEQoqABGhIDbc6KwIiIAIiIAIiIAKBJyABGvgxUAtEQAREQAREQAREIKQISICG1HCrsyIgAiIgAiIgAiIQeAISoIEfA7VABERABERABERABEKKgARoSA23OisCIiACIiACIiACgScgARr4MVALREAEREAEREAERCCkCEiAhtRwq7MiIAIiIAIiIAIiEHgCEqCBHwO1QAREQAREQAREQARCioAEaEgNtzorAiIgAiIgAiIgAoEnIAEa+DFQC0RABERABERABEQgpAhIgIbUcKuzIiACIiACIiACIhB4AhKggR8DtUAEREAEREAEREAEQoqABGhIDbc6KwIiIAIiIAIiIAKBJyABGvgxUAtEQAREQAREQAREIKQISICG1HCrsyIgAiIgAiIgAiIQeAISoIEfA7VABERABERABERABEKKgARoSA23OisCIiACIiACIiACgScgARr4MVALREAEREAEREAERCCkCEiAhtRwq7MiIAIiIAIiIAIiEHgCEqCBHwO1QAREQAREQAREQARCioAEaEgNtzorAiIgAiIgAiIgAoEnIAEa+DFQC0RABERABERABEQgpAhIgIbUcKuzIiACIiACIiACIhB4AhKggR8DtUAEREAEREAEREAEQoqABGhIDbc6KwIiIAIiIAIiIAKBJyABGvgxUAtEQAREQAREQAREIKQISICG1HCrsyIgAiIgAiIgAiIQeAISoIEfA7VABEQgBAlMnToVkZGRiIqKiu39Dz/8YL/39ddfx76nHREQARHwIgHLZ4oXO6Y+iYAIiICbCURHR6N27do4fvw4NmzYYDe1SpUqyJ07NxYvXoywMM0PuHn81DYREIGkEUiTtNN1tgiIgAiIwPUQCA8Px8iRI1G9enW8/fbbOHv2LPbv348ZM2ZIfF4PUJ0jAiIQVAQkQINquNRYERABLxGIiIhAnz598Oabb+LixYsYOnQoSpYs6aUuqi8iIAIicFUCWoK/Kha9KQIiIAKpQ+D06dPIkycP0qdPj8OHDyNDhgypc2PdRQREQAQCSEBGRgGEr1uLgAiIwMCBA5E2bVrQJvSVV14REBEQAREICQKaAQ2JYVYnRUAE3Ehg2bJlqFevHgYPHmwvwT///PNYunQpatWq5cbmqk0iIAIikGwEJECTDaUuJAIiIAKJJ3D+/HlUrVoVOXPmxJIlS8CAJPSK55L86tWrtRSfeJQ6UgREIAgJaAk+CAdNTRYBEQh+An379sXOnTsxfPhw2+udXvEjRozAzz//DH6mIgIiIAJeJqAZUC+PrvomAiIgAiIgAiIgAi4koBlQFw6KmiQCIiACIiACIiACXiYgAerl0VXfREAEREAEREAERMCFBCRAXTgoapIIiIAIiIAIiIAIeJmABKiXR1d9EwEREAEREAEREAEXEpAAdeGgqEkiIAIiIAIiIAIi4GUCEqBeHl31TQREQAREQAREQARcSEAC1IWDoiaJgAiIgAiIgAiIgJcJSIB6eXTVNxEQAREQAREQARFwIQEJUBcOipokAiIgAiIgAiIgAl4mIAHq5dFV30RABERABERABETAhQQkQF04KGqSCIiACIiACIiACHiZgASol0dXfRMBERABERABERABFxKQAHXhoKhJIiACIiACIiACIuBlAhKgXh5d9U0EREAEREAEREAEXEhAAtSFg6ImiYAIiIAIiIAIiICXCUiAenl01TcREAEREAEREAERcCEBCVAXDoqaJAIiIAIiIAIiIAJeJiAB6uXRVd9EQAREQAREQAREwIUEJEBdOChqkgiIgAiIgAiIgAh4mYAEqJdHV30TAREQAREQAREQARcSkAB14aCoSSIgAiIgAiIgAiLgZQISoF4eXfVNBERABERABERABFxIQALUhYOiJomACIiACIiACIiAlwn8P4bh/5rYG2CmAAAAAElFTkSuQmCC" style="display: block; margin: auto;" /></p>
+</div>
+<div id="majorizing-stress" class="section level3" number="6.0.2">
+<h3><span class="header-section-number">6.0.2</span> Majorizing Stress</h3>
+</div>
+</div>
+<div id="mds-topics-not-covered" class="section level1" number="7">
+<h1><span class="header-section-number">7</span> MDS topics not covered</h1>
+<ul>
+<li>asymmetric MDS</li>
+<li>Non-Euclidean Distances</li>
+<li>Non-Least-Squares Loss Functions</li>
+<li>Rank Images</li>
+<li>Shepard</li>
+<li>McGee</li>
+</ul>
+</div>
 <div id="references" class="section level1 unnumbered">
 <h1>References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-bauschke_bui_wang_18" class="csl-entry">
 Bauschke, H. H., M. N. Bui, and X. Wang. 2018. <span>“<span class="nocase">Projecting onto the Intersection of a Cone and a Sphere</span>.”</span> <em>SIAM Journal on Optimization</em> 28: 2158–88.
 </div>
+<div id="ref-boehning_lindsay_88" class="csl-entry">
+Böhning, D., and B. G. Lindsay. 1988. <span>“<span class="nocase">Monotonicity of Quadratic-approximation Algorithms</span>.”</span> <em>Annals of the Institute of Statistical Mathematics</em> 40 (4): 641–63.
+</div>
+<div id="ref-deleeuw_R_68d" class="csl-entry">
+De Leeuw, J. 1968. <span>“Nonmetric Discriminant Analysis.”</span> Research Note 06-68. Department of Data Theory, University of Leiden.
+</div>
 <div id="ref-deleeuw_U_75a" class="csl-entry">
-De Leeuw, J. 1975. <span>“<span class="nocase">A Normalized Cone Regression Approach to Alternating Least Squares Algorithms</span>.”</span> Department of Data Theory FSW/RUL.
+———. 1975. <span>“<span class="nocase">A Normalized Cone Regression Approach to Alternating Least Squares Algorithms</span>.”</span> Department of Data Theory FSW/RUL.
 </div>
 <div id="ref-deleeuw_C_77" class="csl-entry">
 ———. 1977. <span>“Applications of Convex Analysis to Multidimensional Scaling.”</span> In <em>Recent Developments in Statistics</em>, edited by J. R. Barra, F. Brodeau, G. Romier, and B. Van Cutsem, 133–45. Amsterdam, The Netherlands: North Holland Publishing Company.
 </div>
 <div id="ref-deleeuw_A_84f" class="csl-entry">
 ———. 1984. <span>“<span class="nocase">Differentiability of Kruskal’s Stress at a Local Minimum</span>.”</span> <em>Psychometrika</em> 49: 111–13.
+</div>
+<div id="ref-deleeuw_C_94c" class="csl-entry">
+———. 1994. <span>“<span class="nocase">Block Relaxation Algorithms in Statistics</span>.”</span> In <em>Information Systems and Data Analysis</em>, edited by H. H. Bock, W. Lenski, and M. M. Richter, 308–24. Berlin: Springer Verlag. <a href="https://jansweb.netlify.app/publication/deleeuw-c-94-c/deleeuw-c-94-c.pdf">https://jansweb.netlify.app/publication/deleeuw-c-94-c/deleeuw-c-94-c.pdf</a>.
 </div>
 <div id="ref-deleeuw_U_14b" class="csl-entry">
 ———. 2014. <span>“<span class="nocase">Bounding, and Sometimes Finding, the Global Minimum in Multidimensional Scaling</span>.”</span> UCLA Department of Statistics. <a href="https://jansweb.netlify.app/publication/deleeuw-u-14-b/deleeuw-u-14-b.pdf">https://jansweb.netlify.app/publication/deleeuw-u-14-b/deleeuw-u-14-b.pdf</a>.
@@ -1011,8 +1241,14 @@ De Leeuw, J. 1975. <span>“<span class="nocase">A Normalized Cone Regression Ap
 <div id="ref-deleeuw_E_19d" class="csl-entry">
 ———. 2019. <span>“Normalized Cone Regression.”</span> 2019. <a href="https://jansweb.netlify.app/publication/deleeuw-e-19-d/deleeuw-e-19-d.pdf">https://jansweb.netlify.app/publication/deleeuw-e-19-d/deleeuw-e-19-d.pdf</a>.
 </div>
+<div id="ref-deleeuw_heiser_C_82" class="csl-entry">
+De Leeuw, J., and W. J. Heiser. 1982. <span>“Theory of Multidimensional Scaling.”</span> In <em>Handbook of Statistics, Volume <span>II</span></em>, edited by P. R. Krishnaiah and L. Kanal. Amsterdam, The Netherlands: North Holland Publishing Company.
+</div>
 <div id="ref-deleeuw_mair_A_09c" class="csl-entry">
 De Leeuw, J., and P. Mair. 2009. <span>“<span class="nocase">Multidimensional Scaling Using Majorization: SMACOF in R</span>.”</span> <em>Journal of Statistical Software</em> 31 (3): 1–30. <a href="https://www.jstatsoft.org/article/view/v031i03">https://www.jstatsoft.org/article/view/v031i03</a>.
+</div>
+<div id="ref-dempster_laird_rubin_77" class="csl-entry">
+Dempster, A. P., N. M. Laird, and D. B. Rubin. 1977. <span>“<span class="nocase">Maximum Likelihood for Incomplete Data via the EM Algorithm</span>.”</span> <em>Journal of the Royal Statistical Society</em> B39: 1–38.
 </div>
 <div id="ref-fang_oleary_12" class="csl-entry">
 Fang, H., and D. P. O’Leary. 2012. <span>“Euclidean Distance Matrix Completion Problems Euclidean Distance Matrix Completion Problems Euclidean Distance Matrix Completion Problems.”</span> <em>Oprtimization Methods and Software</em> 27 (4-5): 695–717.
@@ -1029,14 +1265,44 @@ Kruskal, J. B. 1964a. <span>“<span class="nocase">Multidimensional Scaling by 
 <div id="ref-kruskal_carroll_69" class="csl-entry">
 Kruskal, J. B., and J. D. Carroll. 1969. <span>“<span class="nocase">Geometrical Models and Badness of Fit Functions</span>.”</span> In <em>Multivariate Analysis, Volume II</em>, edited by P. R. Krishnaiah, 639–71. North Holland Publishing Company.
 </div>
+<div id="ref-lange_16" class="csl-entry">
+Lange, K. 2016. <em>MM Optimization Algorithms</em>. SIAM.
+</div>
+<div id="ref-lethi_tao_18" class="csl-entry">
+Le Thi, H. A., and P. D. Tao. 2018. <span>“<span class="nocase">DC Programming and DCA: Thirty Years of Developments</span>.”</span> <em>Mathematical Programming, Series B</em>.
+</div>
 <div id="ref-mair_groenen_deleeuw_A_22" class="csl-entry">
 Mair, P., P. J. F. Groenen, and J. De Leeuw. 2022. <span>“<span class="nocase">More on Multidimensional Scaling in R: smacof Version 2</span>.”</span> <em>Journal of Statistical Software</em> 102 (10): 1–47. <a href="https://www.jstatsoft.org/article/view/v102i10">https://www.jstatsoft.org/article/view/v102i10</a>.
+</div>
+<div id="ref-messick_abelson_56" class="csl-entry">
+Messick, S. J., and R. P. Abelson. 1956. <span>“<span class="nocase">The Additive Constant Problem in Multidimensional Scaling</span>.”</span> <em>Psychometrika</em> 21 (1–17).
+</div>
+<div id="ref-nikolova_ng_05" class="csl-entry">
+Niikolova, M., and M. Ng. 2005. <span>“Analysis of Half-Quadratic Minimization Methods for Signal and Image Recovery.”</span> <em>SIAM Journal Scientific Computing</em> 27 (3): 937–66.
 </div>
 <div id="ref-shepard_62a" class="csl-entry">
 Shepard, R. N. 1962a. <span>“<span class="nocase">The Analysis of Proximities: Multidimensional Scaling with an Unknown Distance Function. I</span>.”</span> <em>Psychometrika</em> 27: 125–40.
 </div>
 <div id="ref-shepard_62b" class="csl-entry">
 ———. 1962b. <span>“<span class="nocase">The Analysis of Proximities: Multidimensional Scaling with an Unknown Distance Function. II</span>.”</span> <em>Psychometrika</em> 27: 219–46.
+</div>
+<div id="ref-torgerson_52" class="csl-entry">
+Torgerson, W. S. 1952. <span>“<span class="nocase">Multidimensional Scaling: I. Theory and Method</span>.”</span> <em>Psychometrika</em> 17 (4): 401–19.
+</div>
+<div id="ref-vosz_eckhardt_80" class="csl-entry">
+Vosz, H., and U. Eckhardt. 1980. <span>“<span class="nocase">Linear Convergence of Generalized <span>W</span>eiszfeld’s Method</span>.”</span> <em>Computing</em> 25: 243–51.
+</div>
+<div id="ref-young_81" class="csl-entry">
+Young, F. W. 1981. <span>“<span class="nocase">Quantitative Analysis of Qualitative Data</span>.”</span> <em>Psychometrika</em> 46: 357–88.
+</div>
+<div id="ref-young_deleeuw_takane_C_80" class="csl-entry">
+Young, F. W., J. De Leeuw, and Y. Takane. 1980. <span>“Quantifying Qualitative Data.”</span> In <em>Similarity and Choice. Papers in Honor of Clyde Coombs</em>, edited by E. D. Lantermann and H. Feger. Bern: Hans Huber.
+</div>
+<div id="ref-yuille_rangarajan_03" class="csl-entry">
+Yuille, A. L., and A. Rangarajan. 2003. <span>“<span>The Concave-Convex Procedure</span>.”</span> <em>Neural Computation</em> 15: 915–36.
+</div>
+<div id="ref-zangwill_69a" class="csl-entry">
+Zangwill, W. I. 1969. <em><span class="nocase">Nonlinear Programming: a Unified Approach</span></em>. Englewood-Cliffs, N.J.: Prentice-Hall.
 </div>
 </div>
 </div>

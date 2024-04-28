@@ -1,0 +1,450 @@
+---
+title: |
+    | Smacof at 50: A Manual
+    | Part 6: Non-linear Smacof with B-Spline Transformation
+author: 
+- Jan de Leeuw - University of California Los Angeles
+date: '`r paste("Started April 19 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
+output:
+  bookdown::pdf_document2:
+    latex_engine: lualatex 
+    includes:
+      in_header: preamble.tex
+    keep_tex: yes
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+  bookdown::html_document2:
+    keep_md: yes
+    css: preamble.css
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+graphics: yes
+mainfont: Times New Roman
+fontsize: 12pt
+bibliography: ["mypubs.bib","total.bib"]
+abstract: Modifications of the smacof algorithm for multidimensional
+  scaling are proposed that provide a convergent majorization algorithm
+  for Kruskal's stress formula two.
+---
+
+```{r load code, echo = FALSE}
+library(smacofAC)
+source("stress2.R")
+```
+
+
+**Note:** This is a working paper which will be expanded/updated frequently. All suggestions for improvement are welcome.
+
+# Introduction
+
+The loss function minimized in the current non-metric and non-linear R implementations of the smacof programs for MDS 
+(@deleeuw_mair_A_09c, @mair_groenen_deleeuw_A_22) is Kruskal's original *normalized stress* (@kruskal_64a, @kruskal_64b). It is defined as
+\begin{equation}
+\sigma_1(X):=\frac{\sum\sum w_{ij}(\delta_{ij}- d_{ij}(X)^2)}{\sum\sum w_{ij}d_{ij}^2(X)}.
+(\#eq:stress1def)
+\end{equation}
+In equation \@ref(eq:stress1def) we assume throughout that dissimilarities $\delta_{ij}$
+and weights $w_{ij}$ are non-negative, and, without loss of generality, that the weights add up to one. The double summation is over all pairs of indices $(i,j)$ with $i>j$, i.e, over the
+elements below the diagonal of the matrices $\Delta$, $W$, and $D(X)$.
+
+In @kruskal_65 a different loss function was used in the context of using monotone transformations when fitting a linear model. In MDS this loss function is
+\begin{equation}
+\sigma_2(X):=\frac{\sum\sum w_{ij}(\delta_{ij}- d_{ij}(X)^2)}{\sum\sum w_{ij}(d_{ij}(X)-\overline{d}(X))^2},
+(\#eq:stress2def)
+\end{equation}
+where
+\begin{equation}
+\overline{d}(X)=\sum\sum w_{ij}d_{ij}(X).
+(\#eq:doverdef)
+\end{equation}
+
+In @kruskal_carroll_69, in the section written by Kruskal (p. 652), we see
+
+> In several of my scaling programs, I refer to these expressions
+> as "stress formula one" and "stress formula two", respectively.
+> Historically, stress formula one was the only badness-of-fit
+> function used for some time. Stress formula two has been used
+> more recently and I now tend to recommend it.
+
+Another early adopter (@roskam_68, p. 34) says
+
+> While the original formula is adequate for completely ordered
+> B-data, we found it is not adequate with completely ordered
+> A-data.
+
+The distinction between A-data and B-data comes from @coombs_64.
+For B-data the $\delta_{ij}$ are dissimilarties
+between pairs of elements of a single set, while for A-data they
+are dissimilarities between two different sets, a row-set and a column-set.
+Moreover both Kruskal and Roskam found that having the variance
+of the distances in the denominator of stress has major advantages
+for conditional A-data, in which only comparisons of dissimilarities
+with in the same row are meaningful.
+
+In this paper we will extend the theory and algorithm of smacof 
+to stress formula two. We emphasize that normalized loss functions
+such as $\sigma_1$ and $\sigma_2$ should are only
+used in non-linear or nor-metric MDS problems. In metric MDS problems
+raw stress, without any normalization, can be used.
+
+
+# Problem
+
+We want to minimize Kruskal's $\sigma_2$ from \@ref(eq:stress2def)
+over the $n\times p$ configuration matrices $X$. 
+
+It is convenient to have some notation for the numerator and denominator of the two stress formulas. 
+\begin{subequations}
+\begin{align}
+\sigma_R(X)&:=\sum\sum w_{ij}(\delta_{ij}-d_{ij}(X))^2,(\#eq:rawdef)\\
+\eta_1^2(X)&:=\sum\sum w_{ij}d_{ij}^2(X),(\#eq:eta1def)\\
+\eta_2^2(X)&:=\sum\sum w_{ij}(d_{ij}(X)-\overline{d}(X))^2,(\#eq:eta2def)
+\end{align}
+\end{subequations}
+Kruskal terms $\sigma_R$ from definition \@ref(eq:rawdef) the *raw stress*.
+
+There have not been any systematic comparisons of the two stress formulas, and
+the solutions they lead to, that I am aware of. 
+Kruskal (in @kruskal_carroll_69, p. 652) says
+
+> For any given configuration, of course, stress formula two yields
+a substantially larger value than stress formula one, perhaps twice
+as large in many cases. However, in typical multidimensional scaling
+applications, minimizing stress formula two typically yields very similar
+configurations to minimizing stress formula one.
+
+We can get some idea about the difference in scale of the two loss functions from the results
+\begin{equation}
+\frac{\sigma_1(X)}{\sigma_2(X)}=\frac{\eta_2^2(X)}{\eta_1^2(X)}\geq\min_X\frac{\eta_2^2(X)}{\eta_1^2(X)}
+(\#eq:compa)
+\end{equation}
+@deleeuw_stoop_A_84 show that in the one-dimensional case with $p=1$ and with
+all $w_{ij}$ equal, this implies 
+\begin{equation}
+\sigma_1(X)\geq\frac13\frac{n-2}{n}\sigma_2(X).
+(\#eq:bound)
+\end{equation} 
+Thus in this special case $\sigma_1$ is three to nine times as large as
+$\sigma_2$. In general the bound in equation \@ref(eq:bound) depends on the weights, on the dimensionality $p$, and on the order $n$ of the problem. 
+
+As a qualitative statement, supported to some extent by the computations of @deleeuw_stoop_A_84, 
+we can say that minimizing $\sigma_1$ will
+tend to give optimal configurations in which distances have less variance than those in 
+configurations that minimize $\sigma_2$. One thing is for sure, however. If $X$
+is a regular simplex in $n-1$ dimensions then $\sigma_2$ is not even defined. 
+Or, to put it differently, if all $\delta_{ij}$ are equal the minimum of
+$\sigma_2$ in $n-1$ dimensions does not exist.
+
+# Notation
+
+Now for some notation. As in standard MDS theory (@deleeuw_C_77, @deleeuw_heiser_C_77, @deleeuw_A_88b) we use the matrices
+\begin{equation}
+A_{ij}:=(e_i-e_j)(e_i-e_j)',
+(\#eq:adef)
+\end{equation}
+where $e_i$ are unit vectors with element $i$ equal to one and the other $n-1$ elements equal to zero. 
+Thus $A_{ij}$ has elements $(i,i)$ and $(j,j)$ equal to $+1$, elements $(i,j)$ and $(j,i)$ equal to
+$-1$, and all other elements equal to zero. The usefulness of the $A_{ij}$ in MDS derives mainly from the
+formula
+\begin{equation}
+d_{ij}^2(X)=\text{tr}\ X'A_{ij}X.
+(\#eq:d2froma)
+\end{equation}
+
+Using the $A_{ij}$ we now define other matrices, also standard in MDS,
+\begin{subequations}
+\begin{align}
+V&:=\sum\sum w_{ij}A_{ij},(\#eq:vdef)\\
+B(X)&:=\sum\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}A_{ij}.(\#eq:bdef)
+\end{align}
+\end{subequations}
+Note that $B$ is a matrix-valued function, not a single matrix. For completeness
+also define
+\begin{equation}
+\eta^2(\Delta):=\sum\sum w_{ij}\delta_{ij}^2.
+(\#eq:etadeltadef)
+\end{equation}
+
+Specifically because we are dealing with $\sigma_2$ we also need the non-standard
+definition
+\begin{equation}
+M(X):=\overline{d}(X)\sum\sum\frac{w_{ij}}{d_{ij}(X)}A_{ij}.
+(\#eq:mdef)
+\end{equation}
+
+In both definitions \@ref(eq:bdef) and \@ref(eq:mdef) the summation is
+over pairs $(i,j)$ with $d_{ij}(X)>0$. Of course we can also omit all
+pairs from the summation for which $w_{ij}=0$.
+
+# Majorization
+
+In this section we construct a convergent majorization algorithm (@deleeuw_C_94c)
+(also known as an MM algorithm, @lange_16) to minimize $\sigma_2$.
+
+The first step is to turn the minimization of a ratio of two functions into the 
+iterative minimization of a difference of the two functions. This is
+a classical trick in fractional programming, usually attributed to
+@dinkelbach_67. Define
+\begin{equation}
+\omega(X,Y):=\sum\sum w_{ij}(\delta_{ij} - d_{ij}(X))^2-\sigma(Y)\{\sum\sum w_{ij}(d_{ij}(X)-\overline{d}(X))^2\}
+(\#eq:omegadef)
+\end{equation}
+
+::: {.lemma #dinkelbach}
+If $\omega(X,Y)<\omega(Y,Y)=0$ then $\sigma(X)<\sigma(Y)$.
+:::
+
+::: {.proof}
+This is embarassingly simple.
+Direct substitution shows $\omega(X,X)=0$ for all $X$. Also $\omega(X,Y)<0$ if and only if 
+\begin{equation}
+\sum\sum w_{ij}(\delta_{ij} - d_{ij}(X))^2<\sigma(Y)\{\sum\sum w_{ij}(d_{ij}(X)-\overline{d}(X))^2\}
+(\#eq:dinkelbach)
+\end{equation}
+Dividing both sides by $\{\sum\sum w_{ij}(d_{ij}(X)-\overline{d}(X))^2\}$ shows that $\sigma(X)<\sigma(Y)$.
+:::
+
+It follows from lemma \@ref(lem:dinkelbach) that if we are in iteration $k$, with tentative solution $X^{(k)}$, then finding any $X^{(k+1)}$ such that
+$\omega(X^{(k+1)},X^{(k)})<0$ will decrease stress. We will accomplish this 
+in our algorithm by performing one or more majorization steps decreasing 
+$\omega(X,X^{(k)})$. 
+
+We should note that as a general strategy we cannot use finding $X^{(k+1)}$
+by minimizing $\omega(X,X^{(k)})$ over $X$. If the minimum exists this will
+work, but in general $\omega(\bullet,X^{(k)})$ may be unbounded below, and
+the minimum may not exist. This is easily seen from the example $f(x)=x'Ax/x'x$
+for which Dinkelbach's maneuver gives $g(x,y)=x'Ax-f(y)x'x$. The minimum
+of $g$ over $x$ is zero if $f(y)$ is equal to $\lambda_{\min}(A)$, the smallest eigenvalue
+of $A$, which is actually the minimum of $f$. If $f(y)>\lambda_{min}(A)$ the minimum
+does not exist (the infimum is $-\infty$). We can ignore the case $f(y)<\lambda_{min}(A)$.
+because that is impossible. But if $f(y)>\lambda_{min}(A)$ any $x$ with $x'x=1$ other than 
+the eigenvector corresponding with the minimum eigenvalue satisfies $g(x,y)<0$
+and thus $f(x)<f(y)$.
+
+Back to $\sigma_2$. From definitions \@ref(eq:vdef), \@ref(eq:bdef), \@ref(eq:etadeltadef), and \@ref(eq:mdef)
+\begin{equation}
+\omega(X,Y)=\eta^2(\Delta)+(1-\sigma(Y))\text{tr}\ X'VX-2\ \text{tr}\ X'B(X)X+\text{tr}\ X'M(X)X
+(\#eq:omegasimple)
+\end{equation}
+
+::: {.lemma #smacof}
+For all $X$ and $Y$
+\begin{equation}
+\text{tr}\ X'B(X)X\geq\text{tr}\ X'B(Y)Y,
+(\#eq:smacof)
+\end{equation}
+with equality if $X=Y$.
+:::
+
+::: {.proof}
+By Cauchy-Schwartz
+\begin{equation}
+d_{ij}(X)\geq\frac{1}{d_{ij}(Y)}\text{tr}\ X'A_{ij}Y
+(\#eq:cs1)
+\end{equation}
+Multiplying both sides by $w_{ij}\delta_{ij}$ and summing proves the lemma.
+:::
+
+::: {.lemma #neweq}
+For all $X$ and $Y$
+\begin{equation}
+\text{tr}\ X'M(X)X\leq\text{tr}\ X'M(Y)X,
+(\#eq:secineq)
+\end{equation}
+with equality if $X=Y$.
+:::
+
+::: {.proof}
+Start with the trivial result
+\begin{equation}
+\sum\sum w_{ij}d_{ij}(X)=\sum\sum \frac{w_{ij}}{d_{ij}(Y)}d_{ij}(X)d_{ij}(Y).
+(\#eq:trivial)
+\end{equation}
+By Cauchy-Schwartz
+\begin{equation}
+\overline{d}(X)\leq\sqrt{\sum\sum \frac{w_{ij}}{d_{ij}(Y)}d_{ij}^2(X)}\sqrt{\sum\sum \frac{w_{ij}}{d_{ij}(Y)}d_{ij}^2(Y)}
+(\#eq:cs2)
+\end{equation}
+Squaring both sides proves the lemma.
+:::
+
+We are now ready for the main result.
+
+::: {.theorem #main}
+Suppose $\sigma_2(X^{(0)})\leq 1$. The update  
+\begin{equation}
+X^{(k+1)}=\{(1-\sigma_2(X^{(k)}))V+\sigma_2(X^{(k)})M(X^{(k)})\}^+B(X^{(k)})X^{(k)}
+(\#eq:update)
+\end{equation}
+defines a convergent majorization algorithm.
+:::
+
+::: {.proof}
+Using the definitions in equations \@ref(eq:vdef), \@ref(eq:bdef), \@ref(eq:etadeltadef), and \@ref(eq:mdef) define
+\begin{equation}
+\xi(X,Y):=\eta^2(\Delta)+(1-\sigma(Y))\text{tr}\ X'VX-2\text{tr}\ X'B(Y)Y+\sigma(Y)\text{tr}\ X'M(Y)X.
+(\#eq:xidef)
+\end{equation}
+From lemmas \@ref(lem:smacof) and \@ref(lem:neweq) $\omega(X,Y)\leq\xi(X,Y)$
+with equality if $X=Y$. In particular 
+\begin{subequations}
+\begin{equation}
+\omega(X^{(k+1)},X^{(k)})\leq\xi(X^{(k+1)},X^{(k)}).
+(\#eq:ineq1)
+\end{equation}
+The update $X^{(k+1)}$ minimizes $\xi(X,X^{(k)})$
+and thus 
+\begin{equation}
+\xi(X^{(k+1)},X^{(k)})\leq\xi(X^{(k)},X^{(k)})=\omega(X^{(k)},X^{(k)}).
+(\#eq:ineq2)
+\end{equation}
+\end{subequations}
+Combining equations \@ref(eq:ineq1) and \@ref(eq:ineq2), and using lemma \@ref(lem:dinkelbach), shows that also $\sigma_2(X^{(k+1)})\leq\sigma_2(X^{(k)})$.
+:::
+
+In order to make our proof work we had to guarantee that for all $k$ 
+\begin{equation}
+(1-\sigma_2(X^{(k)}))V+\sigma_2(X^{(k)})M(X^{(k)})\gtrsim 0,
+(\#eq:psd)
+\end{equation}
+because otherwise the minimum of $\xi(\bullet,X^{(k)})$ does not exist. If $\sigma_2(X^{(k)})\leq 1$ the matrix in inequality \@ref(eq:psd) is a convex combination of two positive semi-definite matrices, and is thus
+positive semi-definite. And because of theorem \@ref(thm:main) it is sufficient to assume that
+$\sigma_2(X^{(0)})\leq 1$, because subsequent $X^{(k)}$ will have $\sigma_2$ values
+smaller than the value for $X^{(0)}$. Thus we need to start our majorization algorithm with
+a sufficiently good initial estimate of $X$. A random start may not work.
+
+From the practical point of view the condition $\sigma_2(X^{(0)})\leq 1$ is not 
+really restrictive. As the introduction of this paper says, in metric MDS we do not
+use $\sigma_2$. But even in metric MDS the Torgerson initial estimate usually
+takes $\sigma_2$ well below one. In non-linear or non-metric scaling the $\delta_{ij}$ are optimal transformations or quantifications. If the optimum transformation is better
+than the optimal constant transformation the condition $\sigma_2(X^{(k)})\leq 1$ 
+is automatically satisfied for all $k$. And even if the optimum transformation is
+the constant transformation we still have $\sigma_2(X^{(k)})=1$ and
+inequality \@ref(eq:psd) is satisfied.
+
+If for some reason you want to proceed if the matrix in \@ref(eq:psd) is
+not positive semi-definite, then it suffices to choose any $Y$ with
+\begin{equation}
+\text{tr}\ Y'\{((1-\sigma_2(X^{(k)}))V+\sigma_2(X^{(k)})M(X^{(k)}))\}Y\geq 0
+(\#eq:emergency)
+\end{equation} 
+and to minimize $\xi(X^{(k)}+\alpha Y,X^{(k)})$ over $\alpha$.
+
+# Derivatives
+
+The derivatives of $\sigma_2$ are
+\begin{equation}
+\mathcal{D}\sigma_2(X)=\frac{\mathcal{D}\sigma_R(X)-\sigma_2(X)\mathcal{D}\eta^2_2(X)}{
+\eta_2^2(X)}
+(\#eq:s2deriv)
+\end{equation}
+Now
+\begin{subequations}
+\begin{align}
+\mathcal{D}\sigma_R(X)&=-2\sum\sum w_{ij}(\delta_{ij}-d_{ij}(X))\mathcal{D}d_{ij}(X),\\
+\mathcal{D}\eta_2^2(X)&=2\sum\sum w_{ij}\mathcal{D}d_{ij}^2(X) -2\overline{d}(X)\sum\sum w_{ij}\mathcal{D}d_{ij}(X),
+\end{align}
+\end{subequations}
+and
+\begin{equation}
+\mathcal{D}d_{ij}(X)=\frac{1}{d_{ij}(X)}A_{ij}X.
+(\#eq:dderiv)
+\end{equation}
+And thus, using definitions \@ref(eq:vdef), \@ref(eq:bdef), and \@ref(eq:mdef)
+\begin{subequations}
+\begin{align}
+\mathcal{D}\sigma_R(X)&=2(V-B(X))X,\\
+\mathcal{D}\eta_2^2(X)&=2(V-M(X))X.
+\end{align}
+\end{subequations}
+
+It follows that $\mathcal{D}\sigma_2(X)=0$ if and only if 
+\begin{equation}
+X=\{(1-\sigma_2(X))V+\sigma_2(X)M(X)\}^+B(X)X.
+(\#eq:stationary)
+\end{equation}
+We can summarize the results of our computations in this section.
+
+::: {.theorem}
+$X$ is a fixed point of the majorization iterations \@ref(eq:update) if and only if $\mathcal{D}\sigma_2(X)=0$.
+:::
+
+
+# Examples
+
+Although we mentioned in the introduction that it is unusual to use
+$\sigma_2$ in metric MDS problems we will nevertheless give some metric
+examples to illustrate the algorithm. In both examples we start with
+the Torgerson initial solution which takes the initial $\sigma_2$ way below
+one.
+
+## Ekman
+
+Our first example are the obligatory color data from @ekman_54. The stress2
+program produces the following sequence of $\sigma_2$ values and
+converges in 28 iterations.
+
+```{r ekman, cache = TRUE, echo = FALSE}
+data(ekman, package = "smacof")
+delta <- as.matrix(1 - ekman)
+labs <- as.character(attr(ekman, "Labels"))
+h <- stress2(delta)
+g <- smacofAC(ekman)
+```
+
+The optimum configuration is in figure \@ref(fig:ekfig1), which can be compared with the
+solution minimizing raw stress (which is identical up to a scale factor with the solution
+minimizing stress formula one) in figure \@ref(fig:ekfig2). The raw stress solution
+reaches stress formula one equal to `r g$snew` in `r g$itel` iterations. The two optimal 
+configurations are virtually identical.
+
+```{r ekfig1, fig.align = "center", fig.cap = "Ekman Metric Stress 2 Solution", echo = FALSE}
+par(pty = "s")
+plot(h$x, type = "n", xlab = "dimension 1", ylab = "dimension 2")
+text(h$x, labs, col = "RED", cex = .8)
+```
+
+```{r ekfig2, fig.align = "center", fig.cap = "Ekman Metric Raw Stress Solution", echo = FALSE}
+par(pty = "s")
+smacofConfigurationPlot(g, main = "", cex = .8)
+```
+
+## De Gruijter
+
+The Ekman data have an excellent fit in two dimensions and the optimum configuration is
+extremely stable over variations in MDS methods. The data from @degruijter_67 on the
+similarities between nine Dutch political parties in 1966 have a worse fit, and
+less stability.
+
+```{r gruijter, cache = TRUE, echo = FALSE}
+source("gruijter.R")
+delta <- as.matrix(gruijter)
+labs <- as.character(attr(gruijter, "Labels"))
+h <- stress2(delta, verbose = FALSE)
+g <- smacofAC(gruijter)
+```
+The solution minimizing $\sigma)2$ has a loss of `r h$s` and uses `r h$itel` iterations.
+Minimizing raw stress finds stress `r g$snew` and uses `r g$itel` iterations. The optimal
+configurations in figures \@ref(fig:grfig1) and \@ref(fig:grfig2) are similar, but definitely
+not the same. Specifically the position of D66 (a "pragmatic" party, ideologically neither left nor right, established only in 1966, i.e. in the year of the De Gruijter study) differs a lot between solutions. 
+
+```{r grfig1, fig.align = "center", fig.cap = "Gruijter Metric Stress 2 Solution", echo = FALSE}
+par(pty = "s")
+plot(h$x, type = "n", xlab = "dimension 1", ylab = "dimension 2")
+text(h$x, labs, col = "RED", cex = .8)
+```
+
+```{r grfig2, fig.align = "center", fig.cap = "Gruijter Metric Raw Stress Solution", echo = FALSE}
+par(pty = "s")
+smacofConfigurationPlot(g, main = "", cex = .8)
+```
+# Appendix: Code
+
+## stress2.R
+
+```{r file_auxilary, code = readLines("stress2.R")}
+```
+
+# References

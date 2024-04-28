@@ -1,10 +1,10 @@
 ---
 title: |
     | Smacof at 50: A Manual
-    | Part 1: Smacof Introduction and Theory
+    | Part 1: Smacof Basics
 author: 
 - Jan de Leeuw - University of California Los Angeles
-date: 'Started February 21 2024, Version of April 16, 2024'
+date: 'Started February 21 2024, Version of April 22, 2024'
 output:
   bookdown::html_document2:
     keep_md: yes
@@ -36,7 +36,8 @@ editor_options:
 frequently. All suggestions for improvement are welcome. All Rmd, tex,
 html, pdf, R, and C files are in the public domain. Attribution will be
 appreciated, but is not required. The files can be found at
-<https://github.com/deleeuw/smacofCode>.
+<https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
+and smacofExamples.
 
 \sectionbreak
 
@@ -46,57 +47,108 @@ In *Multidimensional Scaling (MDS)* the data consists of information
 about the similarity or dissimilarity between pairs of objects selected
 from a finite set $\mathcal{O}=\{o_1,\cdots,o_n\}$.
 
-In *metric MDS* we have numerical dissimilarity measures and we want to
+In *metric MDS* we have numerical dissimilarity measures $\delta$ on 
+a subset of $\mathcal{O}\times\mathcal{O}$ and we want to
 map the objects $o_i$ into $n$ points $x_i$ of some metric space in such
 a way that the distances between the points approximate the
 dissimilarities between the objects. In *smacof*, our framework for MDS
 theory, algorithms, and computer programs, the metric space is
-$\mathbb{R}^p$, the space of all $p$-tuples of real numbers, and in the
-code documented in this manual we assume the distance is the usual
-Euclidean distance.
+$\mathbb{R}^p$, the space of all $p$-tuples of real numbers, and the distance is the usual Euclidean distance. Thus we are looking for 
+$x_i$, with $i=1,\cdots,n$, such that
+\begin{equation}
+\delta_{ij}:=\delta(o_i,o_j)\approx d_{ij}(X):=\sqrt{\sum_{s=1}^p(x_{is}-x_{js})^2}.
+(\#eq:mdsdef)
+\end{equation}
+(the symbol $:=$ is used for definitions). Note that *distance matrix completion* (@fang_oleary_12) is an example of metric MDS.
 
-In *non-metric MDS* the information about the dissimilarities is
-incomplete. It is usually *ordinal*, i.e. it tells us in some way or
-another that some dissimilarties are larger or smaller than others.
-Somewhere between metric and non-metric MDS is MDS with *missing data*,
-in which some dissimilarities are known numbers while others are
-unknown. MDS with missing data is a form of *distance matrix completion*
-(@fang_oleary_12).
+Besides metric MDS there is also something called *non-metric MDS*. The terms is ambiguous and can mean either one of two things. One definition is that
+we do not have numerical information about the dissimilarities, but only
+ordinal of nominal information. In the ordinal case we know that some dissimilarities are larger or smaller than others, in the nominal case
+that the objects are partitioned into groups and  within-group
+distances are smaller than between-group distances. An MDS analysis
+is also non-metric if we have numerical dissimilarities but we decide
+to use only the ordinal or nominal information in the dissimilarities
+as data for our MDS analysis. The data are a binary relation $\preceq_\delta$ on a subset of
+$\mathcal{O}\times\mathcal{O}$. There is a second binary relation $\preceq_d$ on
+$\mathbb{R}_+\times\mathbb{R}_+$. We want to find the configuration $X$
+such that
+\begin{equation}
+(o_i,o_j)\preceq_\delta(o_k,o_l)\quad\Rightarrow\quad d_{ij}(X)\preceq_d d_{kl}(X).
+(\#eq:relations)
+\end{equation}
+For most non-metric MDS problems both $\preceq_\delta$ and $\prec_d$ are partial orders, but for nominal data they can be equivalence relations.
 
-# Krukal's Stress
+The term "non-metric" is sometimes also used in the case in which we do have numerical dissimilarities $\delta_{ij}$, but the MDS problem is to find Euclidean distances which approximate some partially unknown function of the dissimilarities. The function should be member of a well-defined class of functions, for
+instance a third degree polynomial or a piecewise linear spline on a
+given knot sequence. The MDS technique not only finds the map of 
+$\mathcal{O}$ into $\mathbb{R}^p$, but also chooses a function $f$
+from the set $\mathfrak{D}$ to improve the approximation. 
+\begin{equation}
+f(\delta_{ij})\approx d_{ij}(X).
+(\#eq:mdsnldef)
+\end{equation}
+Note that \@ref(eq:mdsnldef) implies that $f$ is applied to each 
+dissimilarity separately. Thus $\mathfrak{D}$ consists of real-valued
+functions of a single non-negative real variable.
+
+To avoid confusion, we will refer to this class
+of MDS techniques as *non-linear MDS*. This choice of terminology
+has the unfortunately side-effect that $\mathfrak{D}$ in non-linear
+MDS can be the set of all linear transformations. One important
+example of this linear non-linear MDS is classical MDS with an 
+additive constant (@messick_abelson_56). And, as another consequence, $\mathfrak{D}$ can also be the set of all monotone or all one-one transformations, in which case the non-linear MDS technique is also a non-metric MDS technique. And finally the set $\mathfrak{D}$ can have
+only a single element, the identity transformation, in which case
+non-linear MDS is metric MDS.
+
+One way to solve this terminological dilemma is to simply define 
+MDS as finding an approximate solution $(X,\Delta)$ to
+\begin{subequations}
+\begin{align}
+\Delta&\in\mathfrak{D},(\#eq:gmdsdef1)\\
+X&\in\mathfrak{X},(\#eq:gmdsdef2)\\
+D(X)&=\Delta,(\#eq:gmdsdef3),
+\end{align}
+\end{subequations}
+where $D(X)$ is the matrix of Euclidean distances and $\mathfrak{D}$ is the set of *transformed dissimilarities* in the non-linear case or the set of *quantified dissimilarities* in the non-metric case. We can then freely discuss
+metric MDS, linear MDS, non-linear MDS, and non-metric MDS as special cases,
+defined by different sets $\mathfrak{D}$.
+
+
+
+# Loss Function
 
 In the pioneering papers @kruskal_64a and @kruskal_64b the MDS problem
-was formulated for the first time as minimization of an explicit loss
-function, which measures the quality of the approximation of the
-dissimilarities by the distances. 
+was formulated for the first time as minimization of an explicit *loss
+function* or *badness-of-fit function*, which measures the quality of the approximation of the dissimilarities by the distances. To be historically accurate, we should
+mention that the non-metric MDS technique proposed by @shepard_62a and @shepard_62b can be reformulated as minimization of an explicit loss function (see, for example, @deleeuw_E_17e). And the classical Young-Householder-Torgerson MDS technique (@torgerson_52) for metric MDS can be reformulated as minimizing an explicit least squares loss function (@deleeuw_heiser_C_82) as well.
+But neither of these two predecessors was formulated originally as an explicit minimization
+problem for a specific loss function
 
 ## Metric MDS
 
 The loss function in least squares
-metric Euclidean MDS is called *raw stress* or *Kruskal's raw stress*
+metric Euclidean MDS is called *raw stress* 
 and is defined as 
 \begin{equation}
-\sigma_R(X):=\frac12\sum w_{ij}(\delta_{ij}-d_{ij}(X))^2.
+\sigma_R(X):=\frac12\mathop{\sum\sum}_{1\leq j<i\leq n}w_{ij}(\delta_{ij}-d_{ij}(X))^2.
 (\#eq:stressdef)
 \end{equation}
+The subscript R in $\sigma_R$ stands for "raw", because we will discuss
+other least squares loss functions for which we will also use the
+symbol $\sigma$, but with other subscripts.
 
-The symbol $:=$ is used for definitions. In definition
+In definition
 \@ref(eq:stressdef) the $w_{ij}$ are known non-negative *weights*, the
 $\delta_{ij}$ are the known non-negative *dissimilarities* between
 objects $o_i$ and $o_j$, and the $d_{ij}(X)$ are the *distances* between
 the corresponding points $x_i$ and $x_j$. The summation is over all
-$\binom{n}{2}$ pairs $(i,j)$ with $j>i$, i.e. over elements below the
-diagonal of the matrices $W$ and $\Delta$. The subscript $R$ in $\sigma_R$
-stands for "raw". From now on we use "metric
-MDS" to mean Least Squares Metric Euclidean MDS.
+pairs $(i,j)$ with $w_{ij}>0$. From now on we use "metric
+MDS" to mean the minimization of $\sigma_R$.
 
 The $n\times p$ matrix $X$, which has the coordinates $x_i$ of the $n$
 points as its rows, is called the *configuration*, where $p$ is the
-*dimension* of the Euclidean space in which we make the map. Thus
-\begin{equation}
-d_{ij}(X)=\sqrt{\sum_{s=1}^p(x_{is}-x_{js})^2}.
-(\#eq:ddef)
-\end{equation} The metric MDS problem (of dimension $p$, for given $W$
+*dimension* of the Euclidean space in which we make the map. 
+The metric MDS problem (of dimension $p$, for given $W$
 and $\Delta$) is the minimization of \@ref(eq:stressdef) over the
 $n\times p$ configurations $X$.
 
@@ -105,7 +157,8 @@ precision or importance of the corresponding dissimilarities. Some of
 the weights may be zero, which can be used to code *missing data*. If
 all weights are positive we have *complete data*. If we have complete
 data, and all weights are equal to one, we have *unweighted* metric MDS.
-The pioneering papers by Shepard, Kruskal, and Guttman only consider the unweighted case. Weights were only introduced in MDS in @deleeuw_C_77. 
+The pioneering papers by Shepard, Kruskal, and Guttman only consider the 
+unweighted case. Weights were only introduced in MDS in @deleeuw_C_77. 
 
 We assume throughout that the weights are *irreducible* (@deleeuw_C_77).
 This means there is no partitioning of the index set
@@ -116,13 +169,14 @@ assumption causes no real loss of generality.
 
 The fact that the summation in \@ref(eq:stressdef) is over all $j<i$
 indicates that the diagonal elements of $\Delta$ are not used (they are
-assumed to be zero) and the elements above the diagonal are not used as
-well (they are assumed to be equal to the corresponding elements below
+assumed to be zero) and the elements above the diagonal are not used either
+(they are assumed to be equal to the corresponding elements below
 the diagonal). The somewhat mysterious factor $\frac12$ in definition
 \@ref(eq:stressdef) is there because it simplifies some of the formulas
 in later sections of this paper.
 
-## Non-metric MDS
+## Non-linear MDS
+
 
 Kruskal was not really interested in metric MDS and the "raw" loss
 function \@ref(eq:stressdef). His papers are really about non-metric
@@ -176,9 +230,12 @@ and he actually takes the square root of \@ref(eq:nstressdef) to define
 loss function \@ref(eq:nstressdef) over all $n\times p$ configurations
 $X$ and all admissible disparities $\Delta$.
 
+## Non-metric MDS
+
 ## Normalization
 
-Equation \@ref(eq:nstressdef) is only one way to normalize raw stress. Some obvious alternatives are discussed in detail in
+Equation \@ref(eq:nstressdef) is only one way to normalize raw stress. 
+Some obvious alternatives are discussed in detail in
 @kruskal_carroll_69 and @deleeuw_U_75a. In the terminology of
 @deleeuw_U_75a there are *explicit* and *implicit* normalizations.
 
@@ -230,14 +287,42 @@ disparities and the sphere defined by \@ref(eq:explicit2) is equivalent
 to first projecting on the cone and then normalizing the projection (see
 also @bauschke_bui_wang_18).
 
-In the version of non-metric MDS discussed in this manualwe need more flexibility. For algorithmic reasons that may become clear later on, we will go with the original \@ref(eq:nstressdef), i.e. with the implicitly normalized
+In the version of non-metric MDS discussed in this manual we need more flexibility. For algorithmic reasons that may become clear later on, we will go with the original \@ref(eq:nstressdef), i.e. with the implicitly normalized
 Kruskal's stress. For the final results the choice between normalizations should not make a difference, but the iterative computations will be different for the
-diufferent choices.
+different choices.
 
 ## Some thoughts on ALS
 
-I will take this opportunity to clear up some misunderstandings and
-confusions that have haunted the early development of non-metric MDS.
+The formulation in equations \@ref(eq:gdef1) and \@ref(eq:gdef2) neatly separates the
+metric MDS part \@ref(eq:gdef1) and the transformation/quantification part \@ref(eq:gdef2).
+This second part is also often called the *optimal scaling* part.
+
+Equations \@ref(eq:gdef1) and \@ref(eq:gdef2) corresponds with the way most iterative non-linear and non-metric MDS 
+techniques are implemented. The algorithms use *Alternating Least Squares* (ALS).
+There have been quite a few ALS algorithms avant-la-lettre, but as far as I know both the name 
+and ALS as a general approach to algorithm construction were first introduced in @deleeuw_R_68d, and then widely disseminated in a series of papers by
+De Leeuw, Young, and Takane in the 1970's (work summarized in @young_deleeuw_takane_C_80 and @young_81).
+
+In the ALS implementation of MDS two sub-algorithms are used in each iteration: one to improve the fit of the distances to the current disparities
+$\Delta$ and one to improve the fit of the disparities to the current distances.
+The two sub-algorithms define one major iteration of the MDS technique. In  formulas
+(using superscript $(k)$ for major iteration number) we start with $(X^{(0)},\Delta^{(0)})$
+and then alternate the mimization problems
+\begin{subequations}
+\begin{align}
+X^{(k+1)}&\ni\{\sigma(X^{(k+1)},\Delta^{(k)})=\min_{X\in\mathfrak{X}}\sigma(X,\Delta^{(k)})\},\\
+\Delta^{(k+1)}&\ni\{\sigma(X^{(k+1)},\Delta^{(k+1)})=\min_{\Delta\in\mathfrak{D}}\sigma(X^{(k+1)},\Delta)\},
+\end{align}
+\end{subequations}
+where $\ni$ is short for "such that".
+In MDS it is more realistic not to minimize loss in the sub-steps but merely to decrease it. Minimization in one or both of the two subproblems may itself require an infinite iterative method, which we have to truncate anyway. Thus
+\begin{subequations}
+\begin{align}
+X^{(k+1)}\in\mathfrak{X}&\ni\{\sigma(X^{(k+1)},\Delta^{(k)})<\sigma(X^{(k)},\Delta^{(k)})\},\\
+\Delta^{(k+1)}\in\mathfrak{D}&\ni\{\sigma(X^{(k+1)},\Delta^{(k+1)})<\sigma(X^{(k+1)},\Delta^{(k)})\}.
+\end{align}
+\end{subequations}
+
 
 ### The Single-Phase approach
 
@@ -301,10 +386,12 @@ alternates minimization of $\sigma(\hat D,X)$ over $X$ for our current
 best estimate of $\hat D$ with minimization of $\sigma(\hat D,X)$ over
 $\Delta\in\mathfrak{D}$ for our current best value of $X$. Thus an
 update from iteration $k$ to iteration $k+1$ looks like 
+\begin{subequations}
 \begin{align}
 \hat D^{(k)}&=\mathop{\text{argmin}}_{\hat D\in\mathfrak{D}}\sigma(\hat D,X^{(k)}),(\#eq:step1)\\
 X^{(k+1)}&=\mathop{\text{argmin}}_X\sigma(\hat D^{(k)},X).(\#eq:step2)
 \end{align} 
+\end{subequations}
 This ALS approach to MDS was in the air since the early
 (unsuccessful) attempts around 1968 of Young and De Leeuw to combine
 Torgerson's classic metric MDS method with Kruskal's monotone regression
@@ -533,13 +620,14 @@ eigenvalues equal to one. @deleeuw_U_14b has shown that if
 $V^+B(X)\lesssim I$ then actually $X$ is a global minimizer of stress.
 
 $$
-\rho(X)=\sum w_{ij\delta_{ij}(X)
+\rho(X)=\sum w_{ij}\delta_{ij}(X)
 $$
 
 $$
 \nabla d_{ij}(X)=\begin{bmatrix}0\\
 \frac{x_i-x_j}{d_{ij}(X)}\\0\\-\frac{x_i-x_j}{d_{ij}(X)}\\0\end{bmatrix}
 $$
+
 $$
 \partial d_{ij}(X)=\left\{\begin{bmatrix}0\\
 y\\0\\-y\\0\end{bmatrix}\mid y'y\leq 1\right\}.
@@ -567,13 +655,20 @@ Kronecker product, then $$
 \mathcal{D}^2\sigma(X)=I_p\otimes(V - B(X))+ H(X)
 $$ $$
 \sum_{s=1}^p\sum_{t=1}^p y_s'H_{st}y_t=\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{\frac{(\text{tr} \ Y'A_{ij}X)^2}{d_{ij}^2(X)}\right\}\leq\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\text{tr}\ Y'A_{ij}Y=\text{tr}\ Y'B(X)Y.
-$$ Thus $$
+$$ 
+Thus 
+$$
 0\lesssim H\lesssim I_p\otimes B(X),
-$$ and $$
+$$ 
+and 
+$$
 I_p\otimes (V-B(X))\lesssim\mathcal{D}^2\sigma(X)\lesssim I_p\otimes V
-$$ At a local minimum of $\sigma$ $$
+$$ 
+At a local minimum of $\sigma$ 
+$$
 0\lesssim\mathcal{D}^2\sigma(X)\lesssim I_p\otimes V
-$$ In comparing the lower bounds on $\mathcal{D}^2\sigma(X)$ in ... and
+$$ 
+In comparing the lower bounds on $\mathcal{D}^2\sigma(X)$ in ... and
 ... @deleeuw_U_14b shows that $V-B(X)\gtrsim 0$ is sufficient for a
 *global* minimum of stress (but far from necessary).
 
@@ -637,7 +732,174 @@ $$ is positive
 
 bozo
 
+# Smacof Algorithm
 
 
+### Introduction to Majorization
+
+Majorization, these days better known as MM (@lange_16), is a general
+approach for the construction of minimization algorithms. There is also
+minorization, which leads to maximization algorithms, which explains the
+MM acronym: minorization for maximization and majorization for
+minimization.
+
+Before the MM principle was formulated as a general approach to
+algorithm construction there were some important predecessors. Major
+classes of MM algorithms avant la lettre were the *EM Algorithm* for
+maximum likelihood estimation of @dempster_laird_rubin_77, the *Smacof
+Algorithm* for MDS of @deleeuw_C_77, the *Generalized Weiszfeldt Method*
+of @vosz_eckhardt_80, and the *Quadratic Approximation Method* of
+@boehning_lindsay_88. The first formulation of the general majorization
+principle seems to be @deleeuw_C_94c.
+
+Let's start with a brief introduction to majorization. Minimize a real
+valued function $\sigma$ over $x\in\mathbb{S}$, where $\mathbb{S}$ is
+some subset of $\mathbb{R}^n$. There are obvious extensions of
+majorization to functions defined on more general spaces, with values in
+any partially ordered set, but we do not need that level of generality
+in this manual. Also majorization applied to $\sigma$ is minorization
+applied to $-\sigma$, so concentrating on majorization-minimization and
+ignoring minorization-maximization causes no loss of generality
+
+Suppose there is a real-valued function $\eta$ on
+$\mathbb{S}\otimes\mathbb{S}$ such that
+
+```{=tex}
+\begin{align}
+\sigma(x)&\leq\eta(x,y)\qquad\forall x,y\in\mathbb{S},(\#eq:maj1)\\
+\sigma(x)&=\eta(x,x)\qquad\forall x\in\mathbb{S}.(\#eq:maj2)
+\end{align}
+```
+The function $\eta$ is called a *majorization scheme* for $\sigma$ on
+$S$. A majorization scheme is *strict* if $\sigma(x)<\eta(x,y)$ for all
+$x,y\in S$ withj $x\not=y$.
+
+Define \begin{equation}
+x^{(k+1)}\in\mathop{\text{argmin}}_{x\in\mathbb{S}}\eta(x,x^{(k)}),
+(\#eq:majalg)
+\end{equation} assuming that $\eta(\bullet,y)$ attains its (not
+necessarily unique) minimum over $x\in\mathbb{S}$ for each $y$. If
+$x^{(k)}\in\mathop{\text{argmin}}_{x\in\mathbb{S}}\eta(x,x^{(k)})$ 
+then we stop.
+
+By majorization property \@ref(eq:maj1) 
+\begin{equation}
+\sigma(x^{(k+1)})\leq\eta(x^{(k+1)},x^{(k)}).
+\end{equation}
+Because we did not stop update rule \@ref(eq:majalg) implies 
+\begin{equation}
+\eta(x^{(k+1)},x^{(k)})<\eta(x^{(k)},x^{(k)}).
+\end{equation} 
+and finally by majorization property \@ref(eq:maj1)
+\begin{equation}
+\eta(x^{(k)},x^{(k)})=\sigma(x^{(k)}).
+\end{equation}
+
+If the minimum in \@ref(eq:majalg) is attained for a unique $x$ then
+$\eta(x^{(k+1)},x^{(k)})<\eta(x^{(k)},x^{(k)})$. If the majorization
+scheme is strict then $\sigma(x^{(k+1)})<\eta(x^{(k+1)},x^{(k)})$. Under
+either of these two additional conditions
+$\sigma(x^{(k+1)})<\sigma(x^{(k)})$, which means that the majorization
+algorithm is a monotone descent algorithm, and if $\sigma$ is bounded
+below on $\mathbb{S}$ the sequence $\sigma(x^{(k)})$ converges.
+
+Note that we only use the order relation to prove convergence of the
+sequence of function values. To prove convergence of the $x^{(k)}$ we
+need stronger compactness and continuity assumptions to apply the
+general theory of @zangwill_69a. For such a proof the argmin in update
+formula \@ref(eq:majalg) can be generalized to
+$x^{(k+1)}=\phi(x^{(k)})$, where $\phi$ maps $\mathbb{S}$ into
+$\mathbb{S}$ such that $\eta(\phi(x),x)\leq\sigma(x)$ for all $x$.
+
+We give a small illustration in which we minimize $\sigma$ with
+$\sigma(x)=\sqrt{x}-\log{x}$ over $x>0$. Obviously we do not need
+majorization here, because solving $\mathcal{D}\sigma(x)=0$ immediately
+gives $x=4$ as the solution we are looking for.
+
+To arrive at this solution using majorization we start with
+\begin{equation}
+\sqrt{x}\leq\sqrt{y}+\frac12\frac{x-y}{\sqrt{y}},
+(\#eq:sqrtmaj)
+\end{equation} which is true because a differentiable concave function
+such as the square root is majorized by its tangent everywhere.
+Inequality \@ref(eq:sqrtmaj) implies \begin{equation}
+\sigma(x)\leq\eta(x,y):=\sqrt{y}+\frac12\frac{x-y}{\sqrt{y}}-\log{x}.
+(\#eq:examplemaj)
+\end{equation} Note that $\eta(\bullet,y)$ is convex in its first
+argument for each $y$. We have $\mathcal{D}_1\eta(x,y)=0$ if and only if
+$x=2\sqrt{y}$ and thus the majorization algorithm is \begin{equation}
+x^{(k+1)}=2\sqrt{x^{(k)}}
+(\#eq:examplealg)
+\end{equation} The sequence $x^{(k)}$ converges monotonically to the
+fixed point $x=2\sqrt{x}$, i.e. to $x=4$. If $x^{(0)}<4$ the sequence is
+increasing, if $x^{(0)}<4$ it is decreasing. Also, by l'Hôpital,
+\begin{equation}
+\lim_{x\rightarrow 4}\frac{2\sqrt{x}-4}{x-4}=\frac12
+(\#eq:hopi1)
+\end{equation} and thus convergence to the minimizer is linear with
+asymptotic convergence rate $\frac12$. By another application of
+l'Hôpital \begin{equation}
+\lim_{x\rightarrow 4}\frac{\sigma(2\sqrt{x)})-\sigma(4)}{\sigma(x)-\sigma(4)}=\frac14,
+(\#eq:hopi2)
+\end{equation} and convergence to the minimum is linear with asymptotic
+convergence rate $\frac14$. Linear convergence to the minimizer is
+typical for majorization algorithms, as is the twice-as-fast linear
+convergence to the minimum value.
+
+This small example is also of interest, because we minimize a *DC
+function*, the difference of two convex functions. In our example the
+convex functions are minus the square root and minus the logarithm.
+Algorithms for minimizing DC functions define other important subclasses
+of MM algorithms, the *DC Algorithm* of Tao Pham Dinh (see @lethi_tao_18
+for a recent overview), the *Concave-Convex Procedure* of
+@yuille_rangarajan_03, and the *Half-Quadratic Method* of Donald Geman
+(see @nikolova_ng_05 for a recent overview). For each of these methods
+there is a huge literature, with surprisingly little non-overlapping
+literatures. The first phase of the smacof algorithm, in which we
+improve the configuration for given disparities, is DC, concave-convex,
+and half-quadratic.
+
+In the table below we show convergence of \@ref(eq:examplealg) starting
+at $x=1.5$. The first column show how far $x^{(k)}$ deviates from the
+minimizer (i.e. from 4), the second shows how far$\sigma(x^{(k)})$
+deviates from the minimum (i.e. from $2-\log 4$). We clearly see the
+convergence rates $\frac12$ and $\frac14$ in action.
+
+
+```
+## itel   1 2.5000000000 0.2055741244 
+## itel   2 1.5505102572 0.0554992066 
+## itel   3 0.8698308399 0.0144357214 
+## itel   4 0.4615431837 0.0036822877 
+## itel   5 0.2378427379 0.0009299530 
+## itel   6 0.1207437506 0.0002336744 
+## itel   7 0.0608344795 0.0000585677 
+## itel   8 0.0305337787 0.0000146606 
+## itel   9 0.0152961358 0.0000036675 
+## itel  10 0.0076553935 0.0000009172 
+## itel  11 0.0038295299 0.0000002293 
+## itel  12 0.0019152235 0.0000000573 
+## itel  13 0.0009577264 0.0000000143 
+## itel  14 0.0004788919 0.0000000036 
+## itel  15 0.0002394531 0.0000000009
+```
+
+The first three iterations are shown in the figure below. The vertical
+lines indicate the value of $x$, function is in red, and the first three
+majorizations are in blue.
+
+<img src="smacofIntro_files/figure-html/majplot-1.png" style="display: block; margin: auto;" />
+
+### Majorizing Stress
+
+
+# MDS topics not covered
+
+- asymmetric MDS
+- Non-Euclidean Distances
+- Non-Least-Squares Loss Functions
+- Rank Images
+- Shepard
+- McGee
 
 # References

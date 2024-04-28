@@ -156,7 +156,7 @@
 \title{Smacof at 50: A Manual\\
 Part 1: Smacof Basics}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started February 21 2024, Version of April 21, 2024}
+\date{Started February 21 2024, Version of April 22, 2024}
 
 \begin{document}
 \maketitle
@@ -172,7 +172,8 @@ TBD
 frequently. All suggestions for improvement are welcome. All Rmd, tex,
 html, pdf, R, and C files are in the public domain. Attribution will be
 appreciated, but is not required. The files can be found at
-\url{https://github.com/deleeuw/smacofCode}.
+\url{https://github.com/deleeuw} in the repositories smacofCode, smacofManual,
+and smacofExamples.
 
 \sectionbreak
 
@@ -196,30 +197,33 @@ theory, algorithms, and computer programs, the metric space is
 \end{equation}
 (the symbol \(:=\) is used for definitions). Note that \emph{distance matrix completion} (Fang and O'Leary (2012)) is an example of metric MDS.
 
-There is also something called \emph{non-metric MDS}. The terms is ambiguous and can mean either one of two things. One definition is that
+Besides metric MDS there is also something called \emph{non-metric MDS}. The terms is ambiguous and can mean either one of two things. One definition is that
 we do not have numerical information about the dissimilarities, but only
 ordinal of nominal information. In the ordinal case we know that some dissimilarities are larger or smaller than others, in the nominal case
 that the objects are partitioned into groups and within-group
 distances are smaller than between-group distances. An MDS analysis
 is also non-metric if we have numerical dissimilarities but we decide
-to use only the ordinal or nominal information as data in out MDS
-analysis. Thus our approximation problem is of the form
+to use only the ordinal or nominal information in the dissimilarities
+as data for our MDS analysis. The data are a binary relation \(\preceq_\delta\) on a subset of
+\(\mathcal{O}\times\mathcal{O}\). There is a second binary relation \(\preceq_d\) on
+\(\mathbb{R}_+\times\mathbb{R}_+\). We want to find the configuration \(X\)
+such that
 \begin{equation}
-\alpha\{(o_i,o_j),(o_k,o_l)\}\approx \beta(d_{ij}(X),d_{kl}(X)),
-\label{eq:mdsnonmetricformdef}
+(o_i,o_j)\preceq_\delta(o_k,o_l)\quad\Rightarrow\quad d_{ij}(X)\preceq_d d_{kl}(X).
+\label{eq:relations}
 \end{equation}
-where \(\alpha\) and \(\beta\) are appropriate binary relations.
+For most non-metric MDS problems both \(\preceq_\delta\) and \(\prec_d\) are partial orders, but for nominal data they can be equivalence relations.
 
-The term ``non-metric'' is also used in the case in which we do have numerical dissmilarities \(\delta_{ij}\), but the MDS problem is to find Euclidean distances which approximate some partially unknown function of the dissimilarities. The function should be member of a well-defined class of functions, for
+The term ``non-metric'' is sometimes also used in the case in which we do have numerical dissimilarities \(\delta_{ij}\), but the MDS problem is to find Euclidean distances which approximate some partially unknown function of the dissimilarities. The function should be member of a well-defined class of functions, for
 instance a third degree polynomial or a piecewise linear spline on a
-given knot sequence. The MDS techniquw not only find the map of
+given knot sequence. The MDS technique not only finds the map of
 \(\mathcal{O}\) into \(\mathbb{R}^p\), but also chooses a function \(f\)
 from the set \(\mathfrak{D}\) to improve the approximation.
 \begin{equation}
 f(\delta_{ij})\approx d_{ij}(X).
-\label{eq:mdsnonlineardef}
+\label{eq:mdsnldef}
 \end{equation}
-Note that \eqref{eq:mdsnonlineardef} implies that \(f\) is applied to each
+Note that \eqref{eq:mdsnldef} implies that \(f\) is applied to each
 dissimilarity separately. Thus \(\mathfrak{D}\) consists of real-valued
 functions of a single non-negative real variable.
 
@@ -232,49 +236,53 @@ additive constant (Messick and Abelson (1956)). And, as another consequence, \(\
 only a single element, the identity transformation, in which case
 non-linear MDS is metric MDS.
 
-One radical way to solve this terminological dilemma is to simply define
-MDS as solving
+One way to solve this terminological dilemma is to simply define
+MDS as finding an approximate solution \((X,\Delta)\) to
 \begin{subequations}
 \begin{align}
-D(X)&\approx\Delta,\label{eq:gmdsdef1}\\
-\Delta&\in\mathfrak{D},\label{eq:gmdsdef2}
+\Delta&\in\mathfrak{D}\label{eq:gmdsdef1},\\
+X&\in\mathfrak{X}\label{eq:gmdsdef2},\\
+D(X)&=\Delta\label{eq:gmdsdef3},
 \end{align}
 \end{subequations}
-where \(D(X)\) is the matrix of Euclidean distances and \(\mathfrak{D}\) is a set of \emph{transformed dissimilarities} in the non-linear case or a set of \emph{quantified dissimilarities} in the non-metric case. We can then freely discuss
+where \(D(X)\) is the matrix of Euclidean distances and \(\mathfrak{D}\) is the set of \emph{transformed dissimilarities} in the non-linear case or the set of \emph{quantified dissimilarities} in the non-metric case. We can then freely discuss
 metric MDS, linear MDS, non-linear MDS, and non-metric MDS as special cases,
 defined by different sets \(\mathfrak{D}\).
 
-\section{Kruskal's Stress}\label{kruskals-stress}
+\section{Loss Function}\label{loss-function}
 
 In the pioneering papers Kruskal (1964a) and Kruskal (1964b) the MDS problem
-was formulated for the first time as minimization of an explicit loss
-function, which measures the quality of the approximation of the
-dissimilarities by the distances. To be historically accurate, we should
-also mention that the non-metric MDS technique proposed by Shepard (1962a) and Shepard (1962b) can be reformulated as minimization of an explicit loss function (see, for example, De Leeuw (2017b)). In fact the classical Young-Householder-Torgerson MDS technique (Torgerson (1952)) for metric MDS also can be formulated as minimizing an explicit least squares loss function (De Leeuw and Heiser (1982)).
+was formulated for the first time as minimization of an explicit \emph{loss
+function} or \emph{badness-of-fit function}, which measures the quality of the approximation of the dissimilarities by the distances. To be historically accurate, we should
+mention that the non-metric MDS technique proposed by Shepard (1962a) and Shepard (1962b) can be reformulated as minimization of an explicit loss function (see, for example, De Leeuw (2017b)). And the classical Young-Householder-Torgerson MDS technique (Torgerson (1952)) for metric MDS can be reformulated as minimizing an explicit least squares loss function (De Leeuw and Heiser (1982)) as well.
+But neither of these two predecessors was formulated originally as an explicit minimization
+problem for a specific loss function
 
 \subsection{Metric MDS}\label{metric-mds}
 
 The loss function in least squares
-metric Euclidean MDS is called \emph{raw stress} or \emph{Kruskal's raw stress}
+metric Euclidean MDS is called \emph{raw stress}
 and is defined as
 \begin{equation}
-\sigma_R(X):=\frac12\sum w_{ij}(\delta_{ij}-d_{ij}(X))^2.
+\sigma_R(X):=\frac12\mathop{\sum\sum}_{1\leq j<i\leq n}w_{ij}(\delta_{ij}-d_{ij}(X))^2.
 \label{eq:stressdef}
 \end{equation}
+The subscript R in \(\sigma_R\) stands for ``raw'', because we will discuss
+other least squares loss functions for which we will also use the
+symbol \(\sigma\), but with other subscripts.
 
 In definition
 \eqref{eq:stressdef} the \(w_{ij}\) are known non-negative \emph{weights}, the
 \(\delta_{ij}\) are the known non-negative \emph{dissimilarities} between
 objects \(o_i\) and \(o_j\), and the \(d_{ij}(X)\) are the \emph{distances} between
 the corresponding points \(x_i\) and \(x_j\). The summation is over all
-\(\binom{n}{2}\) pairs \((i,j)\) with \(j>i\), i.e.~over elements below the
-diagonal of the matrices \(W\) and \(\Delta\). The subscript \(R\) in \(\sigma_R\)
-stands for ``raw''. From now on we use ``metric
-MDS'' to mean Least Squares Metric Euclidean MDS.
+pairs \((i,j)\) with \(w_{ij}>0\). From now on we use ``metric
+MDS'' to mean the minimization of \(\sigma_R\).
 
 The \(n\times p\) matrix \(X\), which has the coordinates \(x_i\) of the \(n\)
 points as its rows, is called the \emph{configuration}, where \(p\) is the
-\emph{dimension} of the Euclidean space in which we make the map. The metric MDS problem (of dimension \(p\), for given \(W\)
+\emph{dimension} of the Euclidean space in which we make the map.
+The metric MDS problem (of dimension \(p\), for given \(W\)
 and \(\Delta\)) is the minimization of \eqref{eq:stressdef} over the
 \(n\times p\) configurations \(X\).
 
@@ -283,7 +291,8 @@ precision or importance of the corresponding dissimilarities. Some of
 the weights may be zero, which can be used to code \emph{missing data}. If
 all weights are positive we have \emph{complete data}. If we have complete
 data, and all weights are equal to one, we have \emph{unweighted} metric MDS.
-The pioneering papers by Shepard, Kruskal, and Guttman only consider the unweighted case. Weights were only introduced in MDS in De Leeuw (1977).
+The pioneering papers by Shepard, Kruskal, and Guttman only consider the
+unweighted case. Weights were only introduced in MDS in De Leeuw (1977).
 
 We assume throughout that the weights are \emph{irreducible} (De Leeuw (1977)).
 This means there is no partitioning of the index set
@@ -300,7 +309,7 @@ the diagonal). The somewhat mysterious factor \(\frac12\) in definition
 \eqref{eq:stressdef} is there because it simplifies some of the formulas
 in later sections of this paper.
 
-\subsection{Non-linear and Non-metricMDS}\label{non-linear-and-non-metricmds}
+\subsection{Non-linear MDS}\label{non-linear-mds}
 
 Kruskal was not really interested in metric MDS and the ``raw'' loss
 function \eqref{eq:stressdef}. His papers are really about non-metric
@@ -354,9 +363,12 @@ and he actually takes the square root of \eqref{eq:nstressdef} to define
 loss function \eqref{eq:nstressdef} over all \(n\times p\) configurations
 \(X\) and all admissible disparities \(\Delta\).
 
+\subsection{Non-metric MDS}\label{non-metric-mds}
+
 \subsection{Normalization}\label{normalization}
 
-Equation \eqref{eq:nstressdef} is only one way to normalize raw stress. Some obvious alternatives are discussed in detail in
+Equation \eqref{eq:nstressdef} is only one way to normalize raw stress.
+Some obvious alternatives are discussed in detail in
 Kruskal and Carroll (1969) and De Leeuw (1975). In the terminology of
 De Leeuw (1975) there are \emph{explicit} and \emph{implicit} normalizations.
 
@@ -408,14 +420,41 @@ disparities and the sphere defined by \eqref{eq:explicit2} is equivalent
 to first projecting on the cone and then normalizing the projection (see
 also Bauschke, Bui, and Wang (2018)).
 
-In the version of non-metric MDS discussed in this manualwe need more flexibility. For algorithmic reasons that may become clear later on, we will go with the original \eqref{eq:nstressdef}, i.e.~with the implicitly normalized
+In the version of non-metric MDS discussed in this manual we need more flexibility. For algorithmic reasons that may become clear later on, we will go with the original \eqref{eq:nstressdef}, i.e.~with the implicitly normalized
 Kruskal's stress. For the final results the choice between normalizations should not make a difference, but the iterative computations will be different for the
-diufferent choices.
+different choices.
 
 \subsection{Some thoughts on ALS}\label{some-thoughts-on-als}
 
-I will take this opportunity to clear up some misunderstandings and
-confusions that have haunted the early development of non-metric MDS.
+The formulation in equations \eqref{eq:gmdsdef1} and \eqref{eq:gmdsdef2} neatly separates the
+metric MDS part \eqref{eq:gmdsdef1} and the transformation/quantification part \eqref{eq:gmdsdef2}.
+This second part is also often called the \emph{optimal scaling} part.
+
+Equations \eqref{eq:gmdsdef1} and \eqref{eq:gmdsdef2} corresponds with the way most iterative non-linear and non-metric MDS
+techniques are implemented. The algorithms use \emph{Alternating Least Squares} (ALS).
+There have been quite a few ALS algorithms avant-la-lettre, but as far as I know both the name
+and ALS as a general approach to algorithm construction were first introduced in De Leeuw (1968), and then widely disseminated in a series of papers by
+De Leeuw, Young, and Takane in the 1970's (work summarized in Young, De Leeuw, and Takane (1980) and Young (1981)).
+
+In the ALS implementation of MDS two sub-algorithms are used in each iteration: one to improve the fit of the distances to the current disparities
+\(\Delta\) and one to improve the fit of the disparities to the current distances.
+The two sub-algorithms define one major iteration of the MDS technique. In formulas
+(using superscript \((k)\) for major iteration number) we start with \((X^{(0)},\Delta^{(0)})\)
+and then alternate the mimization problems
+\begin{subequations}
+\begin{align}
+X^{(k+1)}&\ni\{\sigma(X^{(k+1)},\Delta^{(k)})=\min_{X\in\mathfrak{X}}\sigma(X,\Delta^{(k)})\},\\
+\Delta^{(k+1)}&\ni\{\sigma(X^{(k+1)},\Delta^{(k+1)})=\min_{\Delta\in\mathfrak{D}}\sigma(X^{(k+1)},\Delta)\},
+\end{align}
+\end{subequations}
+where \(\ni\) is short for ``such that''.
+In MDS it is more realistic not to minimize loss in the sub-steps but merely to decrease it. Minimization in one or both of the two subproblems may itself require an infinite iterative method, which we have to truncate anyway. Thus
+\begin{subequations}
+\begin{align}
+X^{(k+1)}\in\mathfrak{X}&\ni\{\sigma(X^{(k+1)},\Delta^{(k)})<\sigma(X^{(k)},\Delta^{(k)})\},\\
+\Delta^{(k+1)}\in\mathfrak{D}&\ni\{\sigma(X^{(k+1)},\Delta^{(k+1)})<\sigma(X^{(k+1)},\Delta^{(k)})\}.
+\end{align}
+\end{subequations}
 
 \subsubsection{The Single-Phase approach}\label{the-single-phase-approach}
 
@@ -982,6 +1021,24 @@ majorizations are in blue.
 
 \subsubsection{Majorizing Stress}\label{majorizing-stress}
 
+\section{MDS topics not covered}\label{mds-topics-not-covered}
+
+\begin{itemize}
+\tightlist
+\item
+  asymmetric MDS
+\item
+  Non-Euclidean Distances
+\item
+  Non-Least-Squares Loss Functions
+\item
+  Rank Images
+\item
+  Shepard
+\item
+  McGee
+\end{itemize}
+
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
 
@@ -993,8 +1050,11 @@ Bauschke, H. H., M. N. Bui, and X. Wang. 2018. {``{Projecting onto the Intersect
 \bibitem[\citeproctext]{ref-boehning_lindsay_88}
 Böhning, D., and B. G. Lindsay. 1988. {``{Monotonicity of Quadratic-approximation Algorithms}.''} \emph{Annals of the Institute of Statistical Mathematics} 40 (4): 641--63.
 
+\bibitem[\citeproctext]{ref-deleeuw_R_68d}
+De Leeuw, J. 1968. {``Nonmetric Discriminant Analysis.''} Research Note 06-68. Department of Data Theory, University of Leiden.
+
 \bibitem[\citeproctext]{ref-deleeuw_U_75a}
-De Leeuw, J. 1975. {``{A Normalized Cone Regression Approach to Alternating Least Squares Algorithms}.''} Department of Data Theory FSW/RUL.
+---------. 1975. {``{A Normalized Cone Regression Approach to Alternating Least Squares Algorithms}.''} Department of Data Theory FSW/RUL.
 
 \bibitem[\citeproctext]{ref-deleeuw_C_77}
 ---------. 1977. {``Applications of Convex Analysis to Multidimensional Scaling.''} In \emph{Recent Developments in Statistics}, edited by J. R. Barra, F. Brodeau, G. Romier, and B. Van Cutsem, 133--45. Amsterdam, The Netherlands: North Holland Publishing Company.
@@ -1067,6 +1127,12 @@ Torgerson, W. S. 1952. {``{Multidimensional Scaling: I. Theory and Method}.''} \
 
 \bibitem[\citeproctext]{ref-vosz_eckhardt_80}
 Vosz, H., and U. Eckhardt. 1980. {``{Linear Convergence of Generalized {W}eiszfeld's Method}.''} \emph{Computing} 25: 243--51.
+
+\bibitem[\citeproctext]{ref-young_81}
+Young, F. W. 1981. {``{Quantitative Analysis of Qualitative Data}.''} \emph{Psychometrika} 46: 357--88.
+
+\bibitem[\citeproctext]{ref-young_deleeuw_takane_C_80}
+Young, F. W., J. De Leeuw, and Y. Takane. 1980. {``Quantifying Qualitative Data.''} In \emph{Similarity and Choice. Papers in Honor of Clyde Coombs}, edited by E. D. Lantermann and H. Feger. Bern: Hans Huber.
 
 \bibitem[\citeproctext]{ref-yuille_rangarajan_03}
 Yuille, A. L., and A. Rangarajan. 2003. {``{The Concave-Convex Procedure}.''} \emph{Neural Computation} 15: 915--36.
