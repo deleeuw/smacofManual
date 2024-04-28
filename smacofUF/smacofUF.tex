@@ -66,6 +66,39 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{5}
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 \usepackage{tcolorbox}
 \usepackage{amssymb}
 \usepackage{yfonts}
@@ -123,7 +156,7 @@
 \title{Smacof at 50: A Manual\\
 Part 5: Unfolding in Smacof}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started December 12 2022, Version of April 21, 2024}
+\date{Started December 12 2022, Version of April 26, 2024}
 
 \begin{document}
 \maketitle
@@ -135,9 +168,68 @@ TBD
 \setcounter{tocdepth}{3}
 \tableofcontents
 }
-\textbf{Note:} This is a working paper which will be expanded/updated frequently. All suggestions for improvement are welcome.
+\textbf{Note:} This is a working manuscript which will be expanded/updated
+frequently. All suggestions for improvement are welcome. All Rmd, tex,
+html, pdf, R, and C files are in the public domain. Attribution will be
+appreciated, but is not required. The files can be found at
+\url{https://github.com/deleeuw} in the repositories smacofCode, smacofManual,
+and smacofExamples.
 
-\section{Elegant}\label{elegant}
+\subsection{Metric Unfolding}\label{metric-unfolding}
+
+Metric unfolding is a special case of metric MDS, as implemented for example
+in smacofAC. Thus we minimize stress defined as
+\begin{equation}
+\sigma(X)=\sum_{i=1}^{N}\sum_{j=1}^{N}w_{ij}(\delta_{ij}-d_{ij}(X))^2.
+\end{equation}
+For unfolding
+\[
+W=
+\kbordermatrix{
+&n&m\\
+n&0&U\\
+m&U'&0
+}
+\]
+In other words there is a set of \(n\) row-objects and a set of \(m\) column-objects. The withiin-set
+dissimilarities are missing, or ignored, and only the between-set dissimilarities are fitted.
+If we partition \(X\) as
+\[
+X=
+\kbordermatrix{
+\mbox{\ }&p\\
+n&Y\\
+m&Z
+}
+\]
+then we can also write
+\begin{equation}
+\sigma(Y,Z)=\sum_{i=1}^n\sum_{j=1}^mu_{ij}(\delta_{ij}-d(y_i,z_j))^2.
+\end{equation}
+
+By defining
+\[
+X=
+\kbordermatrix{
+\mbox{\ }&p\\
+n&Y\\
+m&Z
+}
+\]
+and
+\[
+W=
+\kbordermatrix{
+&n&m\\
+n&0&U\\
+m&U'&0
+}
+\]
+we can write
+
+The multidimensional unfolding model for preference judgments is often attributed to (\textbf{coombs?}), (\textbf{kruskal\_carroll?}), (\textbf{roskam?})
+
+\section{Initial Configuration}\label{initial-configuration}
 
 \[
 \sigma(C)=\sigma(\tilde C+(C-\tilde C))=\sum_{i=1}^n\sum_{j=1}^m((\delta_{ij}^2-\text{tr}\ A_{ij}\tilde C)-\text{tr}\ A_{ij}(C-\tilde C))^2
@@ -146,7 +238,7 @@ TBD
 \sigma(C)=\sigma(\tilde C)-2\sum_{i=1}^n\sum_{j=1}^m(\delta_{ij}^2-\text{tr}\ A_{ij}\tilde C)\text{tr}\ A_{ij}(C-\tilde C)+\sum_{i=1}^n\sum_{j=1}^m\{\text{tr}\ A_{ij}(C-\tilde C)\}^2
 \]
 
-From (\textbf{deleeuw\_groenen\_pietersz?})
+From De Leeuw, Groenen, and Pietersz (2006)
 \[
 \sum_{i=1}^n\sum_{j=1}^m\{\text{tr}\ A_{ij}(C-\tilde C)\}^2\leq (n+m+2)\text{tr}\ (C-\tilde C)^2
 \]
@@ -159,6 +251,15 @@ So we minimize
 -2\ \text{tr}\ B(\tilde C)C+\text{tr}\ C^2-2\text{tr}\ C\tilde C=\\
 \text{tr}\ (C-\{\tilde C + B(\tilde C)\})^2
 \]
-\# References
+
+\section*{References}\label{references}
+\addcontentsline{toc}{section}{References}
+
+\phantomsection\label{refs}
+\begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-deleeuw_groenen_pietersz_U_06}
+De Leeuw, J., P. J. F. Groenen, and R. Pietersz. 2006. {``{Optimizing Functions of Squared Distances}.''} UCLA Department of Statistics. \url{https://jansweb.netlify.app/publication/deleeuw-groenen-pietersz-u-06/deleeuw-groenen-pietersz-u-06.pdf}.
+
+\end{CSLReferences}
 
 \end{document}

@@ -43,7 +43,67 @@ appreciated, but is not required. The files can be found at
 <https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
 and smacofExamples.
 
-# Elegant
+
+## Metric Unfolding
+
+Metric unfolding is a special case of metric MDS, as implemented for example
+in smacofAC. Thus we minimize stress defined as
+\begin{equation}
+\sigma(X)=\sum_{i=1}^{N}\sum_{j=1}^{N}w_{ij}(\delta_{ij}-d_{ij}(X))^2.
+\end{equation}
+For unfolding
+$$
+W=
+\kbordermatrix{
+&n&m\\
+n&0&U\\
+m&U'&0
+}
+$$
+In other words there is a set of $n$ row-objects and a set of $m$ column-objects. The withiin-set
+dissimilarities are missing, or ignored, and only the between-set dissimilarities are fitted.
+If we partition $X$ as
+$$
+X=
+\kbordermatrix{
+\mbox{\ }&p\\
+n&Y\\
+m&Z
+}
+$$
+then we can also write
+\begin{equation}
+\sigma(Y,Z)=\sum_{i=1}^n\sum_{j=1}^mu_{ij}(\delta_{ij}-d(y_i,z_j))^2.
+\end{equation}
+
+
+By defining 
+$$
+X=
+\kbordermatrix{
+\mbox{\ }&p\\
+n&Y\\
+m&Z
+}
+$$
+and
+$$
+W=
+\kbordermatrix{
+&n&m\\
+n&0&U\\
+m&U'&0
+}
+$$
+we can write
+
+
+
+The multidimensional unfolding model for preference judgments is often attributed to @coombs, @kruskal_carroll, @roskam
+
+
+
+# Initial Configuration
 
 $$
 \sigma(C)=\sigma(\tilde C+(C-\tilde C))=\sum_{i=1}^n\sum_{j=1}^m((\delta_{ij}^2-\text{tr}\ A_{ij}\tilde C)-\text{tr}\ A_{ij}(C-\tilde C))^2
@@ -52,7 +112,7 @@ $$
 \sigma(C)=\sigma(\tilde C)-2\sum_{i=1}^n\sum_{j=1}^m(\delta_{ij}^2-\text{tr}\ A_{ij}\tilde C)\text{tr}\ A_{ij}(C-\tilde C)+\sum_{i=1}^n\sum_{j=1}^m\{\text{tr}\ A_{ij}(C-\tilde C)\}^2
 $$
 
-From @deleeuw_groenen_pietersz
+From @deleeuw_groenen_pietersz_U_06
 $$
 \sum_{i=1}^n\sum_{j=1}^m\{\text{tr}\ A_{ij}(C-\tilde C)\}^2\leq (n+m+2)\text{tr}\ (C-\tilde C)^2
 $$
@@ -65,4 +125,49 @@ $$
 -2\ \text{tr}\ B(\tilde C)C+\text{tr}\ C^2-2\text{tr}\ C\tilde C=\\
 \text{tr}\ (C-\{\tilde C + B(\tilde C)\})^2
 $$
+# Constraints
+
+## Centroid Restriction
+
+$$
+\begin{bmatrix}
+X\\Y
+\end{bmatrix}=
+\begin{bmatrix}
+I\\
+D^{-1}G'
+\end{bmatrix}
+X
+$$
+
+
+## Linearly Restricted Unfolding
+
+$$
+\begin{bmatrix}
+X\\Y
+\end{bmatrix}=
+\begin{bmatrix}
+R&0\\
+0&S
+\end{bmatrix}
+\begin{bmatrix}
+P\\
+Q
+\end{bmatrix}
+$$
+## Normalization Restrictions
+
+$\text{tr}\ X'V_{11}X=1$ or $X'V_{11}X=I$.
+
+
+# Examples 
+
+## Roskam
+
+## Breakfast
+
+## Gold
+
+
 # References
