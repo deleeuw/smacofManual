@@ -43,67 +43,78 @@ appreciated, but is not required. The files can be found at
 <https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
 and smacofExamples.
 
+# Introduction
 
-## Metric Unfolding
-
-Metric unfolding is a special case of metric MDS, as implemented for example
-in smacofAC. Thus we minimize stress defined as
+In Multidimensional Unfolding (MDU) the objects of an MDS problem are partitioned into two sets.
+There is a set of $n$ row-objects and a set of 
+$m$ column-objects, and a corresponding $n\times p$ row-configuration $X$ and $m\times p$ column-configuration
+$Y$. We minimize stress defined as
 \begin{equation}
-\sigma(X)=\sum_{i=1}^{N}\sum_{j=1}^{N}w_{ij}(\delta_{ij}-d_{ij}(X))^2.
+\sigma(X,Y):=\sum_{i=1}^{n}\sum_{j=1}^{n}w_{ij}(\delta_{ij}-d(x_i,y_j)^2.
+(\#eq:ufstress)
 \end{equation}
-For unfolding
-$$
-W=
-\kbordermatrix{
-&n&m\\
-n&0&U\\
-m&U'&0
-}
-$$
-In other words there is a set of $n$ row-objects and a set of $m$ column-objects. The withiin-set
-dissimilarities are missing, or ignored, and only the between-set dissimilarities are fitted.
-If we partition $X$ as
-$$
-X=
+over both $X$ and $Y$. Here
+\begin{equation}
+d(x_i,y_j):=\sqrt{(x_i-y_j)'(x_i-y_j)}
+(\#eq:ufdist)
+\end{equation}
+Thus the within-set
+dissimilarities are missing, or ignored even if they are available, and only the between-set dissimilarities are fitted by between-set distances. 
+ 
+If we define $Z$ as
+\begin{equation}
+Z:=
 \kbordermatrix{
 \mbox{\ }&p\\
-n&Y\\
-m&Z
+n&X\\
+m&Y
 }
-$$
+(\#eq:ufzdef)
+\end{equation}
+and $U$ as
+\begin{equation}
+U:=
+\kbordermatrix{
+&n&m\\
+n&0&W\\
+m&W'&0
+}
+(\#eq:ufudef)
+\end{equation}
 then we can also write
 \begin{equation}
-\sigma(Y,Z)=\sum_{i=1}^n\sum_{j=1}^mu_{ij}(\delta_{ij}-d(y_i,z_j))^2.
+\sigma(Z)=\sum_{i=1}^{n+m}\sum_{j=1}^{n+m}u_{ij}(\delta_{ij}-d_{ij}(Z))^2.
+(\#eq:ufzstress)
 \end{equation}
 
+Data Preferences Type A and Type B Conditional
 
-By defining 
-$$
-X=
-\kbordermatrix{
-\mbox{\ }&p\\
-n&Y\\
-m&Z
-}
-$$
-and
-$$
-W=
-\kbordermatrix{
-&n&m\\
-n&0&U\\
-m&U'&0
-}
-$$
-we can write
+The unfolding model for preference judgments is often attributed to @coombs_50,
+with further developments by Coombs and his co-workers reviewed in @coombs_64.
+After this path-breaking work the digital computer took over, and minimization of loss function
+\@ref(eq:ufstress) and its variations was started by 
+@roskam_68 and @kruskal_carroll_69.
 
+In this manual we are not interested in MDU as a psychological theory, as a model for
+preference judgments. We merely are interested in mapping off-diagonal dissimilarity
+relations into low-dimensional Euclidean space, i.e. in making a picture of the
+data. In some cases (distance completion, distances with errors, spatial basis)
 
+Challenges: degeneracy
 
-The multidimensional unfolding model for preference judgments is often attributed to @coombs, @kruskal_carroll, @roskam
+# Loss function
 
+## Metric
 
+## Non-linear
 
-# Initial Configuration
+## Non-metric
+
+## Constraints
+
+# smacofUF
+
+## Initial Configuration
 
 $$
 \sigma(C)=\sigma(\tilde C+(C-\tilde C))=\sum_{i=1}^n\sum_{j=1}^m((\delta_{ij}^2-\text{tr}\ A_{ij}\tilde C)-\text{tr}\ A_{ij}(C-\tilde C))^2
@@ -125,23 +136,45 @@ $$
 -2\ \text{tr}\ B(\tilde C)C+\text{tr}\ C^2-2\text{tr}\ C\tilde C=\\
 \text{tr}\ (C-\{\tilde C + B(\tilde C)\})^2
 $$
-# Constraints
 
-## Centroid Restriction
+## Constraints
+
+### Centroid Restriction
 
 $$
-\begin{bmatrix}
+Z=\begin{bmatrix}
 X\\Y
 \end{bmatrix}=
 \begin{bmatrix}
 I\\
 D^{-1}G'
-\end{bmatrix}
-X
+\end{bmatrix}X=HX
+$$
+Minimize $\text{tr}\ (\overline{Z}-HX)'V(\overline{Z}-HX)$. If there are
+no further restrictions on $X$ the minimum is attained at $\hat X=(H'VH)^+H'V\overline{Z}$.
+Otherwise write $X=\hat X+(X-\hat X)$. Then
+$$
+\text{tr}\ (\overline{Z}-H\hat X-H(X-\hat X))'V(\overline{Z}-H\hat X-H(X-\hat X))=\\
+\text{tr}\ (\overline{Z}-H\hat X)'V(\overline{Z}-H\hat X)+
+\text{tr}\ (X-\hat X)'H'VH(X-\hat X)
+$$
+and we must minimize $\text{tr}\ (X-\hat X)'H'VH(X-\hat X)$ for example over $X'H'VHX=I$.
+That is maximizing $H'VH\hat X=H'VHXM$ with $M$ a symmetric matrix of Lagrange multipliers.
+Thus $M^2=\hat X'H'VH\hat X$ and $X=\hat X(\hat X'H'VH\hat X)^{-\frac12}$. 
+
+Over $\text{tr}\ X'H'VHX=1$ we get $H'VH(X-\hat X)=\lambda H'VHX$ or 
+$X=(1-\lambda)H'VHX=H'VH\hat X$, wich means $X$ is proportional to $\hat X$ and we just have to normalize $\hat X$ to find $X$.
+
+The constraint $X'V_{11}X=I$ is more difficult to deal with 
+$$
+\text{tr}\ (X-\hat X)'H'VH(X-\hat X)=
 $$
 
+Oblique Procrustus
 
-## Linearly Restricted Unfolding
+### Linearly Restricted Unfolding
+
+#### External Unfolding
 
 $$
 \begin{bmatrix}
@@ -156,18 +189,39 @@ P\\
 Q
 \end{bmatrix}
 $$
-## Normalization Restrictions
+### Normalization Restrictions
 
-$\text{tr}\ X'V_{11}X=1$ or $X'V_{11}X=I$.
+$X'V_{11}X=I$.
 
+### Rank-one Restriction
+
+$Y=za'$
+
+Minimize
+$$
+2\ \text{tr}\ (za'-\overline{Y})'V_{21}(X-\overline{X})+
+\text{tr}\ (za'-\overline{Y})'V_{22}(za'-\overline{Y})
+$$
+Removing irrelevant terms
+$$
+2\ z'\{V_{21}(X-\overline{X})-V_{22}\overline{Y}\}a+
+a'a.z'V_{22}z
+$$
+Let $H=-V_{21}(X-\overline{X})-V_{22}\overline{Y}$. Minimize using $z'V_{22}z=1$.
+$$
+a=H'z=\{\overline{Y}'V_{22}-(X-\overline{X})'V_{12})\}z
+$$
 
 # Examples 
+
 
 ## Roskam
 
 ## Breakfast
 
 ## Gold
+
+## Indicator matrix / Matrices
 
 
 # References
