@@ -229,8 +229,10 @@ Roskam (1968) and Kruskal and Carroll (1969).
 
 In this manual we are not interested in MDU as a psychological theory, as a model for
 preference judgments. We merely are interested in mapping off-diagonal dissimilarity
-comparisons into low-dimensional Euclidean space, i.e.~in making a picture of the
+relations into low-dimensional Euclidean space, i.e.~in making a picture of the
 data. In some cases (distance completion, distances with errors, spatial basis)
+
+Challenges: degeneracy
 
 \section{Loss function}\label{loss-function}
 
@@ -341,6 +343,24 @@ Let \(H=-V_{21}(X-\overline{X})-V_{22}\overline{Y}\). Minimize using \(z'V_{22}z
 \[
 a=H'z=\{\overline{Y}'V_{22}-(X-\overline{X})'V_{12})\}z
 \]
+
+\section{Indicator Matrices}\label{indicator-matrices}
+
+Suppose \(G_1,\cdots,G_m\) are indicator matrices, all with \(n\) rows, but with
+\(k_1,\cdots,k_m\) columns. Their elements are \(g_{il}^j\) with \(i=1,\cdots,n\)
+and \(l=1,\cdots,k_j\). Thus \(g_{il}^j\) is either zero or one, and
+\[
+\sum_{l=1}^{k_j}g_{il}^j=1
+\]
+for all \(i=1,\cdots,n\) and \(j=1,\cdots,m\).
+
+Now define the smacof loss function
+\[
+\sigma(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m\sum_{i=1}^n\sum_{l=1}^{k_j}w_{il}^j(\delta_{il}^j-d(x_i,y^j_l))^2
+\]
+with \(w_{il}^j=g_{il}^j\) and \(\delta_{il}^j=1-g_{il}^j\). This means we are
+aiming for \(d(x_i,y^j_l)=0\) whenever \(g_{il}^j=1\) and we do not care what
+\(d(x_i,y^j_l)\) is when \(g_{il}^j=0\).
 
 \section{Examples}\label{examples}
 

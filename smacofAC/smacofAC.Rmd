@@ -1,7 +1,7 @@
 ---
 title: |
     | Smacof at 50: A Manual
-    | Part 2: Metric Smacof with Additive Constant
+    | Part 2: Metric Smacof
 author: 
 - Jan de Leeuw - University of California Los Angeles
 date: '`r paste("Started December 12 2022, Version of",format(Sys.Date(),"%B %d, %Y"))`'
@@ -27,12 +27,11 @@ bibliography: ["mypubs.bib","total.bib"]
 abstract: TBD
 ---
 ```{r loadpackages, echo = FALSE}
-#suppressPackageStartupMessages (library (foo, quietly = TRUE))
+library(smacofAC)
 ```
 
 ```{r load code, echo = FALSE}
-#dyn.load("foo.so")
-#source("janUtil.R")
+source("gruijterFour.R")
 ```
 
 
@@ -42,7 +41,367 @@ html, pdf, R, and C files are in the public domain. Attribution will be
 appreciated, but is not required. The files can be found at
 <https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
 and smacofExamples.
+
 # Introduction
 
+In this part of the manual we discuss metric MDS, and the program
+smacofAC.
+
+# Bells and Whistles
+
+There are two options, *bounds* and *constant*, to make smacofAC more interesting and more widely applicable. Using these options the metric MDS problem becomes minimization of
+$$
+\sigma(X,\hat D)=\sum\sum w_{ij}(\hat d_{ij}-d_{ij}(X))^2
+$$
+over both $X$ and $\hat D$, allowing some limited "metric" transformations of the data $\Delta$.
+The four "metric" types of transformations are
+
+1. type AC1: if bounds = 1 and constant = 1 $\delta^-_{ij}+c\leq\hat d_{ij}\leq\delta^+_{ij}+c$ for some $c$,
+2. type AC2: if bounds = 0 and constant = 1 $\hat d_{ij}=\delta_{ij}+c$ for some $c$,
+3. type AC3: if bounds = 1 and constant = 0 $\delta^-_{ij}\leq\hat d_{ij}\leq\delta^+_{ij}$,
+4. type AC4: if bounds = 0 and constant = 0 $\hat d_{ij}=\delta_{ij}$.
+
+In addition all four types require that $\hat d_{ij}\geq 0$ for all $(i,j)$. Note that for
+types AC1 and AC2 the data $\Delta$ do not need to be non-negative. In fact,
+the original motivation for the additive constant in classical scaling (@messick_abelson_56)
+was that Thurstonian analysis of paired or triadic comparisons produced dissimilarities on an interval scale, and thus could very well include negative values. The non-negativity requirement
+for $\hat D$ means in the case of AC2 that $c\geq-\min\delta_{ij}$. For AC1 it means
+$c\geq-\min\delta_{ij}^+$. 
+
+In AC1 and AC3 there is no mention of $\Delta$, which means
+the bounds $\Delta^-$ and $\Delta^+$ are actually the data.  We could
+collect dissimilarity data by asking subjects for interval judgments. Instead
+of a rating scale with possible responses from one to ten we could ask
+for a mark on a line between zero and ten, and then interpret the
+marks as a choice of one of the intervals $[k, k+1]$. These finite precision
+or interval type of data could even come from physical measurements of distances.
+Thus the bounds parameter provides one way to incorporate uncertainty into MDS, similar to interval analysis, fuzzy computing, or soft computing.
+
+
+
+makes sense to choose both $\Delta^-$ and $\Delta^+$ to be monotone with $\Delta$,
+although there is no requirement to do so.
+
+
+## Type AC2
+
+@cooper_72
+
+## Type AC1
+
+```{r gruijterband, echo = FALSE}
+gruijter <-
+  structure(
+    c(
+      5.63,
+      5.27,
+      4.6,
+      4.8,
+      7.54,
+      6.73,
+      7.18,
+      6.17,
+      6.72,
+      5.64,
+      6.22,
+      5.12,
+      4.59,
+      7.22,
+      5.47,
+      5.46,
+      4.97,
+      8.13,
+      7.55,
+      6.9,
+      4.67,
+      3.2,
+      7.84,
+      6.73,
+      7.28,
+      6.13,
+      7.8,
+      7.08,
+      6.96,
+      6.04,
+      4.08,
+      6.34,
+      7.42,
+      6.88,
+      6.36,
+      7.36
+    ),
+    Labels = c("KVP", "PvdA", "VVD",
+               "ARP", "CHU", "CPN", "PSP", "BP", "D66"),
+    Size = 9L,
+    call = quote(as.dist.default(m = polpar)),
+    class = "dist",
+    Diag = FALSE,
+    Upper = FALSE
+  )
+delta <-
+c(5.6299999999999999, 5.2699999999999996, 6.7199999999999998, 
+4.5999999999999996, 5.6399999999999997, 5.46, 4.7999999999999998, 
+6.2199999999999998, 4.9699999999999998, 3.2000000000000002, 7.5399999999999991, 
+5.1200000000000001, 8.1300000000000008, 7.8399999999999999, 7.8000000000000007, 
+6.7300000000000004, 4.5899999999999999, 7.5500000000000007, 6.7300000000000004, 
+7.0800000000000001, 4.0800000000000001, 7.1799999999999997, 7.2200000000000006, 
+6.9000000000000004, 7.2799999999999994, 6.96, 6.3399999999999999, 
+6.8799999999999999, 6.1699999999999999, 5.4699999999999998, 4.6699999999999999, 
+6.1299999999999999, 6.04, 7.4199999999999999, 6.3600000000000003, 
+7.3599999999999994)
+deltaup <-
+c(6.6299999999999999, 6.2699999999999996, 7.7199999999999998, 
+5.5999999999999996, 6.6399999999999997, 6.46, 5.7999999999999998, 
+7.2199999999999998, 5.9699999999999998, 4.2000000000000002, 8.5399999999999991, 
+6.1200000000000001, 9.1300000000000008, 8.8399999999999999, 8.8000000000000007, 
+7.7300000000000004, 5.5899999999999999, 8.5500000000000007, 7.7300000000000004, 
+8.0800000000000001, 5.0800000000000001, 8.1799999999999997, 8.2200000000000006, 
+7.9000000000000004, 8.2799999999999994, 7.96, 7.3399999999999999, 
+7.8799999999999999, 7.1699999999999999, 6.4699999999999998, 5.6699999999999999, 
+7.1299999999999999, 7.04, 8.4199999999999999, 7.3600000000000003, 
+8.3599999999999994)
+deltalow <-
+c(4.6299999999999999, 4.2699999999999996, 5.7199999999999998, 
+3.6000000000000001, 4.6399999999999997, 4.46, 3.7999999999999998, 
+5.2199999999999998, 3.9700000000000002, 2.2000000000000002, 6.54, 
+4.1200000000000001, 7.1299999999999999, 6.8399999999999999, 6.7999999999999998, 
+5.7300000000000004, 3.5899999999999999, 6.5499999999999998, 5.7300000000000004, 
+6.0800000000000001, 3.0800000000000001, 6.1799999999999997, 6.2199999999999998, 
+5.9000000000000004, 6.2800000000000002, 5.96, 5.3399999999999999, 
+5.8799999999999999, 5.1699999999999999, 4.4699999999999998, 3.6699999999999999, 
+5.1299999999999999, 5.04, 6.4199999999999999, 5.3600000000000003, 
+6.3600000000000003)
+d <-
+c(3.871207766190444, 1.8319047832010886, 0.53496450140168206, 
+1.0570460503570975, 6.5460882358086439, 5.3353613485688216, 6.3504113031730851, 
+0.97366371970605381, 5.4614585638005391, 4.2698417523506134, 
+4.8819354290560826, 3.7843265248031295, 1.9798092560782252, 6.9671914454182771, 
+2.9240355353919849, 1.8201100730224262, 0.87441163470059835, 
+7.4611500144712659, 6.6063630073226109, 5.7234127522375164, 2.5908170902584402, 
+0.94890094179187523, 7.0672455530556908, 5.8149632659593715, 
+6.7816922829827906, 1.4525592012745727, 7.2705004318775952, 6.2212248463093065, 
+6.2307634687785685, 1.9579624697269491, 1.8799625839015064, 5.5796101124466082, 
+5.6358819905668787, 6.3555851821541518, 4.3666949625103255, 6.0944571154593339
+)
+```
+Of the four regression problems only the one with bounds = 1 and constant = 1 is non-trivial.
+It may help to give an example of what it actually requires. We use the De Gruijter example
+with $\delta_{ij}^-=\delta_{ij}-1$ and $\delta_{ij}^+=\delta_{ij}-1$. 
+```{r gruijter, echo = FALSE}
+gruijter
+```
+The distances are
+taken from the Torgerson solution. 
+
+
+The Shepard plot is in figure \@ref(fig:bandplot). The two
+lines are connecting the $\delta_{ij}^-$ and the $\delta_{ij}^+$, i.e. they give
+the bounds for $c=0$. In our example the lines are parallel, because $\delta_{ij}^+-\delta_{ij}^-=2$ for all $(i,j)$, but in general this may not be the case.
+We could, for example, set $\delta_{ij}^+=(1+\alpha)\delta_{ij}$ and 
+$\delta_{ij}^-=(1-\alpha)\delta_{ij}$, in which case the region between $\delta^-$
+and $\delta^+$ is like a trumpet.
+The bounds $\delta_{ij}^-$ and $\delta_{ij}^+$ are not necessarily a monotone function of $\delta$, in fact there may not even be a $\delta$. Also note that the $\delta_{ij}^-$ are not necessarily non-negative.
+
+The points between the two lines do not contribute to the loss, and
+the points outside the strip contribute by how much they are outside.
+
+
+```{r bandplot, fig.align = "center", fig.cap = "De Gruijter Shepard Plot", echo = FALSE}
+par(pty = "s")
+plot(delta, d, col = "RED", pch = 16, xlab = "dissimilarity", ylab = "distance")
+lines(delta, deltalow, col = "BLUE", lwd = 2)
+lines(delta, deltaup, col = "BLUE", lwd = 2)
+n <- length(delta)
+for (i in 1:n) {
+  if ((d[i] <= deltaup[i]) && (d[i] >= deltalow[i])) {
+    next
+  }
+  if (d[i] < deltalow[i]) {
+    lines(matrix(c(delta[i], d[i], delta[i], deltalow[i]), 2, 2, byrow = TRUE))
+  }
+  if (d[i] > deltaup[i]) {
+    lines(matrix(c(delta[i], d[i], delta[i], deltaup[i]), 2, 2, byrow = TRUE))
+  }
+}
+```
+By varying $c$ we shift the region between the two parallel lines upwards or downwards. The width of the region, or more generally the shape, always remains the same, because it is determined by the difference of $\delta^+$ and $\delta^-$ and does not depend on $c$. The
+optimal $c$ is the shift for which the red $(\delta_{ij},d_{ij}(X))$ points are optimally within the strip between the $\delta^-$ and $\delta^+$ lines. This is in the least squares sense, which
+means that we minimize the horizontal squared distances from the points outside the strip to the
+$\delta^-$ and $\delta^+$ lines.
+
+Let's formalize this. Define
+\begin{equation}
+\phi_{ij}(c):=\min_{\delta_{ij}\geq 0}\{(\delta_{ij}-d_{ij}(X))^2\mid \delta^-_{ij}+c\leq\delta_{ij}\leq\delta^+_{ij}+c\}
+(\#eq:phiijdef)
+\end{equation}
+and
+\begin{equation}
+\phi(c):=\sum\sum w_{ij}\phi_{ij}(c)
+(\#eq:phidef)
+\end{equation}
+The constraints are consistent if $\delta_{ij}^++c\geq 0$, i.e. if $c\geq c_0:=-\min\delta_{ij}^+$.
+The regression problem is to minimize $\phi$ over $c\geq c_0:=-\min\delta_{ij}^+$. At first sight it seems this we should require the stricter bound $c\geq-\min\delta_{ij}^-$, which implies
+that $\delta_{ij}\geq 0$ if $\delta^-_{ij}+c\leq\delta_{ij}\leq\delta^+_{ij}+c$. If we use the more relaxed bound $c\geq c_0$ then $\delta_{ij}^-+c$ can be negative. But since $d_{ij}(X)\geq 0$ the algorithm never chooses a negative $\delta_{ij}$, in fact $\delta_{ij}=0$ if and only if $d_{ij}(X)=0$.
+
+```{r onefuncdef, echo = FALSE}
+fc <- function(c, d, delta, dlow, dup) {
+  if (d < (dlow + c)) {
+    return ((d - (dlow + c)) ^ 2)
+  }
+  if (d > (dup + c)) {
+    return ((d - (dup + c)) ^ 2)
+  }
+  else {
+    return(0)
+  }
+}
+c <- seq(-5, 5, length = 100)
+f <- rep(0, length = 100)
+k <- 10
+for (i in 1:100) {
+f[i] <- fc(c[i], d[k], delta[k], deltalow[k], deltaup[k])
+}
+```
+
+Figure \@ref(fig:onefunc) has an example of one of the $\phi_{ij}$. The value of 
+$d_{ij}(X)$ is `r d[k]`, $\delta_{ij}^0$ is `r delta[k]`, $\delta_{ij}^-$ is `r deltalow[k]`,
+and $\delta_{ij}^+$ is `r deltaup[k]`.
+The two vertical lines
+are at $c=d_{ij}(X)-\delta_{ij}^+$ and $c=d_{ij}(X)-\delta_{ij}^-$. Between those
+two lines $\phi_{ij}$ is zero bercause $\hat d_{ij}=d_{ij}(X)$. If $c\geq d_{ij}(X)-\delta_{ij}^-$  then $\hat d_{ij}=\delta_{ij}^-+c$ and $\phi_{ij}$
+is the quadratic $(d_{ij}(X)-(\delta_{ij}^-+c))^2$. If $c\leq d_{ij}(X)-\delta_{ij}^+$
+then $\hat d_{ij}=\delta_{ij}^++c$ and  $\phi_{ij}$
+is the quadratic $(d_{ij}(X)-(\delta_{ij}^++c))^2$. It follows that $\phi_{ij}$ is
+piecewise quadratic, convex, and continuously differentiable. The derivative
+is piecewise linear, continuous, and increasing. In fact
+\begin{equation}
+\mathcal{D}\phi_{ij}(c)=\begin{cases}
+2(c-(d_{ij}(X)-\delta_{ij}^+))&\text{ if }c\leq d_{ij}(X)-\delta_{ij}^+,\\
+2(c-(d_{ij}(X)-\delta_{ij}^-))&\text{ if }c\geq d_{ij}(X)-\delta_{ij}^-\,\\
+0&\text{ otherwise}.
+\end{cases}(\#eq:derivs)
+\end{equation}
+
+
+```{r onefunc, echo = FALSE, fig.cap = "De Gruijter Example, One Phi_ij"}
+plot(c, f, type = "l", xlab = "c", ylab = "phi(i,j)", col = "BLUE", lwd = 2)
+abline(v = d[k] - deltalow[k])
+abline(v = d[k] - deltaup[k])
+```
+
+Since $\phi$ is a positive linear combination of the $\phi_{ij}$ it is also piecewise quadratic, convex, and continuously differentiable
+with a continuous piecewise linear increasing derivative. Note $\phi$ is **not** twice-differentiable
+and **not** strictly convex. Figure \@ref(fig:morefunc) has a plot of $\phi$ for the De Gruijter
+example. The red vertical line is at $c=c_0$.
+
+```{r gcfunc, echo = FALSE}
+gc <- function(c, d, delta, deltalow, deltaup) {
+  n <- length(delta)
+  s <- 0
+  for (k in 1:n) {
+    s <- s + fc(c, d[k], delta[k], deltalow[k], deltaup[k])
+  }
+  return(s)
+}
+x <- seq(-5, 5, length = 100)
+f <- rep(0, length = 100)
+for (i in 1:100) {
+f[i] <- gc(x[i],  d, delta, deltalow, deltaup)
+}
+```
+```{r morefunc, fig.cap = "Function Phi for De Gruijter Example", echo = FALSE}
+plot(x, f, type = "l", xlab = "c", ylab = "phi", col = "BLUE", lwd = 2)
+left <- -min(deltaup)
+right <- max(d - deltalow)
+abline(v = left)
+abline(v = right)
+h <- optimize(gc, c(left, right), d = d, delta = delta, deltalow = deltalow, deltaup = deltaup)
+```
+
+
+
+We minimize $\phi$ by using the R function optimize(). From \@ref(eq:derivs) we see that
+if $c\geq\max d_{ij}(X)-\delta_{ij}^-$ then $\mathcal{D}\phi(c)\geq 0$. This can be used
+for the right endpoint of the interval over which we minimize $\phi$, with $c_0$ as the left endpoint. The minimum of $\phi$ in our example turns out to be `r h$objective`, attained at $c$ equal to
+`r h$minimum`. The Shepard plot corresponing with the optimum $c$ is plotted in figure \@ref(fig:optbandplot).
+
+```{r optbandplot, fig.align = "center", fig.cap = "De Gruijter Shepard Plot", echo = FALSE}
+p <- h$minimum
+par(pty = "s")
+plot(delta, d, col = "RED", pch = 16, xlab = "dissimilarity", ylab = "distance")
+lines(delta, deltalow + p, col = "BLUE", lwd = 2)
+lines(delta, deltaup + p, col = "BLUE", lwd = 2)
+n <- length(delta)
+for (i in 1:n) {
+  if ((d[i] <= deltaup[i] + p) && (d[i] >= deltalow[i] + p)) {
+    next
+  }
+  if (d[i] < deltalow[i] + p) {
+    lines(matrix(c(delta[i], d[i], delta[i], deltalow[i] + p), 2, 2, byrow = TRUE))
+  }
+  if (d[i] > deltaup[i] + p) {
+    lines(matrix(c(delta[i], d[i], delta[i], deltaup[i] + p), 2, 2, byrow = TRUE))
+  }
+}
+```
+
+```{r ddhatplot, echo = FALSE, fig.cap = "", fig.align = "center"}
+p <- h$minimum
+par(pty = "s")
+n <- length(delta)
+dhat <- rep(0, length(delta))
+for (i in 1:n) {
+  if ((d[i] <= deltaup[i] + p) && (d[i] >= deltalow[i] + p)) {
+    dhat[i] <- d[i]
+  }
+  if (d[i] < deltalow[i] + p) {
+dhat[i] <- deltalow[i] + p
+}
+  if (d[i] > deltaup[i] + p) {
+    dhat[i] <- deltaup[i] + p
+  }
+}
+dort <- order(delta)
+plot(delta[dort], dhat[dort], col = "BLUE", pch = 16, xlab = "dissimilarity", ylab = "disparity", type = "l", lwd = 2)
+```
+
+# Example
+
+## Type AC4
+
+```{r gruijterh00, fig.align = "center", echo = FALSE}
+par(pty = "s")
+smacofShepardPlot(h00, main = "Shepard Plot AC4", fitlines = TRUE)
+smacofConfigurationPlot(h00, cex = .65, main = "Configuration Plot AC4")
+smacofDistDhatPlot(h00, cex = 1, main = "Dist-Dhat Plot AC4")
+```
+
+## Type AC3
+
+```{r gruijterh10, fig.align = "center", echo = FALSE}
+par(pty = "s")
+smacofShepardPlot(h10, main = "Shepard Plot AC3", fitlines = TRUE)
+smacofConfigurationPlot(h10, cex = .65, main = "Configuration Plot AC3")
+smacofDistDhatPlot(h10, cex = 1, main = "Dist-Dhat Plot AC3")
+```
+
+## Type AC2
+
+```{r gruijterh01, fig.align = "center", echo = FALSE}
+par(pty = "s")
+smacofShepardPlot(h01, main = "Shepard Plot AC2", fitlines = TRUE)
+smacofConfigurationPlot(h01, cex = .65, main = "Configuration Plot AC2")
+smacofDistDhatPlot(h01, cex = 1, main = "Dist-Dhat Plot AC2")
+```
+
+
+## Type AC1
+
+```{r gruijterh11, fig.align = "center", echo = FALSE}
+par(pty = "s")
+smacofShepardPlot(h11, main = "Shepard Plot AC1", fitlines = TRUE)
+smacofConfigurationPlot(h11, cex = .65, main = "Configuration Plot AC1")
+smacofDistDhatPlot(h11, cex = 1, main = "Dist-Dhat Plot AC1")
+```
 
 # References

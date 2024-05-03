@@ -1,10 +1,10 @@
 ---
 title: |
     | Smacof at 50: A Manual
-    | Part 6: Smacof with Categorical Data
+    | Part 6: Homogeneity Analysis with Smacof
 author: 
 - Jan de Leeuw - University of California Los Angeles
-date: '`r paste("Started April 13 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
+date: 'Started April 13 2024, Version of April 30, 2024'
 output:
   bookdown::html_document2:
     keep_md: yes
@@ -26,14 +26,9 @@ fontsize: 12pt
 bibliography: ["mypubs.bib","total.bib"]
 abstract: smacofVO
 ---
-```{r loadpackages, echo = FALSE}
-#suppressPackageStartupMessages (library (foo, quietly = TRUE))
-```
 
-```{r load code, echo = FALSE}
-#dyn.load("foo.so")
-#source("janUtil.R")
-```
+
+
 
 
 **Note:** This is a working manuscript which will be expanded/updated
