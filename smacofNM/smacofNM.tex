@@ -154,9 +154,9 @@
   pdfcreator={LaTeX via pandoc}}
 
 \title{Smacof at 50: A Manual\\
-Part 2: Non-metric Smacof}
+Part 4: Non-metric Smacof}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started March 30 2024, Version of April 12, 2024}
+\date{Started March 30 2024, Version of May 04, 2024}
 
 \begin{document}
 \maketitle
@@ -171,10 +171,9 @@ TBD
 \textbf{Note:} This is a working manuscript which will be expanded/updated
 frequently. All suggestions for improvement are welcome. All Rmd, tex,
 html, pdf, R, and C files are in the public domain. Attribution will be
-appreciated, but is not required. The code files can be found at
-\url{https://github.com/deleeuw/smacofCode}, the manual files at
-\url{https://github.com/deleeuw/smacofManual}, and the example files
-at \url{https://github.com/deleeuw/smacofExamples}.
+appreciated, but is not required. The files can be found at
+\url{https://github.com/deleeuw} in the repositories smacofCode, smacofManual,
+and smacofExamples.
 
 \sectionbreak
 
@@ -376,9 +375,9 @@ Suppose datum \(r\) says that that \((i,j)\prec(k,l)\). In the slice independent
 can be non-zero and all other elements of \(W_r\) are zero.
 
 Use \(w_{(i,j)_r}\)
-Thus
+If \((i,j)\prec(k,l)\)
 \[
-w_{ij}(\delta_{ijr}-d_{ij})^2+w_{kl}(\delta_{klr}-d_{kl})^2
+\sigma_r(X,\Delta_r)=w_{ij}(\delta_{ijr}-d_{ij})^2+w_{kl}(\delta_{klr}-d_{kl})^2
 \]
 Must be minimized over \(\delta_{ijr}\leq\delta_{klr}\). If \(d_{ij}\leq d_{kl}\)
 then \(\hat d_{ijr}=d_{ij}\) and \(\hat d_{klr}=d_{kl}\), and otherwise
@@ -448,7 +447,13 @@ balanced design, as in Levelt, Van De Geer, and Plomp (1966).
 
 \section{Data Collection Programs}\label{data-collection-programs}
 
-\subsection{Data Format}\label{data-format}
+\section{Examples}\label{examples}
+
+\subsection{Hoogeveen}\label{hoogeveen}
+
+\subsection{Parties}\label{parties}
+
+\subsection{Ekman}\label{ekman}
 
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}

@@ -110,6 +110,7 @@ Challenges: degeneracy
 
 ## Non-metric
 
+
 ## Constraints
 
 

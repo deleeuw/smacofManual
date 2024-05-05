@@ -1,7 +1,7 @@
 ---
 title: |
     | Smacof at 50: A Manual
-    | Part 6: Homogeneity Analysis with Smacof
+    | Part 8: Homogeneity Analysis with Smacof
 author: 
 - Jan de Leeuw - University of California Los Angeles
 date: '`r paste("Started April 13 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'

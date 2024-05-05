@@ -1,0 +1,276 @@
+---
+title: |
+    | Smacof at 50: A Manual
+    | Part x: Constrained Smacof
+author: 
+- Jan de Leeuw - University of California Los Angeles
+date: '`r paste("Started May 04, 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
+output:
+  bookdown::pdf_document2:
+    latex_engine: lualatex 
+    includes:
+      in_header: preamble.tex
+    keep_tex: yes
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+  bookdown::html_document2:
+    keep_md: yes
+    css: preamble.css
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+graphics: yes
+mainfont: Times New Roman
+fontsize: 12pt
+bibliography: ["mypubs.bib","total.bib"]
+abstract: TBD
+---
+```{r loadpackages, echo = FALSE}
+#suppressPackageStartupMessages (library (foo, quietly = TRUE))
+```
+
+```{r load code, echo = FALSE}
+#dyn.load("foo.so")
+#source("janUtil.R")
+```
+
+
+**Note:** This is a working manuscript which will be expanded/updated
+frequently. All suggestions for improvement are welcome. All Rmd, tex,
+html, pdf, R, and C files are in the public domain. Attribution will be
+appreciated, but is not required. The various files can be found at
+<https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
+and smacofExamples.
+
+# Introduction
+
+# General Theory
+
+@deleeuw_heiser_C_80
+
+# Linear Constraints
+
+## Subspace Constraints
+
+$$
+X=\sum_{j=1}^m\alpha_jY_j
+$$
+$$
+\omega(\alpha)=\text{tr}\ (\overline{X}-\sum_{j=1}^m\alpha_jY_j)'V(\overline{X}-\sum_{j=1}^m\alpha_jY_j)
+$$
+Define the symmetric matrix $C$ of order $m$ by
+$$
+h_{jl}:=\text{tr}\ Y_j'VY_l^{\ }
+$$
+and the vector 
+$$
+g_j=\text{tr}\ Y_j'V\overline{X}
+$$
+then the optimal $\alpha$ is $H^{-1}g$.
+
+$$
+X(\alpha)=(1-\alpha)X+\alpha\overline{X}
+$$
+then
+$$
+X(\alpha)-\overline{X}=(1-\alpha)(X-\overline{X})
+$$
+$$
+X(\alpha)=X-\alpha(X-\overline{X})
+$$
+$$
+X(\alpha)-\overline{X}=(1-\alpha)(X-\overline{X})
+$$
+$$
+X(\alpha,\beta)=\alpha X+\beta\overline{X}
+$$
+
+$$
+H=\begin{bmatrix}\eta^2(X)&\rho(X)\\\rho(X)&\eta^2(\overline{X})\end{bmatrix}
+$$
+$$
+g =\begin{bmatrix}\rho(X)\\\eta^2(\overline X)\end{bmatrix}
+$$
+From which it follows that
+$$
+H^{-1}g=\begin{bmatrix}0\\1\end{bmatrix}
+$$
+## PQN Constraints
+
+
+
+$$
+Z:=\kbordermatrix{
+\mbox{\ }&p&&q&&n\\
+n&X&\mid&YA&\mid&D
+}
+$$
+
+# Circular and Elliptical Constraints
+
+@deleeuw_U_07h
+@deleeuw_U_05j
+@deleeuw_mair_A_09c
+Minimize
+$$
+\omega(Y,\Lambda):=\text{tr}\ (\overline{X}-Y\Lambda)'V(\overline{X}-Y\Lambda)
+$$
+over diagonal $\Lambda$ and $Y$ with $\text{diag}\ YY'=I$.
+
+The optimal $\Lambda$ for given $Y$ is
+$$
+\Lambda = \text{diag}\ Y'V\overline{X} / \text{diag}\ Y'VY
+$$
+
+Let's look at all $Y$ of the form $Y=\tilde Y+e_i(y-\tilde y_i)'$. Then $\omega$ is a function
+of $y$ and we can write
+$$
+\omega(y):=\omega(\tilde Y,\Lambda)+v_{ii}(y-\tilde y_i)'\Lambda^2(y-\tilde y_i)
+-2e_i'V(X-\tilde Y\Lambda)\Lambda(y-\tilde y_i)
+$$
+Let $H=V(X-\tilde Y\Lambda)\Lambda$. Then
+$$
+\omega(y)\leq\eta(y):=\omega(\tilde y_i)+v_{ii}\lambda_{\text{max}}^2(y-\tilde y_i)'(y-\tilde y_i)-2h_i'(y-\tilde y_i)
+$$
+Now suppose $\hat y$ minimizes $\eta$ over $y'y=1$. Then 
+$$
+\omega(\hat y)\leq\eta(\hat y)\leq\eta(\tilde y_i)=\omega(\tilde y_i)\
+$$
+Minimizing $\eta$ over $y'y=1$ can be done by maximizing
+$$
+y'\{\lambda_{\text{max}}^2v_{ii}\tilde y_i+h_i\}
+$$
+and thus $\hat y$ is the term in ... curly brackets, normalized to unit length.
+
+Let's check this in R. First generate some data.
+```{r}
+#set.seed(12345)
+v <- -as.matrix(dist(matrix(rnorm(12), 6, 2)))
+diag(v) <- -rowSums(v)
+x <- matrix(rnorm(12),6,2)
+x <- v %*% x
+y <- matrix(rnorm(12),6,2)
+y <- y / sqrt(rowSums(y ^ 2))
+res <- x - y
+print(sum(res * (v %*% res)), digits = 10)
+lbd <- diag(crossprod(y, v %*% x)) / diag(crossprod(y, v %*% y))
+mlbd <- max(lbd ^ 2)
+lbd <- diag(lbd)
+res <- x - y %*% lbd
+print(sum(res * (v %*% res)), digits = 10)
+```
+Now change the first row of $Y$.
+```{r}
+h <- v %*% res %*% lbd
+g <- mlbd * v[1, 1] * y[1, ] + h[1, ]
+y[1, ] <- g / sqrt(sum(g ^ 2))
+res <- x - y %*% lbd
+print(sum(res * (v %*% res)), digits = 10)
+```
+So far, so good. We can improve the first row again.
+```{r}
+h <- v %*% res %*% lbd
+g <- mlbd * v[1, 1] * y[1, ] + h[1, ]
+y[1, ] <- g / sqrt(sum(g ^ 2))
+res <- x - y %*% lbd
+print(sum(res * (v %*% res)), digits = 10)
+```
+Instead of continuing to iteratively improve the first row we'll make a loop over the rows of $Y$.
+```{r}
+for (i in 1:6) {
+  h <- v %*% res %*% lbd
+  g <- mlbd * v[i, i] * y[i,] + h[i,]
+  y[i,] <- g / sqrt(sum(g ^ 2))
+  res <- x - y %*% lbd
+  print(sum(res * (v %*% res)), digits = 10)
+}
+```
+We can do this again.
+```{r}
+for (i in 1:6) {
+  h <- v %*% res %*% lbd
+  g <- mlbd * v[i, i] * y[i,] + h[i,]
+  y[i,] <- g / sqrt(sum(g ^ 2))
+  res <- x - y %*% lbd
+  print(sum(res * (v %*% res)), digits = 10)
+}
+```
+And again.
+```{r}
+for (i in 1:6) {
+  h <- v %*% res %*% lbd
+  g <- mlbd * v[i, i] * y[i,] + h[i,]
+  y[i,] <- g / sqrt(sum(g ^ 2))
+  res <- x - y %*% lbd
+  print(sum(res * (v %*% res)), digits = 10)
+}
+```
+These are still for the same $\Lambda$. We can compute a new $\Lambda$.
+```{r}
+lbd <- diag(crossprod(y, v %*% x)) / diag(crossprod(y, v %*% y))
+mlbd <- max(lbd ^ 2)
+lbd <- diag(lbd)
+res <- x - y %*% lbd
+print(sum(res * (v %*% res)), digits = 10)
+```
+And then start updating $Y$ again.
+```{r}
+for (i in 1:6) {
+  h <- v %*% res %*% lbd
+  g <- mlbd * v[i, i] * y[i,] + h[i,]
+  y[i,] <- g / sqrt(sum(g ^ 2))
+  res <- x - y %*% lbd
+  print(sum(res * (v %*% res)), digits = 10)
+}
+```
+And so on. Let's look at the result so far. The blue points are $X$, the red points are $Y$,
+on an ellips with centered at the origin with the coordinate axes as minor and major axes.
+```{r ploplo, fig.align = "center"}
+par(pty = "s")
+z <- y %*% lbd
+plot(rbind(x, z), type = "n", xlab = "dimension 1", ylab = "dimension 2")
+points(x, col = "BLUE", pch = 16)
+points(z, col = "RED", pch = 16)
+abline(v = 0)
+abline(h = 0)
+for (i in 1:6) {
+  lines(matrix(c(x[i, ], z[i, ]), 2, 2, byrow = TRUE))
+}
+sc <- seq(-2 * pi, 2 * pi, length = 100)
+xc <- cbind(sin(sc), cos(sc)) %*% lbd
+lines(xc, col = "RED")
+```
+Note that we have three nested infinite iterative processes here.
+
+1. Alternating the updates of $\Lambda$ and $Y$.
+2. Cycling through the rows of $Y$.
+3. Updating a single row of $Y$.
+
+We could reduce this to two processes by not using majorization in process 3
+but computing the exact update of a row. Go back to
+$$
+\omega(y):=\omega(\tilde Y,\Lambda)+v_{ii}(y-\tilde y_i)'\Lambda^2(y-\tilde y_i)
+-2h_i'(y-\tilde y_i)
+$$
+Minimizing $\omega$ over $y'y=1$ leads to the stationary equations
+$$
+(\Lambda^2-\mu I)y=g_i
+$$
+with
+$$
+g_i:=\frac{v_{ii}\Lambda^2\tilde y_i+h_i}{v_{ii}}
+$$
+and $\mu$ a Lagrange multiplier. This is one of the famous secular equations (see for instance @hager_01), which can be solved by finding a root of the equation
+$$
+\phi(\mu):=\sum_{s=1}^p\frac{g_{is}^2}{(\lambda_s^2-\mu)^2}=1
+$$
+Also, of course, if we are fitting a circle then $\Lambda$ is fixed at the identity and 
+matters simplify accordingly. Alternating the updates for $\Lambda$ and $Y$ is no longer
+necessary.
+
+
+
+
+
+# References
