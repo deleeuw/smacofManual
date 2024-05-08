@@ -96,8 +96,14 @@ From which it follows that
 $$
 H^{-1}g=\begin{bmatrix}0\\1\end{bmatrix}
 $$
+Optimal gradient
+$$
+X(\alpha)=X-\alpha V(X-\overline{X})
+$$
+$$
+X(\alpha)=\alpha_0X^{(k)}+\alpha_1X^{(k-1)}+\alpha_2X^{(k-2)}+\cdots
+$$
 ## PQN Constraints
-
 
 
 $$
@@ -106,6 +112,11 @@ Z:=\kbordermatrix{
 n&X&\mid&YA&\mid&D
 }
 $$
+In this case
+$$
+d_{ij}^2(Z)=d_{ij}^2(X)+d_{ij}^2(YA)+d_{ij}^2(D)
+$$
+and $d_{ij}^2(D)=d_{ii}^2+d_{jj}^2$.
 
 # Circular and Elliptical Constraints
 

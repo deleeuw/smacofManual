@@ -1,0 +1,66 @@
+---
+title: |
+    | Smacof at 50: A Manual
+    | Part x: Linearly Constrained Smacof
+author: 
+- Jan de Leeuw - University of California Los Angeles
+date: '`r paste("Started May 08, 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
+output:
+  bookdown::pdf_document2:
+    latex_engine: lualatex 
+    includes:
+      in_header: preamble.tex
+    keep_tex: yes
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+  bookdown::html_document2:
+    keep_md: yes
+    css: preamble.css
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+graphics: yes
+mainfont: Times New Roman
+fontsize: 12pt
+bibliography: ["mypubs.bib","total.bib"]
+abstract: TBD
+---
+```{r loadpackages, echo = FALSE}
+#suppressPackageStartupMessages (library (foo, quietly = TRUE))
+```
+
+```{r load code, echo = FALSE}
+#dyn.load("foo.so")
+#source("janUtil.R")
+```
+
+
+**Note:** This is a working paper which will be expanded/updated frequently. All suggestions for improvement are welcome. 
+
+$$
+X=YA=\sum_{j=1}^m Y_jA_j
+$$
+with $Y_j$ a known $n\times k_j$ "design" matrix and $A$
+an unknown $k_j\times p$ matrix of coefficients.
+
+Various constraints on $A$.
+
+1. No constraints
+2. $A_j$ are diagonal
+3. $A_j$ are scalar
+4. $A_j$ have rank one.
+
+Special choices of $Y_j$
+
+1. Previous iterations of $X$
+2. Indicator matrices
+3. Design matrices (example the rectangles)
+
+In general the constraint phase must solve minimization of
+$$
+\omega(A):=\text{tr}\ (\overline{X}-\sum_{j=1}^m Y_jA_j)'V(\overline{X}-\sum_{j=1}^m Y_jA_j)
+$$
+
+
+# References

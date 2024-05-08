@@ -116,6 +116,33 @@ where $D(X)$ is the matrix of Euclidean distances and $\mathfrak{D}$ is the set 
 metric MDS, linear MDS, non-linear MDS, and non-metric MDS as special cases,
 defined by different sets $\mathfrak{D}$.
 
+# Types of Data
+
+$I$ is a set of $n$ *row-objects*, $J$ is a set of $m$ *column-objects*.
+
+1. Numerical
+  + $\mathcal{RR}$ data, $\langle\mathcal{R}\times\mathcal{R}, \delta\rangle$, real-valued function $\delta$ on a subset of $\mathcal{R}\times\mathcal{R}$. 
+  + $\mathcal{CC}$ data, $\langle\mathcal{C}\times\mathcal{C}, \delta\rangle$, real-valued function $\delta$ on a subset of $\mathcal{C}\times\mathcal{C}$.
+  + $\mathcal{RC}$ data, $\langle\mathcal{R}\times\mathcal{C}, \delta\rangle$, real-valued function $\delta$ on a subset of $\mathcal{R}\times\mathcal{C}$.
+
+2. Ordinal 
+  + XX data, partial order on a subset of $X\times X$
+  + XY data, partial order $\leq$ on the $n\times m$-element set $X\times Y$
+
+3. Nominal
+  + XX data, equivalence relation on a subset of $X\times X$
+  + XY data, equivalence relation on a subset of $X\times Y$
+
+Conditional Data
+  + XX data, $n$ partial $\leq$ is the union of $n$ partial orders $\leq_i$ on the $n$ disjoint $n$-element sets $x_i\times X$ 
+  + XY data, the partial order $\leq$ is the union of $n$ partial orders $\leq_i$ on the $n$ disjoint $m$-element sets $x_i\times Y$
+
+Replicated Data
+
+As ordinal, but the partial orders are equivalence relations.
+
+
+
 
 
 # Loss Function

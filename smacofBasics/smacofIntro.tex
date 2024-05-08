@@ -156,7 +156,7 @@
 \title{Smacof at 50: A Manual\\
 Part 1: Smacof Basics}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started February 21 2024, Version of April 22, 2024}
+\date{Started February 21 2024, Version of May 05, 2024}
 
 \begin{document}
 \maketitle
@@ -248,6 +248,68 @@ D(X)&=\Delta\label{eq:gmdsdef3},
 where \(D(X)\) is the matrix of Euclidean distances and \(\mathfrak{D}\) is the set of \emph{transformed dissimilarities} in the non-linear case or the set of \emph{quantified dissimilarities} in the non-metric case. We can then freely discuss
 metric MDS, linear MDS, non-linear MDS, and non-metric MDS as special cases,
 defined by different sets \(\mathfrak{D}\).
+
+\section{Types of Data}\label{types-of-data}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \(\mathcal{R}\) is a set of \(n\) objects called \emph{rows}.
+\item
+  \(\mathcal{C}\) is a set of \(m\) objects called \emph{columns}.
+\item
+  Numerical
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  \(\mathcal{RR}\) data, \(\langle\mathcal{R}\times\mathcal{R}, \delta\rangle\), real-valued function \(\delta\) on a subset of \(\mathcal{R}\times\mathcal{R}\).
+\item
+  \(\mathcal{CC}\) data, \(\langle\mathcal{C}\times\mathcal{C}, \delta\rangle\), real-valued function \(\delta\) on a subset of \(\mathcal{C}\times\mathcal{C}\).
+\item
+  \(\mathcal{RC}\) data, \(\langle\mathcal{R}\times\mathcal{C}, \delta\rangle\), real-valued function \(\delta\) on a subset of \(\mathcal{R}\times\mathcal{C}\).
+\end{itemize}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Ordinal
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  XX data, partial order on a subset of \(X\times X\)
+\item
+  XY data, partial order \(\leq\) on the \(n\times m\)-element set \(X\times Y\)
+\end{itemize}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Nominal
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  XX data, equivalence relation on a subset of \(X\times X\)
+\item
+  XY data, equivalence relation on a subset of \(X\times Y\)
+\end{itemize}
+
+Conditional Data
++ XX data, \(n\) partial \(\leq\) is the union of \(n\) partial orders \(\leq_i\) on the \(n\) disjoint \(n\)-element sets \(x_i\times X\)
++ XY data, the partial order \(\leq\) is the union of \(n\) partial orders \(\leq_i\) on the \(n\) disjoint \(m\)-element sets \(x_i\times Y\)
+
+Replicated Data
+
+As ordinal, but the partial orders are equivalence relations.
 
 \section{Loss Function}\label{loss-function}
 
@@ -430,8 +492,7 @@ The formulation in equations \eqref{eq:gmdsdef1} and \eqref{eq:gmdsdef2} neatly 
 metric MDS part \eqref{eq:gmdsdef1} and the transformation/quantification part \eqref{eq:gmdsdef2}.
 This second part is also often called the \emph{optimal scaling} part.
 
-Equations \eqref{eq:gmdsdef1} and \eqref{eq:gmdsdef2} corresponds with the way most iterative non-linear and non-metric MDS
-techniques are implemented. The algorithms use \emph{Alternating Least Squares} (ALS).
+Equations \eqref{eq:gmdsdef1} and \eqref{eq:gmdsdef2} corresponds with the way most iterative non-linear and non-metric MDS techniques are implemented. The algorithms use \emph{Alternating Least Squares} (ALS).
 There have been quite a few ALS algorithms avant-la-lettre, but as far as I know both the name
 and ALS as a general approach to algorithm construction were first introduced in De Leeuw (1968), and then widely disseminated in a series of papers by
 De Leeuw, Young, and Takane in the 1970's (work summarized in Young, De Leeuw, and Takane (1980) and Young (1981)).
