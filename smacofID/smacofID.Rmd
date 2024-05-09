@@ -1,0 +1,51 @@
+---
+title: |
+    | Smacof at 50: A Manual
+    | Part x: Smacof for Individual Differences 
+author: 
+- Jan de Leeuw - University of California Los Angeles
+date: '`r paste("Started May 09 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
+output:
+  bookdown::pdf_document2:
+    latex_engine: lualatex 
+    includes:
+      in_header: preamble.tex
+    keep_tex: yes
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+  bookdown::html_document2:
+    keep_md: yes
+    css: preamble.css
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+graphics: yes
+mainfont: Times New Roman
+fontsize: 12pt
+bibliography: ["mypubs.bib","total.bib"]
+abstract: TBD
+---
+```{r loadpackages, echo = FALSE}
+#suppressPackageStartupMessages (library (foo, quietly = TRUE))
+```
+
+**Note:** This is a working manuscript which will be expanded/updated
+frequently. All suggestions for improvement are welcome. All Rmd, tex,
+html, pdf, R, and C files are in the public domain. Attribution will be
+appreciated, but is not required. All files can be found at
+<https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
+and smacofExamples. A barebones R package is in the repository
+smacofID.
+
+# Introduction
+
+1. $X_k=X$
+2. $X_k=XD_k$ with $D_k$ diagonal (INDSCAL)
+3. $X_k=XA_k$ with $A_k$ general (IDIOSCAL)
+4. $X_k=XD_kY'$
+5. $X_k=XA_kY'$
+6. Tucker 3
+7. PARAFAC 2
+
+# References

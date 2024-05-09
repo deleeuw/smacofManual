@@ -36,20 +36,28 @@ abstract: TBD
 ```
 
 
-**Note:** This is a working paper which will be expanded/updated frequently. All suggestions for improvement are welcome. 
+**Note:** This is a working manuscript which will be expanded/updated
+frequently. All suggestions for improvement are welcome. All Rmd, tex,
+html, pdf, R, and C files are in the public domain. Attribution will be
+appreciated, but is not required. All files can be found at
+<https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
+and smacofExamples. A barebones R package is in the repository
+smacofLN.
+
+# Introduction
 
 $$
 X=YA=\sum_{j=1}^m Y_jA_j
 $$
-with $Y_j$ a known $n\times k_j$ "design" matrix and $A$
+with $Y_j$  known $n\times k_j$ "design" matrices and $A$
 an unknown $k_j\times p$ matrix of coefficients.
 
 Various constraints on $A$.
 
 1. No constraints
 2. $A_j$ are diagonal
-3. $A_j$ are scalar
-4. $A_j$ have rank one.
+2. $A_j$ are scalar
+3. $A_j$ are block diagonal
 
 Special choices of $Y_j$
 
@@ -60,6 +68,44 @@ Special choices of $Y_j$
 In general the constraint phase must solve minimization of
 $$
 \omega(A):=\text{tr}\ (\overline{X}-\sum_{j=1}^m Y_jA_j)'V(\overline{X}-\sum_{j=1}^m Y_jA_j)
+$$
+Minimize
+$$
+-2\sum_{j=1}^m \text{tr}\ A_j'Y_j'V\overline{X}+
+\sum_{j=1}^m\sum_{l=1}^m\text{tr}\ A_j'Y_j'VY_l^{\ }A_l^{\ }
+$$
+
+diagonal (not very interesting)
+
+$$
+-2\sum_{j=1}^m a_j'\text{diag}\{Y_j'V\overline{X}\}+
+\sum_{j=1}^m\sum_{l=1}^m a_j'\text{diag}\{Y_j'VY_l^{\ }\}a_l
+$$
+scalar
+$$
+-2\sum_{j=1}^m \alpha_j\text{tr}\ Y_j'V\overline{X}+
+\sum_{j=1}^m\sum_{l=1}^m\alpha_j\alpha_l\text{tr}\ Y_j'VY_l^{\ }
+$$
+rank one $A_j=z_jt_j'$ (not very interesting)
+
+
+$$
+-2\sum_{j=1}^mz_j'Y_j'V\overline{X}t_j+
+\sum_{j=1}^m\sum_{l=1}^mt_l't_j\ z_j'Y_j'VY_l^{\ }z_l
+$$
+
+block diagonal
+
+$$
+A=\bigoplus_{j=1}^m A_j
+$$
+
+$$
+X=(Y_1A_1\cdots Y_mA_m)
+$$
+
+$$
+\omega(A)=\sum_{j=1}^m\text{tr}\ (\overline X_j-Y_jA_j)'V(\overline X_j-Y_jA_j)
 $$
 
 
