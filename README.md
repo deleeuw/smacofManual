@@ -1,6 +1,9 @@
-# smacofManuals
+# smacofManual
 
-Manuals for smacof MDS software
+Manual for smacof MDS software
+
+The manual for "Smacof at 50" consists of chapters about
+each of the programs in the project.
 
 * smacofAC - Metric with bounds and/or additive constant
 * smacofBS - Non-linear with B-splines
