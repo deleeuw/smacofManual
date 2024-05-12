@@ -1,0 +1,56 @@
+---
+title: "FooBar"
+author: 
+- Jan de Leeuw - University of California Los Angeles
+date: '`r paste("Started December 12 2022, Version of",format(Sys.Date(),"%B %d, %Y"))`'
+output:
+  bookdown::pdf_document2:
+    latex_engine: lualatex 
+    includes:
+      in_header: preamble.tex
+    keep_tex: yes
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+  bookdown::html_document2:
+    keep_md: yes
+    css: preamble.css
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+graphics: yes
+mainfont: Times New Roman
+fontsize: 12pt
+bibliography: ["mypubs.bib","total.bib"]
+abstract: TBD
+---
+```{r loadpackages, echo = FALSE}
+#suppressPackageStartupMessages (library (foo, quietly = TRUE))
+```
+
+```{r load code, echo = FALSE}
+#dyn.load("foo.so")
+#source("janUtil.R")
+```
+
+
+**Note:** This is a working paper which will be expanded/updated frequently. All suggestions for improvement are welcome. 
+
+# Introduction
+
+:::: {.greybox data-latex=""}
+::: {.center data-latex=""}
+**INSERT FIGURE \@ref(fig:foo1) ABOUT HERE**
+:::
+::::
+
+# Figures
+
+# Appendix: Code
+
+## template.R
+
+```{r file_auxilary, code = readLines(NULL)}
+```
+
+# References

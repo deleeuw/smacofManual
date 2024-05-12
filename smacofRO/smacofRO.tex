@@ -1,0 +1,466 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  12pt,
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+    \setmainfont[]{Times New Roman}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\usepackage{tcolorbox}
+\usepackage{amssymb}
+\usepackage{yfonts}
+\usepackage{bm}
+\usepackage{titlesec}
+\usepackage{kbordermatrix}
+
+
+\newtcolorbox{greybox}{
+  colback=white,
+  colframe=blue,
+  coltext=black,
+  boxsep=5pt,
+  arc=4pt}
+  
+\newcommand{\sectionbreak}{\clearpage}
+
+ 
+\newcommand{\ds}[4]{\sum_{{#1}=1}^{#3}\sum_{{#2}=1}^{#4}}
+\newcommand{\us}[3]{\mathop{\sum\sum}_{1\leq{#2}<{#1}\leq{#3}}}
+
+\newcommand{\ol}[1]{\overline{#1}}
+\newcommand{\ul}[1]{\underline{#1}}
+
+\newcommand{\amin}[1]{\mathop{\text{argmin}}_{#1}}
+\newcommand{\amax}[1]{\mathop{\text{argmax}}_{#1}}
+
+\newcommand{\ci}{\perp\!\!\!\perp}
+
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\mb}[1]{\mathbb{#1}}
+\newcommand{\mf}[1]{\mathfrak{#1}}
+
+\newcommand{\eps}{\epsilon}
+\newcommand{\lbd}{\lambda}
+\newcommand{\alp}{\alpha}
+\newcommand{\df}{=:}
+\newcommand{\am}[1]{\mathop{\text{argmin}}_{#1}}
+\newcommand{\ls}[2]{\mathop{\sum\sum}_{#1}^{#2}}
+\newcommand{\ijs}{\mathop{\sum\sum}_{1\leq i<j\leq n}}
+\newcommand{\jis}{\mathop{\sum\sum}_{1\leq j<i\leq n}}
+\newcommand{\sij}{\sum_{i=1}^n\sum_{j=1}^n}
+	
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdfauthor={Jan de Leeuw - University of California Los Angeles},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Smacof at 50: A Manual\\
+Part x: smacofRO - Non-metric Smacof for Rank Order Data}
+\author{Jan de Leeuw - University of California Los Angeles}
+\date{Started May 12 2024, Version of May 12, 2024}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{3}
+\tableofcontents
+}
+\textbf{Note:} This is a working manuscript which will be expanded/updated
+frequently. All suggestions for improvement are welcome. All Rmd, tex,
+html, pdf, R, and C files are in the public domain. Attribution will be
+appreciated, but is not required. The files can be found at
+\url{https://github.com/deleeuw} in the repositories smacofCode, smacofManual, and smacofExamples.
+
+\section{Introduction}\label{introduction}
+
+The smacofRO program is a convential non-metric MDS program designed
+to handle a partial order over pairs from a single set of objects.
+Typically the partial order is derived from a symmetric matrix of
+numerical dissimilarities or from a ranking (with or without ties)
+of dissimilarities.
+
+\section{Data}\label{data}
+
+\section{Program}\label{program}
+
+\subsection{Parameters}\label{parameters}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{smacofRO }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(data,}
+\NormalTok{                     ndim,}
+                     \AttributeTok{xold =} \ConstantTok{NULL}\NormalTok{,}
+                     \AttributeTok{labels =} \ConstantTok{NULL}\NormalTok{,}
+                     \AttributeTok{width =} \DecValTok{15}\NormalTok{,}
+                     \AttributeTok{precision =} \DecValTok{10}\NormalTok{,}
+                     \AttributeTok{itmax =} \DecValTok{1000}\NormalTok{,}
+                     \AttributeTok{eps =} \FloatTok{1e{-}10}\NormalTok{,}
+                     \AttributeTok{verbose =} \ConstantTok{TRUE}\NormalTok{,}
+                     \AttributeTok{kitmax =} \DecValTok{5}\NormalTok{,}
+                     \AttributeTok{keps =} \FloatTok{1e{-}10}\NormalTok{,}
+                     \AttributeTok{kverbose =} \DecValTok{0}\NormalTok{,}
+                     \AttributeTok{init =} \DecValTok{1}\NormalTok{,}
+                     \AttributeTok{ties =} \DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Input}\label{input}
+
+The data are a five column table. Here are the first five rows for
+the Gruijter example, analyzed below.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{     i j delta     weight ties}
+\NormalTok{[}\DecValTok{1}\NormalTok{,] }\DecValTok{7} \DecValTok{6}  \FloatTok{3.20} \FloatTok{0.02777778}    \DecValTok{1}
+\NormalTok{[}\DecValTok{2}\NormalTok{,] }\DecValTok{2} \DecValTok{1}  \FloatTok{4.08} \FloatTok{0.02777778}    \DecValTok{2}
+\NormalTok{[}\DecValTok{3}\NormalTok{,] }\DecValTok{3} \DecValTok{2}  \FloatTok{4.59} \FloatTok{0.02777778}    \DecValTok{3}
+\NormalTok{[}\DecValTok{4}\NormalTok{,] }\DecValTok{6} \DecValTok{5}  \FloatTok{4.60} \FloatTok{0.02777778}    \DecValTok{4}
+\NormalTok{[}\DecValTok{5}\NormalTok{,] }\DecValTok{8} \DecValTok{4}  \FloatTok{4.67} \FloatTok{0.02777778}    \DecValTok{5}
+\end{Highlighting}
+\end{Shaded}
+
+The first two columns give the indices of the dissimilarities. Always \(1\leq j<i\leq n\).
+Column three gives the value of delta, which can be an observed numerical value or
+a rank number. The data are in non-increasing order within their
+column. Column four gives the weights, adding up to one over all observations.
+And the last column codes tieblocks. It is allowed to have are fewer than \(\frac12n(n-1)\) rows.
+The missing rows are computationally equivalent to non-missing rows with weight equal to zero.
+
+Typically we create the data by using the utility function, which is part of the
+smacofRO package. Here delta is a symmetric matrix or an object of class dist.
+If weights is NULL all weights are assumed to be equal.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{smacofMakeRankOrderData }\OtherTok{\textless{}{-}}\ControlFlowTok{function}\NormalTok{(delta, }\AttributeTok{weights =} \ConstantTok{NULL}\NormalTok{, }\AttributeTok{tieblocks =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Algorithm}\label{algorithm}
+
+The ALS algorithm alternates a number of Guttman iterations with a single monotone
+regression (with either one of the three options for ties, cf De Leeuw (1977)).
+Guttman iterations are normalized explicitly, using \(\sum\sum w_{ij}d_{ij}^2(X)=1\).
+Monotone regression is done with the pava algorithm from De Leeuw (2017).
+
+\subsection{Output}\label{output}
+
+\section{Examples}\label{examples}
+
+\subsection{De Gruijter (1967)}\label{degruijter_67}
+
+In this example the number of tieblocks is 35, which means
+there is a single tieblock of two observations, the other 34 observations are
+untied. We expect that the three different ways of handling ties will not make
+much of a difference.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{h1 }\OtherTok{\textless{}{-}} \FunctionTok{smacofRO}\NormalTok{(gruijterData, }\DecValTok{2}\NormalTok{, }\AttributeTok{ties =} \DecValTok{1}\NormalTok{, }\AttributeTok{labels =}\NormalTok{ labels, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{h2 }\OtherTok{\textless{}{-}} \FunctionTok{smacofRO}\NormalTok{(gruijterData, }\DecValTok{2}\NormalTok{, }\AttributeTok{ties =} \DecValTok{2}\NormalTok{, }\AttributeTok{labels =}\NormalTok{ labels, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{h3 }\OtherTok{\textless{}{-}} \FunctionTok{smacofRO}\NormalTok{(gruijterData, }\DecValTok{2}\NormalTok{, }\AttributeTok{ties =} \DecValTok{3}\NormalTok{, }\AttributeTok{labels =}\NormalTok{ labels, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{itemize}
+\tightlist
+\item
+  Ties = 1 uses 88 iterations and stops at stress 0.0042180140
+\item
+  Ties = 2 uses 65 iterations and stops at stress 0.0042573281
+\item
+  Ties = 3 uses 69 iterations and stops at stress 0.0040850898
+\end{itemize}
+
+And indeed the solutions are practically the same, although the number of iterations needed for convergence
+differs somewhat between options. We only show one Shepardplot, because the others are virtually the same.
+
+\begin{center}\includegraphics{smacofRO_files/figure-latex/plotgruijter-1} \end{center}
+
+We can also use this example to show the effect of using different initial configurations.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{h1 }\OtherTok{\textless{}{-}} \FunctionTok{smacofRO}\NormalTok{(gruijterData, }\DecValTok{2}\NormalTok{, }\AttributeTok{init =} \DecValTok{1}\NormalTok{, }\AttributeTok{labels =}\NormalTok{ labels, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{h2 }\OtherTok{\textless{}{-}} \FunctionTok{smacofRO}\NormalTok{(gruijterData, }\DecValTok{2}\NormalTok{, }\AttributeTok{init =} \DecValTok{2}\NormalTok{, }\AttributeTok{labels =}\NormalTok{ labels, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{h3 }\OtherTok{\textless{}{-}} \FunctionTok{smacofRO}\NormalTok{(gruijterData, }\DecValTok{2}\NormalTok{, }\AttributeTok{init =} \DecValTok{3}\NormalTok{, }\AttributeTok{labels =}\NormalTok{ labels, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{itemize}
+\tightlist
+\item
+  Init = 1 uses 88 iterations and stops at stress 0.0042180140
+\item
+  Init = 2 uses 76 iterations and stops at stress 0.0039894695
+\item
+  Init = 3 uses 69 iterations and stops at stress 0.0060410599
+\end{itemize}
+
+\begin{center}\includegraphics{smacofRO_files/figure-latex/gruiterconfs-1} \end{center}
+
+\begin{center}\includegraphics{smacofRO_files/figure-latex/gruiterconfs-2} \end{center}
+
+\begin{center}\includegraphics{smacofRO_files/figure-latex/gruiterconfs-3} \end{center}
+
+Using different initial configurations in this example makes a huge difference. All three plots
+show the (CPN,PvdA,PSP) leftist cluster, the liberal (VVD,D'66) cluster, the protest BP outlier which is its own cluster, and the (KVP,ARP,CHU) christian democrat cluster. In the three plots the
+clusters are distributed differently over the plane.
+
+\subsection{Ekman (1954)}\label{ekman_54}
+
+In the Ekman data there are 47 tieblocks out of
+91 observations, and we expect the
+ties option to make some difference.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{h1 }\OtherTok{\textless{}{-}} \FunctionTok{smacofRO}\NormalTok{(ekmanData, }\DecValTok{2}\NormalTok{, }\AttributeTok{ties =} \DecValTok{1}\NormalTok{, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{labels =}\NormalTok{ labels)}
+\NormalTok{h2 }\OtherTok{\textless{}{-}} \FunctionTok{smacofRO}\NormalTok{(ekmanData, }\DecValTok{2}\NormalTok{, }\AttributeTok{ties =} \DecValTok{2}\NormalTok{, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{labels =}\NormalTok{ labels)}
+\NormalTok{h3 }\OtherTok{\textless{}{-}} \FunctionTok{smacofRO}\NormalTok{(ekmanData, }\DecValTok{2}\NormalTok{, }\AttributeTok{ties =} \DecValTok{3}\NormalTok{, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{labels =}\NormalTok{ labels)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{itemize}
+\tightlist
+\item
+  Ties = 1 uses 40 iterations and stops at stress 0.0002668633
+\item
+  Ties = 2 uses 32 iterations and stops at stress 0.0004988332
+\item
+  Ties = 3 uses 1000 iterations and stops at stress 0.0000001193
+\end{itemize}
+
+\begin{center}\includegraphics{smacofRO_files/figure-latex/plotekman-1} \end{center}
+
+\begin{center}\includegraphics{smacofRO_files/figure-latex/plotekman-2} \end{center}
+
+\begin{center}\includegraphics{smacofRO_files/figure-latex/plotekman-3} \end{center}
+
+Although the stress values are indeed different, the solutions are practically the same. When looking at the
+Shepard plots we have to remember that for ties = 1 and ties = 3 we can have different disparity values for the
+same dissimilarity value. Thus tieblocks are represented as intervals on the vertical axis, and strictly spoken we do not have a functional relationship between delta and dhat. This is clear from the plot for the
+tertiary approach, which shows some of the intervals, mostly for the larger dissimilarities. It reinforces the
+idea that the tertiary approach is only useful if there are many small tieblocks, in which case it will be quite similar to the primary and secondary approach.
+
+\begin{center}\includegraphics{smacofRO_files/figure-latex/plotekmanconfs-1} \end{center}
+
+\begin{center}\includegraphics{smacofRO_files/figure-latex/plotekmanconfs-2} \end{center}
+
+\begin{center}\includegraphics{smacofRO_files/figure-latex/plotekmanconfs-3} \end{center}
+
+\subsection{Rothkopf (1957)}\label{rothkopf_57}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{h1 }\OtherTok{\textless{}{-}} \FunctionTok{smacofRO}\NormalTok{(morseData, }\DecValTok{2}\NormalTok{, }\AttributeTok{ties =} \DecValTok{1}\NormalTok{, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{itmax =} \DecValTok{10000}\NormalTok{)}
+\NormalTok{h2 }\OtherTok{\textless{}{-}} \FunctionTok{smacofRO}\NormalTok{(morseData, }\DecValTok{2}\NormalTok{, }\AttributeTok{ties =} \DecValTok{2}\NormalTok{, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{itmax =} \DecValTok{10000}\NormalTok{)}
+\NormalTok{h3 }\OtherTok{\textless{}{-}} \FunctionTok{smacofRO}\NormalTok{(morseData, }\DecValTok{2}\NormalTok{, }\AttributeTok{ties =} \DecValTok{3}\NormalTok{, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{itmax =} \DecValTok{10000}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{itemize}
+\tightlist
+\item
+  Ties = 1 uses 34 iterations and stops at stress 0.0163278414
+\item
+  Ties = 2 uses 30 iterations and stops at stress 0.0203202336
+\item
+  Ties = 3 uses 1129 iterations and stops at stress 0.0000000226
+\end{itemize}
+
+\begin{center}\includegraphics{smacofRO_files/figure-latex/plotmorse-1} \end{center}
+
+\begin{center}\includegraphics{smacofRO_files/figure-latex/plotmorse-2} \end{center}
+
+\begin{center}\includegraphics{smacofRO_files/figure-latex/plotmorse-3} \end{center}
+
+We also run morse with different values of kitmax, the number of inner Guttman iterations. The results are
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{h1 }\OtherTok{\textless{}{-}} \FunctionTok{smacofRO}\NormalTok{(morseData, }\DecValTok{2}\NormalTok{, }\AttributeTok{kitmax =} \DecValTok{1}\NormalTok{, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{itmax =} \DecValTok{10000}\NormalTok{)}
+\NormalTok{h2 }\OtherTok{\textless{}{-}} \FunctionTok{smacofRO}\NormalTok{(morseData, }\DecValTok{2}\NormalTok{, }\AttributeTok{kitmax =} \DecValTok{5}\NormalTok{, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{itmax =} \DecValTok{10000}\NormalTok{)}
+\NormalTok{h3 }\OtherTok{\textless{}{-}} \FunctionTok{smacofRO}\NormalTok{(morseData, }\DecValTok{2}\NormalTok{, }\AttributeTok{kitmax =} \DecValTok{10}\NormalTok{, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{itmax =} \DecValTok{10000}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{itemize}
+\tightlist
+\item
+  Kitmax = 1 uses 138 major iterations and stops at stress 0.0163278417
+\item
+  Kitmax = 5 uses 34 major iterations and stops at stress 0.0163278414
+\item
+  Kitmax = 10 uses 22 major iterations and stops at stress 0.0163278414
+\end{itemize}
+
+We see that the resulting stress values are the same, but the number of outer iterations differs. This may be
+significant, because it means that using only one Guttman iteration means doing 138 monotone
+rgressions, while having 10 Guttman iterations per major iteration only uses 22 monotone
+regressions.
+
+\section*{References}\label{references}
+\addcontentsline{toc}{section}{References}
+
+\phantomsection\label{refs}
+\begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-degruijter_67}
+De Gruijter, D. N. M. 1967. {``{The Cognitive Structure of Dutch Political Parties in 1966}.''} Report E019-67. Psychological Institute, University of Leiden.
+
+\bibitem[\citeproctext]{ref-deleeuw_A_77}
+De Leeuw, J. 1977. {``Correctness of Kruskal's Algorithms for Monotone Regression with Ties.''} \emph{Psychometrika} 42: 141--44.
+
+\bibitem[\citeproctext]{ref-deleeuw_E_17h}
+---------. 2017. {``{Exceedingly Simple Monotone Regression (with Ties)}.''} 2017.
+
+\bibitem[\citeproctext]{ref-ekman_54}
+Ekman, G. 1954. {``{Dimensions of Color Vision}.''} \emph{Journal of Psychology} 38: 467--74.
+
+\bibitem[\citeproctext]{ref-rothkopf_57}
+Rothkopf, E. Z. 1957. {``{A Measure of Stimulus Similarity and Errors in some Paired-associate Learning}.''} \emph{Journal of Experimental Psychology} 53: 94--101.
+
+\end{CSLReferences}
+
+\end{document}
