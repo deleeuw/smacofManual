@@ -1,7 +1,7 @@
 ---
 title: |
     | Smacof at 50: A Manual
-    | Part x: smacofRO - Non-metric Smacof for Rank Order Data
+    | Part 4: smacofRO - Non-metric Smacof for Rank Order Data
 author: 
 - Jan de Leeuw - University of California Los Angeles
 date: '`r paste("Started May 12 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
@@ -28,27 +28,28 @@ bibliography: ["mypubs.bib","total.bib"]
 
 ```{r loadpackages, echo = FALSE}
 suppressPackageStartupMessages(library(smacofRO, quietly = TRUE))
+suppressPackageStartupMessages(library(microbenchmark, quietly = TRUE))
 ```
 
 **Note:** This is a working manuscript which will be expanded/updated
 frequently. All suggestions for improvement are welcome. All Rmd, tex,
 html, pdf, R, and C files are in the public domain. Attribution will be
 appreciated, but is not required. The files can be found at
-<https://github.com/deleeuw> in the repositories smacofCode, smacofManual, and smacofExamples.
+<https://github.com/deleeuw> in the smacofRO directories of the 
+repositories smacofCode, smacofManual, and smacofExamples.
 
 # Introduction
 
-The smacofRO program is a convential non-metric MDS program designed
-to handle a partial order over pairs from a single set of objects.
-Typically the partial order is derived from a symmetric matrix of
-numerical dissimilarities or from a ranking (with or without ties)
-of dissimilarities.
-
-# Data
-
-# Program
+The smacofRO program is a non-metric MDS program designed
+to handle a partial order over dissimilarities of pairs of objects selected 
+from a single set. In the terminology of @coombs_64 we are dealing 
+QIVa similarity data. Typically the partial order is derived from a 
+symmetric numerical matrix of dissimilarities or from a ranking 
+(with or without ties) of the dissimilarities.
 
 ## Parameters
+
+The smacofRO function in R has the following parameters (with default values).
 
 ```{r params, eval = FALSE}
 smacofRO <- function(data,
@@ -62,14 +63,29 @@ smacofRO <- function(data,
                      verbose = TRUE,
                      kitmax = 5,
                      keps = 1e-10,
-                     kverbose = 0,
+                     kverbose = FALSE,
                      init = 1,
                      ties = 1)
 ```
 
+* If xold is non-null then an initial configuration matrix must be provided.
+* If labels is non-null then a character vector of plot labels must be provided.
+* width and precision are relevant for the format of (optional) major iteration output.
+* itmax and eps determine when the major iterations stop.
+* If verbose = TRUE itel and stress for each major iteration are
+written to stdout.
+* kitmax and keps determine the number of inner Guttman transform iterations 
+between two monotone regressions.
+* If kverbose = TRUE then itel and stress for each inner iteration are written to stdout.
+* If init = 1 the Torgerson initial configuration is computed, if init = 2 
+the maximum sum initial configuration is used, if init = 3 a random initial configuration
+is used.
+* Ties is either 1, 2, or 3 indicating if the primary, secondary, or tertiary
+apprach to ties should be used.
+
 ## Input
 
-The data are a five column table. Here are the first five rows for
+The data are entered in a five-column table. Here are the first five rows for
 the Gruijter example, analyzed below.
 
 ```{r datatable, eval = FALSE}
@@ -81,31 +97,106 @@ the Gruijter example, analyzed below.
 [5,] 8 4  4.67 0.02777778    5
 ```
 
-The first two columns give the indices of the dissimilarities. Always $1\leq j<i\leq n$.
+The first two columns of data give the indices of the dissimilarities. Always $1\leq j<i\leq n$.
 Column three gives the value of delta, which can be an observed numerical value or
 a rank number. The data are in non-increasing order within their
 column. Column four gives the weights, adding up to one over all observations.
-And the last column codes tieblocks. It is allowed to have are fewer than $\frac12n(n-1)$ rows. 
-The missing rows are computationally equivalent to non-missing rows with weight equal to zero.
+And the last column codes tieblocks. Data is allowed to have are fewer than $\frac12n(n-1)$ rows,
+but each index pair should occur at most one time. 
+Missing pairs are computationally equivalent to rows with weight equal to zero.
 
-Typically we create the data by using the utility function, which is part of the
-smacofRO package. Here delta is a symmetric matrix or an object of class dist.
-If weights is NULL all weights are assumed to be equal.
-
-```{r mkdata, eval = FALSE}
-smacofMakeRankOrderData <-function(delta, weights = NULL, tieblocks = TRUE)
+Typically we create the data by using the utility function smacofMakeRankOrderData(), which is part of the
+smacofRO package. 
+```{r datacode, eval = FALSE}
+smacofMakeRankOrderData <-
+  function(delta, weights = NULL, tieblocks = TRUE)
 ```
+Here delta is a symmetric matrix or an object of class dist containing the dissimilarities.
+If weights is NULL all weights are assumed to be equal.
 
 ## Algorithm
 
-The ALS algorithm alternates a number of Guttman iterations with a single monotone 
-regression (with either one of the three options for ties, cf @deleeuw_A_77).
-Guttman iterations are normalized explicitly, using $\sum\sum w_{ij}d_{ij}^2(X)=1$.
-Monotone regression is done with the pava algorithm from @deleeuw_E_17h.
-
-
+* The ALS algorithm alternates a number of inner Guttman iterations with a single monotone 
+regression (with one of the three options for ties, cf @deleeuw_A_77).
+* The maximum number of inner iterations is kitmax, if the stress in an
+inner iteration changes less than keps the inner iterations are also stopped.
+* Guttman iterations are normalized explicitly, using $\sum\sum w_{ij}d_{ij}^2(X)=1$.
+* The maximum number of outer iterations is itmax, if the stress in an
+outer iteration changes less than eps the outer iterations are also stopped.
+* For monotone regression we use the pava algorithm from @deleeuw_E_17h, with
+some additional code for the tertiary approach to ties.
 
 ## Output
+
+The program returns a list with the following elements.
+
+```{r outlist, eval = FALSE}
+  h <- list(
+    nobj = nobj,
+    ndim = ndim,
+    snew = snew,
+    itel = itel,
+    xnew = xnew,
+    delta = delta,
+    evec = evec,
+    dvec = dvec,
+    wvec = wvec,
+    labels = labels
+  )
+```
+* nobj is the number of objects.
+* ndim is the number of dimensions.
+* snew is the final value of stress.
+* itel is the number of major iterations.
+* xnew is a matrix with the final configuration.
+* delta is a vector with the dissimilarities.
+* wvec is a vector with the weights.
+* evec is a vector with the final disparities.
+* dvec is a vector with the final distances.
+* labels is the character vector of labels (or NULL).
+
+The elements of delta, wvec, evec, and dvec are all in the order of the
+input data, i.e. sorted by increasing delta.
+
+## Plots
+
+The output list of smacofRO can be passed to the three utility programs that make plots.
+In addition to the list with smacofRO output the plot functions have a number of the
+standard graphical parameters. smacofConfigurationPlot() uses labels (if available) to label the 
+points. The fitlines argument of smacofShepardPlot() and smacofDistDhatplot()
+connects pairs of points in the plot that coincide if stress is zero. The sum of the squared lengths
+of the fitlines is equal to the stress.
+
+```{r utility, eval = FALSE}
+smacofShepardPlot <-
+  function(h,
+           main = "ShepardPlot",
+           fitlines = TRUE,
+           colline = "RED",
+           colpoint = "BLUE",
+           resolution = 100,
+           lwd = 2,
+           cex = 1,
+           pch = 16)
+           
+smacofConfigurationPlot <-
+  function(h,
+           main = "ConfigurationPlot",
+           dim1 = 1,
+           dim2 = 2,
+           pch = 16,
+           col = "RED",
+           cex = 1.5)
+           
+smacofDistDhatPlot <- function(h,
+                               fitlines = TRUE,
+                               colline = "RED",
+                               colpoint = "BLUE",
+                               main = "Dist-Dhat Plot",
+                               cex = 1,
+                               lwd = 2,
+                               pch = 16)
+```
 
 # Examples
 
@@ -116,7 +207,7 @@ source("/Users/deleeuw/Desktop/smacofProject/smacofExamples/smacofRO/gruijterRO.
 ```
 
 In this example the number of tieblocks is `r max(gruijterData[, 5])`, which means
-there is a single tieblock of two observations, the other 34 observations are
+there is only a single tieblock of two observations, the other 34 observations are
 untied. We expect that the three different ways of handling ties will not make
 much of a difference.
 
@@ -131,11 +222,11 @@ h3 <- smacofRO(gruijterData, 2, ties = 3, labels = labels, verbose = FALSE)
 * Ties = 3 uses `r h3$itel` iterations and stops at stress `r formatC(h3$snew, digits = 10, format = "f")`
 
 And indeed the solutions are practically the same, although the number of iterations needed for convergence
-differs somewhat between options. We only show one Shepardplot, because the others are virtually the same.
+differs somewhat between options. We only show one Shepardplot, because the other two are virtually the same.
 
 ```{r plotgruijter, echo = FALSE, fig.align = "center"}
 par(pty = "s")
-smacofShepardPlot(h1, fitlines = TRUE, main = "Gruijter, Ties = 1")
+smacofShepardPlot(h1, fitlines = TRUE, main = "Shepard, Gruijter, Ties = 1")
 ```
 
 We can also use this example to show the effect of using different initial configurations.
@@ -152,14 +243,14 @@ h3 <- smacofRO(gruijterData, 2, init = 3, labels = labels, verbose = FALSE)
 
 ```{r gruiterconfs, fig.align = "center", echo = FALSE}
 par(pty = "s")
-smacofConfigurationPlot(h1, main = "Gruijter with Torgerson Init", cex = .5)
-smacofConfigurationPlot(h2, main = "Gruijter with Maximum Sum Init", cex = .5)
-smacofConfigurationPlot(h1, main = "Gruijter with Random Init", cex = .5)
+smacofConfigurationPlot(h1, main = "Configuration, Gruijter with Torgerson Init", cex = .5)
+smacofConfigurationPlot(h2, main = "Configuration, Gruijter with Maximum Sum Init", cex = .5)
+smacofConfigurationPlot(h1, main = "Configuration, Gruijter with Random Init", cex = .5)
 ```
 
 Using different initial configurations in this example makes a huge difference. All three plots
-show the (CPN,PvdA,PSP) leftist cluster, the liberal (VVD,D'66) cluster, the protest BP outlier which is its own cluster,  and the (KVP,ARP,CHU) christian democrat cluster. In the three plots the
-clusters are distributed differently over the plane.
+show the (CPN, PvdA, PSP) leftist cluster, the liberal (VVD, D'66) cluster, the protest BP outlier which is its own cluster,  and the (KVP, ARP, CHU) christian democrat cluster. But in the three plots the
+clusters are distributed quite differently over the plane.
 
 ## @ekman_54
 
@@ -172,45 +263,77 @@ In the Ekman data there are `r max(ekmanData[, 5])` tieblocks out of
 ties option to make some difference.
 
 ```{r runekman, cache = TRUE}
-h1 <- smacofRO(ekmanData, 2, ties = 1, verbose = FALSE, labels = labels)
-h2 <- smacofRO(ekmanData, 2, ties = 2, verbose = FALSE, labels = labels)
-h3 <- smacofRO(ekmanData, 2, ties = 3, verbose = FALSE, labels = labels)
+h1 <- smacofRO(ekmanData, 2, ties = 1, verbose = FALSE, labels = labels, itmax = 10000)
+h2 <- smacofRO(ekmanData, 2, ties = 2, verbose = FALSE, labels = labels, itmax = 10000)
+h3 <- smacofRO(ekmanData, 2, ties = 3, verbose = FALSE, labels = labels, itmax = 10000)
 ```
 
 * Ties = 1 uses `r h1$itel` iterations and stops at stress `r formatC(h1$snew, digits = 10, format = "f")`
 * Ties = 2 uses `r h2$itel` iterations and stops at stress `r formatC(h2$snew, digits = 10, format = "f")`
 * Ties = 3 uses `r h3$itel` iterations and stops at stress `r formatC(h3$snew, digits = 10, format = "f")`
 
+Although the stress values are indeed different the solutions for ties = 1 and ties = 2 are very similar.
+Also note that for ties = 3 a huge number of iterations is needed to
+bring stress very close to zero, indicating perfect fit and very slow, and possibly sublinear, convergence. 
+Remember that for ties = 3 there is only stress between tieblocks, no stress within tieblocks.
+
+We now look at the Shepard plots and the configuration plots.
+
 ```{r plotekman, echo = FALSE, fig.align = "center"}
 par(pty = "s")
-smacofShepardPlot(h1, fitlines = TRUE, main = "Ekman, Ties = 1")
-smacofShepardPlot(h2, fitlines = TRUE, main = "Ekman, Ties = 2")
-smacofShepardPlot(h3, fitlines = TRUE, main = "Ekman, Ties = 3")
+smacofShepardPlot(h1, fitlines = TRUE, main = "Shepard, Ekman, Ties = 1")
+smacofShepardPlot(h2, fitlines = TRUE, main = "Shepard, Ekman, Ties = 2")
+smacofShepardPlot(h3, fitlines = TRUE, main = "Shepard, Ekman, Ties = 3")
 ```
 
-Although the stress values are indeed different, the solutions are practically the same. When looking at the
+When looking at the
 Shepard plots we have to remember that for ties = 1 and ties = 3 we can have different disparity values for the
 same dissimilarity value. Thus tieblocks are represented as intervals on the vertical axis, and strictly spoken we do not have a functional relationship between delta and dhat. This is clear from the plot for the 
 tertiary approach, which shows some of the intervals, mostly for the larger dissimilarities. It reinforces the
-idea that the tertiary approach is only useful if there are many small tieblocks, in which case it will be quite similar to the primary and secondary approach. 
+idea that the tertiary approach is mostly useful if there are many small tieblocks, in which case it will be quite similar to the primary and secondary approach. 
+
+If we compare the three Shepard plots we see that ties = 1 and ties = 2 are very similar, but ties = 3
+is different. There are no blue points in the plot for ties = 3, for the simple reason that they are
+identical to the red points. The stress is practically zero, which means that smacof is able to scale
+the `r max(ekmanData[, 5])` tieblock averages in the correct order. Plots for ties = 1 and ties = 2
+show the black fitlines, which indicate less than perfect fit. There are no fitlines in the plot for ties = 3.
 
 ```{r plotekmanconfs, echo = FALSE, fig.align = "center"}
 par(pty = "s")
-smacofConfigurationPlot(h1, cex = .5, main = "Ekman, Ties = 1")
-smacofConfigurationPlot(h2, cex = .5, main = "Ekman, Ties = 2")
-smacofConfigurationPlot(h3, cex = .5, main = "Ekman, Ties = 3")
+smacofConfigurationPlot(h1, cex = .5, main = "Configuration, Ekman, Ties = 1")
+smacofConfigurationPlot(h2, cex = .5, main = "Configuration, Ekman, Ties = 2")
+smacofConfigurationPlot(h3, cex = .5, main = "Configuration, Ekman, Ties = 3")
+```
+
+In configuration plots for ties = 1 and ties = 2 are very similar, and they show
+the color circle in all its glory. For ties = 3 the circle has some serious dents,
+which are presumably needed to force stress to zero.
+
+For completeness we also give the dist-dhat plots corresponding with the 
+three ties options. They again show the perfect fit with ties = 3 and the
+similarity of the fits for ties = 1 and ties = 2.
+
+```{r plotekmandd, echo = FALSE, fig.align = "center"}
+par(pty = "s")
+smacofDistDhatPlot(h1, fitlines = TRUE, main = "Dist-Dhat, Ekman, Ties = 1")
+smacofDistDhatPlot(h2, fitlines = TRUE, main = "Dist-Dhat, Ekman, Ties = 2")
+smacofDistDhatPlot(h3, fitlines = TRUE, main = "Dist-Dhat, Ekman, Ties = 3")
 ```
 
 ## @rothkopf_57
+
 
 ```{r readmorse, echo = FALSE}
 source("/Users/deleeuw/Desktop/smacofProject/smacofExamples/smacofRO/morseRO.R")
 ```
 
+In the morse code data there are `r max(morseData[, 5])` tieblocks out of
+`r nrow(morseData)` observations. Thus almost all observations are tied.
+
 ```{r runmorse, cache = TRUE}
-h1 <- smacofRO(morseData, 2, ties = 1, verbose = FALSE, itmax = 10000)
-h2 <- smacofRO(morseData, 2, ties = 2, verbose = FALSE, itmax = 10000)
-h3 <- smacofRO(morseData, 2, ties = 3, verbose = FALSE, itmax = 10000)
+h1 <- smacofRO(morseData, 2, ties = 1, verbose = FALSE, itmax = 10000, labels = labels)
+h2 <- smacofRO(morseData, 2, ties = 2, verbose = FALSE, itmax = 10000, labels = labels)
+h3 <- smacofRO(morseData, 2, ties = 3, verbose = FALSE, itmax = 10000, labels = labels)
 ```
 
 * Ties = 1 uses `r h1$itel` iterations and stops at stress `r formatC(h1$snew, digits = 10, format = "f")`
@@ -219,10 +342,26 @@ h3 <- smacofRO(morseData, 2, ties = 3, verbose = FALSE, itmax = 10000)
 
 ```{r plotmorse, echo = FALSE, fig.align = "center"}
 par(pty = "s")
-smacofShepardPlot(h1, fitlines = TRUE, main = "Morse, Ties = 1")
-smacofShepardPlot(h2, fitlines = TRUE, main = "Morse, Ties = 2")
-smacofShepardPlot(h3, fitlines = TRUE, main = "Morse, Ties = 3")
+smacofShepardPlot(h1, fitlines = TRUE, main = "Shepard, Morse, Ties = 1")
+smacofShepardPlot(h2, fitlines = TRUE, main = "Shepard, Morse, Ties = 2")
+smacofShepardPlot(h3, fitlines = TRUE, main = "Shepard, Morse, Ties = 3")
 ```
+
+We see the same types of results in the iterations and the Shepard plots as before. For ties = 3
+stress is again close to zero and we require a huge number of iterations. The Shepard plot
+for ties = 3 is messy, because there are so many intervals and intervals can be wide because
+within tieblocks there is no stress.
+
+```{r plotmorseconfs, echo = FALSE, fig.align = "center"}
+par(pty = "s")
+smacofConfigurationPlot(h1, cex = .75, main = "Configuration, Morse, Ties = 1")
+smacofConfigurationPlot(h2, cex = .75, main = "Configuration, Morse, Ties = 2")
+smacofConfigurationPlot(h3, cex = .75, main = "Configuration, Morse, Ties = 3")
+```
+
+Configuration plots for ties = 1 and ties = 2 are similar and show parallel lines for morse codes
+with one, two, three, four, or five symbols. On those five parallel lines codes are ordered from
+all dashes to all dots. For ties = 3 that nice raster structure is again disturbed.
 
 We also run morse with different values of kitmax, the number of inner Guttman iterations. The results are
 
@@ -236,9 +375,19 @@ h3 <- smacofRO(morseData, 2, kitmax = 10, verbose = FALSE, itmax = 10000)
 * Kitmax = 5 uses `r h2$itel` major iterations and stops at stress `r formatC(h2$snew, digits = 10, format = "f")`
 * Kitmax = 10 uses `r h3$itel` major iterations and stops at stress `r formatC(h3$snew, digits = 10, format = "f")`
 
-We see that the resulting stress values are the same, but the number of outer iterations differs. This may be
-significant, because it means that using only one Guttman iteration means doing `r h1$itel` monotone 
-rgressions, while having 10 Guttman iterations per major iteration only uses `r h3$itel` monotone 
-regressions.
+We see that the resulting stress values are pretty much the same, but the number of outer iterations differs. This may be significant, because it means that using only one Guttman iteration means doing `r h1$itel` monotone 
+regressions, while having ten Guttman iterations per major iteration only uses `r h3$itel` monotone 
+regressions. On the other hand for kitmax 1, 5, 10 we have to do respectively 138, 170, and 220 inner Guttman iterations. Which of the three options is faster will depend on the relative time required by Guttman transforms
+and monotone regressions. The timing for the current implementation, with 100 replications in microbenchmark
+(@mersmann_23), is as follows. 
+
+```{r timer, cache = TRUE, echo = FALSE}
+microbenchmark(
+smacofRO(morseData, 2, kitmax = 1, verbose = FALSE, itmax = 10000),
+smacofRO(morseData, 2, kitmax = 5, verbose = FALSE, itmax = 10000),
+smacofRO(morseData, 2, kitmax = 10, verbose = FALSE, itmax = 10000))
+```
+It seems advantageous to have a fairly large number of Guttman transforms between monotone regressions. In smacofRO for the Ekman data (with default options) kitmax = 10 is about three times faster than kitmax = 1.
+This may very well be example and implementation dependent.
 
 # References
