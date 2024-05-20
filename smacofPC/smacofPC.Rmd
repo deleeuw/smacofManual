@@ -1,0 +1,268 @@
+---
+title: |
+    | Smacof at 50: A Manual
+    | Part 4: Smacof for Cartwheel Data
+author: 
+- Jan de Leeuw - University of California Los Angeles
+date: '`r paste("Started May 19 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
+output:
+  bookdown::pdf_document2:
+    latex_engine: lualatex 
+    includes:
+      in_header: preamble.tex
+    keep_tex: yes
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+  bookdown::html_document2:
+    keep_md: yes
+    css: preamble.css
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+graphics: yes
+mainfont: Times New Roman
+fontsize: 12pt
+bibliography: ["mypubs.bib","total.bib"]
+---
+```{r loadpackages, echo = FALSE}
+#suppressPackageStartupMessages (library (foo, quietly = TRUE))
+```
+
+```{r load code, echo = FALSE}
+#source("~/Desktop/smacofProject/smacofCode/smacofPC/smacofPC.R")
+```
+
+
+**Note:** This is a working manuscript which will be expanded/updated
+frequently. All suggestions for improvement are welcome. All Rmd, tex,
+html, pdf, R, and C files are in the public domain. Attribution will be
+appreciated, but is not required. The files can be found at
+<https://github.com/deleeuw> in the smacofPC directory of the 
+repositories smacofCode, smacofManual, and smacofExamples.
+
+\sectionbreak
+
+
+
+# Loss Function
+
+We start with a general non-metric MDS problem. The formulas for the general case are simpler than those for the various special cases implemented
+in smacofNM.
+
+The loss function is
+\begin{equation}
+\sigma(X,\Delta_1,\cdots,\Delta_s):=\sum_{r=1}^R\sigma_r(X,\Delta_r),
+(\#eq:stressdef)
+\end{equation}
+with
+\begin{equation}
+\sigma_r(X,\Delta_r):=\sum_{i=1}^n\sum_{j=1}^n w_{ijr}(\delta_{ijr}-d_{ij}(X))^2.
+(\#eq:rstressdef)
+\end{equation}
+As usual, the symbol $:=$ is used for definitions. 
+
+The *weights* $W_r=\{w_{ijr}\}$ are known non-negative
+numbers and $D(X):=\{d_{ij}(X)\}$ is a matrix of Euclidean distances
+between the rows of the $n\times p$ *configuration* $X=\{x_{is}\}$, which are interpreted as $n$ points in $\mathbb{R}^p$.
+
+Loss function \@ref(eq:stressdef) must be minimized over *configurations* $X$ and over the $K$ matrices of *disparities* $\Delta_r=\{\delta_{ijr}\}$. The minimization problem has some constraints, both on $X$ and on the $\Delta_r$.
+We require that $X\in\mathcal{X}\subseteq\mathbb{R}^{n\times p}$. Here $\mathcal{X}$ is the set of *column-centered* (columns add up to zero) $n\times p$ matrices that are *normalized* by
+\begin{equation}
+\sum_{i=1}^n\sum_{j=1}^n w_{ij}^\star d_{ij}^2(X))=1,
+(\#eq:xscale)
+\end{equation}
+where
+\begin{equation}
+w_{ij}^\star:=\sum_{r=1}^R w_{ijr}.
+(\#eq:wstardef)
+\end{equation}
+
+The *disparities* $\Delta_r=\{\delta_{ijr}\}$ are required to satisfy $\Delta_r\in\mathcal{C}_r$. The $\mathcal{C}_r$ are polyhedral convex cones, which are subcones of the cone of non-negative matrices.  Each of the cones is defined by partial orders $\leq_r$ over the elements of the $\Delta_r$. In general, neither the (known) weight matrices $W_r$ nor the (unknown) disparity matrices $\Delta_r$ need to be symmetric and/or hollow (i.e. have zero diagonal). 
+
+The *data* of the MDS problem are the weights $W_r$ and the cones $\mathcal{C}_r$. Each pair $(W_r,\mathcal{C}_r)$ is called a *slice* of the data. The *unknowns* or *parameters* of the problem are $X\in\mathcal{X}$ and the $\Delta_r\in\mathcal{C}_r$.
+
+# The Data
+
+## Data Generation
+
+Utility
+
+
+
+# Algorithm
+
+## Initial Configuration
+
+In metric and non-linear MDS the default initial configuration is the
+classical Torgerson metric MDS solution. That is not available for
+smacofPC, because there are no numerical dissimilarities. In
+@deleeuw_R_70a (section 5.1) and @deleeuw_B_74 (chapter 4) a different eigenvalue-eigenvector based initial solution is proposed. We discuss a somewhat modernized version here. It is sometime known as the *maximum sum method*.
+
+The data are an order over a number of pairs of pairs. 
+\begin{equation}
+\omega(X):=\mathop{\sum\sum}_{(i,j)\prec(k,l)}(d_{ij}^2(X)-d_{kl}^2(X)),
+(\#eq:omegadef)
+\end{equation}
+where $(i,j)\prec(k,l)$ means that we want $d_{ij}(X)\leq d_{kl}(X)$.
+We want all terms in $\omega(X)$ to be positive, but for purposes of
+the initial configuration we relax this to wanting their sum to be 
+large. This explains the "maximum sum" name.
+
+The sum \@ref(eq:omegadef) can be written as the quadratic form
+$\omega(X)=\text{tr}\ X'A^\star X,$
+with
+\begin{equation}
+A^\star:=\left\{\sum_{(i,j)}\sum_{(k,l)}(A_{ij}-A_{kl})\right\} 
+(\#eq:astardef)
+\end{equation}
+Note that $A^\star$ is symmetric and doubly-centered. Moreover
+its trace is zero, and consequently it has one zero, some negative, 
+and some positive eigenvalues.
+
+
+Because $X$ is column centered we have
+$\omega(X)=\text{tr}\ X'(A^\star + \theta J)X$ where $J$ is the
+centering matrix $I-n^{-1}ee'$ and $\theta$ is arbitrary. For
+the non-zero eigenvalues we have
+$\lambda_s(A^\star + \theta J))=\lambda_s(A^\star) + \theta,$
+and thus for $\theta\geq-\lambda_{\text{min}}(A^\star)$ the matrix $A^\star + \theta J$ is positive semi-definite.
+
+Of course maximizing $\omega$ over all $X$ does not make sense, because
+by making $X$ larger we make $\omega$ larger. Thus the supremum over all
+$X$ is $+\infty$ and the maximum is not attained. We need some
+kind of normalization. The obvious choice is $\text{tr}\ X'X=1$, but
+unfortunately that does not work. It gives a rank-one solution
+with all columns of $X$ equal to the eigenvector corresponding with the
+dominant eigenvalue of $A^\star$. Instead we use $\text{tr}\ (X'X)^2=1$.
+This gives the solution $X=K\Lambda^\frac12$ with $\Lambda$ the largest $p$ eigenvalues of $A^\star$ (assumed to be non-negative) and $K$ the
+corresponding normalized eigenvectors. This is our version of
+the Torgerson initial solution for non-metric MDS.
+
+We have been deliberately vague about what to do if the number of
+positive eigenvalues of $A^\star$ is less than $p$, which is of
+course a problem the Torgerson metric MDS solution has as well. In the
+program we simply choose $\theta$ equal to $-\lambda_p(A^\star)$
+if $\lambda_p(A^\star)<0$. We expect the problem to be rare, and
+the actual choice of $\theta$ to be fairly inconsequential. 
+
+## The Iterations
+
+As in other smacof implementations our minimization method is based on the 
+*alternating least squares* principle. Start
+iteration $\nu=0$ with the initial normalized configuration $X^{(0)}$. We do not need an initial $(\Delta_1^{(0)},\cdots,\Delta_1^{(0)})$. Then in each iteration $\nu$ we improve the configuration and the disparities by solving two subproblems. They are
+\begin{align}
+\text{Step  }\nu.1:\quad&\text{For }k=1,\cdots,K\text{ set } \Delta_r^{(\nu+1)}=\mathop{\text{argmin}}_{\Delta_r\in\mathcal{C}_r}\sigma_r(X^{(\nu)},\Delta_r),(\#eq:alsprob1)\\
+\text{Step  }\nu.2:\quad&\text{select }X^{(\nu+1)}\text{ from }\mathop{\text{argmin}}_{X\in\mathcal{X}}\sigma(X,\Delta_1^{(\nu+1)},\cdots,\Delta_s^{(k+1)}).(\#eq:alsprob2)
+\end{align}
+
+## First Subproblem
+
+In formulating the first subproblem \@ref(eq:alsprob1) we have used the fact that the projections on the cones $\mathcal{C}_r$ can be carried out separately for each $k$. We also know that the projections exist and are unique.
+
+## Second Subproblem
+
+To minimize loss over $X\in\mathcal{X}$ for the current best value of the $\Delta_r$. This subproblem is simplified by using the least squares partitioning
+\begin{equation}
+\sigma(X,\Delta_1,\cdots,\Delta_s)=\sum_{r=1}^R\sum_{i=1}^n\sum_{j=1}^nw_{ijr}(\delta_{ijr}-\delta_{ij}^\star)^2+\sum_{i=1}^n\sum_{j=1}^nw_{ij}^\star(\delta_{ij}^\star-d_{ij}(X))^2,
+(\#eq:stresspart)
+\end{equation}
+where
+\begin{equation}
+\delta_{ij}^\star=\frac{\sum_{r=1}^R w_{ijr}\delta_{ijr}}{\sum_{r=1}^R w_{ijr}}.
+(\#eq:deltastardef)
+\end{equation}
+
+Minimizing over $X$ can be done by minimizing the second term on the right in
+\@ref(eq:stresspart), which is a standard metric smacof problem. But unfortunately there is no closed form solution for this problem, and the
+minimizer must be computed by an infinite iterative process. Of course
+we do not want to have an infinite iterative process with the infinite alternating least square process, and thus we truncate the minimizations
+in the second subproblem. Although the resulting algorithm is not
+strictly of the form \@ref(eq:alsprob1)-\@ref(eq:alsprob2) any more, it does
+decrease the loss function in each iteration and consequently
+produces a stable and convergent algorithm. Since the smacof iterations
+use majorization (or MM), our overall algorithm combines alternating
+least squares and majorization.
+
+## Slice-Independence
+
+We will assume throughout that $w_{ijr}=w_{ij}\epsilon_{ijr}$, where
+$\epsilon_{ijr}=1$ is either zero or one. If $\epsilon_{ijr}$ is one, we say that pair $(i,j)$ *participates* in slice $r$. Thus $\epsilon_{ijr}=0$ for all pairs that do not particpate. We refer to the assumption $w_{ijr}=w_{ij}\epsilon_{ijr}$ on the weights as the *slice-independent* case.
+
+To see the consequences of slice-independence for our equations
+we define
+\begin{equation}
+\mathcal{I}_r:=\{(i, j)\mid \epsilon_{ijr}= 1\}
+(\#eq:irdef)
+\end{equation}
+so that
+\begin{equation}
+\sigma_r(X,\Delta_1,\cdots,\Delta_s)=\sum_{(i,j)\in\mathcal{I}_r} w_{ij}(\delta_{ijr}-d_{ij}(X))^2
+(\#eq:stressdefred)
+\end{equation}
+
+Equation \@ref(eq:wstardef) gives $w_{ij}^\star=w_{ij}\epsilon_{ij}^\star,$
+where $\epsilon_{ij}^\star$ is the number of times pair $(i,j)$ occurs in
+the $R$ slices. A set of slices is *balanced* if all $\epsilon_{ij}^\star$ are equal. Also, from \@ref(eq:deltastardef), 
+\begin{equation}
+\delta_{ij}^\star=\frac{\sum_{r=1}^R \epsilon_{ijr}\delta_{ijr}}{\sum_{r=1}^R \epsilon_{ijr}}
+(\#eq:deltastarsimp)
+\end{equation}
+which does not depend on the $w_{ij}$.
+
+It follows that in our computations we have to deal with various
+different sets of weights. There are the $w_{ijr}$, the $w_{ij}^\star$,
+the $w_{ij}$, and the $\epsilon_{ij}^\star$. In the first ALS subproblem
+where we minimize over the $\Delta_r$ for fixed $X$ we use
+equation \@ref(eq:stressdefred), i.e. we use the $w_{ij}$. If we minimize over $X$ for fixed $\Delta_r$ we use \@ref(eq:stresspart), which means we
+use $w_{ij}^\star=w_{ij}\epsilon_{ij}^\star$ and $\delta_{ij}^\star$
+given by \@ref(eq:deltastarsimp). Of course this all simplifies dramatically
+if $w_{ij}=1$ for all pairs $(i,j)$ (the *unweighted* case).
+
+## Paired Comparisons
+
+THe paired comparison method of data collection is the simplest and
+the most basic one of the cartwheel methods.
+
+Positive Orthant / Absolute Value / Pairwise
+
+@deleeuw_R_70a
+@deleeuw_E_18d
+@hartmann_79
+@guttman_69
+@johnson_73
+
+
+Suppose datum $r$ says that that $(i,j)\prec(k,l)$. In the slice independent case $w_{ijr}=w_{ij}$ and $w_{klr}=w_{kl}$
+can be non-zero and all other elements of $W_r$ are zero. 
+
+Use $w_{(i,j)_r}$
+If $(i,j)\prec(k,l)$
+$$
+\sigma_r(X,\Delta_r)=w_{ij}(\delta_{ijr}-d_{ij})^2+w_{kl}(\delta_{klr}-d_{kl})^2
+$$
+Must be minimized over $\delta_{ijr}\leq\delta_{klr}$. If $d_{ij}\leq d_{kl}$
+then $\hat d_{ijr}=d_{ij}$ and $\hat d_{klr}=d_{kl}$, and otherwise
+$$
+\hat d_{ijr}=\hat d_{klr}=\frac{w_{ij}d_{ij}+w_{kl}d_{kl}}{w_{ij}+w_{kl}}
+$$
+ Thus
+
+$$w_{ij}(\hat d_{ijr}-d_{ij})^2+w_{kl}(\hat d_{klr}-d_{kl})^2$$
+is zero if the order of $d_{ij}$ and $d_{kl}$ is the same as the order in the data
+and 
+
+$$
+\frac{w_{ij}w_{kl}}{w_{ij}+w_{kl}}(d_{ij}-d_{kl})^2
+$$
+Also
+
+$$w_{ij}(\hat d_{ijr}-d_{ij})^2+w_{kl}(\hat d_{klr}-d_{kl})^2=$$
+$$
+w_{ij}\hat d_{ijr}^2+w_{kl}\hat d_{klr}^2+\\
+-2w_{ij}\hat d_{ijr}d_{ij}-2w_{kl}\hat d_{klr}d_{kl}+
+$$
+
+So far we have only considered the forced-choice situation in which
+the subject has to choose one of the two pairs. If we allow for the alternative that $(i,j)$ and $(k,l)$ are equally similar then we can choose between two different approaches. In the *primary approach* we incur no loss for this pair, no matter what $d_{ij}(X)$ and $d_{kl}(X)$ are. In the *secondary approach* we require that $\delta_{ijr}=\delta_{klr}$ and consequently we use ... and add to the loss if
+$d_{ij}X)\not= d_{kl}(X)$.

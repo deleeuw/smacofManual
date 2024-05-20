@@ -18,4 +18,5 @@ each of the programs in the project.
 * smacofRO - Non-metric, Full/ Conditional Rank orders
 * smacofTR - Non-metric, Triads and Propellors
 * smacofUF - Rectangular, metric, Unfolding 
+* smacofPO - Non-linear, Power Functions
 
