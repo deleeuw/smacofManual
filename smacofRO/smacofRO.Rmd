@@ -41,9 +41,9 @@ repositories smacofCode, smacofManual, and smacofExamples.
 # Introduction
 
 The smacofRO program is a non-metric MDS program designed
-to handle a partial order over dissimilarities of pairs of objects selected 
+to handle a weak order over dissimilarities of pairs of objects selected 
 from a single set. In the terminology of @coombs_64 we are dealing 
-QIVa similarity data. Typically the partial order is derived from a 
+with QIVa similarity data. Typically the partial order is derived from a 
 symmetric numerical matrix of dissimilarities or from a ranking 
 (with or without ties) of the dissimilarities.
 

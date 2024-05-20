@@ -39,6 +39,46 @@
 \makeatother
 \usepackage{xcolor}
 \usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
 \usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
 % Correct order of tables after \paragraph or \subparagraph
@@ -154,9 +194,9 @@
   pdfcreator={LaTeX via pandoc}}
 
 \title{Smacof at 50: A Manual\\
-Part 4: Smacof for Cartwheel Data}
+Part 4: Smacof for Pairs of Pairs}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started May 19 2024, Version of May 19, 2024}
+\date{Started May 19 2024, Version of May 20, 2024}
 
 \begin{document}
 \maketitle
@@ -176,10 +216,8 @@ repositories smacofCode, smacofManual, and smacofExamples.
 
 \section{Loss Function}\label{loss-function}
 
-We start with a general non-metric MDS problem. The formulas for the general case are simpler than those for the various special cases implemented
-in smacofNM.
-
-The loss function is
+We start with a general non-metric MDS problem with
+loss function
 \begin{equation}
 \sigma(X,\Delta_1,\cdots,\Delta_s):=\sum_{r=1}^R\sigma_r(X,\Delta_r),
 \label{eq:stressdef}
@@ -211,11 +249,99 @@ The \emph{disparities} \(\Delta_r=\{\delta_{ijr}\}\) are required to satisfy \(\
 
 The \emph{data} of the MDS problem are the weights \(W_r\) and the cones \(\mathcal{C}_r\). Each pair \((W_r,\mathcal{C}_r)\) is called a \emph{slice} of the data. The \emph{unknowns} or \emph{parameters} of the problem are \(X\in\mathcal{X}\) and the \(\Delta_r\in\mathcal{C}_r\).
 
+To minimize loss over \(X\in\mathcal{X}\) for the current best value of the \(\Delta_r\). This subproblem is simplified by using the least squares partitioning
+\begin{equation}
+\sigma(X,\Delta_1,\cdots,\Delta_s)=\sum_{r=1}^R\sum_{i=1}^n\sum_{j=1}^nw_{ijr}(\delta_{ijr}-\delta_{ij}^\star)^2+\sum_{i=1}^n\sum_{j=1}^nw_{ij}^\star(\delta_{ij}^\star-d_{ij}(X))^2,
+\label{eq:stresspart}
+\end{equation}
+where
+\begin{equation}
+\delta_{ij}^\star=\frac{\sum_{r=1}^R w_{ijr}\delta_{ijr}}{\sum_{r=1}^R w_{ijr}}.
+\label{eq:deltastardef}
+\end{equation}
+
+\subsection{Slice-Independence}\label{slice-independence}
+
+We will assume throughout that \(w_{ijr}=w_{ij}\epsilon_{ijr}\), where
+\(\epsilon_{ijr}=1\) is either zero or one. If \(\epsilon_{ijr}\) is one, we say that pair \((i,j)\) \emph{participates} in slice \(r\). Thus \(\epsilon_{ijr}=0\) for all pairs that do not particpate. We refer to the assumption \(w_{ijr}=w_{ij}\epsilon_{ijr}\) on the weights as the \emph{slice-independent} case.
+
+To see the consequences of slice-independence for our equations
+we define
+\begin{equation}
+\mathcal{I}_r:=\{(i, j)\mid \epsilon_{ijr}= 1\}
+\label{eq:irdef}
+\end{equation}
+so that
+\begin{equation}
+\sigma_r(X,\Delta_1,\cdots,\Delta_s)=\sum_{r=1}^s\sum_{(i,j)\in\mathcal{I}_r} w_{ij}(\delta_{ijr}-d_{ij}(X))^2
+\label{eq:stressdefred}
+\end{equation}
+
+Equation \eqref{eq:wstardef} gives \(w_{ij}^\star=w_{ij}\epsilon_{ij}^\star,\)
+where \(\epsilon_{ij}^\star\) is the number of times pair \((i,j)\) occurs in
+the \(R\) slices. A set of slices is \emph{balanced} if all \(\epsilon_{ij}^\star\) are equal. Also, from \eqref{eq:deltastardef},
+\begin{equation}
+\delta_{ij}^\star=\frac{\sum_{r=1}^R \epsilon_{ijr}\delta_{ijr}}{\sum_{r=1}^R \epsilon_{ijr}}
+\label{eq:deltastarsimp}
+\end{equation}
+which does not depend on the \(w_{ij}\).
+
+It follows that in our computations we have to deal with various
+different sets of weights. There are the \(w_{ijr}\), the \(w_{ij}^\star\),
+the \(w_{ij}\), and the \(\epsilon_{ij}^\star\). In the first ALS subproblem
+where we minimize over the \(\Delta_r\) for fixed \(X\) we use
+equation \eqref{eq:stressdefred}, i.e.~we use the \(w_{ij}\). If we minimize over \(X\) for fixed \(\Delta_r\) we use \eqref{eq:stresspart}, which means we
+use \(w_{ij}^\star=w_{ij}\epsilon_{ij}^\star\) and \(\delta_{ij}^\star\)
+given by \eqref{eq:deltastarsimp}. Of course this all simplifies dramatically
+if \(w_{ij}=1\) for all pairs \((i,j)\) (the \emph{unweighted} case).
+
 \section{The Data}\label{the-data}
 
 \subsection{Data Generation}\label{data-generation}
 
-Utility
+All pairs of pairs
+
+\[\binom{\binom{n}{2}}{2}\approx\frac14 n^4\]
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{3}\SpecialCharTok{:}\DecValTok{20}\NormalTok{) \{}
+  \FunctionTok{cat}\NormalTok{(}
+    \FunctionTok{formatC}\NormalTok{(i, }\AttributeTok{width =} \DecValTok{4}\NormalTok{, }\AttributeTok{format =} \StringTok{"d"}\NormalTok{),}
+    \FunctionTok{formatC}\NormalTok{(}\FunctionTok{choose}\NormalTok{(}\FunctionTok{choose}\NormalTok{(i, }\DecValTok{2}\NormalTok{), }\DecValTok{2}\NormalTok{), }\AttributeTok{width =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"d"}\NormalTok{),}
+    \StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    3          3 
+##    4         15 
+##    5         45 
+##    6        105 
+##    7        210 
+##    8        378 
+##    9        630 
+##   10        990 
+##   11       1485 
+##   12       2145 
+##   13       3003 
+##   14       4095 
+##   15       5460 
+##   16       7140 
+##   17       9180 
+##   18      11628 
+##   19      14535 
+##   20      17955
+\end{verbatim}
+
+Random pairs of pairs
+
+Balancing
+
+Take all \(\binom{n}{2}\) pairs. Random permutation for the first pair,
+random permutation for the second pair. Repeat m times. Note: this may
+generate comparisons of (i,j) with (i,j).
 
 \section{Algorithm}\label{algorithm}
 
@@ -224,7 +350,7 @@ Utility
 In metric and non-linear MDS the default initial configuration is the
 classical Torgerson metric MDS solution. That is not available for
 smacofPC, because there are no numerical dissimilarities. In
-De Leeuw (1970) (section 5.1) and De Leeuw (1974) (chapter 4) a different eigenvalue-eigenvector based initial solution is proposed. We discuss a somewhat modernized version here. It is sometime known as the \emph{maximum sum method}.
+De Leeuw (1970) (section 5.1) and De Leeuw (1973) (republished as De Leeuw (1984)), chapter 4, a different eigenvalue-eigenvector based initial solution is proposed. We discuss a somewhat modernized version here. It is sometime known as the \emph{maximum sum method}.
 
 The data are an order over a number of pairs of pairs.
 \begin{equation}
@@ -288,17 +414,6 @@ In formulating the first subproblem \eqref{eq:alsprob1} we have used the fact th
 
 \subsection{Second Subproblem}\label{second-subproblem}
 
-To minimize loss over \(X\in\mathcal{X}\) for the current best value of the \(\Delta_r\). This subproblem is simplified by using the least squares partitioning
-\begin{equation}
-\sigma(X,\Delta_1,\cdots,\Delta_s)=\sum_{r=1}^R\sum_{i=1}^n\sum_{j=1}^nw_{ijr}(\delta_{ijr}-\delta_{ij}^\star)^2+\sum_{i=1}^n\sum_{j=1}^nw_{ij}^\star(\delta_{ij}^\star-d_{ij}(X))^2,
-\label{eq:stresspart}
-\end{equation}
-where
-\begin{equation}
-\delta_{ij}^\star=\frac{\sum_{r=1}^R w_{ijr}\delta_{ijr}}{\sum_{r=1}^R w_{ijr}}.
-\label{eq:deltastardef}
-\end{equation}
-
 Minimizing over \(X\) can be done by minimizing the second term on the right in
 \eqref{eq:stresspart}, which is a standard metric smacof problem. But unfortunately there is no closed form solution for this problem, and the
 minimizer must be computed by an infinite iterative process. Of course
@@ -310,41 +425,6 @@ produces a stable and convergent algorithm. Since the smacof iterations
 use majorization (or MM), our overall algorithm combines alternating
 least squares and majorization.
 
-\subsection{Slice-Independence}\label{slice-independence}
-
-We will assume throughout that \(w_{ijr}=w_{ij}\epsilon_{ijr}\), where
-\(\epsilon_{ijr}=1\) is either zero or one. If \(\epsilon_{ijr}\) is one, we say that pair \((i,j)\) \emph{participates} in slice \(r\). Thus \(\epsilon_{ijr}=0\) for all pairs that do not particpate. We refer to the assumption \(w_{ijr}=w_{ij}\epsilon_{ijr}\) on the weights as the \emph{slice-independent} case.
-
-To see the consequences of slice-independence for our equations
-we define
-\begin{equation}
-\mathcal{I}_r:=\{(i, j)\mid \epsilon_{ijr}= 1\}
-\label{eq:irdef}
-\end{equation}
-so that
-\begin{equation}
-\sigma_r(X,\Delta_1,\cdots,\Delta_s)=\sum_{(i,j)\in\mathcal{I}_r} w_{ij}(\delta_{ijr}-d_{ij}(X))^2
-\label{eq:stressdefred}
-\end{equation}
-
-Equation \eqref{eq:wstardef} gives \(w_{ij}^\star=w_{ij}\epsilon_{ij}^\star,\)
-where \(\epsilon_{ij}^\star\) is the number of times pair \((i,j)\) occurs in
-the \(R\) slices. A set of slices is \emph{balanced} if all \(\epsilon_{ij}^\star\) are equal. Also, from \eqref{eq:deltastardef},
-\begin{equation}
-\delta_{ij}^\star=\frac{\sum_{r=1}^R \epsilon_{ijr}\delta_{ijr}}{\sum_{r=1}^R \epsilon_{ijr}}
-\label{eq:deltastarsimp}
-\end{equation}
-which does not depend on the \(w_{ij}\).
-
-It follows that in our computations we have to deal with various
-different sets of weights. There are the \(w_{ijr}\), the \(w_{ij}^\star\),
-the \(w_{ij}\), and the \(\epsilon_{ij}^\star\). In the first ALS subproblem
-where we minimize over the \(\Delta_r\) for fixed \(X\) we use
-equation \eqref{eq:stressdefred}, i.e.~we use the \(w_{ij}\). If we minimize over \(X\) for fixed \(\Delta_r\) we use \eqref{eq:stresspart}, which means we
-use \(w_{ij}^\star=w_{ij}\epsilon_{ij}^\star\) and \(\delta_{ij}^\star\)
-given by \eqref{eq:deltastarsimp}. Of course this all simplifies dramatically
-if \(w_{ij}=1\) for all pairs \((i,j)\) (the \emph{unweighted} case).
-
 \subsection{Paired Comparisons}\label{paired-comparisons}
 
 THe paired comparison method of data collection is the simplest and
@@ -355,7 +435,7 @@ Positive Orthant / Absolute Value / Pairwise
 De Leeuw (1970)
 De Leeuw (2018)
 Hartmann (1979)
-Guttman (1969)
+Guttman (1969) (republished as Gttman (1979))
 Johnson (1973)
 
 Suppose datum \(r\) says that that \((i,j)\prec(k,l)\). In the slice independent case \(w_{ijr}=w_{ij}\) and \(w_{klr}=w_{kl}\)
@@ -392,16 +472,25 @@ So far we have only considered the forced-choice situation in which
 the subject has to choose one of the two pairs. If we allow for the alternative that \((i,j)\) and \((k,l)\) are equally similar then we can choose between two different approaches. In the \emph{primary approach} we incur no loss for this pair, no matter what \(d_{ij}(X)\) and \(d_{kl}(X)\) are. In the \emph{secondary approach} we require that \(\delta_{ijr}=\delta_{klr}\) and consequently we use \ldots{} and add to the loss if
 \(d_{ij}X)\not= d_{kl}(X)\).
 
+\section*{References}\label{references}
+\addcontentsline{toc}{section}{References}
+
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
 \bibitem[\citeproctext]{ref-deleeuw_R_70a}
-De Leeuw, J. 1970. {``The Positive Orthant Method for Nonmetric Multidimensional Scaling.''} Research Report 001-70. Leiden, The Netherlands: Department of Data Theory FSW/RUL.
+De Leeuw, J. 1970. {``The Positive Orthant Method for Nonmetric Multidimensional Scaling.''} Research Report 001-70. Leiden, The Netherlands: Department of Data Theory FSW/RUL. \url{https://jansweb.netlify.app/publication/deleeuw-r-70-a/deleeuw-r-70-a.pdf}.
 
-\bibitem[\citeproctext]{ref-deleeuw_B_74}
----------. 1974. \emph{Canonical Analysis of Categorical Data}. Leiden, The Netherlands: Psychological Institute, Leiden University.
+\bibitem[\citeproctext]{ref-deleeuw_B_73}
+---------. 1973. {``Canonical Analysis of Categorical Data.''} PhD thesis, University of Leiden, The Netherlands. \url{https://jansweb.netlify.app/publication/deleeuw-b-73/deleeuw-b-73.pdf}.
+
+\bibitem[\citeproctext]{ref-deleeuw_B_84}
+---------. 1984. \emph{Canonical Analysis of Categorical Data}. Leiden, The Netherlands: DSWO Press. \url{https://jansweb.netlify.app/publication/deleeuw-b-84/deleeuw-b-84.pdf}.
 
 \bibitem[\citeproctext]{ref-deleeuw_E_18d}
----------. 2018. {``{The Positive Orthant Method }.''} 2018.
+---------. 2018. {``{The Positive Orthant Method }.''} 2018. \url{https://jansweb.netlify.app/publication/deleeuw-e-18-d/deleeuw-e-18-d.pdf}.
+
+\bibitem[\citeproctext]{ref-guttman_79}
+Gttman, L. 1979. {``Smallest Space Analysis by the Absolute Value Principle.''} In \emph{{Geometric Representations of Relational Data}}, edited by J. C. Lingoes, E. E. Roskam, and I. Borg, 707--12. Mathesis Press.
 
 \bibitem[\citeproctext]{ref-guttman_69}
 Guttman, L. 1969. {``{Smallest Space Analysis by the Absolute Value Principle}.''} In \emph{{Proceedings of the XIX International Congress of Psychology, London}}.

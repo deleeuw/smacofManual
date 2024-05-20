@@ -1,7 +1,7 @@
 ---
 title: |
     | Smacof at 50: A Manual
-    | Part 4: Smacof for Cartwheel Data
+    | Part 4: Smacof for Pairs of Pairs
 author: 
 - Jan de Leeuw - University of California Los Angeles
 date: '`r paste("Started May 19 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
@@ -43,14 +43,10 @@ repositories smacofCode, smacofManual, and smacofExamples.
 
 \sectionbreak
 
-
-
 # Loss Function
 
-We start with a general non-metric MDS problem. The formulas for the general case are simpler than those for the various special cases implemented
-in smacofNM.
-
-The loss function is
+We start with a general non-metric MDS problem with
+loss function 
 \begin{equation}
 \sigma(X,\Delta_1,\cdots,\Delta_s):=\sum_{r=1}^R\sigma_r(X,\Delta_r),
 (\#eq:stressdef)
@@ -82,11 +78,76 @@ The *disparities* $\Delta_r=\{\delta_{ijr}\}$ are required to satisfy $\Delta_r\
 
 The *data* of the MDS problem are the weights $W_r$ and the cones $\mathcal{C}_r$. Each pair $(W_r,\mathcal{C}_r)$ is called a *slice* of the data. The *unknowns* or *parameters* of the problem are $X\in\mathcal{X}$ and the $\Delta_r\in\mathcal{C}_r$.
 
+To minimize loss over $X\in\mathcal{X}$ for the current best value of the $\Delta_r$. This subproblem is simplified by using the least squares partitioning
+\begin{equation}
+\sigma(X,\Delta_1,\cdots,\Delta_s)=\sum_{r=1}^R\sum_{i=1}^n\sum_{j=1}^nw_{ijr}(\delta_{ijr}-\delta_{ij}^\star)^2+\sum_{i=1}^n\sum_{j=1}^nw_{ij}^\star(\delta_{ij}^\star-d_{ij}(X))^2,
+(\#eq:stresspart)
+\end{equation}
+where
+\begin{equation}
+\delta_{ij}^\star=\frac{\sum_{r=1}^R w_{ijr}\delta_{ijr}}{\sum_{r=1}^R w_{ijr}}.
+(\#eq:deltastardef)
+\end{equation}
+
+## Slice-Independence
+
+We will assume throughout that $w_{ijr}=w_{ij}\epsilon_{ijr}$, where
+$\epsilon_{ijr}=1$ is either zero or one. If $\epsilon_{ijr}$ is one, we say that pair $(i,j)$ *participates* in slice $r$. Thus $\epsilon_{ijr}=0$ for all pairs that do not particpate. We refer to the assumption $w_{ijr}=w_{ij}\epsilon_{ijr}$ on the weights as the *slice-independent* case.
+
+To see the consequences of slice-independence for our equations
+we define
+\begin{equation}
+\mathcal{I}_r:=\{(i, j)\mid \epsilon_{ijr}= 1\}
+(\#eq:irdef)
+\end{equation}
+so that
+\begin{equation}
+\sigma_r(X,\Delta_1,\cdots,\Delta_s)=\sum_{r=1}^s\sum_{(i,j)\in\mathcal{I}_r} w_{ij}(\delta_{ijr}-d_{ij}(X))^2
+(\#eq:stressdefred)
+\end{equation}
+
+Equation \@ref(eq:wstardef) gives $w_{ij}^\star=w_{ij}\epsilon_{ij}^\star,$
+where $\epsilon_{ij}^\star$ is the number of times pair $(i,j)$ occurs in
+the $R$ slices. A set of slices is *balanced* if all $\epsilon_{ij}^\star$ are equal. Also, from \@ref(eq:deltastardef), 
+\begin{equation}
+\delta_{ij}^\star=\frac{\sum_{r=1}^R \epsilon_{ijr}\delta_{ijr}}{\sum_{r=1}^R \epsilon_{ijr}}
+(\#eq:deltastarsimp)
+\end{equation}
+which does not depend on the $w_{ij}$.
+
+It follows that in our computations we have to deal with various
+different sets of weights. There are the $w_{ijr}$, the $w_{ij}^\star$,
+the $w_{ij}$, and the $\epsilon_{ij}^\star$. In the first ALS subproblem
+where we minimize over the $\Delta_r$ for fixed $X$ we use
+equation \@ref(eq:stressdefred), i.e. we use the $w_{ij}$. If we minimize over $X$ for fixed $\Delta_r$ we use \@ref(eq:stresspart), which means we
+use $w_{ij}^\star=w_{ij}\epsilon_{ij}^\star$ and $\delta_{ij}^\star$
+given by \@ref(eq:deltastarsimp). Of course this all simplifies dramatically
+if $w_{ij}=1$ for all pairs $(i,j)$ (the *unweighted* case).
+
+
 # The Data
 
 ## Data Generation
 
-Utility
+All pairs of pairs
+
+$$\binom{\binom{n}{2}}{2}\approx\frac14 n^4$$
+```{r}
+for (i in 3:20) {
+  cat(
+    formatC(i, width = 4, format = "d"),
+    formatC(choose(choose(i, 2), 2), width = 10, format = "d"),
+    "\n")
+}
+```
+
+Random pairs of pairs
+
+Balancing
+
+Take all $\binom{n}{2}$ pairs. Random permutation for the first pair,
+random permutation for the second pair. Repeat m times. Note: this may 
+generate comparisons of (i,j) with (i,j). 
 
 
 
@@ -97,7 +158,7 @@ Utility
 In metric and non-linear MDS the default initial configuration is the
 classical Torgerson metric MDS solution. That is not available for
 smacofPC, because there are no numerical dissimilarities. In
-@deleeuw_R_70a (section 5.1) and @deleeuw_B_74 (chapter 4) a different eigenvalue-eigenvector based initial solution is proposed. We discuss a somewhat modernized version here. It is sometime known as the *maximum sum method*.
+@deleeuw_R_70a (section 5.1) and @deleeuw_B_73 (republished as @deleeuw_B_84), chapter 4, a different eigenvalue-eigenvector based initial solution is proposed. We discuss a somewhat modernized version here. It is sometime known as the *maximum sum method*.
 
 The data are an order over a number of pairs of pairs. 
 \begin{equation}
@@ -162,16 +223,7 @@ In formulating the first subproblem \@ref(eq:alsprob1) we have used the fact tha
 
 ## Second Subproblem
 
-To minimize loss over $X\in\mathcal{X}$ for the current best value of the $\Delta_r$. This subproblem is simplified by using the least squares partitioning
-\begin{equation}
-\sigma(X,\Delta_1,\cdots,\Delta_s)=\sum_{r=1}^R\sum_{i=1}^n\sum_{j=1}^nw_{ijr}(\delta_{ijr}-\delta_{ij}^\star)^2+\sum_{i=1}^n\sum_{j=1}^nw_{ij}^\star(\delta_{ij}^\star-d_{ij}(X))^2,
-(\#eq:stresspart)
-\end{equation}
-where
-\begin{equation}
-\delta_{ij}^\star=\frac{\sum_{r=1}^R w_{ijr}\delta_{ijr}}{\sum_{r=1}^R w_{ijr}}.
-(\#eq:deltastardef)
-\end{equation}
+
 
 Minimizing over $X$ can be done by minimizing the second term on the right in
 \@ref(eq:stresspart), which is a standard metric smacof problem. But unfortunately there is no closed form solution for this problem, and the
@@ -184,40 +236,6 @@ produces a stable and convergent algorithm. Since the smacof iterations
 use majorization (or MM), our overall algorithm combines alternating
 least squares and majorization.
 
-## Slice-Independence
-
-We will assume throughout that $w_{ijr}=w_{ij}\epsilon_{ijr}$, where
-$\epsilon_{ijr}=1$ is either zero or one. If $\epsilon_{ijr}$ is one, we say that pair $(i,j)$ *participates* in slice $r$. Thus $\epsilon_{ijr}=0$ for all pairs that do not particpate. We refer to the assumption $w_{ijr}=w_{ij}\epsilon_{ijr}$ on the weights as the *slice-independent* case.
-
-To see the consequences of slice-independence for our equations
-we define
-\begin{equation}
-\mathcal{I}_r:=\{(i, j)\mid \epsilon_{ijr}= 1\}
-(\#eq:irdef)
-\end{equation}
-so that
-\begin{equation}
-\sigma_r(X,\Delta_1,\cdots,\Delta_s)=\sum_{(i,j)\in\mathcal{I}_r} w_{ij}(\delta_{ijr}-d_{ij}(X))^2
-(\#eq:stressdefred)
-\end{equation}
-
-Equation \@ref(eq:wstardef) gives $w_{ij}^\star=w_{ij}\epsilon_{ij}^\star,$
-where $\epsilon_{ij}^\star$ is the number of times pair $(i,j)$ occurs in
-the $R$ slices. A set of slices is *balanced* if all $\epsilon_{ij}^\star$ are equal. Also, from \@ref(eq:deltastardef), 
-\begin{equation}
-\delta_{ij}^\star=\frac{\sum_{r=1}^R \epsilon_{ijr}\delta_{ijr}}{\sum_{r=1}^R \epsilon_{ijr}}
-(\#eq:deltastarsimp)
-\end{equation}
-which does not depend on the $w_{ij}$.
-
-It follows that in our computations we have to deal with various
-different sets of weights. There are the $w_{ijr}$, the $w_{ij}^\star$,
-the $w_{ij}$, and the $\epsilon_{ij}^\star$. In the first ALS subproblem
-where we minimize over the $\Delta_r$ for fixed $X$ we use
-equation \@ref(eq:stressdefred), i.e. we use the $w_{ij}$. If we minimize over $X$ for fixed $\Delta_r$ we use \@ref(eq:stresspart), which means we
-use $w_{ij}^\star=w_{ij}\epsilon_{ij}^\star$ and $\delta_{ij}^\star$
-given by \@ref(eq:deltastarsimp). Of course this all simplifies dramatically
-if $w_{ij}=1$ for all pairs $(i,j)$ (the *unweighted* case).
 
 ## Paired Comparisons
 
@@ -229,7 +247,7 @@ Positive Orthant / Absolute Value / Pairwise
 @deleeuw_R_70a
 @deleeuw_E_18d
 @hartmann_79
-@guttman_69
+@guttman_69 (republished as @guttman_79)
 @johnson_73
 
 
@@ -266,3 +284,6 @@ $$
 So far we have only considered the forced-choice situation in which
 the subject has to choose one of the two pairs. If we allow for the alternative that $(i,j)$ and $(k,l)$ are equally similar then we can choose between two different approaches. In the *primary approach* we incur no loss for this pair, no matter what $d_{ij}(X)$ and $d_{kl}(X)$ are. In the *secondary approach* we require that $\delta_{ijr}=\delta_{klr}$ and consequently we use ... and add to the loss if
 $d_{ij}X)\not= d_{kl}(X)$.
+
+# References
+
