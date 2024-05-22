@@ -196,7 +196,7 @@
 \title{Smacof at 50: A Manual\\
 Part 4: Smacof for Pairs of Pairs}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started May 19 2024, Version of May 20, 2024}
+\date{Started May 19 2024, Version of May 22, 2024}
 
 \begin{document}
 \maketitle
@@ -205,7 +205,7 @@ Part 4: Smacof for Pairs of Pairs}
 \setcounter{tocdepth}{3}
 \tableofcontents
 }
-\textbf{Note:} This is a working manuscript which will be expanded/updated
+\textbf{Note:} This is a working paper which will be expanded/updated
 frequently. All suggestions for improvement are welcome. All Rmd, tex,
 html, pdf, R, and C files are in the public domain. Attribution will be
 appreciated, but is not required. The files can be found at
@@ -213,6 +213,19 @@ appreciated, but is not required. The files can be found at
 repositories smacofCode, smacofManual, and smacofExamples.
 
 \sectionbreak
+
+\section{Introduction}\label{introduction}
+
+THe paired comparison method of data collection is the simplest and
+the most basic one of the cartwheel methods.
+
+Positive Orthant / Absolute Value / Pairwise
+
+De Leeuw (1970)
+De Leeuw (2018)
+Hartmann (1979)
+Guttman (1969) (republished as Gttman (1979))
+Johnson (1973)
 
 \section{Loss Function}\label{loss-function}
 
@@ -295,63 +308,12 @@ use \(w_{ij}^\star=w_{ij}\epsilon_{ij}^\star\) and \(\delta_{ij}^\star\)
 given by \eqref{eq:deltastarsimp}. Of course this all simplifies dramatically
 if \(w_{ij}=1\) for all pairs \((i,j)\) (the \emph{unweighted} case).
 
-\section{The Data}\label{the-data}
-
-\subsection{Data Generation}\label{data-generation}
-
-All pairs of pairs
-
-\[\binom{\binom{n}{2}}{2}\approx\frac14 n^4\]
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{3}\SpecialCharTok{:}\DecValTok{20}\NormalTok{) \{}
-  \FunctionTok{cat}\NormalTok{(}
-    \FunctionTok{formatC}\NormalTok{(i, }\AttributeTok{width =} \DecValTok{4}\NormalTok{, }\AttributeTok{format =} \StringTok{"d"}\NormalTok{),}
-    \FunctionTok{formatC}\NormalTok{(}\FunctionTok{choose}\NormalTok{(}\FunctionTok{choose}\NormalTok{(i, }\DecValTok{2}\NormalTok{), }\DecValTok{2}\NormalTok{), }\AttributeTok{width =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"d"}\NormalTok{),}
-    \StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
-\NormalTok{\}}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-##    3          3 
-##    4         15 
-##    5         45 
-##    6        105 
-##    7        210 
-##    8        378 
-##    9        630 
-##   10        990 
-##   11       1485 
-##   12       2145 
-##   13       3003 
-##   14       4095 
-##   15       5460 
-##   16       7140 
-##   17       9180 
-##   18      11628 
-##   19      14535 
-##   20      17955
-\end{verbatim}
-
-Random pairs of pairs
-
-Balancing
-
-Take all \(\binom{n}{2}\) pairs. Random permutation for the first pair,
-random permutation for the second pair. Repeat m times. Note: this may
-generate comparisons of (i,j) with (i,j).
-
-\section{Algorithm}\label{algorithm}
-
 \subsection{Initial Configuration}\label{initial-configuration}
 
 In metric and non-linear MDS the default initial configuration is the
 classical Torgerson metric MDS solution. That is not available for
 smacofPC, because there are no numerical dissimilarities. In
 De Leeuw (1970) (section 5.1) and De Leeuw (1973) (republished as De Leeuw (1984)), chapter 4, a different eigenvalue-eigenvector based initial solution is proposed. We discuss a somewhat modernized version here. It is sometime known as the \emph{maximum sum method}.
-
 The data are an order over a number of pairs of pairs.
 \begin{equation}
 \omega(X):=\mathop{\sum\sum}_{(i,j)\prec(k,l)}(d_{ij}^2(X)-d_{kl}^2(X)),
@@ -398,45 +360,7 @@ program we simply choose \(\theta\) equal to \(-\lambda_p(A^\star)\)
 if \(\lambda_p(A^\star)<0\). We expect the problem to be rare, and
 the actual choice of \(\theta\) to be fairly inconsequential.
 
-\subsection{The Iterations}\label{the-iterations}
-
-As in other smacof implementations our minimization method is based on the
-\emph{alternating least squares} principle. Start
-iteration \(\nu=0\) with the initial normalized configuration \(X^{(0)}\). We do not need an initial \((\Delta_1^{(0)},\cdots,\Delta_1^{(0)})\). Then in each iteration \(\nu\) we improve the configuration and the disparities by solving two subproblems. They are
-\begin{align}
-\text{Step  }\nu.1:\quad&\text{For }k=1,\cdots,K\text{ set } \Delta_r^{(\nu+1)}=\mathop{\text{argmin}}_{\Delta_r\in\mathcal{C}_r}\sigma_r(X^{(\nu)},\Delta_r),\label{eq:alsprob1}\\
-\text{Step  }\nu.2:\quad&\text{select }X^{(\nu+1)}\text{ from }\mathop{\text{argmin}}_{X\in\mathcal{X}}\sigma(X,\Delta_1^{(\nu+1)},\cdots,\Delta_s^{(k+1)}).\label{eq:alsprob2}
-\end{align}
-
-\subsection{First Subproblem}\label{first-subproblem}
-
-In formulating the first subproblem \eqref{eq:alsprob1} we have used the fact that the projections on the cones \(\mathcal{C}_r\) can be carried out separately for each \(k\). We also know that the projections exist and are unique.
-
-\subsection{Second Subproblem}\label{second-subproblem}
-
-Minimizing over \(X\) can be done by minimizing the second term on the right in
-\eqref{eq:stresspart}, which is a standard metric smacof problem. But unfortunately there is no closed form solution for this problem, and the
-minimizer must be computed by an infinite iterative process. Of course
-we do not want to have an infinite iterative process with the infinite alternating least square process, and thus we truncate the minimizations
-in the second subproblem. Although the resulting algorithm is not
-strictly of the form \eqref{eq:alsprob1}-\eqref{eq:alsprob2} any more, it does
-decrease the loss function in each iteration and consequently
-produces a stable and convergent algorithm. Since the smacof iterations
-use majorization (or MM), our overall algorithm combines alternating
-least squares and majorization.
-
-\subsection{Paired Comparisons}\label{paired-comparisons}
-
-THe paired comparison method of data collection is the simplest and
-the most basic one of the cartwheel methods.
-
-Positive Orthant / Absolute Value / Pairwise
-
-De Leeuw (1970)
-De Leeuw (2018)
-Hartmann (1979)
-Guttman (1969) (republished as Gttman (1979))
-Johnson (1973)
+\subsection{Pairwise Monotone Regression}\label{pairwise-monotone-regression}
 
 Suppose datum \(r\) says that that \((i,j)\prec(k,l)\). In the slice independent case \(w_{ijr}=w_{ij}\) and \(w_{klr}=w_{kl}\)
 can be non-zero and all other elements of \(W_r\) are zero.
@@ -472,6 +396,178 @@ So far we have only considered the forced-choice situation in which
 the subject has to choose one of the two pairs. If we allow for the alternative that \((i,j)\) and \((k,l)\) are equally similar then we can choose between two different approaches. In the \emph{primary approach} we incur no loss for this pair, no matter what \(d_{ij}(X)\) and \(d_{kl}(X)\) are. In the \emph{secondary approach} we require that \(\delta_{ijr}=\delta_{klr}\) and consequently we use \ldots{} and add to the loss if
 \(d_{ij}X)\not= d_{kl}(X)\).
 
+\section{Program}\label{program}
+
+\subsection{Parameters}\label{parameters}
+
+The smacofPC function in R has the following parameters (with default values).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{smacofPC }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(data,}
+                     \AttributeTok{nobj =} \FunctionTok{max}\NormalTok{(data),}
+                     \AttributeTok{ndim =} \DecValTok{2}\NormalTok{,}
+                     \AttributeTok{wmat =} \ConstantTok{NULL}\NormalTok{,}
+                     \AttributeTok{xold =} \ConstantTok{NULL}\NormalTok{,}
+                     \AttributeTok{labels =} \ConstantTok{NULL}\NormalTok{,}
+                     \AttributeTok{width =} \DecValTok{15}\NormalTok{,}
+                     \AttributeTok{precision =} \DecValTok{10}\NormalTok{,}
+                     \AttributeTok{itmax =} \DecValTok{1000}\NormalTok{,}
+                     \AttributeTok{eps =} \FloatTok{1e{-}10}\NormalTok{,}
+                     \AttributeTok{verbose =} \ConstantTok{TRUE}\NormalTok{,}
+                     \AttributeTok{kitmax =} \DecValTok{5}\NormalTok{,}
+                     \AttributeTok{keps =} \FloatTok{1e{-}10}\NormalTok{,}
+                     \AttributeTok{kverbose =} \DecValTok{0}\NormalTok{,}
+                     \AttributeTok{init =} \DecValTok{1}\NormalTok{,}
+                     \AttributeTok{ties =} \DecValTok{0}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{itemize}
+\tightlist
+\item
+  If xold is non-null then an initial configuration matrix must be provided.
+\item
+  If labels is non-null then a character vector of plot labels must be provided.
+\item
+  width and precision are relevant for the format of (optional) major iteration output.
+\item
+  itmax and eps determine when the major iterations stop.
+\item
+  If verbose = TRUE itel and stress for each major iteration are
+  written to stdout.
+\item
+  kitmax and keps determine the number of inner Guttman transform iterations
+  between two monotone regressions.
+\item
+  If kverbose = TRUE then itel and stress for each inner iteration are written to stdout.
+\item
+  If init = 1 the maximum sum initial configuration is computed, if init = 2 a random initial configuration is used.
+\item
+  Ties is either 0, 1, or 2. If ties = 0 the data are forced choice, no ties
+  are allowed. If ties = 1 or ties = 2 the the primary or secondary approach
+  to ties is used.
+\end{itemize}
+
+\subsection{Input}\label{input}
+
+The data are either a four column (if ties = 0) or a five column (if ties = 1
+or ties = 2) matrix (or data frame). Here is an example of a data matrix
+with ties = 2 from the hoogeveen example (see below). The first four columns are indices. Row one, for example,
+tells us that \(\delta_{23}\leq\delta_{34}\). Row two has an entry in the
+fifth column and tells us that \(\delta_{23}=\delta_{45}\), and that we
+are supposed to use the second approach to ties, i.e.~require
+\(\hat d_{23}=\hat d_{45}\).
+
+\begin{verbatim}
+##    V1 V2 V3 V4 V5
+## 1   2  3  3  4  0
+## 2   2  3  4  5  2
+## 3   2  3  3  5  0
+## 4   2  3  2  4  0
+## 5   4  5  1  2  0
+## 6   2  5  1  2  2
+## 7   3  5  4  5  0
+## 8   1  3  1  2  0
+## 9   1  2  2  4  0
+## 10  2  5  2  4  0
+## 11  3  5  3  4  0
+## 12  1  3  2  3  0
+## 13  1  2  2  5  0
+## 14  3  5  2  5  0
+## 15  1  5  1  4  0
+## 16  1  3  3  4  0
+## 17  3  5  1  2  0
+## 18  1  5  1  4  0
+## 19  3  5  2  3  2
+## 20  2  5  2  4  0
+\end{verbatim}
+
+\begin{itemize}
+\tightlist
+\item
+  The data can have replications of some or all comparisons.
+\item
+  It is not necessary that the data are consistent with any partial order, i.e.~there can be intransivities and irreflexivities.
+\item
+  It is possible to use the secondary approach to ties for some comparisons
+  and the primary approach for others.
+\item
+  For more information on data generation see section \ref{utilities} on utilities.
+\end{itemize}
+
+\subsection{Algorithm}\label{algorithm}
+
+\subsection{Output}\label{output}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{  h }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+    \AttributeTok{nobj =}\NormalTok{ nobj,}
+    \AttributeTok{ndim =}\NormalTok{ ndim,}
+    \AttributeTok{snew =}\NormalTok{ snew,}
+    \AttributeTok{itel =}\NormalTok{ itel,}
+    \AttributeTok{xnew =}\NormalTok{ xnew,}
+    \AttributeTok{dhat =}\NormalTok{ dhat,}
+    \AttributeTok{dmat =}\NormalTok{ dmat,}
+    \AttributeTok{wvec =}\NormalTok{ wmat,}
+    \AttributeTok{labels =}\NormalTok{ labels}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Utilities}\label{utilities}
+
+\subsection{Data Generation and Collection}\label{data-generation-and-collection}
+
+Let us first address the elephant in the room. Even for moderate \(n\) there are a
+lot of pairs of pairs, and it quickly becomes impossible to present all of them to
+a subject, even if that subject is paid or is an undergraduate psychology student.
+
+If we only consider distinct pairings of distinct pairs there are already
+\(\binom{\binom{n}{2}}{2}\)
+pairs of pairs, which is of the order \(\frac14n^4\). Here is a little table.
+
+\begin{verbatim}
+##    3          3 
+##    4         15 
+##    5         45 
+##    6        105 
+##    7        210 
+##    8        378 
+##    9        630 
+##   10        990 
+##   11       1485 
+##   12       2145 
+##   13       3003 
+##   14       4095 
+##   15       5460 
+##   16       7140 
+##   17       9180 
+##   18      11628 
+##   19      14535 
+##   20      17955
+\end{verbatim}
+
+There are a number of ways to deal with this fundamental problem. If we take the psychophysical point of view that subjects are merely replications then we
+can use multiple subjects, each handling a subset of the pairs of pairs.
+Alternatively, we can select a random subset of the total set of pairs of pairs.
+Or we could use a design to select a preferably balanced subset.
+
+Take all \(\binom{n}{2}\) pairs. Random permutation for the first pair,
+random permutation for the second pair. Repeat m times. Note: this may
+generate comparisons of (i,j) with (i,j).
+
+\subsection{Plots}\label{plots}
+
+\section{Examples}\label{examples}
+
+\subsection{Hoogeveen}\label{hoogeveen}
+
+\subsection{Parties}\label{parties}
+
+\subsection{Ekman (1954)}\label{ekman_54}
+
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
 
@@ -488,6 +584,9 @@ De Leeuw, J. 1970. {``The Positive Orthant Method for Nonmetric Multidimensional
 
 \bibitem[\citeproctext]{ref-deleeuw_E_18d}
 ---------. 2018. {``{The Positive Orthant Method }.''} 2018. \url{https://jansweb.netlify.app/publication/deleeuw-e-18-d/deleeuw-e-18-d.pdf}.
+
+\bibitem[\citeproctext]{ref-ekman_54}
+Ekman, G. 1954. {``{Dimensions of Color Vision}.''} \emph{Journal of Psychology} 38: 467--74.
 
 \bibitem[\citeproctext]{ref-guttman_79}
 Gttman, L. 1979. {``Smallest Space Analysis by the Absolute Value Principle.''} In \emph{{Geometric Representations of Relational Data}}, edited by J. C. Lingoes, E. E. Roskam, and I. Borg, 707--12. Mathesis Press.

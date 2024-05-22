@@ -26,7 +26,7 @@ fontsize: 12pt
 bibliography: ["mypubs.bib","total.bib"]
 ---
 ```{r loadpackages, echo = FALSE}
-#suppressPackageStartupMessages (library (foo, quietly = TRUE))
+suppressPackageStartupMessages(library(smacofPC, quietly = TRUE))
 ```
 
 ```{r load code, echo = FALSE}
@@ -34,7 +34,7 @@ bibliography: ["mypubs.bib","total.bib"]
 ```
 
 
-**Note:** This is a working manuscript which will be expanded/updated
+**Note:** This is a working paper which will be expanded/updated
 frequently. All suggestions for improvement are welcome. All Rmd, tex,
 html, pdf, R, and C files are in the public domain. Attribution will be
 appreciated, but is not required. The files can be found at
@@ -42,6 +42,19 @@ appreciated, but is not required. The files can be found at
 repositories smacofCode, smacofManual, and smacofExamples.
 
 \sectionbreak
+
+# Introduction
+
+THe paired comparison method of data collection is the simplest and
+the most basic one of the cartwheel methods.
+
+Positive Orthant / Absolute Value / Pairwise
+
+@deleeuw_R_70a
+@deleeuw_E_18d
+@hartmann_79
+@guttman_69 (republished as @guttman_79)
+@johnson_73
 
 # Loss Function
 
@@ -124,42 +137,12 @@ use $w_{ij}^\star=w_{ij}\epsilon_{ij}^\star$ and $\delta_{ij}^\star$
 given by \@ref(eq:deltastarsimp). Of course this all simplifies dramatically
 if $w_{ij}=1$ for all pairs $(i,j)$ (the *unweighted* case).
 
-
-# The Data
-
-## Data Generation
-
-All pairs of pairs
-
-$$\binom{\binom{n}{2}}{2}\approx\frac14 n^4$$
-```{r}
-for (i in 3:20) {
-  cat(
-    formatC(i, width = 4, format = "d"),
-    formatC(choose(choose(i, 2), 2), width = 10, format = "d"),
-    "\n")
-}
-```
-
-Random pairs of pairs
-
-Balancing
-
-Take all $\binom{n}{2}$ pairs. Random permutation for the first pair,
-random permutation for the second pair. Repeat m times. Note: this may 
-generate comparisons of (i,j) with (i,j). 
-
-
-
-# Algorithm
-
 ## Initial Configuration
 
 In metric and non-linear MDS the default initial configuration is the
 classical Torgerson metric MDS solution. That is not available for
 smacofPC, because there are no numerical dissimilarities. In
 @deleeuw_R_70a (section 5.1) and @deleeuw_B_73 (republished as @deleeuw_B_84), chapter 4, a different eigenvalue-eigenvector based initial solution is proposed. We discuss a somewhat modernized version here. It is sometime known as the *maximum sum method*.
-
 The data are an order over a number of pairs of pairs. 
 \begin{equation}
 \omega(X):=\mathop{\sum\sum}_{(i,j)\prec(k,l)}(d_{ij}^2(X)-d_{kl}^2(X)),
@@ -207,49 +190,8 @@ program we simply choose $\theta$ equal to $-\lambda_p(A^\star)$
 if $\lambda_p(A^\star)<0$. We expect the problem to be rare, and
 the actual choice of $\theta$ to be fairly inconsequential. 
 
-## The Iterations
 
-As in other smacof implementations our minimization method is based on the 
-*alternating least squares* principle. Start
-iteration $\nu=0$ with the initial normalized configuration $X^{(0)}$. We do not need an initial $(\Delta_1^{(0)},\cdots,\Delta_1^{(0)})$. Then in each iteration $\nu$ we improve the configuration and the disparities by solving two subproblems. They are
-\begin{align}
-\text{Step  }\nu.1:\quad&\text{For }k=1,\cdots,K\text{ set } \Delta_r^{(\nu+1)}=\mathop{\text{argmin}}_{\Delta_r\in\mathcal{C}_r}\sigma_r(X^{(\nu)},\Delta_r),(\#eq:alsprob1)\\
-\text{Step  }\nu.2:\quad&\text{select }X^{(\nu+1)}\text{ from }\mathop{\text{argmin}}_{X\in\mathcal{X}}\sigma(X,\Delta_1^{(\nu+1)},\cdots,\Delta_s^{(k+1)}).(\#eq:alsprob2)
-\end{align}
-
-## First Subproblem
-
-In formulating the first subproblem \@ref(eq:alsprob1) we have used the fact that the projections on the cones $\mathcal{C}_r$ can be carried out separately for each $k$. We also know that the projections exist and are unique.
-
-## Second Subproblem
-
-
-
-Minimizing over $X$ can be done by minimizing the second term on the right in
-\@ref(eq:stresspart), which is a standard metric smacof problem. But unfortunately there is no closed form solution for this problem, and the
-minimizer must be computed by an infinite iterative process. Of course
-we do not want to have an infinite iterative process with the infinite alternating least square process, and thus we truncate the minimizations
-in the second subproblem. Although the resulting algorithm is not
-strictly of the form \@ref(eq:alsprob1)-\@ref(eq:alsprob2) any more, it does
-decrease the loss function in each iteration and consequently
-produces a stable and convergent algorithm. Since the smacof iterations
-use majorization (or MM), our overall algorithm combines alternating
-least squares and majorization.
-
-
-## Paired Comparisons
-
-THe paired comparison method of data collection is the simplest and
-the most basic one of the cartwheel methods.
-
-Positive Orthant / Absolute Value / Pairwise
-
-@deleeuw_R_70a
-@deleeuw_E_18d
-@hartmann_79
-@guttman_69 (republished as @guttman_79)
-@johnson_73
-
+## Pairwise Monotone Regression
 
 Suppose datum $r$ says that that $(i,j)\prec(k,l)$. In the slice independent case $w_{ijr}=w_{ij}$ and $w_{klr}=w_{kl}$
 can be non-zero and all other elements of $W_r$ are zero. 
@@ -284,6 +226,142 @@ $$
 So far we have only considered the forced-choice situation in which
 the subject has to choose one of the two pairs. If we allow for the alternative that $(i,j)$ and $(k,l)$ are equally similar then we can choose between two different approaches. In the *primary approach* we incur no loss for this pair, no matter what $d_{ij}(X)$ and $d_{kl}(X)$ are. In the *secondary approach* we require that $\delta_{ijr}=\delta_{klr}$ and consequently we use ... and add to the loss if
 $d_{ij}X)\not= d_{kl}(X)$.
+
+# Program
+
+## Parameters
+
+The smacofPC function in R has the following parameters (with default values).
+
+```{r params, eval = FALSE}
+smacofPC <- function(data,
+                     nobj = max(data),
+                     ndim = 2,
+                     wmat = NULL,
+                     xold = NULL,
+                     labels = NULL,
+                     width = 15,
+                     precision = 10,
+                     itmax = 1000,
+                     eps = 1e-10,
+                     verbose = TRUE,
+                     kitmax = 5,
+                     keps = 1e-10,
+                     kverbose = 0,
+                     init = 1,
+                     ties = 0)
+```
+
+* If xold is non-null then an initial configuration matrix must be provided.
+* If labels is non-null then a character vector of plot labels must be provided.
+* width and precision are relevant for the format of (optional) major iteration output.
+* itmax and eps determine when the major iterations stop.
+* If verbose = TRUE itel and stress for each major iteration are
+written to stdout.
+* kitmax and keps determine the number of inner Guttman transform iterations 
+between two monotone regressions.
+* If kverbose = TRUE then itel and stress for each inner iteration are written to stdout.
+* If init = 1 the maximum sum initial configuration is computed, if init = 2 a random initial configuration is used.
+* Ties is either 0, 1, or 2. If ties = 0 the data are forced choice, no ties
+are allowed. If ties = 1 or ties = 2 the the primary or secondary approach
+to ties is used.
+
+## Input
+
+The data are either a four column (if ties = 0) or a five column (if ties = 1
+or ties = 2) matrix (or data frame). Here is an example of a data matrix
+with ties = 2 from the hoogeveen example (see below). The first four columns are indices. Row one, for example,
+tells us that $\delta_{23}\leq\delta_{34}$. Row two has an entry in the
+fifth column and tells us that $\delta_{23}=\delta_{45}$, and that we
+are supposed to use the second approach to ties, i.e. require
+$\hat d_{23}=\hat d_{45}$.
+
+```{r h0, echo = FALSE}
+hoogeveen0 <-
+structure(list(V1 = c(2L, 2L, 2L, 2L, 4L, 2L, 3L, 1L, 1L, 2L,
+3L, 1L, 1L, 3L, 1L, 1L, 3L, 1L, 3L, 2L), V2 = c(3L, 3L, 3L, 3L,
+5L, 5L, 5L, 3L, 2L, 5L, 5L, 3L, 2L, 5L, 5L, 3L, 5L, 5L, 5L, 5L
+), V3 = c(3L, 4L, 3L, 2L, 1L, 1L, 4L, 1L, 2L, 2L, 3L, 2L, 2L,
+2L, 1L, 3L, 1L, 1L, 2L, 2L), V4 = c(4L, 5L, 5L, 4L, 2L, 2L, 5L,
+2L, 4L, 4L, 4L, 3L, 5L, 5L, 4L, 4L, 2L, 4L, 3L, 4L), V5 = c(0L,
+2L, 0L, 0L, 0L, 2L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L,
+0L, 2L, 0L)), class = "data.frame", row.names = c(NA, -20L))
+hoogeveen0
+```
+
+* The data can have replications of some or all comparisons.
+* It is not necessary that the data are consistent with any partial order, i.e. there can be intransivities and irreflexivities.
+* It is possible to use the secondary approach to ties for some comparisons
+and the primary approach for others.
+* For more information on data generation see section \@ref(utilities) on utilities.
+
+## Algorithm
+
+
+## Output
+
+```{r eval = FALSE}
+  h <- list(
+    nobj = nobj,
+    ndim = ndim,
+    snew = snew,
+    itel = itel,
+    xnew = xnew,
+    dhat = dhat,
+    dmat = dmat,
+    wvec = wmat,
+    labels = labels
+  )
+```
+
+# Utilities{#utilities}
+
+## Data Generation and Collection
+
+Let us first address the elephant in the room. Even for moderate $n$ there are a
+lot of pairs of pairs, and it quickly becomes impossible to present all of them to
+a subject, even if that subject is paid or is an undergraduate psychology student.
+
+If we only consider distinct pairings of distinct pairs there are already
+$\binom{\binom{n}{2}}{2}$
+pairs of pairs, which is of the order $\frac14n^4$. Here is a little table.
+
+```{r little, echo = FALSE}
+for (i in 3:20) {
+  cat(
+    formatC(i, width = 4, format = "d"),
+    formatC(choose(choose(i, 2), 2), width = 10, format = "d"),
+    "\n")
+}
+```
+
+There are a number of ways to deal with this fundamental problem. If we take the psychophysical point of view that subjects are merely replications then we
+can use multiple subjects, each handling a subset of the pairs of pairs. 
+Alternatively, we can select a random subset of the total set of pairs of pairs.
+Or we could use a design to select a preferably balanced subset.
+
+
+Take all $\binom{n}{2}$ pairs. Random permutation for the first pair,
+random permutation for the second pair. Repeat m times. Note: this may 
+generate comparisons of (i,j) with (i,j). 
+
+
+
+
+## Plots
+
+# Examples
+
+## Hoogeveen
+
+## Parties
+
+## @ekman_54
+
+
+
+
+
 
 # References
 

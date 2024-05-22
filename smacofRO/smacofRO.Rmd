@@ -47,6 +47,8 @@ with QIVa similarity data. Typically the partial order is derived from a
 symmetric numerical matrix of dissimilarities or from a ranking 
 (with or without ties) of the dissimilarities.
 
+# Program
+
 ## Parameters
 
 The smacofRO function in R has the following parameters (with default values).
@@ -157,6 +159,8 @@ The program returns a list with the following elements.
 
 The elements of delta, wvec, evec, and dvec are all in the order of the
 input data, i.e. sorted by increasing delta.
+
+# Utilities
 
 ## Plots
 

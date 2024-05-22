@@ -40,6 +40,8 @@ smacofID.
 
 # Introduction
 
+@deleeuw_E_19c
+
 1. $X_k=X$
 2. $X_k=XD_k$ with $D_k$ diagonal (INDSCAL)
 3. $X_k=XA_k$ with $A_k$ general (IDIOSCAL)
