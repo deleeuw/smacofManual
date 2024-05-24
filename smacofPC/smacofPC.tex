@@ -196,7 +196,7 @@
 \title{Smacof at 50: A Manual\\
 Part 4: Smacof for Pairs of Pairs}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started May 19 2024, Version of May 22, 2024}
+\date{Started May 19 2024, Version of May 24, 2024}
 
 \begin{document}
 \maketitle
@@ -216,28 +216,79 @@ repositories smacofCode, smacofManual, and smacofExamples.
 
 \section{Introduction}\label{introduction}
 
-THe paired comparison method of data collection is the simplest and
-the most basic one of the cartwheel methods.
+The paired comparison of pairs of objects is the simplest and
+the most basic one of the cartwheel methods for collecting
+similarity judgments (Coombs (1954)). Pairs of objects from a set
+\(\mathcal{O}\) of \(n\) objects are compared, and the responses of the subjects are
+that objects \(o_i\) and \(o_j\) are more similar than objects
+\(o_k\) and \(o_l\). In the MDS context this means that we require
+of our representation \(X\) that \(d_{ij}(X)\leq d_{kl}(X)\). The smacofPC()
+function finds an approximate solution to this highly non-linear and
+highly non-convex system of inequalities.
 
-Positive Orthant / Absolute Value / Pairwise
+smacofPC() is not limited to data collected as comparisons of
+pairs of objects. Many different data collection methods produce data that are nt of this form, but can be
+coded as such paired comparisons. Examples are the various versions of the
+method of triads, the method of conditional rank orders, and the
+complete or partial ranking of all \(\binom{n}{2}\) dissimilarities.
+In general the comparison data for pairs of pairs do not require transitivity
+or symmetry and allow for replications of some or all pairs of
+pairs.
 
-De Leeuw (1970)
-De Leeuw (2018)
-Hartmann (1979)
-Guttman (1969) (republished as Gttman (1979))
-Johnson (1973)
+There have been earlier versions of non-metric MDS methods based
+on comparisons of pairs of objects. Around 1970 various people proposed the \emph{positive orthant method (POM)} (De Leeuw (1968), De Leeuw (1970), Hartmann (1979)), the \emph{absolute value principle (AVP)} (Guttman (1969)), and the
+\emph{pairwise method (PM)} (Johnson (1973)). Guttman's conference
+presentation has been republished as Gttman (1979).
+
+All three methods use an implicitly normalized loss function with numerator
+of the form
+\begin{equation}
+\lambda_N(X):=\sum\sum w_{ij,kl}\ \sigma_{ij,kl}\ \text{sign}(d_{ij}(X)-d_{kl}(X))|d_{ij}(X)-d_{kl}(X)|^q,
+\label{eq:pom}
+\end{equation}
+where \(w_{ij,kl}\geq 0\) and \(\sigma_{ij,kl}\) is either minus one, plus one, or
+zero. In most cases \(\sigma_{ij,kl}\) is the signature of the dissimilarities, i.e.
+\begin{equation}
+\sigma_{ij,kl}=\text{sign}(\delta_{ij}-\delta_{kl}),
+\label{eq:sijkl}
+\end{equation}
+but that is not necessarily the case because there may not be numerical dissimilarities. It is useful, however, to keep this interpretation in mind. In Johnson's PM squared distances instead of distances are used, but that at this conceptual level that seems just a minor detail.
+
+The denominator of the loss function in all three approaches is
+\begin{equation}
+\lambda_D(X):=\sum\sum w_{ij,kl}|d_{ij}(X)-d_{kl}(X))|^q,
+\label{eq:lambdad}
+\end{equation}
+and all three algorithms use gradient methods to minimize their loss functions
+\(\lambda(X)=\lambda_N(X)/\lambda_D(X)\).
+
+In both AVP and the more recent version of POM (De Leeuw (2018)) emphasis is on
+\(q=1\), in which case the loss function is
+\begin{equation}
+\lambda(X)=\frac{\sum\sum w_{ij,kl}\ \sigma_{ij,kl}(d_{ij}(X)-d_{kl}(X))}{\sum\sum w_{ij,kl}\ |d_{ij}(X)-d_{kl}(X)|}.
+\label{eq:lambda1}
+\end{equation}
+This can be rewritten in the more compact and computationally more friendly \emph{rearrangement form}
+\begin{equation}
+\lambda(X)=\frac{\sum r_{ij}d_{ij}(X)}{\max_{r\in\mathcal{R}}\sum r_{ij}d_{ij}(X)}.
+\label{eq:rearrange}
+\end{equation}
+Here \(\mathcal{R}\) is the set of all matrices of the form \(r_{ij}=\sum w_{ij,kl}\sigma_{ij,kl}\), with \(\sigma_{ij,kl}\) varying over all possible
+signatures (or, equivalently, over the convex set of all matrices with entries between minus and plus one).
+
+As we shall see, the loss function used in smacofPO is an explicitly normalized version of equation \eqref{eq:pom} with \(q=2\). The loss function used for the initial estimate is an explicitly normalized version of equation \eqref{eq:pom} that has \(q=1\) and uses squared distances.
 
 \section{Loss Function}\label{loss-function}
 
-We start with a general non-metric MDS problem with
+To introduce the smacofPO loss function we start with a general non-metric MDS problem with
 loss function
 \begin{equation}
-\sigma(X,\Delta_1,\cdots,\Delta_s):=\sum_{r=1}^R\sigma_r(X,\Delta_r),
+\sigma(X,\hat D_1,\cdots,\hat D_s):=\sum_{r=1}^R\sigma_r(X,\hat D_r),
 \label{eq:stressdef}
 \end{equation}
 with
 \begin{equation}
-\sigma_r(X,\Delta_r):=\sum_{i=1}^n\sum_{j=1}^n w_{ijr}(\delta_{ijr}-d_{ij}(X))^2.
+\sigma_r(X,\hat D_r):=\sum_{i=1}^n\sum_{j=1}^n w_{ijr}(\hat d_{ijr}-d_{ij}(X))^2.
 \label{eq:rstressdef}
 \end{equation}
 As usual, the symbol \(:=\) is used for definitions.
@@ -246,7 +297,7 @@ The \emph{weights} \(W_r=\{w_{ijr}\}\) are known non-negative
 numbers and \(D(X):=\{d_{ij}(X)\}\) is a matrix of Euclidean distances
 between the rows of the \(n\times p\) \emph{configuration} \(X=\{x_{is}\}\), which are interpreted as \(n\) points in \(\mathbb{R}^p\).
 
-Loss function \eqref{eq:stressdef} must be minimized over \emph{configurations} \(X\) and over the \(K\) matrices of \emph{disparities} \(\Delta_r=\{\delta_{ijr}\}\). The minimization problem has some constraints, both on \(X\) and on the \(\Delta_r\).
+Loss function \eqref{eq:stressdef} must be minimized over \emph{configurations} \(X\) and over the \(R\) matrices of \emph{disparities} \(\hat D_r=\{\hat d_{ijr}\}\). The minimization problem has some constraints, both on \(X\) and on the \(\hat D_r\).
 We require that \(X\in\mathcal{X}\subseteq\mathbb{R}^{n\times p}\). Here \(\mathcal{X}\) is the set of \emph{column-centered} (columns add up to zero) \(n\times p\) matrices that are \emph{normalized} by
 \begin{equation}
 \sum_{i=1}^n\sum_{j=1}^n w_{ij}^\star d_{ij}^2(X))=1,
@@ -258,18 +309,18 @@ w_{ij}^\star:=\sum_{r=1}^R w_{ijr}.
 \label{eq:wstardef}
 \end{equation}
 
-The \emph{disparities} \(\Delta_r=\{\delta_{ijr}\}\) are required to satisfy \(\Delta_r\in\mathcal{C}_r\). The \(\mathcal{C}_r\) are polyhedral convex cones, which are subcones of the cone of non-negative matrices. Each of the cones is defined by partial orders \(\leq_r\) over the elements of the \(\Delta_r\). In general, neither the (known) weight matrices \(W_r\) nor the (unknown) disparity matrices \(\Delta_r\) need to be symmetric and/or hollow (i.e.~have zero diagonal).
+The \emph{disparities} \(\hat D_r=\{\hat d_{ijr}\}\) are required to satisfy \(\hat D_r\in\mathcal{C}_r\). The \(\mathcal{C}_r\) are polyhedral convex cones, which are subcones of the cone of non-negative matrices. Each of the cones is defined by partial orders \(\leq_r\) over the elements of the \(\hat D_r\). In general, neither the (known) weight matrices \(W_r\) nor the (unknown) disparity matrices \(\hat D_r\) need to be symmetric and/or hollow (i.e.~have zero diagonal).
 
-The \emph{data} of the MDS problem are the weights \(W_r\) and the cones \(\mathcal{C}_r\). Each pair \((W_r,\mathcal{C}_r)\) is called a \emph{slice} of the data. The \emph{unknowns} or \emph{parameters} of the problem are \(X\in\mathcal{X}\) and the \(\Delta_r\in\mathcal{C}_r\).
+The \emph{data} of the MDS problem are the weights \(W_r\) and the cones \(\mathcal{C}_r\). Each pair \((W_r,\mathcal{C}_r)\) is called a \emph{slice} of the data. The \emph{unknowns} or \emph{parameters} of the problem are \(X\in\mathcal{X}\) and the \(\hat D_r\in\mathcal{C}_r\).
 
-To minimize loss over \(X\in\mathcal{X}\) for the current best value of the \(\Delta_r\). This subproblem is simplified by using the least squares partitioning
+To minimize loss over \(X\in\mathcal{X}\) for the current best value of the \(\hat D_r\). This subproblem is simplified by using the least squares partitioning
 \begin{equation}
-\sigma(X,\Delta_1,\cdots,\Delta_s)=\sum_{r=1}^R\sum_{i=1}^n\sum_{j=1}^nw_{ijr}(\delta_{ijr}-\delta_{ij}^\star)^2+\sum_{i=1}^n\sum_{j=1}^nw_{ij}^\star(\delta_{ij}^\star-d_{ij}(X))^2,
+\sigma(X,\hat D_1,\cdots,\hat D_s)=\sum_{r=1}^R\sum_{i=1}^n\sum_{j=1}^nw_{ijr}(\hat d_{ijr}-\hat d_{ij}^\star)^2+\sum_{i=1}^n\sum_{j=1}^nw_{ij}^\star(\hat d_{ij}^\star-d_{ij}(X))^2,
 \label{eq:stresspart}
 \end{equation}
 where
 \begin{equation}
-\delta_{ij}^\star=\frac{\sum_{r=1}^R w_{ijr}\delta_{ijr}}{\sum_{r=1}^R w_{ijr}}.
+\hat d_{ij}^\star=\frac{\sum_{r=1}^R w_{ijr}\hat d_{ijr}}{\sum_{r=1}^R w_{ijr}}.
 \label{eq:deltastardef}
 \end{equation}
 
@@ -286,7 +337,7 @@ we define
 \end{equation}
 so that
 \begin{equation}
-\sigma_r(X,\Delta_1,\cdots,\Delta_s)=\sum_{r=1}^s\sum_{(i,j)\in\mathcal{I}_r} w_{ij}(\delta_{ijr}-d_{ij}(X))^2
+\sigma_r(X,\hat D_1,\cdots,\hat D_s)=\sum_{r=1}^s\sum_{(i,j)\in\mathcal{I}_r} w_{ij}(\hat d_{ijr}-d_{ij}(X))^2
 \label{eq:stressdefred}
 \end{equation}
 
@@ -294,7 +345,7 @@ Equation \eqref{eq:wstardef} gives \(w_{ij}^\star=w_{ij}\epsilon_{ij}^\star,\)
 where \(\epsilon_{ij}^\star\) is the number of times pair \((i,j)\) occurs in
 the \(R\) slices. A set of slices is \emph{balanced} if all \(\epsilon_{ij}^\star\) are equal. Also, from \eqref{eq:deltastardef},
 \begin{equation}
-\delta_{ij}^\star=\frac{\sum_{r=1}^R \epsilon_{ijr}\delta_{ijr}}{\sum_{r=1}^R \epsilon_{ijr}}
+\hat d_{ij}^\star=\frac{\sum_{r=1}^R \epsilon_{ijr}\hat d_{ijr}}{\sum_{r=1}^R \epsilon_{ijr}}
 \label{eq:deltastarsimp}
 \end{equation}
 which does not depend on the \(w_{ij}\).
@@ -302,10 +353,10 @@ which does not depend on the \(w_{ij}\).
 It follows that in our computations we have to deal with various
 different sets of weights. There are the \(w_{ijr}\), the \(w_{ij}^\star\),
 the \(w_{ij}\), and the \(\epsilon_{ij}^\star\). In the first ALS subproblem
-where we minimize over the \(\Delta_r\) for fixed \(X\) we use
-equation \eqref{eq:stressdefred}, i.e.~we use the \(w_{ij}\). If we minimize over \(X\) for fixed \(\Delta_r\) we use \eqref{eq:stresspart}, which means we
-use \(w_{ij}^\star=w_{ij}\epsilon_{ij}^\star\) and \(\delta_{ij}^\star\)
-given by \eqref{eq:deltastarsimp}. Of course this all simplifies dramatically
+where we minimize over the \(\hat D_r\) for fixed \(X\) we use
+equation \eqref{eq:stressdefred}, i.e.~we use the \(w_{ij}\). If we minimize over \(X\) for fixed \(\hat D_r\) we use \eqref{eq:stresspart}, which means we
+use \(w_{ij}^\star=w_{ij}\epsilon_{ij}^\star\) and \(\hat d_{ij}^\star\)
+given by \eqref{eq:deltastarsimp}. Of course this all simplifies
 if \(w_{ij}=1\) for all pairs \((i,j)\) (the \emph{unweighted} case).
 
 \subsection{Initial Configuration}\label{initial-configuration}
@@ -360,41 +411,41 @@ program we simply choose \(\theta\) equal to \(-\lambda_p(A^\star)\)
 if \(\lambda_p(A^\star)<0\). We expect the problem to be rare, and
 the actual choice of \(\theta\) to be fairly inconsequential.
 
+Maximizing the maximum sum loss function is equivalent to minimizing
+the loss function \(\lambda_N(X)\) in \eqref{eq:pom} with \(w_{ij,kl}=1\)
+and \(q=1\) (and with squared distances instead of distances). The
+maximum sum method was first proposed, together with POM, in De Leeuw (1968).
+The inspiration came mostly from Guttman (1946), so it is no surprise that
+Guttman (1969) proposes essentially the same initial configuration for his
+AVP technique.
+
 \subsection{Pairwise Monotone Regression}\label{pairwise-monotone-regression}
 
 Suppose datum \(r\) says that that \((i,j)\prec(k,l)\). In the slice independent case \(w_{ijr}=w_{ij}\) and \(w_{klr}=w_{kl}\)
 can be non-zero and all other elements of \(W_r\) are zero.
 
-Use \(w_{(i,j)_r}\)
 If \((i,j)\prec(k,l)\)
-\[
-\sigma_r(X,\Delta_r)=w_{ij}(\delta_{ijr}-d_{ij})^2+w_{kl}(\delta_{klr}-d_{kl})^2
-\]
-Must be minimized over \(\delta_{ijr}\leq\delta_{klr}\). If \(d_{ij}\leq d_{kl}\)
-then \(\hat d_{ijr}=d_{ij}\) and \(\hat d_{klr}=d_{kl}\), and otherwise
-\[
-\hat d_{ijr}=\hat d_{klr}=\frac{w_{ij}d_{ij}+w_{kl}d_{kl}}{w_{ij}+w_{kl}}
-\]
-Thus
-
-\[w_{ij}(\hat d_{ijr}-d_{ij})^2+w_{kl}(\hat d_{klr}-d_{kl})^2\]
-is zero if the order of \(d_{ij}\) and \(d_{kl}\) is the same as the order in the data
+\begin{equation}
+\sigma_r(X,\hat D_r)=w_{ij}(\hat d_{ijr}-d_{ij}(X))^2+w_{kl}(\hat d_{klr}-d_{kl}(X))^2
+\label{eq:lossr}
+\end{equation}
+Loss \eqref{eq:lossr} must be minimized over \(\hat d_{ijr}\leq\hat d_{klr}\). If \(d_{ij}(X)\leq d_{kl}(X)\)
+then \(\hat d_{ijr}=d_{ij}(X)\) and \(\hat d_{klr}=d_{kl}(X)\). Otherwise
+\begin{equation}
+\hat d_{ijr}=\hat d_{klr}=\frac{w_{ij}d_{ij}(X)+w_{kl}d_{kl}(X)}{w_{ij}+w_{kl}}.
+\label{eq:opterr}
+\end{equation}
+Thus loss component \eqref{eq:lossr} is zero if the order of \(d_{ij}(X)\) and \(d_{kl}(X)\) is the same as the order dictated by the data
 and
-
-\[
-\frac{w_{ij}w_{kl}}{w_{ij}+w_{kl}}(d_{ij}-d_{kl})^2
-\]
-Also
-
-\[w_{ij}(\hat d_{ijr}-d_{ij})^2+w_{kl}(\hat d_{klr}-d_{kl})^2=\]
-\[
-w_{ij}\hat d_{ijr}^2+w_{kl}\hat d_{klr}^2+\\
--2w_{ij}\hat d_{ijr}d_{ij}-2w_{kl}\hat d_{klr}d_{kl}+
-\]
-
+\begin{equation}
+\frac{w_{ij}w_{kl}}{w_{ij}+w_{kl}}(d_{ij}(X)-d_{kl}(X))^2
+\label{eq:optloss}
+\end{equation}
 So far we have only considered the forced-choice situation in which
-the subject has to choose one of the two pairs. If we allow for the alternative that \((i,j)\) and \((k,l)\) are equally similar then we can choose between two different approaches. In the \emph{primary approach} we incur no loss for this pair, no matter what \(d_{ij}(X)\) and \(d_{kl}(X)\) are. In the \emph{secondary approach} we require that \(\delta_{ijr}=\delta_{klr}\) and consequently we use \ldots{} and add to the loss if
+the subject has to choose one of the two pairs. If we allow for the alternative that \((i,j)\) and \((k,l)\) are equally similar then we can choose between two different approaches. In the \emph{primary approach} we incur no loss for this pair, no matter what \(d_{ij}(X)\) and \(d_{kl}(X)\) are. In the \emph{secondary approach} we require that \(\hat d_{ijr}=\hat d_{klr}\) and consequently we use equation \eqref{eq:opterr} and add to the loss if
 \(d_{ij}X)\not= d_{kl}(X)\).
+
+From equation \eqref{eq:optloss} we see that the minimum of the loss function over \(\hat D\) for given \(X\) is the same as the numerator of Johnson's PM loss function (except that for PM all weights are one).
 
 \section{Program}\label{program}
 
@@ -488,7 +539,7 @@ are supposed to use the second approach to ties, i.e.~require
 \item
   The data can have replications of some or all comparisons.
 \item
-  It is not necessary that the data are consistent with any partial order, i.e.~there can be intransivities and irreflexivities.
+  The data are not necessarily consistent with any partial order, i.e.~there can be intransivities and asymmetries.
 \item
   It is possible to use the secondary approach to ties for some comparisons
   and the primary approach for others.
@@ -497,6 +548,9 @@ are supposed to use the second approach to ties, i.e.~require
 \end{itemize}
 
 \subsection{Algorithm}\label{algorithm}
+
+The smacofPO algorithm is standard alternating least squares, with one or
+more Guttman transforms alternated with pairwise monotone regression.
 
 \subsection{Output}\label{output}
 
@@ -510,11 +564,16 @@ are supposed to use the second approach to ties, i.e.~require
     \AttributeTok{xnew =}\NormalTok{ xnew,}
     \AttributeTok{dhat =}\NormalTok{ dhat,}
     \AttributeTok{dmat =}\NormalTok{ dmat,}
-    \AttributeTok{wvec =}\NormalTok{ wmat,}
+    \AttributeTok{wmat =}\NormalTok{ wmat,}
+    \AttributeTok{esum =}\NormalTok{ esum,}
+    \AttributeTok{wsum =}\NormalTok{ wsum,}
     \AttributeTok{labels =}\NormalTok{ labels}
 \NormalTok{  )}
 \end{Highlighting}
 \end{Shaded}
+
+The member that may not be obvious are esum and wsum. esum is a matrix with the
+\(\epsilon_{ij}^\star\), and wsum is the elementwise product of esum and wmat.
 
 \section{Utilities}\label{utilities}
 
@@ -554,27 +613,307 @@ can use multiple subjects, each handling a subset of the pairs of pairs.
 Alternatively, we can select a random subset of the total set of pairs of pairs.
 Or we could use a design to select a preferably balanced subset.
 
-Take all \(\binom{n}{2}\) pairs. Random permutation for the first pair,
-random permutation for the second pair. Repeat m times. Note: this may
-generate comparisons of (i,j) with (i,j).
+Two utility functions are included in the package to collect data and orginize them into the appropriate format. They are \texttt{smacofMakeAllPairs\ \textless{}-\ function(names,\ ties\ =\ 0)} and \texttt{smacofMakeRandomPairs\ \textless{}-\ function(names,\ nrandom,\ ties\ =\ 0)}.
+
+Since 1897 Dutch children were taught to read using a
+\href{https://nl.wikipedia.org/wiki/Leesplankje_van_Hoogeveen}{leesplankje (reading board)},
+named after its originator, primary school teacher M.B. Hoogeveen.
+It was still in use when I went to primary school in the nineteen
+fifties. It probably has been replaced by more modern tools by now, and
+leesplankjes are now collectors items for boomers. A prototypical example is in figure \ref{fig:hoogeveenjpg}.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.5\linewidth]{graphics/leesplankje} 
+
+}
+
+\caption{Hoogeveen's Leesplankje.}\label{fig:hoogeveenjpg}
+\end{figure}
+
+For our stimulus set we selected the five humans Wim, Zus, Jet, Teun, Gijs.
+Starting smacofMakeAllPairs() generates a sequence of pairs of pairs on stdout,
+giving the subject an opportunity to choose the most similar pair (or to
+decide that both pairs are equally similar). On stdout we see (with responses)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\SpecialCharTok{\textgreater{}} \FunctionTok{smacofMakeAllPairs}\NormalTok{(names)}
+\NormalTok{(Gijs,Teun) }\FunctionTok{and}\NormalTok{ (Gijs,Wim)}
+\NormalTok{most similar pair}\SpecialCharTok{:} \DecValTok{2}
+\NormalTok{(Teun,Wim) }\FunctionTok{and}\NormalTok{ (Gijs,Jet)}
+\NormalTok{most similar pair}\SpecialCharTok{:} \DecValTok{2}
+\NormalTok{(Gijs,Zus) }\FunctionTok{and}\NormalTok{ (Jet,Zus)}
+\NormalTok{most similar pair}\SpecialCharTok{:} \DecValTok{2}
+\NormalTok{(Wim,Jet) }\FunctionTok{and}\NormalTok{ (Gijs,Wim)}
+\NormalTok{most similar pair}\SpecialCharTok{:} \DecValTok{1}
+\NormalTok{(Teun,Zus) }\FunctionTok{and}\NormalTok{ (Teun,Jet)}
+\NormalTok{most similar pair}\SpecialCharTok{:}
+\end{Highlighting}
+\end{Shaded}
+
+At the same time the same pairs are show on the graphics device, in the form shown in figure \ref{fig:hoogeveenpng}.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.3\linewidth]{graphics/hoogeveen} 
+
+}
+
+\caption{Two Pairs of Pairs}\label{fig:hoogeveenpng}
+\end{figure}
+
+This continues until all pairs of pairs are shown (in the case of
+smacofMakeAllPairs()) or a given number of random pairs (without
+replacement) has been shown (in the case of smacofMakeRandomPairs()).
+
+As we discussed in the introduction smacofPC() is not limited to data
+collected as pairs of pairs. After suitable manipulation it can also
+handle data collected by the method of triads or by conditional or complete
+rank orders. In particular if we have a matrix of
+dissimilarities between \(n\) objects we can convert it to a large number of comparisons of pairs of pairs. This is done by the function
+\texttt{smacofMakePairsFromDelta\ \textless{}-\ function(delta,\ ties\ =\ 1)}.
+
+Alternatively we can code the order of dissimilarities using only
+\(\binom{n}{2}-1\) pairs of pairs, by using only those pairs that are
+consecutive in the ordering of pairs. This is done by
+\texttt{smacofOrderPairsFromDelta\ \textless{}-\ function(delta,\ ties\ =\ 1)}.
 
 \subsection{Plots}\label{plots}
+
+smacofPC does not have a Shepard plot, because there are no
+dissimilarities to put on the horizontal axes. We do have
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{smacofConfigurationPlot }\OtherTok{\textless{}{-}}
+  \ControlFlowTok{function}\NormalTok{(h,}
+           \AttributeTok{main =} \StringTok{"ConfigurationPlot"}\NormalTok{,}
+           \AttributeTok{dim1 =} \DecValTok{1}\NormalTok{,}
+           \AttributeTok{dim2 =} \DecValTok{2}\NormalTok{,}
+           \AttributeTok{pch =} \DecValTok{16}\NormalTok{,}
+           \AttributeTok{col =} \StringTok{"RED"}\NormalTok{,}
+           \AttributeTok{cex =} \FloatTok{1.0}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+and
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{smacofDistDhatPlot }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(h,}
+                               \AttributeTok{fitlines =} \ConstantTok{TRUE}\NormalTok{,}
+                               \AttributeTok{colline =} \StringTok{"RED"}\NormalTok{,}
+                               \AttributeTok{colpoint =} \StringTok{"BLUE"}\NormalTok{,}
+                               \AttributeTok{main =} \StringTok{"Dist{-}Dhat Plot"}\NormalTok{,}
+                               \AttributeTok{cex =} \FloatTok{1.0}\NormalTok{,}
+                               \AttributeTok{lwd =} \DecValTok{2}\NormalTok{,}
+                               \AttributeTok{pch =} \DecValTok{16}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
 \section{Examples}\label{examples}
 
 \subsection{Hoogeveen}\label{hoogeveen}
 
+A single subject (me) ran smacofMakeAllPairs() on the leesplankje names. This
+produced 45 pairs of pairs.
+
+Convergence is to stress \ensuremath{3.1647986\times 10^{-9}} in 296 iterations. The curved solution
+Teun-Gijs-Wim-Jet-Zus goes from old-male to young-female. The 45 inequalities
+in the data can be satisfied exactly.
+
+\begin{greybox}
+
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:hoogeconf} ABOUT HERE}
+
+\end{center}
+
+\end{greybox}
+
+\begin{greybox}
+
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:hoogedd} ABOUT HERE}
+
+\end{center}
+
+\end{greybox}
+
 \subsection{Parties}\label{parties}
 
+I left The Netherlands in 1987 and have not followed their local political news. So I am not really an expert on current Dutch politics. Nevertheless I was the only subject generating the data (50 random pairs of pairs) for this example. The ten parties I used are
+
+\begin{itemize}
+\tightlist
+\item
+  SP Socialists
+\item
+  GL Greens
+\item
+  PvdD Party for the Animals
+\item
+  PvdA Labour
+\item
+  D'66 Neither fish nor fowl
+\item
+  CDA Christian Democrats
+\item
+  VVD European-style Liberals
+\item
+  CU More Christian Democrats
+\item
+  SGP Right-wing Christians
+\item
+  FVD Right-wing Populists
+\end{itemize}
+
+For more details, see this \href{https://en.wikipedia.org/wiki/List_of_political_parties_in_the_Netherlands}{Wikipedia article}.
+
+Convergence is to stress \ensuremath{1.1150739\times 10^{-9}} in 135 iterations. The solution is
+in an almost equilateral triangle with the three extremes (FVD, SP, SGP) in the
+vertices. The interior of the triangle shows a social democratic (PvdA, PvdD, GL),
+a liberal (VVD, D'66), and a christian democrat (ARP, CU, CDA) cluster,
+roughly ordered from left-wing on the right of the plot to right-wing on the left of the plot. Again, all 50 inequalities can be fitted exactly.
+
+We can check how sparse and balanced the randomly generated ``design'' is by printing the \(\epsilon_{ij}^\star\).
+
+\begin{verbatim}
+##       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]
+##  [1,]    0    2    3    3    2    4    2    1    0     2
+##  [2,]    2    0    2    3    1    2    1    4    3     1
+##  [3,]    3    2    0    3    3    3    4    2    1     0
+##  [4,]    3    3    3    0    0    3    1    4    4     2
+##  [5,]    2    1    3    0    0    2    0    3    2     6
+##  [6,]    4    2    3    3    2    0    2    0    4     5
+##  [7,]    2    1    4    1    0    2    0    1    2     1
+##  [8,]    1    4    2    4    3    0    1    0    2     2
+##  [9,]    0    3    1    4    2    4    2    2    0     2
+## [10,]    2    1    0    2    6    5    1    2    2     0
+\end{verbatim}
+
+with row sums 19, 19, 21, 23, 19, 25, 14, 19, 20, 21. For an all-pairs-of-pairs design the
+elements of this matrix would have been 44. So the random
+``design'' is very sparse but decently balanced.
+
+\begin{greybox}
+
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:partiesconf} ABOUT HERE}
+
+\end{center}
+
+\end{greybox}
+
+\begin{greybox}
+
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:partiesdd} ABOUT HERE}
+
+\end{center}
+
+\end{greybox}
+
 \subsection{Ekman (1954)}\label{ekman_54}
+
+The ekman data are dissimilarities between 14 colors. This means they can be
+expanded into 4095 pairs of pairs, which can then be
+analyzed by smacofPC(). We do not necessarily recommend this practice, because
+the pairwise coding involves a great deal of dependence and redundancy.
+The smacofPC() program is really intended for sequences of independent pairs of pairs judgments. Nevertheless we will use these expanded ekman dissimilarities as an example.
+
+Convergence is to stress 0.0087145 in 82 iterations. The solution is the
+familiar color circle, except that, for some reason that I do not understand yet, the circle is crumpled at the high frequency
+end.
+
+\begin{greybox}
+
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:ekmanconf} ABOUT HERE}
+
+\end{center}
+
+\end{greybox}
+
+\begin{greybox}
+
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:ekmandd} ABOUT HERE}
+
+\end{center}
+
+\end{greybox}
+
+\section{Figures}\label{figures}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofPC_files/figure-latex/hoogeconf-1} 
+
+}
+
+\caption{Leesplankje}\label{fig:hoogeconf}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofPC_files/figure-latex/hoogedd-1} 
+
+}
+
+\caption{Leesplankje}\label{fig:hoogedd}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofPC_files/figure-latex/partiesconf-1} 
+
+}
+
+\caption{Dutch political parties}\label{fig:partiesconf}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofPC_files/figure-latex/partiesdd-1} 
+
+}
+
+\caption{Dutch political parties}\label{fig:partiesdd}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofPC_files/figure-latex/ekmanconf-1} 
+
+}
+
+\caption{Ekman color data}\label{fig:ekmanconf}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofPC_files/figure-latex/ekmandd-1} 
+
+}
+
+\caption{Ekman color data}\label{fig:ekmandd}
+\end{figure}
 
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
 
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-coombs_54}
+Coombs, C. H. 1954. {``A Method for the Study of Interstimulus Similarity.''} \emph{Psychometrika} 19: 183--94.
+
+\bibitem[\citeproctext]{ref-deleeuw_R_68g}
+De Leeuw, J. 1968. {``Nonmetric Multidimensional Scaling.''} Research Note 010-68. Department of Data Theory FSW/RUL. \url{https://jansweb.netlify.app/publication/deleeuw-r-68-9/deleeuw-r-68-g.pdf}.
+
 \bibitem[\citeproctext]{ref-deleeuw_R_70a}
-De Leeuw, J. 1970. {``The Positive Orthant Method for Nonmetric Multidimensional Scaling.''} Research Report 001-70. Leiden, The Netherlands: Department of Data Theory FSW/RUL. \url{https://jansweb.netlify.app/publication/deleeuw-r-70-a/deleeuw-r-70-a.pdf}.
+---------. 1970. {``The Positive Orthant Method for Nonmetric Multidimensional Scaling.''} Research Report 001-70. Leiden, The Netherlands: Department of Data Theory FSW/RUL. \url{https://jansweb.netlify.app/publication/deleeuw-r-70-a/deleeuw-r-70-a.pdf}.
 
 \bibitem[\citeproctext]{ref-deleeuw_B_73}
 ---------. 1973. {``Canonical Analysis of Categorical Data.''} PhD thesis, University of Leiden, The Netherlands. \url{https://jansweb.netlify.app/publication/deleeuw-b-73/deleeuw-b-73.pdf}.
@@ -591,8 +930,11 @@ Ekman, G. 1954. {``{Dimensions of Color Vision}.''} \emph{Journal of Psychology}
 \bibitem[\citeproctext]{ref-guttman_79}
 Gttman, L. 1979. {``Smallest Space Analysis by the Absolute Value Principle.''} In \emph{{Geometric Representations of Relational Data}}, edited by J. C. Lingoes, E. E. Roskam, and I. Borg, 707--12. Mathesis Press.
 
+\bibitem[\citeproctext]{ref-guttman_46}
+Guttman, L. 1946. {``{An Approach for Quantifying Paired Comparisons and Rank Order}.''} \emph{Annals of Mathematical Statistics} 17: 144--63.
+
 \bibitem[\citeproctext]{ref-guttman_69}
-Guttman, L. 1969. {``{Smallest Space Analysis by the Absolute Value Principle}.''} In \emph{{Proceedings of the XIX International Congress of Psychology, London}}.
+---------. 1969. {``{Smallest Space Analysis by the Absolute Value Principle}.''} In \emph{{Proceedings of the XIX International Congress of Psychology, London}}.
 
 \bibitem[\citeproctext]{ref-hartmann_79}
 Hartmann, W. 1979. \emph{{Geometrische Modelle zur Analyse empirischer Data}}. Akademie Verlag.
