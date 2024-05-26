@@ -1,7 +1,7 @@
 ---
 title: |
     | Smacof at 50: A Manual
-    | Part 4: Smacof for Pairs of Pairs
+    | Part 4: Smacof for Tetrads
 author: 
 - Jan de Leeuw - University of California Los Angeles
 date: '`r paste("Started May 19 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
@@ -47,12 +47,20 @@ repositories smacofCode, smacofManual, and smacofExamples.
 
 The paired comparison of pairs of objects is the simplest and
 the most basic one of the cartwheel methods for collecting 
-similarity judgments (@coombs_54). Pairs of objects from a set
-$\mathcal{O}$ of $n$ objects are compared, and the responses of the subjects are 
+similarity judgments (@coombs_54). 
+Pairs of objects from a set
+$\mathcal{O}$ of $n$ objects are compared, and the data inducate which if the two
+pairs is the most similar. @torgerson_58 (p. 261-262) calls this the *method of tetrads*, and we shall adopt this terminology by referring to a pair of pairs of objects $((o_i,o_j),(o_k,o_l))$ as a *tetrad*. This is of course not to be confused
+with the use of "tetrads" in factor analysis.
+
+In Torgerson's method of tetrads we need replications over occasions (or subjects) to estimate the probability of the $(o_i,o_j)\lesssim (o_k,o_l)$ judgments, which can then turned into scale values using Thurstonianpaired comparison methods. In the smacofPC method we discuss here no replications are needed and we can apply MDS to the data from a single occasion without replications of tetrads. 
+
+
+In the MDS context the response 
 that objects $o_i$ and $o_j$ are more similar than objects
-$o_k$ and $o_l$. In the MDS context this means that we require
-of our representation $X$ that $d_{ij}(X)\leq d_{kl}(X)$. The smacofPC()
-function finds an approximate solution to this highly non-linear and
+$o_k$ and $o_l$ means that we require
+of our representation $X$ that $d_{ij}(X)\leq d_{kl}(X)$. smacofPC()
+finds an approximate solution to this highly non-linear and
 highly non-convex system of inequalities.
 
 smacofPC() is not limited to data collected as comparisons of 
@@ -66,11 +74,11 @@ pairs.
 
 There have been earlier versions of non-metric MDS methods based
 on comparisons of pairs of objects. Around 1970 various people proposed the *positive orthant method (POM)* (@deleeuw_R_68g, @deleeuw_R_70a, @hartmann_79), the *absolute value principle (AVP)* (@guttman_69), and the
-*pairwise method (PM)* (@johnson_73). Guttman's conference
+*pairwise nonmetric method (PNM)* (@johnson_73). Guttman's conference
 presentation has been republished as @guttman_79.
 
-All three methods use an implicitly normalized loss function with numerator
-of the form
+
+The POM, AVP, and PNM methods all use an implicitly normalized least squares loss function with a numerator of the form
 \begin{equation}
 \lambda_N(X):=\sum\sum w_{ij,kl}\ \sigma_{ij,kl}\ \text{sign}(d_{ij}(X)-d_{kl}(X))|d_{ij}(X)-d_{kl}(X)|^q,
 (\#eq:pom)
@@ -81,7 +89,7 @@ zero. In most cases $\sigma_{ij,kl}$ is the signature of the dissimilarities, i.
 \sigma_{ij,kl}=\text{sign}(\delta_{ij}-\delta_{kl}),
 (\#eq:sijkl)
 \end{equation}
-but that is not necessarily the case because there may not be numerical dissimilarities. It is useful, however, to keep this interpretation in mind. In Johnson's PM squared distances instead of distances are used, but that at this conceptual level that seems just a minor detail.
+but that is not necessarily the case, if only because there may not be numerical dissimilarities. It is useful, however, to keep this interpretation in mind. In Johnson's PNM squared distances instead of distances are used, but at the conceptual level that seems just a minor detail.
 
 The denominator of the loss function in all three approaches is
 \begin{equation}
@@ -105,7 +113,14 @@ This can be rewritten in the more compact and computationally more friendly *rea
 Here $\mathcal{R}$ is the set of all matrices of the form $r_{ij}=\sum w_{ij,kl}\sigma_{ij,kl}$, with $\sigma_{ij,kl}$ varying over all possible 
 signatures (or, equivalently, over the convex set of all matrices with entries between minus and plus one).
 
-As we shall see, the loss function used in smacofPO is an explicitly normalized version of equation \@ref(eq:pom) with $q=2$. The loss function used for the initial estimate is an explicitly normalized version of equation \@ref(eq:pom) that has $q=1$ and uses squared distances.
+As we shall see, the loss function used in smacofPO is an explicitly normalized version of equation \@ref(eq:pom) with $q=2$. The explicit normalization is a major difference with POM/AVP/PNM, which use implicit normalization of stress with denominator \@ref(eq:lambdad). The loss function used for our initial estimate is an explicitly normalized version of equation \@ref(eq:pom) that has $q=1$ and uses squared distances.
+
+The MAXSCAL method proposed by @takane_78a, @takane_78b is very different from the POM, AVP, PNM trio, and consequently also different from smacofPC. The loss function is not 
+least squares, at least not conceptually, but is based on the likelihood function for a simple choice model for the tetrad responses. Computationally the negative likelihood is minimized by using a Gauss-Newton approximation to the Hessian, which leads in the usual way to iterative reweighted least squares.
+
+Another recent excursion into scaling tetrads is @agarwal_wills_cayton_lanckriet_kriegman_belongie_07. They do not use 
+a least squares loss function and rely on semidefinite programming methods
+to find an approximate solution to the system of inequalities.
 
 # Loss Function
 
@@ -120,7 +135,8 @@ with
 \sigma_r(X,\hat D_r):=\sum_{i=1}^n\sum_{j=1}^n w_{ijr}(\hat d_{ijr}-d_{ij}(X))^2.
 (\#eq:rstressdef)
 \end{equation}
-As usual, the symbol $:=$ is used for definitions. 
+As usual, the symbol $:=$ is used for definitions. Our loss function is
+similar to the one used by @roskam_70 for the method of triads (article republished in @roskam_79b).
 
 The *weights* $W_r=\{w_{ijr}\}$ are known non-negative
 numbers and $D(X):=\{d_{ij}(X)\}$ is a matrix of Euclidean distances
@@ -137,10 +153,13 @@ where
 w_{ij}^\star:=\sum_{r=1}^R w_{ijr}.
 (\#eq:wstardef)
 \end{equation}
+@roskam_70 uses implicit normalization in  his method of triads (and the
+MINITRI program) by defining loss as the ratio of \@ref(eq:rstressdef) and the sum of squares from \@ref(eq:xscale). By @kruskal_carroll_69 and @deleeuw_U_75a
+this gives the same solution, up to a scale factor, as our explicit normalization.
 
 The *disparities* $\hat D_r=\{\hat d_{ijr}\}$ are required to satisfy $\hat D_r\in\mathcal{C}_r$. The $\mathcal{C}_r$ are polyhedral convex cones, which are subcones of the cone of non-negative matrices.  Each of the cones is defined by partial orders $\leq_r$ over the elements of the $\hat D_r$. In general, neither the (known) weight matrices $W_r$ nor the (unknown) disparity matrices $\hat D_r$ need to be symmetric and/or hollow (i.e. have zero diagonal). 
 
-The *data* of the MDS problem are the weights $W_r$ and the cones $\mathcal{C}_r$. Each pair $(W_r,\mathcal{C}_r)$ is called a *slice* of the data. The *unknowns* or *parameters* of the problem are $X\in\mathcal{X}$ and the $\hat D_r\in\mathcal{C}_r$.
+The *data* of the MDS problem are the weights $W_r$ and the cones $\mathcal{C}_r$. Each pair $(W_r,\mathcal{C}_r)$ is called a *slice* of the data. Comparisons of pairs are only within slices. In the MDS literature this is also known as conditional rank orders. The *unknowns* or *parameters* of the problem are $X\in\mathcal{X}$ and the $\hat D_r\in\mathcal{C}_r$.
 
 To minimize loss over $X\in\mathcal{X}$ for the current best value of the $\hat D_r$. This subproblem is simplified by using the least squares partitioning
 \begin{equation}
@@ -194,7 +213,7 @@ In metric and non-linear MDS the default initial configuration is the
 classical Torgerson metric MDS solution. That is not available for
 smacofPC, because there are no numerical dissimilarities. In
 @deleeuw_R_70a (section 5.1) and @deleeuw_B_73 (republished as @deleeuw_B_84), chapter 4, a different eigenvalue-eigenvector based initial solution is proposed. We discuss a somewhat modernized version here. It is sometime known as the *maximum sum method*.
-The data are an order over a number of pairs of pairs. 
+The data are an order over a number of tetrads. 
 \begin{equation}
 \omega(X):=\mathop{\sum\sum}_{(i,j)\prec(k,l)}(d_{ij}^2(X)-d_{kl}^2(X)),
 (\#eq:omegadef)
@@ -243,10 +262,39 @@ the actual choice of $\theta$ to be fairly inconsequential.
 Maximizing the maximum sum loss function is equivalent to minimizing
 the loss function $\lambda_N(X)$ in \@ref(eq:pom) with $w_{ij,kl}=1$
 and $q=1$ (and with squared distances instead of distances). The
-maximum sum method was first proposed, together with POM, in @deleeuw_R_68g.
+maximum sum method was proposed, together with POM, in @deleeuw_R_68g.
 The inspiration came mostly from @guttman_46, so it is no surprise that
 @guttman_69 proposes essentially the same initial configuration for his
-AVP technique.
+AVP technique. 
+
+The method for the special case in which there are numerical (dis)similarities
+has been around even longer. It is discussed
+in the one-dimensional case as the "fourth method of quantification" 
+in @hayashi_52. Suppose $\Delta$ is a symmetric non-negative matrix of
+dissimilarities. Then, in the multidimensional extension proposed in
+@okamoto_isogai_78, we maximize 
+\begin{equation}
+\sum\sum\delta_{ij}^2d_{ij}^2=\text{tr}\ X'BX,
+(\#eq:hayashi)
+\end{equation}
+with explicit normalization of $X$. Here
+\begin{equation}
+B:=\sum\sum\delta_{ij}^2 A_{ij}.
+(\#eq:bmatdef)
+\end{equation}
+Thus $B$ is positive semi-definite, and if $\Delta$ is irreducible it is 
+of rank $n-1$. @okamoto_isogai_78 observe in their 
+Theorem 3, as we have above. that
+requiring $\text{tr}\ X'X=1$ generally leads to a one dimensional solution.
+Only if the largest eigenvalue of $B$ has multiplicity $r>1$ an r-dimensional
+solution is possible. We removed this problem by using the explicit normalization
+$\text{tr}\ (X'X)^2=1$.
+
+We should emphasize that in Hayashi's method similarities
+in stead of dissimilarities are used, and that the (dis)similarities are
+not squared. It seems natural to use squares dissimilarities in .., also because
+@okamoto_isogai_78 refer to earlier results (in Japanese), where Hayashi's fourth method compares unfavorably with the Torgerson classical MDS solution which is of course based on squared dissimilarities. Also note again that in the tetrad case we
+do not need a numerical measure of similarity or dissimilarity.
 
 ## Pairwise Monotone Regression
 
@@ -271,7 +319,7 @@ and
 (\#eq:optloss)
 \end{equation}
 So far we have only considered the forced-choice situation in which
-the subject has to choose one of the two pairs. If we allow for the alternative that $(i,j)$ and $(k,l)$ are equally similar then we can choose between two different approaches. In the *primary approach* we incur no loss for this pair, no matter what $d_{ij}(X)$ and $d_{kl}(X)$ are. In the *secondary approach* we require that $\hat d_{ijr}=\hat d_{klr}$ and consequently we use equation \@ref(eq:opterr) and add to the loss if
+the data is a choice of one of the two pairs. If we allow for the alternative that $(i,j)$ and $(k,l)$ are equally similar then we can choose between two different approaches. In the *primary approach* we incur no loss for this pair, no matter what $d_{ij}(X)$ and $d_{kl}(X)$ are. In the *secondary approach* we require that $\hat d_{ijr}=\hat d_{klr}$ and consequently we use equation \@ref(eq:opterr) and add to the loss if
 $d_{ij}X)\not= d_{kl}(X)$.
 
 From equation \@ref(eq:optloss)  we see that the minimum of the loss function over $\hat D$ for given $X$ is the same as the numerator of Johnson's PM loss function (except that for PM all weights are one). 
@@ -375,12 +423,11 @@ $\epsilon_{ij}^\star$, and wsum is the elementwise product of esum and wmat.
 ## Data Generation and Collection
 
 Let us first address the elephant in the room. Even for moderate $n$ there are a
-lot of pairs of pairs, and it quickly becomes impossible to present all of them to
-a subject, even if that subject is paid or is an undergraduate psychology student.
+lot of tetrads, and in behavioural science it quickly becomes impossible to present all of them to a subject, even if that subject is paid or is an undergraduate psychology student.
 
 If we only consider distinct pairings of distinct pairs there are already
 $\binom{\binom{n}{2}}{2}$
-pairs of pairs, which is of the order $\frac14n^4$. Here is a little table.
+tetrads, which is of the order $\frac14n^4$. Here is a little table.
 
 ```{r little, echo = FALSE}
 for (i in 3:20) {
@@ -392,11 +439,12 @@ for (i in 3:20) {
 ```
 
 There are a number of ways to deal with this fundamental problem. If we take the psychophysical point of view that subjects are merely replications then we
-can use multiple subjects, each handling a subset of the pairs of pairs. 
-Alternatively, we can select a random subset of the total set of pairs of pairs.
-Or we could use a design to select a preferably balanced subset.
+can use multiple subjects, each handling a subset of the tetrads. 
+Alternatively, we can select a random subset of the total set of tetrads.
+Or we could use a design to select a preferably balanced subset. If the data are not behavioural and machine generated a complete set of tetrads may be
+feasible.
 
-Two utility functions are included in the package to collect data and orginize them into the appropriate format. They are `smacofMakeAllPairs <- function(names, ties = 0)` and `smacofMakeRandomPairs <- function(names, nrandom, ties = 0)`.
+Two utility functions are included in the package to collect data and organize them into the appropriate format. They are `smacofMakeAllPairs <- function(names, ties = 0)` and `smacofMakeRandomPairs <- function(names, nrandom, ties = 0)`.
 
 Since 1897 Dutch children were taught to read using a
 [leesplankje (reading board)](https://nl.wikipedia.org/wiki/Leesplankje_van_Hoogeveen), 
@@ -410,7 +458,7 @@ knitr::include_graphics("graphics/leesplankje.jpg")
 ```
 
 For our stimulus set we selected the five humans Wim, Zus, Jet, Teun, Gijs.
-Starting smacofMakeAllPairs() generates a sequence of pairs of pairs on stdout,
+Starting smacofMakeAllPairs() generates a sequence of tetrads on stdout,
 giving the subject an opportunity to choose the most similar pair (or to
 decide that both pairs are equally similar). On stdout we see (with responses)
 
@@ -430,23 +478,23 @@ most similar pair:
 
 At the same time the same pairs are show on the graphics device, in the form shown in figure \@ref(fig:hoogeveenpng).
 
-```{r hoogeveenpng, echo=FALSE, out.width="30%", fig.cap="Two Pairs of Pairs", fig.align = "center"}
+```{r hoogeveenpng, echo=FALSE, out.width="30%", fig.cap="A Tetrad", fig.align = "center"}
 knitr::include_graphics("graphics/hoogeveen.png")
 ```
 
-This continues until all pairs of pairs are shown (in the case of
+This continues until all tetrads are shown (in the case of
 smacofMakeAllPairs()) or a given number of random pairs (without
 replacement) has been shown (in the case of smacofMakeRandomPairs()).
 
 As we discussed in the introduction smacofPC() is not limited to data
-collected as pairs of pairs. After suitable manipulation it can also
+collected as tetrads. After suitable manipulation it can also
 handle data collected by the method of triads or by conditional or complete
 rank orders. In particular if we have a matrix of
-dissimilarities between $n$ objects we can convert it to a large number of comparisons of pairs of pairs. This is done by the function
+dissimilarities between $n$ objects we can convert it to a large number of comparisons of tetrads. This is done by the function
 `smacofMakePairsFromDelta <- function(delta, ties = 1)`.
 
 Alternatively we can code the order of dissimilarities using only
-$\binom{n}{2}-1$ pairs of pairs, by using only those pairs that are
+$\binom{n}{2}-1$ tetrads, by using only those pairs that are
 consecutive in the ordering of pairs. This is done by
 `smacofOrderPairsFromDelta <- function(delta, ties = 1)`.
 
@@ -481,10 +529,8 @@ smacofDistDhatPlot <- function(h,
 
 ## Hoogeveen
 
-A single subject (me) ran smacofMakeAllPairs() on the leesplankje names. This
-produced 45 pairs of pairs.
-
-
+A single subject (me) ran smacofMakeAllPairs() on the five leesplankje names. This
+produced 45 tetrads.
 
 ```{r hooge, echo = FALSE}
 names <- c("Wim", "Zus", "Jet", "Teun", "Gijs")
@@ -511,7 +557,7 @@ in the data can be satisfied exactly.
 
 ## Parties
 
-I left The Netherlands in 1987 and have not followed their local political news. So I am not really an expert on current Dutch politics. Nevertheless I was the only subject generating the data (50 random pairs of pairs) for this example. The ten parties I used are
+I left The Netherlands in 1987 and have not followed their local political news. So I am not really an expert on current Dutch politics. Nevertheless I was the only subject generating the data (50 random tetrads) for this example. The ten parties I used are
 
 * SP Socialists
 * GL Greens
@@ -565,10 +611,10 @@ elements of this matrix would have been `r choose(10, 2) - 1`. So the random
 ## @ekman_54
 
 The ekman data are dissimilarities between 14 colors. This means they can be 
-expanded into `r choose(choose(14, 2), 2)` pairs of pairs, which can then be
+expanded into `r choose(choose(14, 2), 2)` tetrads, which can then be
 analyzed by smacofPC(). We do not necessarily recommend this practice, because
 the pairwise coding involves a great deal of dependence and redundancy.
-The smacofPC() program is really intended for sequences of independent pairs of pairs judgments. Nevertheless we will use these expanded ekman dissimilarities as an example.
+The smacofPC() program is really intended for sequences of independent tetrads judgments. Nevertheless we will use these expanded ekman dissimilarities as an example.
 
 ```{r ekmanfull, echo = FALSE}
 data(ekman, package = "smacof")
