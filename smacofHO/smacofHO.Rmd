@@ -6,17 +6,17 @@ author:
 - Jan de Leeuw - University of California Los Angeles
 date: '`r paste("Started April 13 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
 output:
-  bookdown::html_document2:
-    keep_md: yes
-    css: preamble.css
-    toc: true
-    toc_depth: 3
-    number_sections: yes
   bookdown::pdf_document2:
     latex_engine: lualatex 
     includes:
       in_header: preamble.tex
     keep_tex: yes
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+  bookdown::html_document2:
+    keep_md: yes
+    css: preamble.css
     toc: true
     toc_depth: 3
     number_sections: yes
@@ -55,7 +55,7 @@ over the $n\times p$ matrix $X$ and the $m\times p$ matrices $Y$. Both
 the weights $W=\{w_{ij}\}$ and the dissimilarities $\Delta=\{\delta_{ij}\}$
 are known non-negative matrices.
 
-The multidimensional unfolding model for preference judgments is often attributed to @coombs, @kruskal_carroll, @roskam
+The multidimensional unfolding model for preference judgments is often attributed to @coombs_50, @coombs_64, @kruskal_carroll_69, @roskam_68
 
 ## Non-metric Unfolding
 
@@ -71,9 +71,7 @@ $$
 Note that for each occasion there are different transformations $\Delta_r$
 and different matrices of column scores $Y_r$, but there is only a single matrix of row scores $X$.
 
-$$
-y_j^r=\alpha_{j}^ry_r
-$$
+
 
 ## Homogeneity Analysis
 
@@ -121,7 +119,7 @@ $$
 $X'W_\star X=I$
 
 
-# Voronoi Loss Function
+# Loss Function
 
 ## The Unconstrained Case
 
@@ -144,99 +142,146 @@ $$
 \sigma(X,Y_1,\cdots,Y_m) = 
 \sum_{r=1}^s\left\{\sum_{i=1}^n\sum_{\ell=1}^{k_r}w_{ij}^r(\delta_{i\ell}^r-d(x_i,y_\ell^r))^2\right\}
 $$
-### ALS Stage 1
+In homogeneity analysis the geometric interpretation of loss is that we
+want individuals to coincide with the categories they score in (for all variables). The geometric interpretation of loss function ... is that we want 
+individuals to be closer to the categories they score in than to the categories
+they do not score in (for all variables). The plot of the the $k_r$ categories of
+variable $r$ defines $k_r$ Voronoi regions. The Voronoi region of
+category $\ell$ is the polyhedral convex set of all points closer to category
+$\ell$ than to any other category of variable $r$. The loss function
+... vanishes if the $x_i$ are all in the Voronoi regions of the categories
+they score in (for all variables).
 
 Minimizing ... over the rows $\delta_i^r$ is a monotone regression for a simple tree order. This is easily handled by using Kruskal's primary approach
-to ties (@kruskal_64, @deleeuw_A_).
-
-###ALS Stage 2
+to ties (@kruskal_64a, @kruskal_64b, @deleeuw_A_77).
 
 In stage 2 we do one or more metric smacof iterations for given $\Delta_r$
-to decrease the loss. We more or less ignore the fact that we are dealing with a rectangular matrix and use the weights to transform the problem into a symmetric one (as in @heiser_deleeuw_A_79).
+to decrease the loss. These smacof iterations, or Guttman transforms, more or less ignore the fact that we are dealing with a rectangular matrix and use the weights to transform the problem into a symmetric one (as in @heiser_deleeuw_A_79).
 
 Thus for stage two purposes the loss function is
 $$
 \sigma(Z_1,\cdots,Z_m)=\sum_{r=1}^s\sum_{i=1}^{N_r}\sum_{j=1}^{N_r}w_{ij}^r(\delta_{ij}^r-d_{ij}(Z_r))^2,
 $$
-with $N_r:=n+k_r$ and 
+with $N_r:=n+k_r$ and
+
 $$
 Z_r:=\kbordermatrix{
 \mbox{\ }&p\\
 n&X\\
 k_r&Y_r}.
 $$
+
 The weights in $W_r$ are now zero for the two diagonal blocks.
+
+
+$$
+g_i^r:=\kbordermatrix{\mbox{\ }&\ \\n&e_i\\k_r&0}.
+$$
+$$
+h_\ell^r:=\kbordermatrix{\mbox{\ }&\ \\n&0\\k_r&e_\ell}
+$$
+so that $x_i=Z_r'g_i^r$ and $y_\ell^r=Z_r'h_\ell^r$. It follows that
 $$
 d^2(x_i,y_\ell^r)=\text{tr}\ Z_r'A^r_{i\ell}Z_r^{\ }
 $$
+where $A_{i\ell}^r$, of order $n+k_r$, is the rank-one, positive semi-definite, doubly centered matrix 
 $$
-\sum_{i=1}^n\sum_{\ell=1}^{k_r}w_{il}^rd^2(x_i,y_\ell^r)=\text{tr}\ Z_r'V_rZ_r
+A_{i\ell}^r:=(g_i^r-h_\ell^r)(g_i^r-h_\ell^r)'
 $$
-
+It further follows that
 $$
-V_r=\sum_{i=1}^n\sum_{\ell=1}^{k_r}w_{il}^rA^r_{i\ell}
+\sum_{i=1}^n\sum_{\ell=1}^{k_r}w_{il}^rd^2(x_i,y_\ell^r)=\text{tr}\ Z_r'V_rZ_r,
 $$
+where 
+$$
+V_r:=\sum_{i=1}^n\sum_{\ell=1}^{k_r}w_{il}^rA^r_{i\ell},
+$$
+so that $V_r$ has the shape
 $$
 V_r=\kbordermatrix{&n&k_r\\
 n&\ddots&\Box\\
 k_r&\Box&\ddots}
 $$
+with $-W_r$ in the off-diagonal block, while the two diagonal
+blocks are diagonal matrices with the row and column sums of $W_r$.
 
+In a similar way we define $B_r(Z_r)$, with the same shape as $V_r$, and with
+$$
+B(Z_r)=\sum_{i=1}^n\sum_{\ell=1}^{k_r}w_{i\ell}^r\frac{\delta_{i\ell}^r }{d_{i\ell}(Z_r)}A^r_{i\ell}
+$$
 
 $$
-\sum_{i=1}^n\sum_{\ell=1}^{k_r}w_{il}^r\delta_{i\ell}^rd(x_i,y_\ell^r)=\text{tr}\ Z_r'B_r(Z_r)Z_r\geq\text{tr}\ Z_r'B_r(\tilde Z_r)\tilde Z_r=\text{tr}\ Z_r'V_rG(\tilde Z_r)
+\sigma(Z_1,\cdots,Z_m)=\sum_{r=1}^s\{\eta_r^2-2\text{tr}\ Z_r'B(Z_r)Z_r+Z_r'V_rZ_r\}
 $$
-Using standard smacof majorization theory in an iteration we must minimize
+with
+$$
+\eta_r^2:=\sum_{i=1}^{N_r}\sum_{j=1}^{N_r}w_{ij}^r\{\delta_{ij}^r\}^2
+$$
+Define the Guttman transforms of $Z_r$ as
+$$
+\tilde Z_r=V_r^+B(Z_r)Z_r
+$$
+Then
+$$
+\sigma_r(Z):=\eta_r^2-2\text{tr}\ Z_r'B(Z_r)Z_r+Z_r'V_rZ_r=\eta_r^2-\eta^2(\tilde Z_r)+\text{tr}\ (Z_r-\tilde Z_r)'V_r(Z_r-\tilde Z_r)
+$$
+If $Z_r^{(k)}$ is $Z_r$ at iteration $k$ then
+$$
+\text{tr}\ Z_r'B(Z_r)Z_r\geq\text{tr}\ Z_r'B(Z_r^{(k)})Z_r^{(k)}=\text{tr}\ Z_r'V_r\tilde Z_r^{(k)}.
+$$
+Thus
+$$
+\sigma_r(Z)\leq\eta_r^2-\eta^2(\tilde Z_r^{(k)})+\text{tr}\ (Z_r-\tilde Z_r^{(k)})'V_r(Z_r-\tilde Z_r^{(k)})
+$$
+It follows that in iteration $k+1$ we must minimize
+$$
+\omega(Z_1,\cdots,Z_s):=\sum_{r=1}^s\text{tr}\ (Z_r-\tilde Z_r^{(k)})'V_r(Z_r-\tilde Z_r^{(k)})
+$$
+to compute the $Z_r^{(k+1)}$.
 
-$$
-\text{tr}\ (X-\tilde X_r)'V_{11}^r(X-\tilde X_r)+2\text{tr}\ (X-\tilde X_r)'V_{12}^r(Y_r-\tilde Y_r)+\text{tr}\ (Y_r-\tilde Y_r)'V_{22}^r(Y_r-\tilde Y_r)
-$$
+More explicitly we must minimize
+
+\begin{multline}
+\sum_{r=1}^s\text{tr}\ (X-\tilde X_r)'V_{11}^r(X-\tilde X_r)+2\sum_{r=1}^s\text{tr}\ (X-\tilde X_r)'V_{12}^r(Y_r-\tilde Y_r)+\\\sum_{r=1}^s\text{tr}\ (Y_r-\tilde Y_r)'V_{22}^r(Y_r-\tilde Y_r)
+\end{multline}
 where $\tilde X_r$ and $\tilde Y_r$ are the two components of the Guttman
-transform $\tilde Z_r$of the current $Z_r$.
+transform $\tilde Z_r$ of the current $Z_r$.
 
-First minimize over $Y_r$, without constraints.
+First minimize over $Y_r$ for given $X$. This gives
 $$
-Y_r-\tilde Y_r=-\{V_{22}^r\}^{-1}V_{21}^r(X-\tilde X_r)
+Y_r=\tilde Y_r-\{V_{22}^r\}^{-1}V_{21}^r(X-\tilde X_r)
 $$
-and thus
 $$
-\text{tr}\ (X-\tilde X_r)'V_{1|2}^r(X-\tilde X_r)
+X = \{V_{11}^\star\}^{-1}\left\{\sum V_{11}^r\tilde X_r-\sum V_{12}^r(Y_r-\tilde Y_r)\right\}
 $$
-where
-$$
-V_{1|2}^r:=V_{11}^r-V_{12}^r\{V_{22}^r\}^{-1}V_{21}^r
-$$
-i.e. Schur complement of .. in .. Note that $V_{1|2}^r$ is doubly-centered.
 
+
+
+
+## Missing Data
+
+
+## Normalization of X
 
 Constraint either (weak)
 $$
-\text{tr}\ X'V_{1|2}^\star X = 1
+\text{tr}\ X'V_{11}^\star X = 1
 $$
 or (strong)
 $$
-X'V_{1|2}^\star X = I
+X'V_{11}^\star X = I
 $$
-Thus (weak)
-$$
-X=\lambda\{V_{1|2}^\star\}^{-1}\sum_{j=1}^mV_{1|2}^r\tilde X_r
-$$
-with $\lambda$ chosen such that ... is satisfied. 
 
- Or (strong)
-$$
-X=\{V_{1|2}^\star\}^{-\frac12}KL'
-$$
-(Procrustus)
+## The Unweighted Case
 
 In the  unweighted case we have $V_{11}^r=k_rI$, $V_{22}^r=nI$, and
-$V_{12}^r=-e_ne_{k_r}'$. Thus
+$V_{12}^r=-E_{n\times k_r}$. Thus
 $V_{1\mid2}^r=k_rJ_n$ and $V_{1\mid 2}^\star=k_\star J_n$
-with $J_n=I-n^{-1}e_ne_n'$ the centering matrix of order $n.
+with $J_n=I_n-n^{-1}E_{n\times n}$, the centering matrix of order $n.
 
 The Guttman transform also simplifies in the unweighted case. The formulas were already given in @heiser_deleeuw_A_79.
 
-## The Constrained Case
+## Centroid Constraints on Y
 
 $$
 Z_r=
@@ -248,30 +293,43 @@ $$
 $$
 \sum_{j=1}^m Z_r'V_rZ_r=X'\{\sum_{j=1}^mH_r'V_rH_r\}X.
 $$
-
-## The Unweighted Case
-
-If unweighted then $V_{11}^r=k_rI$ and $V_{22}^r=nI$. $V_{12}^r$ is $n\times k_r$ with all elements equal to $-1$. The rank of $V_r$ is $n+k_r-1$, and the only vectors in  the null-space are proportional to the vector with all elements equal to one (). 
-
-$$V_r^+=(V_r+ee)^{-1}-\frac{1}{n+k_r}ee'$$
-But 
-$$V_r+ee'=(V_{11}^r+ee')\oplus(V_{22}^r+ee')=(k_rI+ee')\oplus(nI+ee')$$
-$$(V_r+ee')^{-1}=(k_rI+ee')^{-1}\oplus(nI+ee')^{-1}$$
-Lemma: If $A$ is a symmetric matrix of order $n$ of the form
-$\alpha I+ee'$ then $(\alpha I+ee')^{-1}=$
-
-Proof: 
-
-@heiser_deleeuw_A_79
-
-Sherman-Morrison
+## Rank Constraints on Y
 
 $$
-(n I+ee')^{-1}=\frac{1}{n}\left\{I-\frac{1}{k_r+n}ee'\right\}$$
+y_j^r=\alpha_{j}^ry_r
 $$
-(k_r I+ee')^{-1}=\frac{1}{k_r}\left\{I-\frac{1}{k_r+n}ee'\right\}$$
 
-Schur complement $$V_{11}-V_{12}V_{22}^{-1}V_{21}=kI-e_ne_k'\frac{1}{n}e_ke_n'=k\{I-\frac{1}{n}e_ne_n'\}=kJ_n$$
+# Note
 
+In order to not have to deal with general inverses and multiplications of gigantic symmetric matrices with largely empty diagonal blocks we solve the system
+$$
+\begin{bmatrix}
+W_r&-W\\
+-W'&W_c
+\end{bmatrix}
+\begin{bmatrix}
+X\\Y
+\end{bmatrix}
+=
+\begin{bmatrix}
+P\\Q
+\end{bmatrix}
+$$
+for $X$ and $Y$, with the known right hand side
+$$
+\begin{bmatrix}P\\Q\end{bmatrix}=
+\begin{bmatrix}
+B_r&-B\\
+-B'&B_c
+\end{bmatrix}
+\begin{bmatrix}
+X^{(k)}\\Y^{(k)}
+\end{bmatrix}
+$$
+
+$W_rX-WY=P$ or $X=W_r^{-1}(P+WY)$. Substitute in $W_cY-W'X=Q$
+to get $W_cY-W'W_r^{-1}(P+WY)=Q$ or $(W_c-W'W_r^{-1}W)Y=Q+W'W_r^{-1}P$.
+
+Note that $W_c-W'W_r^{-1}W$ is doubly-centered and $Q+W'W_r^{-1}P$ is column-centered.
 
 # References

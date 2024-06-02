@@ -1,7 +1,7 @@
 ---
 title: |
     | Smacof at 50: A Manual
-    | Part 2: Metric Smacof
+    | Part 2: smacofAC: Metric and Interval Smacof 
 author: 
 - Jan de Leeuw - University of California Los Angeles
 date: '`r paste("Started December 12 2022, Version of",format(Sys.Date(),"%B %d, %Y"))`'
@@ -24,55 +24,50 @@ graphics: yes
 mainfont: Times New Roman
 fontsize: 12pt
 bibliography: ["mypubs.bib","total.bib"]
-abstract: TBD
 ---
 ```{r loadpackages, echo = FALSE}
 library(smacofAC)
 ```
 
 ```{r load code, echo = FALSE}
-source("gruijterFour.R")
+source("~/Desktop/smacofProject/smacofExamples/smacofBS/gruijter/gruijter.R")
+gruijter <- as.matrix(gruijter)
 ```
-
 
 **Note:** This is a working manuscript which will be expanded/updated
 frequently. All suggestions for improvement are welcome. All Rmd, tex,
 html, pdf, R, and C files are in the public domain. Attribution will be
 appreciated, but is not required. All files can be found at
-<https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
-and smacofExamples. A barebones R package is in the repository
-smacofAC.
+<https://github.com/deleeuw> in the smacofAC directories of the repositories smacofCode, smacofManual, and smacofExamples. 
 
 # Introduction
 
 In this part of the manual we discuss metric MDS, and the program
 smacofAC. Metric MDS is the core of all smacof programs, because they
-all have the majorization basec on the Guttman transform in common.
+all have the majorization algorithm based on the Guttman transform 
+in common.
 
-
-# Bells and Whistles
-
-There are two options, *bounds* and *constant*, to make smacofAC more interesting and more widely applicable. Using these options the metric MDS problem becomes minimization of
-$$
+There are two options, *bounds* and *constant*, to make smacofAC more widely applicable. Using these options the metric MDS problem becomes minimization of
+\begin{equation}
 \sigma(X,\hat D)=\sum\sum w_{ij}(\hat d_{ij}-d_{ij}(X))^2
-$$
-over both $X$ and $\hat D$, allowing some limited "metric" transformations of the data $\Delta$.
-The four "metric" types of transformations are
+(\#eq:sdefac)
+\end{equation}
+over both $X$ and $\hat D$, allowing some limited "metric" transformations of the data $\Delta$. Here $\Delta^-$ and $\Delta^+$ are known matrices with bounds, and $c$ is an unknown additive constant. The four "metric" types of transformations 
+relating disparities $\hat d_{ij}$ to dissimilarities $\delta_{ij}$ are
 
 1. type AC1: if bounds = 0 and constant = 0 $\hat d_{ij}=\delta_{ij}$.
 2. type AC2: if bounds = 0 and constant = 1 $\hat d_{ij}=\delta_{ij}+c$ for some $c$,
 3. type AC3: if bounds = 1 and constant = 0 $\delta^-_{ij}\leq\hat d_{ij}\leq\delta^+_{ij}$,
 4. type AC4: if bounds = 1 and constant = 1 $\delta^-_{ij}+c\leq\hat d_{ij}\leq\delta^+_{ij}+c$ for some $c$,
 
-Here $\Delta^-$ and $\Delta^+$ are known matrices with bounds, and $c$ is the unknown additive constant. All four types of transformations also require that $\hat d_{ij}\geq 0$ for all $(i,j)$. There are extensions of the smacof theory (@heiser_91) that do not require non-negativity of the disparities, but in the implementations in this manual we always force 
-them to be non-negative. Note that AC3 is AC4 with $c=0$ and AC2 is AC4 with $\Delta^-=\Delta^+=\Delta$.
+All four types of transformations also require that $\hat d_{ij}\geq 0$ for all $(i,j)$. There are extensions of the smacof theory (@heiser_91) that do not require non-negativity of the disparities, but in the implementations in this manual we always force them to be non-negative. Note that AC3 is AC4 with $c=0$ and AC2 is AC4 with $\Delta^-=\Delta^+=\Delta$.
 
 Note that for types AC2 and AC4 the data $\Delta$ do not need to be non-negative. In fact,
 the original motivation for the additive constant in classical scaling (@messick_abelson_56)
-was that Thurstonian analysis of paired or triadic comparisons produced dissimilarities on an interval scale, and thus could very well include negative values. 
+was that Thurstonian analysis of tetrad or triad comparisons produced dissimilarities on an interval scale, and thus could very well include negative values. 
 
 In AC3 and AC4 there is no mention of $\Delta$, which means
-the bounds $\Delta^-$ and $\Delta^+$ are actually the data.  We could
+the bounds $\Delta^-$ and $\Delta^+$ are actually the data.  There are several possible uses of the bounds. We could
 collect dissimilarity data by asking subjects for interval judgments. Instead
 of a rating scale with possible responses from one to ten we could ask
 for a mark on a line between zero and ten, and then interpret the
@@ -86,59 +81,64 @@ Clearly for consistency of AC3 and AC4 we require that $\delta_{ij}^-\leq\delta_
 for all $(i,j)$. It makes sense in most situations to choose $\Delta^-$ and $\Delta^+$
 to be monotone with $\Delta$, but there is no requirement to do so.
 
+# Program
 
+## Parameters
 
-
-# Implementation
-
-## Type AC1
-
-This is standard non-metric smacof, no bells and whistles. The user has to make some choices,
-coded in the parameter file. 
-```{r parfile, eval = FALSE}
-nobj   9
-ndim   2
-init   2
-width   10
-precision   6
-haveweights   0
-havelabels 1
-itmax   10000
-epsi   10
-verbose   1
-kitmax   1
-kepsi   1
-kverbose   0
-constant 1
-bounds 1
-alpha 10
+```{r parameters, eval = FALSE}
+smacofAC <- function(delta,
+                     ndim = 2,
+                     wmat = NULL,
+                     xold = NULL,
+                     bounds = FALSE,
+                     constant = FALSE,
+                     deltalw = NULL,
+                     deltaup = NULL,
+                     alpha = 2,
+                     labels = row.names(delta),
+                     width = 15,
+                     precision = 10,
+                     itmax = 1000,
+                     eps = 1e-10,
+                     verbose = TRUE,
+                     kitmax = 5,
+                     keps = 1e-10,
+                     kverbose = FALSE,
+                     init = 1)
 ```
+
 The parameters *constant*, *bounds*, *alpha*, *kitmax*, *kepsi*, and *kverbose* are only relevant for AC2, AC3, and AC4. Nevertheless even for AC1 they should have integer values, it just doesn't matter what these values are.
 Parameter *ndim* is the number of dimensions, and *init* tells if an initial configuration
 is read from a file (init = 1), is computed using classical scaling (init = 2), or is
-a random configuration (init = 3). If *haveweights* is one a vector of weights is read from a file, of *labels* is one a vector of labels for the configuration plot is read in. Parameters
+a random configuration (init = 3). Parameters
 *itmax*, *epsi*, and *verbose* control the iterations. The maximum number of iterations
 is *itmax*, the iterations stop if the decrease of stress in an iteration is less than
 1E-*epsi*, and if *verbose* is one intermediate iteration results are written to stdout.
 These intermediate iteration results are formatted with the R function formatC(), using
 *width* for the width argument and *precision* for the digits argument. 
 
-## Type AC2
+## Algorithm
+
+### Type AC1
+
+This is standard non-metric smacof, no bells and whistles. 
+
+### Type AC2
 
 For AC2 we also optimize over the additive constant $c$, and thus the ALS algorithm has two
 sub-steps. The first sub-step consists of a number of Guttman iterations to update $X$ for given
 $\hat D$ (i.e. for given $c$) and the second sub-step updates $c$ for given $X$.
 Parameters *kitmax*, *kepsi*, and *kverbose* control the inner iterations in the first sub-step in the same way as *itmax*, *epsi*, and *verbose* control the
 outer iterations that include both sub-steps. No inner iterations are used
-to update the additive constant, which only requires computing the weighted
+to update the additive constant, which only requires computing a weighted
 average. 
 \begin{equation}
 c=-\frac{\sum\sum w_{ij}(\delta_{ij}-d_{ij}(X))}{\sum\sum w_{ij}}
 (\#eq:updac2)
 \end{equation}
-AC2 should give the same results as the technique of @cooper_72.
+AC2 should give the same results as the MDS method of @cooper_72.
 
-## Type AC3
+### Type AC3
 
 The algorithm for AC3 has the same structure as that for AC2. Instead of
 a second sub-step computing the additive constant, the second sub-step
@@ -153,127 +153,12 @@ d_{ij}(X)&\text{ otherwise }.
 \end{equation}
 Obviously no iterations are required in the second sub-step. 
 
-For AC3 the parameter *alpha* may also be relevant. If the *bounds* parameter
-is equal to one then $\Delta^-$ and $\Delta^+$ are read from a file (as vectors with the lower diagonal elements in row-major order, as is the case for $\Delta$ and $W$). If *bounds*
-is two we set
-\begin{subequations}
-\begin{align}
-\delta_{ij}^-&=\delta_{ij}-\frac{\text{range}(\Delta)}{\alpha},\\
-\delta_{ij}^+&=\delta_{ij}+\frac{\text{range}(\Delta)}{\alpha},
-\end{align}
-\end{subequations}
-and if *bounds* is three we set
-\begin{subequations}
-\begin{align}
-\delta_{ij}^-&=(1-\frac{1}{\alpha})\delta_{ij},\\
-\delta_{ij}^+&=(1+\frac{1}{\alpha})\delta_{ij}.
-\end{align}
-\end{subequations}
-In keeping with the general smacof conventions for parameters we use an integer
-parameter for $\alpha$.
-
-```{r gruijterband, echo = FALSE}
-gruijter <-
-  structure(
-    c(
-      5.63,
-      5.27,
-      4.6,
-      4.8,
-      7.54,
-      6.73,
-      7.18,
-      6.17,
-      6.72,
-      5.64,
-      6.22,
-      5.12,
-      4.59,
-      7.22,
-      5.47,
-      5.46,
-      4.97,
-      8.13,
-      7.55,
-      6.9,
-      4.67,
-      3.2,
-      7.84,
-      6.73,
-      7.28,
-      6.13,
-      7.8,
-      7.08,
-      6.96,
-      6.04,
-      4.08,
-      6.34,
-      7.42,
-      6.88,
-      6.36,
-      7.36
-    ),
-    Labels = c("KVP", "PvdA", "VVD",
-               "ARP", "CHU", "CPN", "PSP", "BP", "D66"),
-    Size = 9L,
-    call = quote(as.dist.default(m = polpar)),
-    class = "dist",
-    Diag = FALSE,
-    Upper = FALSE
-  )
-delta <-
-c(5.6299999999999999, 5.2699999999999996, 6.7199999999999998, 
-4.5999999999999996, 5.6399999999999997, 5.46, 4.7999999999999998, 
-6.2199999999999998, 4.9699999999999998, 3.2000000000000002, 7.5399999999999991, 
-5.1200000000000001, 8.1300000000000008, 7.8399999999999999, 7.8000000000000007, 
-6.7300000000000004, 4.5899999999999999, 7.5500000000000007, 6.7300000000000004, 
-7.0800000000000001, 4.0800000000000001, 7.1799999999999997, 7.2200000000000006, 
-6.9000000000000004, 7.2799999999999994, 6.96, 6.3399999999999999, 
-6.8799999999999999, 6.1699999999999999, 5.4699999999999998, 4.6699999999999999, 
-6.1299999999999999, 6.04, 7.4199999999999999, 6.3600000000000003, 
-7.3599999999999994)
-deltaup <-
-c(6.6299999999999999, 6.2699999999999996, 7.7199999999999998, 
-5.5999999999999996, 6.6399999999999997, 6.46, 5.7999999999999998, 
-7.2199999999999998, 5.9699999999999998, 4.2000000000000002, 8.5399999999999991, 
-6.1200000000000001, 9.1300000000000008, 8.8399999999999999, 8.8000000000000007, 
-7.7300000000000004, 5.5899999999999999, 8.5500000000000007, 7.7300000000000004, 
-8.0800000000000001, 5.0800000000000001, 8.1799999999999997, 8.2200000000000006, 
-7.9000000000000004, 8.2799999999999994, 7.96, 7.3399999999999999, 
-7.8799999999999999, 7.1699999999999999, 6.4699999999999998, 5.6699999999999999, 
-7.1299999999999999, 7.04, 8.4199999999999999, 7.3600000000000003, 
-8.3599999999999994)
-deltalow <-
-c(4.6299999999999999, 4.2699999999999996, 5.7199999999999998, 
-3.6000000000000001, 4.6399999999999997, 4.46, 3.7999999999999998, 
-5.2199999999999998, 3.9700000000000002, 2.2000000000000002, 6.54, 
-4.1200000000000001, 7.1299999999999999, 6.8399999999999999, 6.7999999999999998, 
-5.7300000000000004, 3.5899999999999999, 6.5499999999999998, 5.7300000000000004, 
-6.0800000000000001, 3.0800000000000001, 6.1799999999999997, 6.2199999999999998, 
-5.9000000000000004, 6.2800000000000002, 5.96, 5.3399999999999999, 
-5.8799999999999999, 5.1699999999999999, 4.4699999999999998, 3.6699999999999999, 
-5.1299999999999999, 5.04, 6.4199999999999999, 5.3600000000000003, 
-6.3600000000000003)
-d <-
-c(3.871207766190444, 1.8319047832010886, 0.53496450140168206, 
-1.0570460503570975, 6.5460882358086439, 5.3353613485688216, 6.3504113031730851, 
-0.97366371970605381, 5.4614585638005391, 4.2698417523506134, 
-4.8819354290560826, 3.7843265248031295, 1.9798092560782252, 6.9671914454182771, 
-2.9240355353919849, 1.8201100730224262, 0.87441163470059835, 
-7.4611500144712659, 6.6063630073226109, 5.7234127522375164, 2.5908170902584402, 
-0.94890094179187523, 7.0672455530556908, 5.8149632659593715, 
-6.7816922829827906, 1.4525592012745727, 7.2705004318775952, 6.2212248463093065, 
-6.2307634687785685, 1.9579624697269491, 1.8799625839015064, 5.5796101124466082, 
-5.6358819905668787, 6.3555851821541518, 4.3666949625103255, 6.0944571154593339
-)
-```
-
-## Type AC4
+### Type AC4
 
 Of the four regression problems in the second ALS sub-step only the one for AC4 with both bounds and additive constant is non-trivial. We'll give it some extra attention.
 
 It may help to give an example of what it actually requires. We use the De Gruijter example
-with nine Dutch political parties from 1967 (@degruijter_67). For ease of reference we include the data here. Dissimilarities are averages over a group of 100 introductory psychology students.
+with nine Dutch political parties from 1967 (@degruijter_67). For ease of reference we include the data here. Dissimilarities are averages over a group of 100 students from an introductory psychology course.
 ```{r gruijter, echo = FALSE}
 gruijter
 ```
@@ -284,27 +169,10 @@ lines are connecting the $\delta_{ij}^-$ and the $\delta_{ij}^+$, i.e. they give
 the bounds for $c=0$. In our example the lines are parallel, because $\delta_{ij}^+-\delta_{ij}^-=2$ for all $(i,j)$, but in general this may not be the case.
 The points between the two lines do not contribute to the loss, and
 the points outside the band contribute by how much they are outside, as indicated by the
-black vertical lines.
+black vertical fitlines.
 
 
-```{r bandplot, fig.align = "center", fig.cap = "De Gruijter Shepard Plot", echo = FALSE}
-par(pty = "s")
-plot(delta, d, col = "RED", pch = 16, xlab = "dissimilarity", ylab = "distance")
-lines(delta, deltalow, col = "BLUE", lwd = 2)
-lines(delta, deltaup, col = "BLUE", lwd = 2)
-n <- length(delta)
-for (i in 1:n) {
-  if ((d[i] <= deltaup[i]) && (d[i] >= deltalow[i])) {
-    next
-  }
-  if (d[i] < deltalow[i]) {
-    lines(matrix(c(delta[i], d[i], delta[i], deltalow[i]), 2, 2, byrow = TRUE))
-  }
-  if (d[i] > deltaup[i]) {
-    lines(matrix(c(delta[i], d[i], delta[i], deltaup[i]), 2, 2, byrow = TRUE))
-  }
-}
-```
+
 By varying $c$ we shift the region between the two parallel lines upwards or downwards. The width of the region, or more generally the shape, always remains the same, because it is determined by the difference of $\delta^+$ and $\delta^-$ and does not depend on $c$. The
 optimal $c$ is that shift for which the red $(\delta_{ij},d_{ij}(X))$ points are as much as possible within the strip between the $\delta^-$ and $\delta^+$ lines. This is in the least squares sense, which means that we minimize the horizontal squared distances from the points outside the strip to the $\delta^-$ and $\delta^+$ lines (i.e. the black vertical lines).
 
@@ -321,7 +189,7 @@ and
 The constraints are consistent if $\delta_{ij}^++c\geq 0$, i.e. if $c\geq c_0:=-\min\delta_{ij}^+$.
 The regression problem is to minimize $\phi$ over $c\geq c_0:=-\min\delta_{ij}^+$. 
 
-```{r onefuncdef, echo = FALSE}
+```{r onefuncdef, echo = FALSE, eval = FALSE}
 fc <- function(c, d, delta, dlow, dup) {
   if (d < (dlow + c)) {
     return ((d - (dlow + c)) ^ 2)
@@ -341,8 +209,8 @@ f[i] <- fc(c[i], d[k], delta[k], deltalow[k], deltaup[k])
 }
 ```
 
-Figure \@ref(fig:onefunc) has an example of one of the $\phi_{ij}$. The value of the 
-$d_{ij}(X)$ we used is `r d[k]`, $\delta_{ij}$ is `r delta[k]`, $\delta_{ij}^-$ is `r deltalow[k]`, and $\delta_{ij}^+$ is `r deltaup[k]`.
+Figure has an example of one of the $\phi_{ij}$. The value of the 
+$d_{ij}(X)$ we used is , $\delta_{ij}$ is , $\delta_{ij}^-$ is , and $\delta_{ij}^+$ is .
 The two red vertical lines
 are at $c=d_{ij}(X)-\delta_{ij}^+$ and $c=d_{ij}(X)-\delta_{ij}^-$. 
  
@@ -377,7 +245,7 @@ is piecewise linear, continuous, and increasing. In fact
 \end{equation}
 
 
-```{r onefunc, echo = FALSE, fig.cap = "De Gruijter example, a single phi(i,j)"}
+```{r onefunc, echo = FALSE, fig.cap = "De Gruijter example, a single phi(i,j)", eval = FALSE}
 plot(c, f, type = "l", xlab = "c", ylab = "phi(i,j)", col = "BLUE", lwd = 2)
 abline(v = d[k] - deltalow[k], col = "RED")
 abline(v = d[k] - deltaup[k], col = "RED")
@@ -390,7 +258,7 @@ example. The red vertical lines are at $c=c_0$ and at $c_1:=\max\{d_{ij}(X)-\del
 then $\mathcal{D}\phi(c_1)\geq 0$ and thus we can look for the optimum $c$ in the interval
 $[c_0,c_1]$.
 
-```{r gcfunc, echo = FALSE}
+```{r gcfunc, echo = FALSE, eval = FALSE}
 gc <- function(c, d, delta, deltalow, deltaup) {
   n <- length(delta)
   s <- 0
@@ -405,44 +273,24 @@ for (i in 1:100) {
 f[i] <- gc(x[i],  d, delta, deltalow, deltaup)
 }
 ```
-```{r morefunc, fig.cap = "Function phi for De Gruijter example", echo = FALSE}
-plot(x, f, type = "l", xlab = "c", ylab = "phi", col = "BLUE", lwd = 2)
-left <- -min(deltaup)
-right <- max(d - deltalow)
-abline(v = left, col = "RED")
-abline(v = right, col = "RED")
-h <- optimize(gc, c(left, right), d = d, delta = delta, deltalow = deltalow, deltaup = deltaup)
-```
-
-We minimize $\phi$ by using the R function optimize(). The minimum of $\phi$ in our De Gruijter example turns out to be `r h$objective`, attained at $c$ equal to
-`r h$minimum`. The Shepard plot corresponding with the optimum $c$ is plotted in figure \@ref(fig:optbandplot). Keep in mind that this is the optimal $c$ for the initial
-configuration only (and for our specific choice of bounds). As we will see in a moment the
-fit can be much improved.
-
-```{r optbandplot, fig.align = "center", fig.cap = "De Gruijter Shepard Plot", echo = FALSE}
-p <- h$minimum
-par(pty = "s")
-plot(delta, d, col = "RED", pch = 16, xlab = "dissimilarity", ylab = "distance")
-lines(delta, deltalow + p, col = "BLUE", lwd = 2)
-lines(delta, deltaup + p, col = "BLUE", lwd = 2)
-n <- length(delta)
-for (i in 1:n) {
-  if ((d[i] <= deltaup[i] + p) && (d[i] >= deltalow[i] + p)) {
-    next
-  }
-  if (d[i] < deltalow[i] + p) {
-    lines(matrix(c(delta[i], d[i], delta[i], deltalow[i] + p), 2, 2, byrow = TRUE))
-  }
-  if (d[i] > deltaup[i] + p) {
-    lines(matrix(c(delta[i], d[i], delta[i], deltaup[i] + p), 2, 2, byrow = TRUE))
-  }
-}
-```
 
 
-# Example
+We minimize $\phi$ by using the R function optimize(). 
 
-In the example we again use the De Gruijter data, but now we compute optimal
+
+
+## Output
+
+## Plots
+
+# Examples
+
+## @degruijter_67
+
+It may help to give an example of what it actually requires. We use the De Gruijter example
+with nine Dutch political parties from 1967 (@degruijter_67). Dissimilarities are averages over a group of 100 students from an introductory psychology course.
+
+We compute optimal
 solutions for all four types AC1-AC4 (two dimensions, Torgerson initial estimate,
 no weights). We iterate until the difference in consecutive stress values is
 less than 1e-10. For each of the four runs we give the number of iterations,
@@ -454,6 +302,16 @@ scattered around the line $d=\hat d$. Line segments are drawn in the plots to
 show the fit of all pairs $(i,j)$.
 
 ## Type AC1
+
+
+
+```{r gruijterh00, fig.align = "center", echo = FALSE}
+h00 <- smacofAC(gruijter, bounds = 0, constant = 0, verbose = FALSE)
+par(pty = "s")
+smacofShepardPlot(h00, main = "Shepard Plot AC1", fitlines = TRUE)
+smacofConfigurationPlot(h00, cex = .65, main = "Configuration Plot AC1")
+#smacofDistDhatPlot(h00, cex = 1, main = "Dist-Dhat Plot AC1")
+```
 
 For AC1 we find a minimum stress of `r h00$snew` after `r h00$itel` iterations.
 The Shepard plot has a substantial intercept, which suggest that an additive
@@ -469,14 +327,17 @@ protestants), KVP (catholics) are religious parties, BP (farmers) is a
 right-wing protest party, VVD (classical liberals) is a conservative party, and D'66
 (pragmatists, centrists) was brand new in 1967 and was supposedly beyond left and right.
 
-```{r gruijterh00, fig.align = "center", echo = FALSE}
-par(pty = "s")
-smacofShepardPlot(h00, main = "Shepard Plot AC1", fitlines = TRUE)
-smacofConfigurationPlot(h00, cex = .65, main = "Configuration Plot AC1")
-smacofDistDhatPlot(h00, cex = 1, main = "Dist-Dhat Plot AC1")
-```
-
 ## Type AC2
+
+
+
+```{r gruijterh10, fig.align = "center", echo = FALSE}
+h10 <- smacofAC(gruijter, constant = 1, bounds = 0, verbose = FALSE)
+par(pty = "s")
+smacofShepardPlot(h10, main = "Shepard Plot AC2", fitlines = TRUE)
+smacofConfigurationPlot(h10, cex = .65, main = "Configuration Plot AC2")
+#smacofDistDhatPlot(h10, cex = 1, main = "Dist-Dhat Plot AC2")
+```
 
 As expected, the additive constant improves the fit. We have convergence after `r h10$itel`
 iterations to stress `r h10$snew`. The additive constant is `r h10$addc`, which means the smallest $\delta_{ij}+c$, between ARP and CHU, is now zero. The configuration shows the same three groups, but they cluster a bit more tightly. This is to be expected. Without the
@@ -484,38 +345,33 @@ additive constant the dissimilarities are more equal and consequently the distan
 more equal to. The configuration tends more to what we see if all dissimilarities are equal,
 i.e. to points regularly spaced on a circle (@deleeuw_stoop_A_84).
 
-```{r gruijterh10, fig.align = "center", echo = FALSE}
-par(pty = "s")
-smacofShepardPlot(h10, main = "Shepard Plot AC2", fitlines = TRUE)
-smacofConfigurationPlot(h10, cex = .65, main = "Configuration Plot AC2")
-smacofDistDhatPlot(h10, cex = 1, main = "Dist-Dhat Plot AC2")
-```
-
 ## Type AC3
 
-The bounds we use are $\delta_{ij}\pm 1$. After `r h01$itel` iterations
-we arrive at stress `r h01$snew`. In the configuration plot the centrists
-have moved to the center. 
 
-```{r gruijterh01, fig.align = "center", echo = FALSE}
+```{r gruijterh01, fig.align = "center", echo = FALSE, verbose = FALSE}
+h01 <- smacofAC(gruijter, constant = 1, bounds = 4, alpha = 1)
 par(pty = "s")
 smacofShepardPlot(h01, main = "Shepard Plot AC3", fitlines = TRUE)
 smacofConfigurationPlot(h01, cex = .65, main = "Configuration Plot AC3")
-smacofDistDhatPlot(h01, cex = 1, main = "Dist-Dhat Plot AC3")
+#smacofDistDhatPlot(h01, cex = 1, main = "Dist-Dhat Plot AC3")
 ```
 
-
+The bounds we use are $\delta_{ij}\pm 1$. After `r h01$itel` iterations
+we arrive at stress `r h01$snew`. In the configuration plot the centrists
+have moved to the center.
 ## Type AC4
+
+
+
+```{r gruijterh11, fig.align = "center", echo = FALSE}
+par(pty = "s")
+h11 <- smacofAC(gruijter, constant = 1, bounds = 4, alpha = 1, verbose = FALSE)
+smacofShepardPlot(h11, main = "Shepard Plot AC1", fitlines = TRUE)
+smacofConfigurationPlot(h11, cex = .65, main = "Configuration Plot AC1")
+#smacofDistDhatPlot(h11, cex = 1, main = "Dist-Dhat Plot AC1")
+```
 
 After `r h11$itel` iterations stress is `r h11$snew`, i.e. practically zero. We succeeded in moving all distances within the bounds. The additive constant is `r h11$addc`. The configuration 
 is again pretty much the same with D'66 in the center. VVD moves closer to the Christian
 Democrats, and BP is more isolated.
-
-```{r gruijterh11, fig.align = "center", echo = FALSE}
-par(pty = "s")
-smacofShepardPlot(h11, main = "Shepard Plot AC1", fitlines = TRUE)
-smacofConfigurationPlot(h11, cex = .65, main = "Configuration Plot AC1")
-smacofDistDhatPlot(h11, cex = 1, main = "Dist-Dhat Plot AC1")
-```
-
 # References
