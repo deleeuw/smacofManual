@@ -43,35 +43,18 @@ appreciated, but is not required. The files can be found at
 <https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
 and smacofExamples.
 
-# Introduction
 
-## Metric Unfolding
-
-In metric unfolding we minimize a loss function of the form
-\begin{equation}
-\sigma(X,Y)=\sum_{i=1}^n\sum_{j=1}^mw_{ij}(\delta_{ij}-d(x_i,y_j))^2
-\end{equation}
-over the $n\times p$ matrix $X$ and the $m\times p$ matrices $Y$. Both
-the weights $W=\{w_{ij}\}$ and the dissimilarities $\Delta=\{\delta_{ij}\}$
-are known non-negative matrices.
-
-The multidimensional unfolding model for preference judgments is often attributed to @coombs_50, @coombs_64, @kruskal_carroll_69, @roskam_68
-
-## Non-metric Unfolding
-
-
-## Simultaneous Non-Metric Unfolding
+# Simultaneous Non-Metric Unfolding
 
 If we have data where the same individuals give preference
-judgments over multiple domains, or over the same domain on multiple occasions, or over the same domain with different experimental conditions,
-then we can use the loss function
-$$
-\sigma(X,Y_1,\cdots,Y_s)=\sum_{r=1}^s\sum_{i=1}^n\min_{\delta_i^r\in\Delta_i^r}\sum_{j=1}^{m_r}w_{ij}^r(\delta_{ij}^r-d(x_i,y_j^r))^2
-$$
-Note that for each occasion there are different transformations $\Delta_r$
-and different matrices of column scores $Y_r$, but there is only a single matrix of row scores $X$.
-
-
+judgments over multiple domains, or over the same domain on multiple occasions, or over the same domain under different experimental conditions,
+then we can use the stress loss function
+\begin{equation}
+\sigma(X,Y_1,\cdots,Y_m):=\sum_{j=1}^m\sum_{i=1}^n\min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d(x_i,y_l^j))^2
+(\#eq:snmu)
+\end{equation}
+Note that for each individual and occasion there are different sets of transformations $\Delta_j$
+and for each occasion there different matrices of column scores $Y_j$, but there is only a single matrix of row scores $X$.
 
 ## Homogeneity Analysis
 
@@ -92,21 +75,27 @@ If there is only one variable then it is trivial to make such a
 homogeneous map. We just make sure the individual points coincide with
 their category points. But there are $s>1$ indicator matrices, corresponding with $s$ categorical variables, and the solution is a compromise trying to achieve homogeneity as well as possible for all variables simultaneously.
 
+Let us use loss function \@ref(eq:snmu) to captures loss of homogeneity in
+the sense discussed above.
+The sets $\Delta_i^r$ are defined in such a way that $\hat d_{il}^j$ is zero if $i$ is in category $l$ of 
+variable $j$. There are no constraints on the other $\hat d$'s in row $i$
+of variable $j$. Thus for zero loss we want an object to coincide with all $m$ categories it is in. Under this definition of the $\Delta_i^r$ we have
 
 $$
-\sigma(X,Y_1,\cdots,Y_s)=\sum_{r=1}^s\sum_{i=1}^nw_i^rd^2(x_i,y_i^r)=
-\sum_{r=1}^s\text{tr}\ (X-G_rY_r)'W_r(X-G_rY_r)
+\min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d(x_i,y_l^j))^2=w_{il(i,j)}^jd(x_i,y_{l(i,j)}^j)^2
 $$
+where the $l(i,j)$ on the right is the index of the category of variable $j$ that individual $i$ is in. Using indicators we can write this as
 $$
-w_i^r:=\sum_{j=1}^{m^r}g_{ij}^rw_{ij}^r
+\sigma(X,Y_1,\cdots,Y_m)=
+\sum_{j=1}^m\text{tr}\ (X-G_jY_j)'W_j(X-G_jY_j),
 $$
+with the weights now defined as
 $$
-y_{i}^r:=\sum_{j=1}^{m^r}g_{ij}^ry_r^r
+w_i^j:=w_{il(i,j)}^j.
 $$
-Constraint is that $\delta_{ij}^r$ is zero if $i$ is in category $j$ of 
-variable $r$. There are no constraints on the other delta's in row $i$.
-of variable $r$. Thus we want an object to coincide with all $s$ categories 
-it is in. 
+The other $w_{il}^j$ do not matter and play no part in the optimization 
+problem.
+
 
 star plot
 
@@ -126,22 +115,15 @@ $X'W_\star X=I$
 Now consider the closely related problem in which we do not require,
 as in homogeneity analysis, that 
 $$
-\delta_{i\star}^r:=\sum_{j=1}^{m_r}g_{ij}^r\delta_{ij}^r=0
+\hat d^j_{il(i,j)}=0
 $$
-but we merely require that $\delta_{i\star}^r$ is less than or equal to all
-$\delta_{ij}^r$ in row $i$. Formally
+but we merely require that $\hat d^j_{il(i,j)}$ is less than or equal to all
+$\hat d^j_{il}$ in row $i$. Formally
 $$
-\delta_{i\star}^r\leq\delta_{ij}^r\qquad\forall j=1,\cdots,m_r
-$$
-or
-$$
-g^r_{il}=1\Rightarrow\delta^r_{il}\leq\delta^r_{iv}\qquad\forall v\not=\ell
+g^j_{il}=1\Rightarrow\hat d^j_{il}\leq\hat d^j_{iv}\qquad\forall v\not=\ell
 $$
 
-$$
-\sigma(X,Y_1,\cdots,Y_m) = 
-\sum_{r=1}^s\left\{\sum_{i=1}^n\sum_{\ell=1}^{k_r}w_{ij}^r(\delta_{i\ell}^r-d(x_i,y_\ell^r))^2\right\}
-$$
+
 In homogeneity analysis the geometric interpretation of loss is that we
 want individuals to coincide with the categories they score in (for all variables). The geometric interpretation of loss function ... is that we want 
 individuals to be closer to the categories they score in than to the categories
@@ -242,22 +224,36 @@ to compute the $Z_r^{(k+1)}$.
 More explicitly we must minimize
 
 \begin{multline}
-\sum_{r=1}^s\text{tr}\ (X-\tilde X_r)'V_{11}^r(X-\tilde X_r)+2\sum_{r=1}^s\text{tr}\ (X-\tilde X_r)'V_{12}^r(Y_r-\tilde Y_r)+\\\sum_{r=1}^s\text{tr}\ (Y_r-\tilde Y_r)'V_{22}^r(Y_r-\tilde Y_r)
+\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'R_j(X-\tilde X_j)-2\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'W_j(Y_j-\tilde Y_j)+\\\sum_{j=1}^m\text{tr}\ (Y_j-\tilde Y_j)'C_j(Y_j-\tilde Y_j)
 \end{multline}
 where $\tilde X_r$ and $\tilde Y_r$ are the two components of the Guttman
 transform $\tilde Z_r$ of the current $Z_r$.
 
 First minimize over $Y_r$ for given $X$. This gives
 $$
-Y_r=\tilde Y_r-\{V_{22}^r\}^{-1}V_{21}^r(X-\tilde X_r)
+V_{21}^j(X-\tilde X_j)+V_{22}^j(Y_j-\tilde Y_j)=0
 $$
 $$
-X = \{V_{11}^\star\}^{-1}\left\{\sum V_{11}^r\tilde X_r-\sum V_{12}^r(Y_r-\tilde Y_r)\right\}
+Y_j=\tilde Y_j-\{V_{22}^j\}^{-1}V_{21}^j(X-\tilde X_j)
+$$
+$$
+\sum_{j=1}^m V_{11}^j(X-\tilde X_j)+\sum_{j=1}^mV_{12}^j(Y_j-\tilde Y_j) = 0
+$$
+$$
+X = \{V_{11}^\star\}^{-1}\left\{\sum_{j=1}^m V_{11}^j\tilde X_j-\sum_{j=1}^m V_{12}^j(Y_j-\tilde Y_j)\right\}
+$$
+Require $e'X=0$. Or $X=JZ$ 
+
+$$
+\sum_{j=1}^m V_{11}^j(X-\tilde X_j)+\sum_{j=1}^mV_{12}^j(Y_j-\tilde Y_j)= 0
 $$
 
+Or we substitute ... into ... we find that we have to minimize
 
-
-
+$$
+\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'(R_j-W_jC_j^{-1}W_j')(X-\tilde X_j)
+$$
+over $X$.
 ## Missing Data
 
 
@@ -293,6 +289,11 @@ $$
 $$
 \sum_{j=1}^m Z_r'V_rZ_r=X'\{\sum_{j=1}^mH_r'V_rH_r\}X.
 $$
+
+$$
+X'H_r'V_rH_rX=X'\{V_{11}^j+V_{12}^jD_j^{-1}G_j+G_jD_j^{-1}V_{22}^jD_j^{-1}G_j'\}X
+$$
+
 ## Rank Constraints on Y
 
 $$

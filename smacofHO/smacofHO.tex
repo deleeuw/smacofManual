@@ -156,7 +156,7 @@
 \title{Smacof at 50: A Manual\\
 Part 8: Homogeneity Analysis with Smacof}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started April 13 2024, Version of May 30, 2024}
+\date{Started April 13 2024, Version of June 04, 2024}
 
 \begin{document}
 \maketitle
@@ -175,36 +175,17 @@ appreciated, but is not required. The files can be found at
 \url{https://github.com/deleeuw} in the repositories smacofCode, smacofManual,
 and smacofExamples.
 
-\section{Introduction}\label{introduction}
-
-\subsection{Metric Unfolding}\label{metric-unfolding}
-
-In metric unfolding we minimize a loss function of the form
-\begin{equation}
-\sigma(X,Y)=\sum_{i=1}^n\sum_{j=1}^mw_{ij}(\delta_{ij}-d(x_i,y_j))^2
-\end{equation}
-over the \(n\times p\) matrix \(X\) and the \(m\times p\) matrices \(Y\). Both
-the weights \(W=\{w_{ij}\}\) and the dissimilarities \(\Delta=\{\delta_{ij}\}\)
-are known non-negative matrices.
-
-The multidimensional unfolding model for preference judgments is often attributed to Clyde H. Coombs (1950), C. H. Coombs (1964), Kruskal and Carroll (1969), Roskam (1968)
-
-\subsection{Non-metric Unfolding}\label{non-metric-unfolding}
-
-\subsection{Simultaneous Non-Metric Unfolding}\label{simultaneous-non-metric-unfolding}
+\section{Simultaneous Non-Metric Unfolding}\label{simultaneous-non-metric-unfolding}
 
 If we have data where the same individuals give preference
-judgments over multiple domains, or over the same domain on multiple occasions, or over the same domain with different experimental conditions,
-then we can use the loss function
-\[
-\sigma(X,Y_1,\cdots,Y_s)=\sum_{r=1}^s\sum_{i=1}^n\min_{\delta_i^r\in\Delta_i^r}\sum_{j=1}^{m_r}w_{ij}^r(\delta_{ij}^r-d(x_i,y_j^r))^2
-\]
-Note that for each occasion there are different transformations \(\Delta_r\)
-and different matrices of column scores \(Y_r\), but there is only a single matrix of row scores \(X\).
-
-\[
-y_j^r=\alpha_{j}^ry_r
-\]
+judgments over multiple domains, or over the same domain on multiple occasions, or over the same domain under different experimental conditions,
+then we can use the stress loss function
+\begin{equation}
+\sigma(X,Y_1,\cdots,Y_m):=\sum_{j=1}^m\sum_{i=1}^n\min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d(x_i,y_l^j))^2
+\label{eq:snmu}
+\end{equation}
+Note that for each individual and occasion there are different sets of transformations \(\Delta_j\)
+and for each occasion there different matrices of column scores \(Y_j\), but there is only a single matrix of row scores \(X\).
 
 \subsection{Homogeneity Analysis}\label{homogeneity-analysis}
 
@@ -225,20 +206,26 @@ If there is only one variable then it is trivial to make such a
 homogeneous map. We just make sure the individual points coincide with
 their category points. But there are \(s>1\) indicator matrices, corresponding with \(s\) categorical variables, and the solution is a compromise trying to achieve homogeneity as well as possible for all variables simultaneously.
 
+Let us use loss function \eqref{eq:snmu} to captures loss of homogeneity in
+the sense discussed above.
+The sets \(\Delta_i^r\) are defined in such a way that \(\hat d_{il}^j\) is zero if \(i\) is in category \(l\) of
+variable \(j\). There are no constraints on the other \(\hat d\)'s in row \(i\)
+of variable \(j\). Thus for zero loss we want an object to coincide with all \(m\) categories it is in. Under this definition of the \(\Delta_i^r\) we have
+
 \[
-\sigma(X,Y_1,\cdots,Y_s)=\sum_{r=1}^s\sum_{i=1}^nw_i^rd^2(x_i,y_i^r)=
-\sum_{r=1}^s\text{tr}\ (X-G_rY_r)'W_r(X-G_rY_r)
+\min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d(x_i,y_l^j))^2=w_{il(i,j)}^jd(x_i,y_{l(i,j)}^j)^2
 \]
+where the \(l(i,j)\) on the right is the index of the category of variable \(j\) that individual \(i\) is in. Using indicators we can write this as
 \[
-w_i^r:=\sum_{j=1}^{m^r}g_{ij}^rw_{ij}^r
+\sigma(X,Y_1,\cdots,Y_m)=
+\sum_{j=1}^m\text{tr}\ (X-G_jY_j)'W_j(X-G_jY_j),
 \]
+with the weights now defined as
 \[
-y_{i}^r:=\sum_{j=1}^{m^r}g_{ij}^ry_r^r
+w_i^j:=w_{il(i,j)}^j.
 \]
-Constraint is that \(\delta_{ij}^r\) is zero if \(i\) is in category \(j\) of
-variable \(r\). There are no constraints on the other delta's in row \(i\).
-of variable \(r\). Thus we want an object to coincide with all \(s\) categories
-it is in.
+The other \(w_{il}^j\) do not matter and play no part in the optimization
+problem.
 
 star plot
 
@@ -257,22 +244,14 @@ star plot
 Now consider the closely related problem in which we do not require,
 as in homogeneity analysis, that
 \[
-\delta_{i\star}^r:=\sum_{j=1}^{m_r}g_{ij}^r\delta_{ij}^r=0
+\hat d^j_{il(i,j)}=0
 \]
-but we merely require that \(\delta_{i\star}^r\) is less than or equal to all
-\(\delta_{ij}^r\) in row \(i\). Formally
+but we merely require that \(\hat d^j_{il(i,j)}\) is less than or equal to all
+\(\hat d^j_{il}\) in row \(i\). Formally
 \[
-\delta_{i\star}^r\leq\delta_{ij}^r\qquad\forall j=1,\cdots,m_r
-\]
-or
-\[
-g^r_{il}=1\Rightarrow\delta^r_{il}\leq\delta^r_{iv}\qquad\forall v\not=\ell
+g^j_{il}=1\Rightarrow\hat d^j_{il}\leq\hat d^j_{iv}\qquad\forall v\not=\ell
 \]
 
-\[
-\sigma(X,Y_1,\cdots,Y_m) = 
-\sum_{r=1}^s\left\{\sum_{i=1}^n\sum_{\ell=1}^{k_r}w_{ij}^r(\delta_{i\ell}^r-d(x_i,y_\ell^r))^2\right\}
-\]
 In homogeneity analysis the geometric interpretation of loss is that we
 want individuals to coincide with the categories they score in (for all variables). The geometric interpretation of loss function \ldots{} is that we want
 individuals to be closer to the categories they score in than to the categories
@@ -372,52 +351,39 @@ to compute the \(Z_r^{(k+1)}\).
 More explicitly we must minimize
 
 \begin{multline}
-\sum_{r=1}^s\text{tr}\ (X-\tilde X_r)'V_{11}^r(X-\tilde X_r)+2\sum_{r=1}^s\text{tr}\ (X-\tilde X_r)'V_{12}^r(Y_r-\tilde Y_r)+\\\sum_{r=1}^s\text{tr}\ (Y_r-\tilde Y_r)'V_{22}^r(Y_r-\tilde Y_r)
+\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'V_{11}^j(X-\tilde X_j)+2\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'V_{12}^j(Y_j-\tilde Y_j)+\\\sum_{j=1}^m\text{tr}\ (Y_j-\tilde Y_j)'V_{22}^j(Y_j-\tilde Y_j)
 \end{multline}
 where \(\tilde X_r\) and \(\tilde Y_r\) are the two components of the Guttman
 transform \(\tilde Z_r\) of the current \(Z_r\).
 
-First minimize over \(Y_r\), without constraints. This gives
+First minimize over \(Y_r\) for given \(X\). This gives
 \[
-Y_r=\tilde Y_r-\{V_{22}^r\}^{-1}V_{21}^r(X-\tilde X_r)
+V_{21}^j(X-\tilde X_j)+V_{22}^j(Y_j-\tilde Y_j)=0
 \]
-Substitutuing this in \ldots{} it remains to minimize
 \[
-\sum_{r=1}^s\text{tr}\ (X-\tilde X_r)'V_{1|2}^r(X-\tilde X_r)
+Y_j=\tilde Y_j-\{V_{22}^j\}^{-1}V_{21}^j(X-\tilde X_j)
 \]
-over \(X\), where
 \[
-V_{1|2}^r:=V_{11}^r-V_{12}^r\{V_{22}^r\}^+V_{21}^r
+\sum_{j=1}^m V_{11}^j(X-\tilde X_j)+\sum_{j=1}^mV_{12}^j(Y_j-\tilde Y_j) = 0
 \]
-i.e.~the Schur complement of \(V_{22}^r\) in \(V_r\). If there are no constraints on \(X\) the solution is
 \[
-X=\{V_{1|2}^\star\}^+\sum_{r=1}^sV_{1|2}^r\tilde X_r.
+X = \{V_{11}^\star\}^{-1}\left\{\sum_{j=1}^m V_{11}^j\tilde X_j-\sum_{j=1}^m V_{12}^j(Y_j-\tilde Y_j)\right\}
 \]
-Because \(V_{1|2}^r\) is doubly-centered the solution \(X\) is column-centered.
 
 \subsection{Missing Data}\label{missing-data}
 
-\subsection{\texorpdfstring{Normalization of \(X\)}{Normalization of X}}\label{normalization-of-x}
+\subsection{Normalization of X}\label{normalization-of-x}
 
 Constraint either (weak)
 \[
-\text{tr}\ X'V_{1|2}^\star X = 1
+\text{tr}\ X'V_{11}^\star X = 1
 \]
 or (strong)
 \[
-X'V_{1|2}^\star X = I
+X'V_{11}^\star X = I
 \]
-Thus (weak)
-\[
-X=\lambda\{V_{1|2}^\star\}^{-1}\sum_{j=1}^mV_{1|2}^r\tilde X_r
-\]
-with \(\lambda\) chosen such that \ldots{} is satisfied.
 
-Or (strong)
-\[
-X=\{V_{1|2}^\star\}^{-\frac12}KL'
-\]
-(Procrustus)
+\subsection{The Unweighted Case}\label{the-unweighted-case}
 
 In the unweighted case we have \(V_{11}^r=k_rI\), \(V_{22}^r=nI\), and
 \(V_{12}^r=-E_{n\times k_r}\). Thus
@@ -437,6 +403,16 @@ k_r&D_r^{-1}G_r'}X=H_rX
 \]
 \[
 \sum_{j=1}^m Z_r'V_rZ_r=X'\{\sum_{j=1}^mH_r'V_rH_r\}X.
+\]
+
+\[
+X'H_r'V_rH_rX=X'\{V_{11}^j+V_{12}^jD_j^{-1}G_j+G_jD_j^{-1}V_{22}^jD_j^{-1}G_j'\}X
+\]
+
+\subsection{Rank Constraints on Y}\label{rank-constraints-on-y}
+
+\[
+y_j^r=\alpha_{j}^ry_r
 \]
 
 \section{Note}\label{note}
@@ -477,12 +453,6 @@ Note that \(W_c-W'W_r^{-1}W\) is doubly-centered and \(Q+W'W_r^{-1}P\) is column
 
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
-\bibitem[\citeproctext]{ref-coombs_64}
-Coombs, C. H. 1964. \emph{{A Theory of Data}}. Wiley.
-
-\bibitem[\citeproctext]{ref-coombs_50}
-Coombs, Clyde H. 1950. {``Psychological Scaling Without a Unit of Measurement.''} \emph{Psychological Review} 57: 148--58.
-
 \bibitem[\citeproctext]{ref-deleeuw_A_77}
 De Leeuw, J. 1977. {``Correctness of Kruskal's Algorithms for Monotone Regression with Ties.''} \emph{Psychometrika} 42: 141--44.
 
@@ -501,14 +471,8 @@ Kruskal, J. B. 1964a. {``{Multidimensional Scaling by Optimizing Goodness of Fit
 \bibitem[\citeproctext]{ref-kruskal_64b}
 ---------. 1964b. {``{Nonmetric Multidimensional Scaling: a Numerical Method}.''} \emph{Psychometrika} 29: 115--29.
 
-\bibitem[\citeproctext]{ref-kruskal_carroll_69}
-Kruskal, J. B., and J. D. Carroll. 1969. {``{Geometrical Models and Badness of Fit Functions}.''} In \emph{Multivariate Analysis, Volume II}, edited by P. R. Krishnaiah, 639--71. North Holland Publishing Company.
-
 \bibitem[\citeproctext]{ref-michailidis_deleeuw_A_98}
 Michailidis, G., and J. De Leeuw. 1998. {``The Gifi System for Descriptive Multivariate Analysis.''} \emph{Statistical Science} 13: 307--36.
-
-\bibitem[\citeproctext]{ref-roskam_68}
-Roskam, E. E. 1968. {``{Metric Analysis of Ordinal Data in Psychology}.''} PhD thesis, University of Leiden.
 
 \end{CSLReferences}
 
