@@ -156,7 +156,7 @@
 \title{Smacof at 50: A Manual\\
 Part 8: Homogeneity Analysis with Smacof}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started April 13 2024, Version of June 04, 2024}
+\date{Started April 13 2024, Version of June 08, 2024}
 
 \begin{document}
 \maketitle
@@ -177,15 +177,35 @@ and smacofExamples.
 
 \section{Simultaneous Non-Metric Unfolding}\label{simultaneous-non-metric-unfolding}
 
-If we have data where the same individuals give preference
+If we have data where the same objects give preference
 judgments over multiple domains, or over the same domain on multiple occasions, or over the same domain under different experimental conditions,
 then we can use the stress loss function
 \begin{equation}
 \sigma(X,Y_1,\cdots,Y_m):=\sum_{j=1}^m\sum_{i=1}^n\min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d(x_i,y_l^j))^2
 \label{eq:snmu}
 \end{equation}
-Note that for each individual and occasion there are different sets of transformations \(\Delta_j\)
-and for each occasion there different matrices of column scores \(Y_j\), but there is only a single matrix of row scores \(X\).
+Note that for each object and variable there are different sets of transformations \(\Delta_j\)
+and for each variable there different matrices of column scores \(Y_j\), but there is only a single matrix of row scores \(X\).
+
+If the \(\Delta_i^j\) contain zero, then the unconstrained minimum of \eqref{eq:snmu}
+is clearly zero. Collapsing all \(x_i\) and all \(y_l^j\) into a single point makes all distances zero, and thus makes stress zero. Some sort of normalization of either \(X\) and/or the \(Y_j\) is needed to prevent this trivial solution.
+
+There is a extensive literature in the case of non-metric unfolding on preveting trivial solutions. Initially Roskam (1968) and Kruskal and Carroll (1969) tried to use implicit normalization of stress, which in our context means that
+each component of \eqref{eq:snmu}
+is given a numerator
+\begin{equation}
+\sigma(X,Y_1,\cdots,Y_m):=\sum_{j=1}^m\sum_{i=1}^n\frac{\min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d(x_i,y_l^j))^2}{\min_{\hat d_{ij}}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{ij}-d(x_i,y_l^j))^2}
+\label{eq:snmuin}
+\end{equation}
+This is supposed to prevent solutions with
+all \(d(x_i,y_l^j)\) are equal within a row of
+the
+
+In fact, it is easy to see that a minimum of zero is also possible in the situation where the \(\Delta_i^j\) have the
+subset of all constant vectors (or all non-negative constant vectors). Collapse all
+\(x_i\) into a single point, and place all \(y_l^j\) on a sphere around this point.
+Or collapse all \(y_l^j\) and put the \(x_i\) on a sphere. This makes all \(d(x_i,y_l^j)\)
+equal and thus makes stress zero.
 
 \subsection{Homogeneity Analysis}\label{homogeneity-analysis}
 
@@ -196,14 +216,14 @@ similarities with unfolding and the techniques we will present later on in this 
 
 The data are a number of indicator matrices \(G_1,\cdots,G_s\). Indicator matrices are binary matrices, with rows that add up to one. They are
 used to code categorical variables. Rows corresponds with objects
-(or individuals), column with the categories (or levels) of a variable.
+(or objects), column with the categories (or levels) of a variable.
 An element \(g_{ij}\) is one in row if object \(i\) is in category \(j\),
 and all other elements in row \(i\) are zero.
 
-Homogeneity analysis makes a joint maps in \(p\) dimensions of individuals
-and categories (both represented as points) in such a way that category points are close to the points for the individuals in the category. And, vice versa, individuals are close to the category points that they score in.
+Homogeneity analysis makes a joint maps in \(p\) dimensions of objects
+and categories (both represented as points) in such a way that category points are close to the points for the objects in the category. And, vice versa, objects are close to the category points that they score in.
 If there is only one variable then it is trivial to make such a
-homogeneous map. We just make sure the individual points coincide with
+homogeneous map. We just make sure the object points coincide with
 their category points. But there are \(s>1\) indicator matrices, corresponding with \(s\) categorical variables, and the solution is a compromise trying to achieve homogeneity as well as possible for all variables simultaneously.
 
 Let us use loss function \eqref{eq:snmu} to captures loss of homogeneity in
@@ -215,7 +235,7 @@ of variable \(j\). Thus for zero loss we want an object to coincide with all \(m
 \[
 \min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d(x_i,y_l^j))^2=w_{il(i,j)}^jd(x_i,y_{l(i,j)}^j)^2
 \]
-where the \(l(i,j)\) on the right is the index of the category of variable \(j\) that individual \(i\) is in. Using indicators we can write this as
+where the \(l(i,j)\) on the right is the index of the category of variable \(j\) that object \(i\) is in. Using indicators we can write this as
 \[
 \sigma(X,Y_1,\cdots,Y_m)=
 \sum_{j=1}^m\text{tr}\ (X-G_jY_j)'W_j(X-G_jY_j),
@@ -229,10 +249,10 @@ problem.
 
 star plot
 
-\[Y_r=(G_r'W_rG_r)^{-1}G_r'W_rX\]
+\[Y_j=(G_j'W_jG_j)^{-1}G_j'W_jX\]
 
 \[
-\min_Y\sigma(X,Y_1,\cdots,Y_s)=\text{tr}\ X'\left\{\sum_{r=1}^s\left\{W_r-W_rG_r(G_r'W_rG_r)^{-1}G_r'W_r\right\}\right\}X
+\min_Y\sigma(X,Y_1,\cdots,Y_s)=\text{tr}\ X'\left\{\sum_{j=1}^m\left\{W_j-W_jG_j(G_j'W_jG_j)^{-1}G_j'W_j\right\}\right\}X
 \]
 
 \(X'W_\star X=I\)
@@ -246,131 +266,148 @@ as in homogeneity analysis, that
 \[
 \hat d^j_{il(i,j)}=0
 \]
-but we merely require that \(\hat d^j_{il(i,j)}\) is less than or equal to all
-\(\hat d^j_{il}\) in row \(i\). Formally
-\[
-g^j_{il}=1\Rightarrow\hat d^j_{il}\leq\hat d^j_{iv}\qquad\forall v\not=\ell
-\]
+but we impose the weaker condition that \(\hat d^j_{il(i,j)}\) is less than or equal to all \(\hat d^j_{il}\) in row \(i\).
 
 In homogeneity analysis the geometric interpretation of loss is that we
-want individuals to coincide with the categories they score in (for all variables). The geometric interpretation of loss function \ldots{} is that we want
-individuals to be closer to the categories they score in than to the categories
-they do not score in (for all variables). The plot of the the \(k_r\) categories of
-variable \(r\) defines \(k_r\) Voronoi regions. The Voronoi region of
+want objects to coincide with the categories they score in (for all variables). The geometric interpretation of loss function \ldots{} is that we want
+objects to be closer to the categories they score in than to the categories
+they do not score in (for all variables). The plot of the the \(k_j\) categories of
+variable \(r\) defines \(k_j\) Voronoi regions. The Voronoi region of
 category \(\ell\) is the polyhedral convex set of all points closer to category
 \(\ell\) than to any other category of variable \(r\). The loss function
 \ldots{} vanishes if the \(x_i\) are all in the Voronoi regions of the categories
-they score in (for all variables).
+they score in (for all variables). It is sufficient for contiguity that the
+stars in the star plot are disjoint ? Also that the convex hulls of the
+object points are disjoint ?
 
 Minimizing \ldots{} over the rows \(\delta_i^r\) is a monotone regression for a simple tree order. This is easily handled by using Kruskal's primary approach
 to ties (Kruskal (1964a), Kruskal (1964b), De Leeuw (1977)).
 
-In stage 2 we do one or more metric smacof iterations for given \(\Delta_r\)
+In stage 2 we do one or more metric smacof iterations for given \(\Delta_j\)
 to decrease the loss. These smacof iterations, or Guttman transforms, more or less ignore the fact that we are dealing with a rectangular matrix and use the weights to transform the problem into a symmetric one (as in Heiser and De Leeuw (1979)).
 
 Thus for stage two purposes the loss function is
 \[
-\sigma(Z_1,\cdots,Z_m)=\sum_{r=1}^s\sum_{i=1}^{N_r}\sum_{j=1}^{N_r}w_{ij}^r(\delta_{ij}^r-d_{ij}(Z_r))^2,
+\sigma(Z_1,\cdots,Z_m)=\sum_{j=1}^m\sum_{i=1}^{N_j}\sum_{j=1}^{N_j}w_{ij}^r(\delta_{ij}^r-d_{ij}(Z_j))^2,
 \]
-with \(N_r:=n+k_r\) and
+with \(N_j:=n+k_j\) and
 
 \[
-Z_r:=\kbordermatrix{
+Z_j:=\kbordermatrix{
 \mbox{\ }&p\\
 n&X\\
-k_r&Y_r}.
+k_j&Y_j}.
 \]
 
-The weights in \(W_r\) are now zero for the two diagonal blocks.
+The weights in \(W_j\) are now zero for the two diagonal blocks.
 
 \[
-g_i^r:=\kbordermatrix{\mbox{\ }&\ \\n&e_i\\k_r&0}.
+g_i^r:=\kbordermatrix{\mbox{\ }&\ \\n&e_i\\k_j&0}.
 \]
 \[
-h_\ell^r:=\kbordermatrix{\mbox{\ }&\ \\n&0\\k_r&e_\ell}
+h_\ell^r:=\kbordermatrix{\mbox{\ }&\ \\n&0\\k_j&e_\ell}
 \]
-so that \(x_i=Z_r'g_i^r\) and \(y_\ell^r=Z_r'h_\ell^r\). It follows that
+so that \(x_i=Z_j'g_i^r\) and \(y_\ell^r=Z_j'h_\ell^r\). It follows that
 \[
-d^2(x_i,y_\ell^r)=\text{tr}\ Z_r'A^r_{i\ell}Z_r^{\ }
+d^2(x_i,y_\ell^r)=\text{tr}\ Z_j'A^r_{i\ell}Z_j^{\ }
 \]
-where \(A_{i\ell}^r\), of order \(n+k_r\), is the rank-one, positive semi-definite, doubly centered matrix
+where \(A_{i\ell}^r\), of order \(n+k_j\), is the rank-one, positive semi-definite, doubly centered matrix
 \[
 A_{i\ell}^r:=(g_i^r-h_\ell^r)(g_i^r-h_\ell^r)'
 \]
 It further follows that
 \[
-\sum_{i=1}^n\sum_{\ell=1}^{k_r}w_{il}^rd^2(x_i,y_\ell^r)=\text{tr}\ Z_r'V_rZ_r,
+\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{il}^rd^2(x_i,y_\ell^r)=\text{tr}\ Z_j'V_jZ_j,
 \]
 where
 \[
-V_r:=\sum_{i=1}^n\sum_{\ell=1}^{k_r}w_{il}^rA^r_{i\ell},
+V_j:=\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{il}^rA^r_{i\ell},
 \]
-so that \(V_r\) has the shape
+so that \(V_j\) has the shape
 \[
-V_r=\kbordermatrix{&n&k_r\\
+V_j=\kbordermatrix{&n&k_j\\
 n&\ddots&\Box\\
-k_r&\Box&\ddots}
+k_j&\Box&\ddots}
 \]
-with \(-W_r\) in the off-diagonal block, while the two diagonal
-blocks are diagonal matrices with the row and column sums of \(W_r\).
+with \(-W_j\) in the off-diagonal block, while the two diagonal
+blocks are diagonal matrices with the row and column sums of \(W_j\).
 
-In a similar way we define \(B_r(Z_r)\), with the same shape as \(V_r\), and with
+In a similar way we define \(B_j(Z_j)\), with the same shape as \(V_j\), and with
 \[
-B(Z_r)=\sum_{i=1}^n\sum_{\ell=1}^{k_r}w_{i\ell}^r\frac{\delta_{i\ell}^r }{d_{i\ell}(Z_r)}A^r_{i\ell}
+B(Z_j)=\sum_{i=1}^n\sum_{\ell=1}^{k_j}w_{i\ell}^r\frac{\delta_{i\ell}^r }{d_{i\ell}(Z_j)}A^r_{i\ell}
 \]
 
 \[
-\sigma(Z_1,\cdots,Z_m)=\sum_{r=1}^s\{\eta_r^2-2\text{tr}\ Z_r'B(Z_r)Z_r+Z_r'V_rZ_r\}
+\sigma(Z_1,\cdots,Z_m)=\sum_{j=1}^m\{\eta_j^2-2\text{tr}\ Z_j'B(Z_j)Z_j+Z_j'V_jZ_j\}
 \]
 with
 \[
-\eta_r^2:=\sum_{i=1}^{N_r}\sum_{j=1}^{N_r}w_{ij}^r\{\delta_{ij}^r\}^2
+\eta_j^2:=\sum_{i=1}^{N_j}\sum_{j=1}^{N_j}w_{ij}^r\{\delta_{ij}^r\}^2
 \]
-Define the Guttman transforms of \(Z_r\) as
+Define the Guttman transforms of \(Z_j\) as
 \[
-\tilde Z_r=V_r^+B(Z_r)Z_r
+\tilde Z_j=V_j^+B(Z_j)Z_j
 \]
 Then
 \[
-\sigma_r(Z):=\eta_r^2-2\text{tr}\ Z_r'B(Z_r)Z_r+Z_r'V_rZ_r=\eta_r^2-\eta^2(\tilde Z_r)+\text{tr}\ (Z_r-\tilde Z_r)'V_r(Z_r-\tilde Z_r)
+\sigma_j(Z):=\eta_j^2-2\text{tr}\ Z_j'B(Z_j)Z_j+Z_j'V_jZ_j=\eta_j^2-\eta^2(\tilde Z_j)+\text{tr}\ (Z_j-\tilde Z_j)'V_j(Z_j-\tilde Z_j)
 \]
-If \(Z_r^{(k)}\) is \(Z_r\) at iteration \(k\) then
+If \(Z_j^{(k)}\) is \(Z_j\) at iteration \(k\) then
 \[
-\text{tr}\ Z_r'B(Z_r)Z_r\geq\text{tr}\ Z_r'B(Z_r^{(k)})Z_r^{(k)}=\text{tr}\ Z_r'V_r\tilde Z_r^{(k)}.
+\text{tr}\ Z_j'B(Z_j)Z_j\geq\text{tr}\ Z_j'B(Z_j^{(k)})Z_j^{(k)}=\text{tr}\ Z_j'V_j\tilde Z_j^{(k)}.
 \]
 Thus
 \[
-\sigma_r(Z)\leq\eta_r^2-\eta^2(\tilde Z_r^{(k)})+\text{tr}\ (Z_r-\tilde Z_r^{(k)})'V_r(Z_r-\tilde Z_r^{(k)})
+\sigma_j(Z)\leq\eta_j^2-\eta^2(\tilde Z_j^{(k)})+\text{tr}\ (Z_j-\tilde Z_j^{(k)})'V_j(Z_j-\tilde Z_j^{(k)})
 \]
 It follows that in iteration \(k+1\) we must minimize
 \[
-\omega(Z_1,\cdots,Z_s):=\sum_{r=1}^s\text{tr}\ (Z_r-\tilde Z_r^{(k)})'V_r(Z_r-\tilde Z_r^{(k)})
+\omega(Z_1,\cdots,Z_s):=\sum_{j=1}^m\text{tr}\ (Z_j-\tilde Z_j^{(k)})'V_j(Z_j-\tilde Z_j^{(k)})
 \]
-to compute the \(Z_r^{(k+1)}\).
+to compute the \(Z_j^{(k+1)}\).
+
+Computation of the Guttman transform requires Moore-Penrose inverses of the
+matrices \(V_j\), which are of order \(n+k_j\) and extremely sparse. They can also be uncomfortably large because \(n\) can be large. It is much more memory-friendly to solve the partioned system
+\[
+\begin{bmatrix}
+R_W&-W\\
+-W'&C_W
+\end{bmatrix}
+\begin{bmatrix}X\\Y\end{bmatrix}=\begin{bmatrix}
+R_B&-B\\
+-B'&C_B
+\end{bmatrix}
+\]
 
 More explicitly we must minimize
 
 \begin{multline}
-\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'V_{11}^j(X-\tilde X_j)+2\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'V_{12}^j(Y_j-\tilde Y_j)+\\\sum_{j=1}^m\text{tr}\ (Y_j-\tilde Y_j)'V_{22}^j(Y_j-\tilde Y_j)
+\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'R_j(X-\tilde X_j)-2\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'W_j(Y_j-\tilde Y_j)+\\
+\sum_{j=1}^m\text{tr}\ (Y_j-\tilde Y_j)'C_j(Y_j-\tilde Y_j)
 \end{multline}
-where \(\tilde X_r\) and \(\tilde Y_r\) are the two components of the Guttman
-transform \(\tilde Z_r\) of the current \(Z_r\).
+where \(\tilde X_j\) and \(\tilde Y_j\) are the two components of the Guttman
+transform \(\tilde Z_j\) of the current \(Z_j\).
 
-First minimize over \(Y_r\) for given \(X\). This gives
-\[
-V_{21}^j(X-\tilde X_j)+V_{22}^j(Y_j-\tilde Y_j)=0
-\]
+First minimize over \(Y_j\) for given \(X\). This gives
 \[
 Y_j=\tilde Y_j-\{V_{22}^j\}^{-1}V_{21}^j(X-\tilde X_j)
 \]
 \[
-\sum_{j=1}^m V_{11}^j(X-\tilde X_j)+\sum_{j=1}^mV_{12}^j(Y_j-\tilde Y_j) = 0
+X = \{V_{11}^\star\}^{-1}\sum_{j=1}^m\left\{V_{11}^j\tilde X_j-V_{12}^j(Y_j-\tilde Y_j)\right\}
 \]
+Require \(e'X=0\). Or \(X=JZ\)
+
 \[
-X = \{V_{11}^\star\}^{-1}\left\{\sum_{j=1}^m V_{11}^j\tilde X_j-\sum_{j=1}^m V_{12}^j(Y_j-\tilde Y_j)\right\}
+\sum_{j=1}^m V_{11}^j(X-\tilde X_j)+\sum_{j=1}^mV_{12}^j(Y_j-\tilde Y_j)= 0
 \]
 
-\subsection{Missing Data}\label{missing-data}
+Or we substitute \ldots{} into \ldots{} we find that we have to minimize
+
+\[
+\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'(R_j-W_jC_j^{-1}W_j')(X-\tilde X_j)
+\]
+over \(X\).
+\#\# Missing Data
 
 \subsection{Normalization of X}\label{normalization-of-x}
 
@@ -385,9 +422,9 @@ X'V_{11}^\star X = I
 
 \subsection{The Unweighted Case}\label{the-unweighted-case}
 
-In the unweighted case we have \(V_{11}^r=k_rI\), \(V_{22}^r=nI\), and
-\(V_{12}^r=-E_{n\times k_r}\). Thus
-\(V_{1\mid2}^r=k_rJ_n\) and \(V_{1\mid 2}^\star=k_\star J_n\)
+In the unweighted case we have \(V_{11}^r=k_jI\), \(V_{22}^r=nI\), and
+\(V_{12}^r=-E_{n\times k_j}\). Thus
+\(V_{1\mid2}^r=k_jJ_n\) and \(V_{1\mid 2}^\star=k_\star J_n\)
 with \(J_n=I_n-n^{-1}E_{n\times n}\), the centering matrix of order \$n.
 
 The Guttman transform also simplifies in the unweighted case. The formulas were already given in Heiser and De Leeuw (1979).
@@ -395,24 +432,24 @@ The Guttman transform also simplifies in the unweighted case. The formulas were 
 \subsection{Centroid Constraints on Y}\label{centroid-constraints-on-y}
 
 \[
-Z_r=
+Z_j=
 \kbordermatrix{
 \mbox{\ }&p\\
 n&I\\
-k_r&D_r^{-1}G_r'}X=H_rX
+k_j&D_j^{-1}G_j'}X=H_jX
 \]
 \[
-\sum_{j=1}^m Z_r'V_rZ_r=X'\{\sum_{j=1}^mH_r'V_rH_r\}X.
+\sum_{j=1}^m Z_j'V_jZ_j=X'\{\sum_{j=1}^mH_j'V_jH_j\}X.
 \]
 
 \[
-X'H_r'V_rH_rX=X'\{V_{11}^j+V_{12}^jD_j^{-1}G_j+G_jD_j^{-1}V_{22}^jD_j^{-1}G_j'\}X
+X'H_j'V_jH_jX=X'\{V_{11}^j+V_{12}^jD_j^{-1}G_j+G_jD_j^{-1}V_{22}^jD_j^{-1}G_j'\}X
 \]
 
 \subsection{Rank Constraints on Y}\label{rank-constraints-on-y}
 
 \[
-y_j^r=\alpha_{j}^ry_r
+y_j^r=\alpha_{j}^ry_j
 \]
 
 \section{Note}\label{note}
@@ -420,7 +457,7 @@ y_j^r=\alpha_{j}^ry_r
 In order to not have to deal with general inverses and multiplications of gigantic symmetric matrices with largely empty diagonal blocks we solve the system
 \[
 \begin{bmatrix}
-W_r&-W\\
+W_j&-W\\
 -W'&W_c
 \end{bmatrix}
 \begin{bmatrix}
@@ -435,7 +472,7 @@ for \(X\) and \(Y\), with the known right hand side
 \[
 \begin{bmatrix}P\\Q\end{bmatrix}=
 \begin{bmatrix}
-B_r&-B\\
+B_j&-B\\
 -B'&B_c
 \end{bmatrix}
 \begin{bmatrix}
@@ -443,10 +480,10 @@ X^{(k)}\\Y^{(k)}
 \end{bmatrix}
 \]
 
-\(W_rX-WY=P\) or \(X=W_r^{-1}(P+WY)\). Substitute in \(W_cY-W'X=Q\)
-to get \(W_cY-W'W_r^{-1}(P+WY)=Q\) or \((W_c-W'W_r^{-1}W)Y=Q+W'W_r^{-1}P\).
+\(W_jX-WY=P\) or \(X=W_j^{-1}(P+WY)\). Substitute in \(W_cY-W'X=Q\)
+to get \(W_cY-W'W_j^{-1}(P+WY)=Q\) or \((W_c-W'W_j^{-1}W)Y=Q+W'W_j^{-1}P\).
 
-Note that \(W_c-W'W_r^{-1}W\) is doubly-centered and \(Q+W'W_r^{-1}P\) is column-centered.
+Note that \(W_c-W'W_j^{-1}W\) is doubly-centered and \(Q+W'W_j^{-1}P\) is column-centered.
 
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
@@ -471,8 +508,14 @@ Kruskal, J. B. 1964a. {``{Multidimensional Scaling by Optimizing Goodness of Fit
 \bibitem[\citeproctext]{ref-kruskal_64b}
 ---------. 1964b. {``{Nonmetric Multidimensional Scaling: a Numerical Method}.''} \emph{Psychometrika} 29: 115--29.
 
+\bibitem[\citeproctext]{ref-kruskal_carroll_69}
+Kruskal, J. B., and J. D. Carroll. 1969. {``{Geometrical Models and Badness of Fit Functions}.''} In \emph{Multivariate Analysis, Volume II}, edited by P. R. Krishnaiah, 639--71. North Holland Publishing Company.
+
 \bibitem[\citeproctext]{ref-michailidis_deleeuw_A_98}
 Michailidis, G., and J. De Leeuw. 1998. {``The Gifi System for Descriptive Multivariate Analysis.''} \emph{Statistical Science} 13: 307--36.
+
+\bibitem[\citeproctext]{ref-roskam_68}
+Roskam, E. E. 1968. {``{Metric Analysis of Ordinal Data in Psychology}.''} PhD thesis, University of Leiden.
 
 \end{CSLReferences}
 
