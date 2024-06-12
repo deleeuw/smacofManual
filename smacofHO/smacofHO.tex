@@ -156,7 +156,7 @@
 \title{Smacof at 50: A Manual\\
 Part 8: Homogeneity Analysis with Smacof}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started April 13 2024, Version of June 08, 2024}
+\date{Started April 13 2024, Version of June 10, 2024}
 
 \begin{document}
 \maketitle
@@ -177,32 +177,33 @@ and smacofExamples.
 
 \section{Simultaneous Non-Metric Unfolding}\label{simultaneous-non-metric-unfolding}
 
-If we have data where the same objects give preference
-judgments over multiple domains, or over the same domain on multiple occasions, or over the same domain under different experimental conditions,
-then we can use the stress loss function
+\begin{itemize}
+\tightlist
+\item
+  There are \(m\) \emph{variables}.
+\item
+  Variable \(j\) has \(k_j>1\) \emph{categories}.
+\item
+  There are \(n\) \emph{objects}.
+\item
+  Each object defines a partial order over the categories of all variables.
+\end{itemize}
+
+In this chapter we minimize the stress loss function
 \begin{equation}
 \sigma(X,Y_1,\cdots,Y_m):=\sum_{j=1}^m\sum_{i=1}^n\min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d(x_i,y_l^j))^2
 \label{eq:snmu}
 \end{equation}
 Note that for each object and variable there are different sets of transformations \(\Delta_j\)
-and for each variable there different matrices of column scores \(Y_j\), but there is only a single matrix of row scores \(X\).
+and for each variable there different matrices of column scores \(Y_j\), but there is only a single matrix of row scores \(X\). Also note that index \(j\), for variables,
+is sometimes used as a subscript and sometimes as a superscript, depending on what
+looks best.
 
 If the \(\Delta_i^j\) contain zero, then the unconstrained minimum of \eqref{eq:snmu}
 is clearly zero. Collapsing all \(x_i\) and all \(y_l^j\) into a single point makes all distances zero, and thus makes stress zero. Some sort of normalization of either \(X\) and/or the \(Y_j\) is needed to prevent this trivial solution.
 
-There is a extensive literature in the case of non-metric unfolding on preveting trivial solutions. Initially Roskam (1968) and Kruskal and Carroll (1969) tried to use implicit normalization of stress, which in our context means that
-each component of \eqref{eq:snmu}
-is given a numerator
-\begin{equation}
-\sigma(X,Y_1,\cdots,Y_m):=\sum_{j=1}^m\sum_{i=1}^n\frac{\min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d(x_i,y_l^j))^2}{\min_{\hat d_{ij}}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{ij}-d(x_i,y_l^j))^2}
-\label{eq:snmuin}
-\end{equation}
-This is supposed to prevent solutions with
-all \(d(x_i,y_l^j)\) are equal within a row of
-the
-
-In fact, it is easy to see that a minimum of zero is also possible in the situation where the \(\Delta_i^j\) have the
-subset of all constant vectors (or all non-negative constant vectors). Collapse all
+In fact, it is easy to see that a minimum of zero is also possible in the situation where the \(\Delta_i^j\) contain the
+set of all constant vectors (or all non-negative constant vectors). Collapse all
 \(x_i\) into a single point, and place all \(y_l^j\) on a sphere around this point.
 Or collapse all \(y_l^j\) and put the \(x_i\) on a sphere. This makes all \(d(x_i,y_l^j)\)
 equal and thus makes stress zero.
@@ -211,55 +212,55 @@ equal and thus makes stress zero.
 
 The Gifi System (Gifi (1990), Michailidis and De Leeuw (1998), De Leeuw and Mair (2009)) presents non-linear or non-metric versions of the classical linear multivariate analysis techniques (regression, analysis of variance, canonical analysis, discriminant analysis, principal component analysis) as special cases of Homogeneity Analysis, also known as Multiple Correspondence Analysis.
 
-We give a somewhat non-standard introduction to homogeneity analysis here, to highlight the
-similarities with unfolding and the techniques we will present later on in this paper.
+In this section we present homogeneity analysis as a special case of
+minimizing the loss function \eqref{eq:snmu}.
 
-The data are a number of indicator matrices \(G_1,\cdots,G_s\). Indicator matrices are binary matrices, with rows that add up to one. They are
+The data are a number of indicator matrices \(G_1,\cdots,G_m\). Indicator matrices are binary matrices, with rows that add up to one. They are
 used to code categorical variables. Rows corresponds with objects
-(or objects), column with the categories (or levels) of a variable.
-An element \(g_{ij}\) is one in row if object \(i\) is in category \(j\),
+(or objects), columns with the categories (or levels) of a variable.
+An element \(g_{il}\) is one in row if object \(i\) is in category \(l\),
 and all other elements in row \(i\) are zero.
 
 Homogeneity analysis makes a joint maps in \(p\) dimensions of objects
 and categories (both represented as points) in such a way that category points are close to the points for the objects in the category. And, vice versa, objects are close to the category points that they score in.
+
 If there is only one variable then it is trivial to make such a
 homogeneous map. We just make sure the object points coincide with
-their category points. But there are \(s>1\) indicator matrices, corresponding with \(s\) categorical variables, and the solution is a compromise trying to achieve homogeneity as well as possible for all variables simultaneously.
+their category points. But there are \(j>1\) indicator matrices, corresponding with \(m\) categorical variables, and the solution is a compromise trying to achieve homogeneity as well as possible for all variables simultaneously.
 
-Let us use loss function \eqref{eq:snmu} to captures loss of homogeneity in
-the sense discussed above.
-The sets \(\Delta_i^r\) are defined in such a way that \(\hat d_{il}^j\) is zero if \(i\) is in category \(l\) of
+In loss function \eqref{eq:snmu} applied to homogeneity analysis
+the sets \(\Delta_i^j\) are defined in such a way that \(\hat d_{il}^j\) is zero if \(i\) is in category \(l\) of
 variable \(j\). There are no constraints on the other \(\hat d\)'s in row \(i\)
-of variable \(j\). Thus for zero loss we want an object to coincide with all \(m\) categories it is in. Under this definition of the \(\Delta_i^r\) we have
-
-\[
+of variable \(j\). Thus for zero loss we want an object to coincide with all \(m\) categories it is in. Under this definition of the \(\Delta_i^j\) we have
+\begin{equation}
 \min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d(x_i,y_l^j))^2=w_{il(i,j)}^jd(x_i,y_{l(i,j)}^j)^2
-\]
-where the \(l(i,j)\) on the right is the index of the category of variable \(j\) that object \(i\) is in. Using indicators we can write this as
-\[
+\label{eq:homsnmu}
+\end{equation}
+where the \(l(i,j)\) on the right is the index of the category of variable \(j\) that object \(i\) is in.
+
+Using indicators we can write loss function \eqref{eq:homsnmu} as
+\begin{equation}
 \sigma(X,Y_1,\cdots,Y_m)=
 \sum_{j=1}^m\text{tr}\ (X-G_jY_j)'W_j(X-G_jY_j),
-\]
-with the weights now defined as
-\[
-w_i^j:=w_{il(i,j)}^j.
-\]
-The other \(w_{il}^j\) do not matter and play no part in the optimization
-problem.
+\label{eq:matsnmu}
+\end{equation}
+The \(W_j\) are diagonal matrices with
+\begin{equation}
+w_i^j:=w_{il(i,j)}=\sum_{l=1}^{k_j}g^j_{il}w^j_{il}.
+\label{eq:whomdef}
+\end{equation}
 
-star plot
-
-\[Y_j=(G_j'W_jG_j)^{-1}G_j'W_jX\]
-
-\[
-\min_Y\sigma(X,Y_1,\cdots,Y_s)=\text{tr}\ X'\left\{\sum_{j=1}^m\left\{W_j-W_jG_j(G_j'W_jG_j)^{-1}G_j'W_j\right\}\right\}X
-\]
-
-\(X'W_\star X=I\)
+In homogeneity analysis we minimize \eqref{eq:matsnmu} using the
+explicit normalization \(X'W_\star X=I\), where \(W_\star\) is the
+sum of the \(W_j\). The solution is given by the singular value
+equations
+\begin{align}
+X\Lambda&=W_\star^{-1}\sum_{j=1}^m W_jG_jY_j,\label{eq:homsvd1}\\
+Y_j&=(G_j'W_jG_j)^{-1}G_j'W_jX,\label{eq:homsvd2}
+\end{align}
+where \(\Lambda\) is a symmetric matrix of Lagrange multipliers.
 
 \section{Loss Function}\label{loss-function}
-
-\subsection{The Unconstrained Case}\label{the-unconstrained-case}
 
 Now consider the closely related problem in which we do not require,
 as in homogeneity analysis, that
@@ -279,6 +280,10 @@ category \(\ell\) is the polyhedral convex set of all points closer to category
 they score in (for all variables). It is sufficient for contiguity that the
 stars in the star plot are disjoint ? Also that the convex hulls of the
 object points are disjoint ?
+
+\subsection{The Unconstrained Case}\label{the-unconstrained-case}
+
+ALS
 
 Minimizing \ldots{} over the rows \(\delta_i^r\) is a monotone regression for a simple tree order. This is easily handled by using Kruskal's primary approach
 to ties (Kruskal (1964a), Kruskal (1964b), De Leeuw (1977)).
@@ -395,7 +400,6 @@ Y_j=\tilde Y_j-\{V_{22}^j\}^{-1}V_{21}^j(X-\tilde X_j)
 \[
 X = \{V_{11}^\star\}^{-1}\sum_{j=1}^m\left\{V_{11}^j\tilde X_j-V_{12}^j(Y_j-\tilde Y_j)\right\}
 \]
-Require \(e'X=0\). Or \(X=JZ\)
 
 \[
 \sum_{j=1}^m V_{11}^j(X-\tilde X_j)+\sum_{j=1}^mV_{12}^j(Y_j-\tilde Y_j)= 0
@@ -411,11 +415,7 @@ over \(X\).
 
 \subsection{Normalization of X}\label{normalization-of-x}
 
-Constraint either (weak)
-\[
-\text{tr}\ X'V_{11}^\star X = 1
-\]
-or (strong)
+Constraint
 \[
 X'V_{11}^\star X = I
 \]
@@ -485,6 +485,26 @@ to get \(W_cY-W'W_j^{-1}(P+WY)=Q\) or \((W_c-W'W_j^{-1}W)Y=Q+W'W_j^{-1}P\).
 
 Note that \(W_c-W'W_j^{-1}W\) is doubly-centered and \(Q+W'W_j^{-1}P\) is column-centered.
 
+\section{Convergence and Degeneracy}\label{convergence-and-degeneracy}
+
+\section{Utilities}\label{utilities}
+
+\subsection{Object Plot Function}\label{object-plot-function}
+
+\subsection{Category Plots Function}\label{category-plots-function}
+
+\subsection{Joint Plot Function}\label{joint-plot-function}
+
+\section{Examples}\label{examples}
+
+Presenting examples runs into some difficulties.
+
+\subsection{Cetacea}\label{cetacea}
+
+\subsection{Senate}\label{senate}
+
+\subsection{GALO}\label{galo}
+
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
 
@@ -508,14 +528,8 @@ Kruskal, J. B. 1964a. {``{Multidimensional Scaling by Optimizing Goodness of Fit
 \bibitem[\citeproctext]{ref-kruskal_64b}
 ---------. 1964b. {``{Nonmetric Multidimensional Scaling: a Numerical Method}.''} \emph{Psychometrika} 29: 115--29.
 
-\bibitem[\citeproctext]{ref-kruskal_carroll_69}
-Kruskal, J. B., and J. D. Carroll. 1969. {``{Geometrical Models and Badness of Fit Functions}.''} In \emph{Multivariate Analysis, Volume II}, edited by P. R. Krishnaiah, 639--71. North Holland Publishing Company.
-
 \bibitem[\citeproctext]{ref-michailidis_deleeuw_A_98}
 Michailidis, G., and J. De Leeuw. 1998. {``The Gifi System for Descriptive Multivariate Analysis.''} \emph{Statistical Science} 13: 307--36.
-
-\bibitem[\citeproctext]{ref-roskam_68}
-Roskam, E. E. 1968. {``{Metric Analysis of Ordinal Data in Psychology}.''} PhD thesis, University of Leiden.
 
 \end{CSLReferences}
 
