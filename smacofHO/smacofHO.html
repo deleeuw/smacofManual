@@ -380,9 +380,9 @@ display: none;
 
 
 <h1 class="title toc-ignore"><div class="line-block">Smacof at 50: A Manual<br />
-Part 6: Homogeneity Analysis with Smacof</div></h1>
+Part 8: Homogeneity Analysis with Smacof</div></h1>
 <h4 class="author">Jan de Leeuw - University of California Los Angeles</h4>
-<h4 class="date">Started April 13 2024, Version of April 30, 2024</h4>
+<h4 class="date">Started April 13 2024, Version of June 14, 2024</h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 smacofVO
@@ -392,18 +392,34 @@ smacofVO
 
 <div id="TOC">
 <ul>
-<li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">1</span> Introduction</a>
+<li><a href="#simultaneous-non-metric-unfolding" id="toc-simultaneous-non-metric-unfolding"><span class="toc-section-number">1</span> Simultaneous Non-Metric Unfolding</a>
 <ul>
-<li><a href="#metric-unfolding" id="toc-metric-unfolding"><span class="toc-section-number">1.1</span> Metric Unfolding</a></li>
-<li><a href="#non-metric-unfolding" id="toc-non-metric-unfolding"><span class="toc-section-number">1.2</span> Non-metric Unfolding</a></li>
-<li><a href="#simultaneous-non-metric-unfolding" id="toc-simultaneous-non-metric-unfolding"><span class="toc-section-number">1.3</span> Simultaneous Non-Metric Unfolding</a></li>
-<li><a href="#homogeneity-analysis" id="toc-homogeneity-analysis"><span class="toc-section-number">1.4</span> Homogeneity Analysis</a></li>
+<li><a href="#homogeneity-analysis" id="toc-homogeneity-analysis"><span class="toc-section-number">1.1</span> Homogeneity Analysis</a></li>
 </ul></li>
-<li><a href="#voronoi-loss-function" id="toc-voronoi-loss-function"><span class="toc-section-number">2</span> Voronoi Loss Function</a>
+<li><a href="#loss-function" id="toc-loss-function"><span class="toc-section-number">2</span> Loss Function</a>
 <ul>
-<li><a href="#the-unconstrained-case" id="toc-the-unconstrained-case"><span class="toc-section-number">2.1</span> The Unconstrained Case</a></li>
-<li><a href="#the-constrained-case" id="toc-the-constrained-case"><span class="toc-section-number">2.2</span> The Constrained Case</a></li>
-<li><a href="#the-unweighted-case" id="toc-the-unweighted-case"><span class="toc-section-number">2.3</span> The Unweighted Case</a></li>
+<li><a href="#the-guttman-transform" id="toc-the-guttman-transform"><span class="toc-section-number">2.1</span> The Guttman Transform</a></li>
+<li><a href="#the-unconstrained-case" id="toc-the-unconstrained-case"><span class="toc-section-number">2.2</span> The Unconstrained Case</a>
+<ul>
+<li><a href="#section" id="toc-section"><span class="toc-section-number">2.2.1</span> </a></li>
+</ul></li>
+<li><a href="#normalization-of-x" id="toc-normalization-of-x"><span class="toc-section-number">2.3</span> Normalization of X</a></li>
+<li><a href="#the-unweighted-case" id="toc-the-unweighted-case"><span class="toc-section-number">2.4</span> The Unweighted Case</a></li>
+<li><a href="#centroid-constraints-on-y" id="toc-centroid-constraints-on-y"><span class="toc-section-number">2.5</span> Centroid Constraints on Y</a></li>
+<li><a href="#rank-constraints-on-y" id="toc-rank-constraints-on-y"><span class="toc-section-number">2.6</span> Rank Constraints on Y</a></li>
+</ul></li>
+<li><a href="#convergence-and-degeneracy" id="toc-convergence-and-degeneracy"><span class="toc-section-number">3</span> Convergence and Degeneracy</a></li>
+<li><a href="#utilities" id="toc-utilities"><span class="toc-section-number">4</span> Utilities</a>
+<ul>
+<li><a href="#object-plot-function" id="toc-object-plot-function"><span class="toc-section-number">4.1</span> Object Plot Function</a></li>
+<li><a href="#category-plots-function" id="toc-category-plots-function"><span class="toc-section-number">4.2</span> Category Plots Function</a></li>
+<li><a href="#joint-plot-function" id="toc-joint-plot-function"><span class="toc-section-number">4.3</span> Joint Plot Function</a></li>
+</ul></li>
+<li><a href="#examples" id="toc-examples"><span class="toc-section-number">5</span> Examples</a>
+<ul>
+<li><a href="#cetacea" id="toc-cetacea"><span class="toc-section-number">5.1</span> Cetacea</a></li>
+<li><a href="#senate" id="toc-senate"><span class="toc-section-number">5.2</span> Senate</a></li>
+<li><a href="#galo" id="toc-galo"><span class="toc-section-number">5.3</span> GALO</a></li>
 </ul></li>
 <li><a href="#references" id="toc-references">References</a></li>
 </ul>
@@ -415,216 +431,303 @@ html, pdf, R, and C files are in the public domain. Attribution will be
 appreciated, but is not required. The files can be found at
 <a href="https://github.com/deleeuw" class="uri">https://github.com/deleeuw</a> in the repositories smacofCode, smacofManual,
 and smacofExamples.</p>
-<div id="introduction" class="section level1" number="1">
-<h1><span class="header-section-number">1</span> Introduction</h1>
-<div id="metric-unfolding" class="section level2" number="1.1">
-<h2><span class="header-section-number">1.1</span> Metric Unfolding</h2>
-<p>In metric unfolding we minimize a loss function of the form
-<span class="math display">\[\begin{equation}
-\sigma(X,Y)=\sum_{i=1}^n\sum_{j=1}^mw_{ij}(\delta_{ij}-d(x_i,y_j))^2
+<div id="simultaneous-non-metric-unfolding" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Simultaneous Non-Metric Unfolding</h1>
+<ul>
+<li>There are <span class="math inline">\(m\)</span> <em>variables</em>.</li>
+<li>Variable <span class="math inline">\(j\)</span> has <span class="math inline">\(k_j&gt;1\)</span> <em>categories</em>.</li>
+<li>There are <span class="math inline">\(n\)</span> <em>objects</em>.</li>
+<li>Each object defines a partial order over the categories of all variables.</li>
+</ul>
+<p>In this chapter we minimize the stress loss function
+<span class="math display" id="eq:snmu">\[\begin{equation}
+\sigma(X,Y_1,\cdots,Y_m):=\sum_{j=1}^m\sum_{i=1}^n\min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d(x_i,y_l^j))^2
+\tag{1.1}
 \end{equation}\]</span>
-over the <span class="math inline">\(n\times p\)</span> matrix <span class="math inline">\(X\)</span> and the <span class="math inline">\(m\times p\)</span> matrices <span class="math inline">\(Y\)</span>. Both
-the weights <span class="math inline">\(W=\{w_{ij}\}\)</span> and the dissimilarities <span class="math inline">\(\Delta=\{\delta_{ij}\}\)</span>
-are known non-negative matrices.</p>
-<p>The multidimensional unfolding model for preference judgments is often attributed to <span class="citation">(<strong>coombs?</strong>)</span>, <span class="citation">(<strong>kruskal_carroll?</strong>)</span>, <span class="citation">(<strong>roskam?</strong>)</span></p>
-</div>
-<div id="non-metric-unfolding" class="section level2" number="1.2">
-<h2><span class="header-section-number">1.2</span> Non-metric Unfolding</h2>
-</div>
-<div id="simultaneous-non-metric-unfolding" class="section level2" number="1.3">
-<h2><span class="header-section-number">1.3</span> Simultaneous Non-Metric Unfolding</h2>
-<p>If we have data where the same individuals give preference
-judgments over multiple domains, or over the same domain on multiple occasions, or over the same domain with different experimental conditions,
-then we can use the loss function
-<span class="math display">\[
-\sigma(X,Y_1,\cdots,Y_s)=\sum_{r=1}^s\sum_{i=1}^n\min_{\delta_i^r\in\Delta_i^r}\sum_{j=1}^{m_r}w_{ij}^r(\delta_{ij}^r-d(x_i,y_j^r))^2
-\]</span>
-Note that for each occasion there are different transformations <span class="math inline">\(\Delta_r\)</span>
-and different matrices of column scores <span class="math inline">\(Y_r\)</span>, but there is only a single matrix of row scores <span class="math inline">\(X\)</span>.</p>
-<p><span class="math display">\[
-y_j^r=\alpha_{j}^ry_r
-\]</span></p>
-</div>
-<div id="homogeneity-analysis" class="section level2" number="1.4">
-<h2><span class="header-section-number">1.4</span> Homogeneity Analysis</h2>
+Note that for each object and variable there are different sets of transformations <span class="math inline">\(\Delta_j\)</span>
+and for each variable there different matrices of column scores <span class="math inline">\(Y_j\)</span>, but there is only a single matrix of row scores <span class="math inline">\(X\)</span>. Also note that index <span class="math inline">\(j\)</span>, for variables,
+is sometimes used as a subscript and sometimes as a superscript, depending on what
+looks best.</p>
+<p>If the <span class="math inline">\(\Delta_i^j\)</span> contain zero, then the unconstrained minimum of <a href="#eq:snmu">(1.1)</a>
+is clearly zero. Collapsing all <span class="math inline">\(x_i\)</span> and all <span class="math inline">\(y_l^j\)</span> into a single point makes all distances zero, and thus makes stress zero. Some sort of normalization of either <span class="math inline">\(X\)</span> and/or the <span class="math inline">\(Y_j\)</span> is needed to prevent this trivial solution.</p>
+<p>In fact, it is easy to see that a minimum of zero is also possible in the situation where the <span class="math inline">\(\Delta_i^j\)</span> contain the
+set of all constant vectors (or all non-negative constant vectors). Collapse all
+<span class="math inline">\(x_i\)</span> into a single point, and place all <span class="math inline">\(y_l^j\)</span> on a sphere around this point.
+Or collapse all <span class="math inline">\(y_l^j\)</span> and put the <span class="math inline">\(x_i\)</span> on a sphere. This makes all <span class="math inline">\(d(x_i,y_l^j)\)</span>
+equal and thus makes stress zero.</p>
+<div id="homogeneity-analysis" class="section level2" number="1.1">
+<h2><span class="header-section-number">1.1</span> Homogeneity Analysis</h2>
 <p>The Gifi System (<span class="citation">Gifi (1990)</span>, <span class="citation">Michailidis and De Leeuw (1998)</span>, <span class="citation">De Leeuw and Mair (2009)</span>) presents non-linear or non-metric versions of the classical linear multivariate analysis techniques (regression, analysis of variance, canonical analysis, discriminant analysis, principal component analysis) as special cases of Homogeneity Analysis, also known as Multiple Correspondence Analysis.</p>
-<p>We give a somewhat non-standard introduction to homogeneity analysis here, to highlight the
-similarities with unfolding and the techniques we will present later on in this paper.</p>
-<p>The data are a number of indicator matrices <span class="math inline">\(G_1,\cdots,G_s\)</span>. Indicator matrices are binary matrices, with rows that add up to one. They are
+<p>In this section we present homogeneity analysis as a special case of
+minimizing the loss function <a href="#eq:snmu">(1.1)</a>.</p>
+<p>The data are a number of indicator matrices <span class="math inline">\(G_1,\cdots,G_m\)</span>. Indicator matrices are binary matrices, with rows that add up to one. They are
 used to code categorical variables. Rows corresponds with objects
-(or individuals), column with the categories (or levels) of a variable.
-An element <span class="math inline">\(g_{ij}\)</span> is one in row if object <span class="math inline">\(i\)</span> is in category <span class="math inline">\(j\)</span>,
+(or objects), columns with the categories (or levels) of a variable.
+An element <span class="math inline">\(g_{il}\)</span> is one in row if object <span class="math inline">\(i\)</span> is in category <span class="math inline">\(l\)</span>,
 and all other elements in row <span class="math inline">\(i\)</span> are zero.</p>
-<p>Homogeneity analysis makes a joint maps in <span class="math inline">\(p\)</span> dimensions of individuals
-and categories (both represented as points) in such a way that category points are close to the points for the individuals in the category. And, vice versa, individuals are close to the category points that they score in.
-If there is only one variable then it is trivial to make such a
-homogeneous map. We just make sure the individual points coincide with
-their category points. But there are <span class="math inline">\(s&gt;1\)</span> indicator matrices, corresponding with <span class="math inline">\(s\)</span> categorical variables, and the solution is a compromise trying to achieve homogeneity as well as possible for all variables simultaneously.</p>
-<p><span class="math display">\[
-\sigma(X,Y_1,\cdots,Y_s)=\sum_{r=1}^s\sum_{i=1}^nw_i^rd^2(x_i,y_i^r)=
-\sum_{r=1}^s\text{tr}\ (X-G_rY_r)&#39;W_r(X-G_rY_r)
-\]</span>
+<p>Homogeneity analysis makes a joint maps in <span class="math inline">\(p\)</span> dimensions of objects
+and categories (both represented as points) in such a way that category points are close to the points for the objects in the category. And, vice versa, objects are close to the category points that they score in.</p>
+<p>If there is only one variable then it is trivial to make such a
+homogeneous map. We just make sure the object points coincide with
+their category points. But there are <span class="math inline">\(j&gt;1\)</span> indicator matrices, corresponding with <span class="math inline">\(m\)</span> categorical variables, and the solution is a compromise trying to achieve homogeneity as well as possible for all variables simultaneously.</p>
+<p>In loss function <a href="#eq:snmu">(1.1)</a> applied to homogeneity analysis
+the sets <span class="math inline">\(\Delta_i^j\)</span> are defined in such a way that <span class="math inline">\(\hat d_{il}^j\)</span> is zero if <span class="math inline">\(i\)</span> is in category <span class="math inline">\(l\)</span> of
+variable <span class="math inline">\(j\)</span>. There are no constraints on the other <span class="math inline">\(\hat d\)</span>’s in row <span class="math inline">\(i\)</span>
+of variable <span class="math inline">\(j\)</span>. Thus for zero loss we want an object to coincide with all <span class="math inline">\(m\)</span> categories it is in. Under this definition of the <span class="math inline">\(\Delta_i^j\)</span> we have
+<span class="math display" id="eq:homsnmu">\[\begin{equation}
+\min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d(x_i,y_l^j))^2=w_{il(i,j)}^jd(x_i,y_{l(i,j)}^j)^2
+\tag{1.2}
+\end{equation}\]</span>
+where the <span class="math inline">\(l(i,j)\)</span> on the right is the index of the category of variable <span class="math inline">\(j\)</span> that object <span class="math inline">\(i\)</span> is in.</p>
+<p>Using indicators we can write loss function <a href="#eq:homsnmu">(1.2)</a> as
+<span class="math display" id="eq:matsnmu">\[\begin{equation}
+\sigma(X,Y_1,\cdots,Y_m)=
+\sum_{j=1}^m\text{tr}\ (X-G_jY_j)&#39;W_j(X-G_jY_j),
+\tag{1.3}
+\end{equation}\]</span>
+The <span class="math inline">\(W_j\)</span> are diagonal matrices with
+<span class="math display" id="eq:whomdef">\[\begin{equation}
+w_i^j:=w_{il(i,j)}=\sum_{l=1}^{k_j}g^j_{il}w^j_{il}.
+\tag{1.4}
+\end{equation}\]</span></p>
+<p>In homogeneity analysis we minimize <a href="#eq:matsnmu">(1.3)</a> using the
+explicit normalization <span class="math inline">\(X&#39;W_\star X=I\)</span>, where <span class="math inline">\(W_\star\)</span> is the
+sum of the <span class="math inline">\(W_j\)</span>. The solution is given by the singular value
+equations
+<span class="math display" id="eq:homsvd2" id="eq:homsvd1">\[\begin{align}
+X\Lambda&amp;=W_\star^{-1}\sum_{j=1}^m W_jG_jY_j,\tag{1.5}\\
+Y_j&amp;=(G_j&#39;W_jG_j)^{-1}G_j&#39;W_jX,\tag{1.6}
+\end{align}\]</span>
+where <span class="math inline">\(\Lambda\)</span> is a symmetric matrix of Lagrange multipliers. Remember that in addition we require <span class="math inline">\(X&#39;W_\star X=I\)</span>.</p>
+<p>In homals (<span class="citation">Gifi (1980)</span>, <span class="citation">De Leeuw and Mair (2009)</span>) alternating least squares is used
+to solve the equations <a href="#eq:homsvd1">(1.5)</a> and <a href="#eq:homsvd2">(1.6)</a>. We start with
+some initial <span class="math inline">\(X\)</span>, then compute the corresponding <span class="math inline">\(Y_j\)</span> using <a href="#eq:homsvd2">(1.6)</a>,
+then for these new <span class="math inline">\(Y_j\)</span> we compute a new corresponding <span class="math inline">\(X\)</span> from <a href="#eq:homsvd1">(1.5)</a>,
+and so on. Computations are simple, because only diagonal matrices need to
+be inverted. Alternating least squares becomes reciprocal
+averaging.</p>
+<p>Alternative methods of computation (and interpretation) are suggested if we
+substitute <a href="#eq:homsvd2">(1.6)</a> in <a href="#eq:homsvd1">(1.5)</a> to eliminate the <span class="math inline">\(Y_j\)</span>
+and obtain an equation in <span class="math inline">\(X\)</span> only. This gives
 <span class="math display">\[
-w_i^r:=\sum_{j=1}^{m^r}g_{ij}^rw_{ij}^r
+W_\star X\Lambda=\sum_{j=1}^m W_jG_j(G_j&#39;W_jG_j)^{-1}G_j&#39;W_jX,
 \]</span>
+a generalized eigenvalue equation for <span class="math inline">\(X\)</span>. If we substitute <a href="#eq:homsvd1">(1.5)</a>
+in <a href="#eq:homsvd2">(1.6)</a> we obtain generalized eigenvalue equations for <span class="math inline">\(Y\)</span>.
 <span class="math display">\[
-y_{i}^r:=\sum_{j=1}^{m^r}g_{ij}^ry_r^r
+(G_j&#39;W_jG_j)Y_j\Lambda=\sum_{h=1}^m G_j&#39;W_jW_\star^{-1}W_hG_hY_h.
 \]</span>
-Constraint is that <span class="math inline">\(\delta_{ij}^r\)</span> is zero if <span class="math inline">\(i\)</span> is in category <span class="math inline">\(j\)</span> of
-variable <span class="math inline">\(r\)</span>. There are no constraints on the other delta’s in row <span class="math inline">\(i\)</span>.
-of variable <span class="math inline">\(r\)</span>. Thus we want an object to coincide with all <span class="math inline">\(s\)</span> categories
-it is in.</p>
-<p>star plot</p>
-<p><span class="math display">\[Y_r=(G_r&#39;W_rG_r)^{-1}G_r&#39;W_rX\]</span></p>
-<p><span class="math display">\[
-\min_Y\sigma(X,Y_1,\cdots,Y_s)=\text{tr}\ X&#39;\left\{\sum_{r=1}^s\left\{W_r-W_rG_r(G_r&#39;W_rG_r)^{-1}G_r&#39;W_r\right\}\right\}X
-\]</span></p>
-<p><span class="math inline">\(X&#39;W_\star X=I\)</span></p>
+If <span class="math inline">\(k_\star\)</span> is not too large then computing the <span class="math inline">\(p + 1\)</span> largest eigenvalues
+from …, using an efficient</p>
 </div>
 </div>
-<div id="voronoi-loss-function" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> Voronoi Loss Function</h1>
-<div id="the-unconstrained-case" class="section level2" number="2.1">
-<h2><span class="header-section-number">2.1</span> The Unconstrained Case</h2>
+<div id="loss-function" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Loss Function</h1>
 <p>Now consider the closely related problem in which we do not require,
 as in homogeneity analysis, that
 <span class="math display">\[
-\delta_{i\star}^r:=\sum_{j=1}^{m_r}g_{ij}^r\delta_{ij}^r=0
+\sum_{l=1}^{k_j}g^j_{il}\hat d^j_{il}=0
 \]</span>
-but we merely require that <span class="math inline">\(\delta_{i\star}^r\)</span> is less than or equal to all
-<span class="math inline">\(\delta_{ij}^r\)</span> in row <span class="math inline">\(i\)</span>. Formally
+for all <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>, but we impose the weaker condition that for all <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>
 <span class="math display">\[
-\delta_{i\star}^r\leq\delta_{ij}^r\qquad\forall j=1,\cdots,m_r
+\sum_{l=1}^{k_j}g^j_{il}\hat d^j_{il}\leq \hat d^j_{i\nu}
 \]</span>
-or
-<span class="math display">\[
-g^r_{il}=1\Rightarrow\delta^r_{il}\leq\delta^r_{iv}\qquad\forall v\not=\ell
-\]</span></p>
-<p><span class="math display">\[
-\sigma(X,Y_1,\cdots,Y_m) =
-\sum_{r=1}^s\left\{\sum_{i=1}^n\sum_{\ell=1}^{k_r}w_{ij}^r(\delta_{i\ell}^r-d(x_i,y_\ell^r))^2\right\}
-\]</span>
-### ALS Stage 1</p>
-<p>Minimizing … over the rows <span class="math inline">\(\delta_i^r\)</span> is a monotone regression for a simple tree order. This is easily handled by using Kruskal’s primary approach
-to ties (<span class="citation">(<strong>kruskal_64?</strong>)</span>, <span class="citation">(<strong>deleeuw_A_?</strong>)</span>).</p>
-<p>###ALS Stage 2</p>
-<p>In stage 2 we do one or more metric smacof iterations for given <span class="math inline">\(\Delta_r\)</span>
-to decrease the loss. We more or less ignore the fact that we are dealing with a rectangular matrix and use the weights to transform the problem into a symmetric one (as in <span class="citation">Heiser and De Leeuw (1979)</span>).</p>
+for all <span class="math inline">\(\nu=1,\cdots,k_j\)</span>.</p>
+<p>In homogeneity analysis the geometric interpretation of loss is that we
+want objects to coincide with all categories they score in. The geometric interpretation of loss function … is that we want
+objects to be closer to the categories they score in than to the categories
+they do not score in.</p>
+<p>This can be formalized using the notion of Voronoi regions. The Voronoi region of
+category <span class="math inline">\(l\)</span> of variable <span class="math inline">\(j\)</span> is the polyhedral convex set of all points of <span class="math inline">\(\mathbb{R}^p\)</span> closer to category <span class="math inline">\(l\)</span> than to any other category of variable <span class="math inline">\(j\)</span>. The plot of the the <span class="math inline">\(k_j\)</span> categories of variable <span class="math inline">\(j\)</span> defines <span class="math inline">\(k_j\)</span> Voronoi regions. Loss function
+… vanishes if for each variable the <span class="math inline">\(x_i\)</span> are in the Voronoi regions of the categories they score in. This condition implies, by the way, that the interiors of the convex hulls of the <span class="math inline">\(x_i\)</span> in a given category are disjoint, and the point clouds can consequently be weakly separated by hyperplanes.
+Since the category points themselves are in their Voronoi region
+the convex hulls of the stars are also disjoint.</p>
+<div id="the-guttman-transform" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> The Guttman Transform</h2>
+<p>General theory</p>
+</div>
+<div id="the-unconstrained-case" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> The Unconstrained Case</h2>
+<div id="section" class="section level3" number="2.2.1">
+<h3><span class="header-section-number">2.2.1</span> </h3>
+<p>Minimizing … over the rows <span class="math inline">\(\delta_i^j\)</span> is a monotone regression for a simple tree order. This is easily handled by using Kruskal’s primary approach
+to ties (<span class="citation">Kruskal (1964a)</span>, <span class="citation">Kruskal (1964b)</span>, <span class="citation">De Leeuw (1977)</span>).</p>
+<p>In stage 2 we do one or more metric smacof iterations for given <span class="math inline">\(\Delta_j\)</span>
+to decrease the loss. These smacof iterations, or Guttman transforms, more or less ignore the fact that we are dealing with a rectangular matrix and use the weights to transform the problem into a symmetric one (as in <span class="citation">Heiser and De Leeuw (1979)</span>).</p>
 <p>Thus for stage two purposes the loss function is
 <span class="math display">\[
-\sigma(Z_1,\cdots,Z_m)=\sum_{r=1}^s\sum_{i=1}^{N_r}\sum_{j=1}^{N_r}w_{ij}^r(\delta_{ij}^r-d_{ij}(Z_r))^2,
+\sigma(Z_1,\cdots,Z_m)=\sum_{j=1}^m\sum_{i=1}^{N_j}\sum_{j=1}^{N_j}w_{ij}^r(\delta_{ij}^r-d_{ij}(Z_j))^2,
 \]</span>
-with <span class="math inline">\(N_r:=n+k_r\)</span> and
+with <span class="math inline">\(N_j:=n+k_j\)</span> and</p>
+<p>In order to not have to deal with general inverses and multiplications of gigantic symmetric matrices with largely empty diagonal blocks we solve the system
 <span class="math display">\[
-Z_r:=\kbordermatrix{
-\mbox{\ }&amp;p\\
-n&amp;X\\
-k_r&amp;Y_r}.
+\begin{bmatrix}
+W_j&amp;-W\\
+-W&#39;&amp;W_c
+\end{bmatrix}
+\begin{bmatrix}
+X\\Y
+\end{bmatrix}
+=
+\begin{bmatrix}
+P\\Q
+\end{bmatrix}
 \]</span>
-The weights in <span class="math inline">\(W_r\)</span> are now zero for the two diagonal blocks.
+for <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>, with the known right hand side
 <span class="math display">\[
-d^2(x_i,y_\ell^r)=\text{tr}\ Z_r&#39;A^r_{i\ell}Z_r^{\ }
-\]</span>
+\begin{bmatrix}P\\Q\end{bmatrix}=
+\begin{bmatrix}
+B_j&amp;-B\\
+-B&#39;&amp;B_c
+\end{bmatrix}
+\begin{bmatrix}
+X^{(k)}\\Y^{(k)}
+\end{bmatrix}
+\]</span></p>
+<p><span class="math inline">\(W_jX-WY=P\)</span> or <span class="math inline">\(X=W_j^{-1}(P+WY)\)</span>. Substitute in <span class="math inline">\(W_cY-W&#39;X=Q\)</span>
+to get <span class="math inline">\(W_cY-W&#39;W_j^{-1}(P+WY)=Q\)</span> or <span class="math inline">\((W_c-W&#39;W_j^{-1}W)Y=Q+W&#39;W_j^{-1}P\)</span>.</p>
+<p>Note that <span class="math inline">\(W_c-W&#39;W_j^{-1}W\)</span> is doubly-centered and <span class="math inline">\(Q+W&#39;W_j^{-1}P\)</span> is column-centered.</p>
+<p>Computation of the Guttman transform requires Moore-Penrose inverses of the
+matrices <span class="math inline">\(V_j\)</span>, which are of order <span class="math inline">\(n+k_j\)</span> and extremely sparse. They can also be uncomfortably large because <span class="math inline">\(n\)</span> can be large. It is much more memory-friendly to solve the partioned system
 <span class="math display">\[
-\sum_{i=1}^n\sum_{\ell=1}^{k_r}w_{il}^rd^2(x_i,y_\ell^r)=\text{tr}\ Z_r&#39;V_rZ_r
+\begin{bmatrix}
+R_W&amp;-W\\
+-W&#39;&amp;C_W
+\end{bmatrix}
+\begin{bmatrix}X\\Y\end{bmatrix}=\begin{bmatrix}
+R_B&amp;-B\\
+-B&#39;&amp;C_B
+\end{bmatrix}
+\]</span></p>
+<p>More explicitly we must minimize</p>
+<p><span class="math display">\[\begin{multline}
+\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)&#39;R_j(X-\tilde X_j)-2\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)&#39;W_j(Y_j-\tilde Y_j)+\\
+\sum_{j=1}^m\text{tr}\ (Y_j-\tilde Y_j)&#39;C_j(Y_j-\tilde Y_j)
+\end{multline}\]</span>
+where <span class="math inline">\(\tilde X_j\)</span> and <span class="math inline">\(\tilde Y_j\)</span> are the two components of the Guttman
+transform <span class="math inline">\(\tilde Z_j\)</span> of the current <span class="math inline">\(Z_j\)</span>.</p>
+<p>The stationary equations are
+<span class="math display" id="eq:stateq2" id="eq:stateq1">\[\begin{align}
+Y_j&amp;=\tilde Y_j-C_j^{-1}W_j&#39;(X-\tilde X_j),\tag{2.1}\\
+X&amp;=\{V_{11}^\star\}^{-1}\sum_{j=1}^m\left\{V_{11}^j\tilde X_j-V_{12}^j(Y_j-\tilde Y_j)\right\}.\tag{2.2}
+\end{align}\]</span>
+We could solve these equations iteratively using alternating least squares. This
+means using <a href="#eq:stateq1">(2.1)</a> to compute a new <span class="math inline">\(Y\)</span> for given <span class="math inline">\(X\)</span> and <a href="#eq:stateq2">(2.2)</a> to compute a new <span class="math inline">\(X\)</span> for given <span class="math inline">\(Y\)</span>. This introduces an
+infinite inner iteration loop within the main outer iteration loop. We have tried this, and it does not seem to be the way to go. The argument is the same as in
+our section … on homogeneity analysis.</p>
+<p>Alternatively, we can substitute <a href="#eq:stateq2">(2.2)</a> into <a href="#eq:stateq1">(2.1)</a>. This
+gives linear equations in the <span class="math inline">\(Y_j\)</span>, which we can solve. Then use <a href="#eq:stateq2">(2.2)</a>
+to compute the corresponding optimal <span class="math inline">\(X\)</span>. No inner iterations are necessary.
+In the same way we can substitute <a href="#eq:stateq1">(2.1)</a> into <a href="#eq:stateq2">(2.2)</a>, solve for
+<span class="math inline">\(X\)</span> and compute the corresponding <span class="math inline">\(Y_j\)</span>. Since in most applications the number of
+objects <span class="math inline">\(n\)</span> is much larger than the total number of categories <span class="math inline">\(\sum k_j\)</span> the first
+substitution of <a href="#eq:stateq2">(2.2)</a> into <a href="#eq:stateq1">(2.1)</a> seems the most
+promising. Again, the argument is the same as in
+our section … on homogeneity analysis.</p>
+<p><span class="math display">\[
+C_j(Y_j-\tilde Y_j)-W_j&#39;R_\star^{-1}\sum_{h=1}^mW_h(Y_h-\tilde Y_h)=W_j&#39;(\tilde X_j-R_\star^{-1}\sum_{h=1}^mR_h\tilde X_h)
 \]</span></p>
 <p><span class="math display">\[
-V_r=\sum_{i=1}^n\sum_{\ell=1}^{k_r}w_{il}^rA^r_{i\ell}
+(Y_j-\tilde Y_j)-\{V_{22}^j\}^{-1}V_{21}^j\{V_{11}^\star\}^{-1}\sum_{h=1}^mV_{12}^h(Y_h-\tilde Y_h)=\{V_{22}^j\}^{-1}V_{21}^j\tilde X_j-\{V_{22}^j\}^{-1}V_{21}^j\{V_{11}^\star\}^{-1}\sum_{h=1}^mV_{11}^h\tilde X_h
 \]</span>
 <span class="math display">\[
-V_r=\kbordermatrix{&amp;n&amp;k_r\\
-n&amp;\ddots&amp;\Box\\
-k_r&amp;\Box&amp;\ddots}
+C_j(Y_j-\tilde Y_j)-W_j&#39;R_\star^{-1}\sum_{h=1}^mW_h(Y_h-\tilde Y_h)=-W_j\tilde X_j+W_j&#39;R_\star^{-1}\sum_{h=1}^mR_h\tilde X_h
+\]</span>
+## Missing Data</p>
+</div>
+</div>
+<div id="normalization-of-x" class="section level2" number="2.3">
+<h2><span class="header-section-number">2.3</span> Normalization of X</h2>
+<p>Constraint
+<span class="math display">\[
+X&#39;V_{11}^\star X = I
 \]</span></p>
-<p><span class="math display">\[
-\sum_{i=1}^n\sum_{\ell=1}^{k_r}w_{il}^r\delta_{i\ell}^rd(x_i,y_\ell^r)=\text{tr}\ Z_r&#39;B_r(Z_r)Z_r\geq\text{tr}\ Z_r&#39;B_r(\tilde Z_r)\tilde Z_r=\text{tr}\ Z_r&#39;V_rG(\tilde Z_r)
-\]</span>
-Using standard smacof majorization theory in an iteration we must minimize</p>
-<p><span class="math display">\[
-\text{tr}\ (X-\tilde X_r)&#39;V_{11}^r(X-\tilde X_r)+2\text{tr}\ (X-\tilde X_r)&#39;V_{12}^r(Y_r-\tilde Y_r)+\text{tr}\ (Y_r-\tilde Y_r)&#39;V_{22}^r(Y_r-\tilde Y_r)
-\]</span>
-where <span class="math inline">\(\tilde X_r\)</span> and <span class="math inline">\(\tilde Y_r\)</span> are the two components of the Guttman
-transform <span class="math inline">\(\tilde Z_r\)</span>of the current <span class="math inline">\(Z_r\)</span>.</p>
-<p>First minimize over <span class="math inline">\(Y_r\)</span>, without constraints.
-<span class="math display">\[
-Y_r-\tilde Y_r=-\{V_{22}^r\}^{-1}V_{21}^r(X-\tilde X_r)
-\]</span>
-and thus
-<span class="math display">\[
-\text{tr}\ (X-\tilde X_r)&#39;V_{1|2}^r(X-\tilde X_r)
-\]</span>
-where
-<span class="math display">\[
-V_{1|2}^r:=V_{11}^r-V_{12}^r\{V_{22}^r\}^{-1}V_{21}^r
-\]</span>
-i.e. Schur complement of .. in .. Note that <span class="math inline">\(V_{1|2}^r\)</span> is doubly-centered.</p>
-<p>Constraint either (weak)
-<span class="math display">\[
-\text{tr}\ X&#39;V_{1|2}^\star X = 1
-\]</span>
-or (strong)
-<span class="math display">\[
-X&#39;V_{1|2}^\star X = I
-\]</span>
-Thus (weak)
-<span class="math display">\[
-X=\lambda\{V_{1|2}^\star\}^{-1}\sum_{j=1}^mV_{1|2}^r\tilde X_r
-\]</span>
-with <span class="math inline">\(\lambda\)</span> chosen such that … is satisfied.</p>
-<p>Or (strong)
-<span class="math display">\[
-X=\{V_{1|2}^\star\}^{-\frac12}KL&#39;
-\]</span>
-(Procrustus)</p>
-<p>In the unweighted case we have <span class="math inline">\(V_{11}^r=k_rI\)</span>, <span class="math inline">\(V_{22}^r=nI\)</span>, and
-<span class="math inline">\(V_{12}^r=-e_ne_{k_r}&#39;\)</span>. Thus
-<span class="math inline">\(V_{1\mid2}^r=k_rJ_n\)</span> and <span class="math inline">\(V_{1\mid 2}^\star=k_\star J_n\)</span>
-with <span class="math inline">\(J_n=I-n^{-1}e_ne_n&#39;\)</span> the centering matrix of order $n.</p>
+</div>
+<div id="the-unweighted-case" class="section level2" number="2.4">
+<h2><span class="header-section-number">2.4</span> The Unweighted Case</h2>
+<p>In the unweighted case we have <span class="math inline">\(V_{11}^r=k_jI\)</span>, <span class="math inline">\(V_{22}^r=nI\)</span>, and
+<span class="math inline">\(V_{12}^r=-E_{n\times k_j}\)</span>. Thus
+<span class="math inline">\(V_{1\mid2}^r=k_jJ_n\)</span> and <span class="math inline">\(V_{1\mid 2}^\star=k_\star J_n\)</span>
+with <span class="math inline">\(J_n=I_n-n^{-1}E_{n\times n}\)</span>, the centering matrix of order $n.</p>
 <p>The Guttman transform also simplifies in the unweighted case. The formulas were already given in <span class="citation">Heiser and De Leeuw (1979)</span>.</p>
 </div>
-<div id="the-constrained-case" class="section level2" number="2.2">
-<h2><span class="header-section-number">2.2</span> The Constrained Case</h2>
+<div id="centroid-constraints-on-y" class="section level2" number="2.5">
+<h2><span class="header-section-number">2.5</span> Centroid Constraints on Y</h2>
 <p><span class="math display">\[
-Z_r=
+Z_j=
 \kbordermatrix{
 \mbox{\ }&amp;p\\
 n&amp;I\\
-k_r&amp;D_r^{-1}G_r&#39;}X=H_rX
+k_j&amp;D_j^{-1}G_j&#39;}X=H_jX
 \]</span>
 <span class="math display">\[
-\sum_{j=1}^m Z_r&#39;V_rZ_r=X&#39;\{\sum_{j=1}^mH_r&#39;V_rH_r\}X.
+\sum_{j=1}^m Z_j&#39;V_jZ_j=X&#39;\{\sum_{j=1}^mH_j&#39;V_jH_j\}X.
+\]</span></p>
+<p><span class="math display">\[
+X&#39;H_j&#39;V_jH_jX=X&#39;\{V_{11}^j+V_{12}^jD_j^{-1}G_j+G_jD_j^{-1}V_{22}^jD_j^{-1}G_j&#39;\}X
 \]</span></p>
 </div>
-<div id="the-unweighted-case" class="section level2" number="2.3">
-<h2><span class="header-section-number">2.3</span> The Unweighted Case</h2>
-<p>If unweighted then <span class="math inline">\(V_{11}^r=k_rI\)</span> and <span class="math inline">\(V_{22}^r=nI\)</span>. <span class="math inline">\(V_{12}^r\)</span> is <span class="math inline">\(n\times k_r\)</span> with all elements equal to <span class="math inline">\(-1\)</span>. The rank of <span class="math inline">\(V_r\)</span> is <span class="math inline">\(n+k_r-1\)</span>, and the only vectors in the null-space are proportional to the vector with all elements equal to one ().</p>
-<p><span class="math display">\[V_r^+=(V_r+ee)^{-1}-\frac{1}{n+k_r}ee&#39;\]</span>
-But
-<span class="math display">\[V_r+ee&#39;=(V_{11}^r+ee&#39;)\oplus(V_{22}^r+ee&#39;)=(k_rI+ee&#39;)\oplus(nI+ee&#39;)\]</span>
-<span class="math display">\[(V_r+ee&#39;)^{-1}=(k_rI+ee&#39;)^{-1}\oplus(nI+ee&#39;)^{-1}\]</span>
-Lemma: If <span class="math inline">\(A\)</span> is a symmetric matrix of order <span class="math inline">\(n\)</span> of the form
-<span class="math inline">\(\alpha I+ee&#39;\)</span> then <span class="math inline">\((\alpha I+ee&#39;)^{-1}=\)</span></p>
-<p>Proof:</p>
-<p><span class="citation">Heiser and De Leeuw (1979)</span></p>
-<p>Sherman-Morrison</p>
-<p><span class="math display">\[
-(n I+ee&#39;)^{-1}=\frac{1}{n}\left\{I-\frac{1}{k_r+n}ee&#39;\right\}\]</span>
+<div id="rank-constraints-on-y" class="section level2" number="2.6">
+<h2><span class="header-section-number">2.6</span> Rank Constraints on Y</h2>
+<p>As in homals it is possble to impose rank-one restrictions on some or all of the <span class="math inline">\(Y_j\)</span>. This means we require
 <span class="math display">\[
-(k_r I+ee&#39;)^{-1}=\frac{1}{k_r}\left\{I-\frac{1}{k_r+n}ee&#39;\right\}\]</span></p>
-<p>Schur complement <span class="math display">\[V_{11}-V_{12}V_{22}^{-1}V_{21}=kI-e_ne_k&#39;\frac{1}{n}e_ke_n&#39;=k\{I-\frac{1}{n}e_ne_n&#39;\}=kJ_n\]</span></p>
+y_l^j=\alpha_{l}^jy_l^{\ }{}
+\]</span>
+Geometrically having all <span class="math inline">\(y_l^j\)</span> on a line through the origin implies that
+all voronoi boundaries are hyperplanes perpendicular to that line, and consequently all voronoi regions are bounded by two parallel hyperplanes.</p>
+</div>
+</div>
+<div id="convergence-and-degeneracy" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Convergence and Degeneracy</h1>
+</div>
+<div id="utilities" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Utilities</h1>
+<div id="object-plot-function" class="section level2" number="4.1">
+<h2><span class="header-section-number">4.1</span> Object Plot Function</h2>
+</div>
+<div id="category-plots-function" class="section level2" number="4.2">
+<h2><span class="header-section-number">4.2</span> Category Plots Function</h2>
+</div>
+<div id="joint-plot-function" class="section level2" number="4.3">
+<h2><span class="header-section-number">4.3</span> Joint Plot Function</h2>
+</div>
+</div>
+<div id="examples" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> Examples</h1>
+<p>Presenting examples runs into some difficulties.</p>
+<div id="cetacea" class="section level2" number="5.1">
+<h2><span class="header-section-number">5.1</span> Cetacea</h2>
+</div>
+<div id="senate" class="section level2" number="5.2">
+<h2><span class="header-section-number">5.2</span> Senate</h2>
+</div>
+<div id="galo" class="section level2" number="5.3">
+<h2><span class="header-section-number">5.3</span> GALO</h2>
 </div>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1>References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-deleeuw_A_77" class="csl-entry">
+De Leeuw, J. 1977. <span>“Correctness of Kruskal’s Algorithms for Monotone Regression with Ties.”</span> <em>Psychometrika</em> 42: 141–44.
+</div>
 <div id="ref-deleeuw_mair_A_09a" class="csl-entry">
 De Leeuw, J., and P. Mair. 2009. <span>“<span class="nocase">Homogeneity Analysis in <span>R</span>: the Package homals</span>.”</span> <em>Journal of Statistical Software</em> 31 (4): 1–21. <a href="https://www.jstatsoft.org/v31/i04/">https://www.jstatsoft.org/v31/i04/</a>.
 </div>
+<div id="ref-gifi_B_80" class="csl-entry">
+Gifi, A. 1980. <em>Niet-Lineaire Multivariate Analyse [Nonlinear Multivariate Analysis]</em>. Leiden, The Netherlands: Department of Data Theory FSW/RUL.
+</div>
 <div id="ref-gifi_B_90" class="csl-entry">
-Gifi, A. 1990. <em>Nonlinear Multivariate Analysis</em>. New York, N.Y.: Wiley.
+———. 1990. <em>Nonlinear Multivariate Analysis</em>. New York, N.Y.: Wiley.
 </div>
 <div id="ref-heiser_deleeuw_A_79" class="csl-entry">
 Heiser, W. J., and J. De Leeuw. 1979. <span>“Metric Multidimensional Unfolding.”</span> <em>Methoden En Data Nieuwsbrief SWS/VVS</em> 4: 26–50.
+</div>
+<div id="ref-kruskal_64a" class="csl-entry">
+Kruskal, J. B. 1964a. <span>“<span class="nocase">Multidimensional Scaling by Optimizing Goodness of Fit to a Nonmetric Hypothesis</span>.”</span> <em>Psychometrika</em> 29: 1–27.
+</div>
+<div id="ref-kruskal_64b" class="csl-entry">
+———. 1964b. <span>“<span class="nocase">Nonmetric Multidimensional Scaling: a Numerical Method</span>.”</span> <em>Psychometrika</em> 29: 115–29.
 </div>
 <div id="ref-michailidis_deleeuw_A_98" class="csl-entry">
 Michailidis, G., and J. De Leeuw. 1998. <span>“The Gifi System for Descriptive Multivariate Analysis.”</span> <em>Statistical Science</em> 13: 307–36.
