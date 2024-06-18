@@ -156,7 +156,7 @@
 \title{Smacof at 50: A Manual\\
 Part 8: Homogeneity Analysis with Smacof}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started April 13 2024, Version of June 14, 2024}
+\date{Started April 13 2024, Version of June 17, 2024}
 
 \begin{document}
 \maketitle
@@ -426,7 +426,7 @@ where \(R_j\) and \(C_j\) are now the diagonal matrices of row and column sums o
 The stationary equations are
 \begin{align}
 Y_j&=\tilde Y_j-C_j^{-1}W_j'(X-\tilde X_j),\label{eq:stateq1}\\
-X&=\{W_\star\}^{-1}\sum_{j=1}^m\left\{R_j\tilde X_j-W_j(Y_j-\tilde Y_j)\right\}.\label{eq:stateq2}
+X&=\{R_\star\}^{-1}\sum_{j=1}^m\left\{R_j\tilde X_j-W_j(Y_j-\tilde Y_j)\right\}.\label{eq:stateq2}
 \end{align}
 We could solve these equations iteratively using alternating least squares. This
 means using \eqref{eq:stateq1} to compute a new \(Y\) for given \(X\) and \eqref{eq:stateq2} to compute a new \(X\) for given \(Y\). This introduces an
@@ -450,52 +450,51 @@ C_j(Y_j-\tilde Y_j)-W_j'R_\star^{-1}\sum_{h=1}^mW_h(Y_h-\tilde Y_h)=W_j'(\tilde 
 \[
 (Y_j-\tilde Y_j)-\{V_{22}^j\}^{-1}V_{21}^j\{V_{11}^\star\}^{-1}\sum_{h=1}^mV_{12}^h(Y_h-\tilde Y_h)=\{V_{22}^j\}^{-1}V_{21}^j\tilde X_j-\{V_{22}^j\}^{-1}V_{21}^j\{V_{11}^\star\}^{-1}\sum_{h=1}^mV_{11}^h\tilde X_h
 \]
+
 \[
 C_j(Y_j-\tilde Y_j)-W_j'R_\star^{-1}\sum_{h=1}^mW_h(Y_h-\tilde Y_h)=-W_j\tilde X_j+W_j'R_\star^{-1}\sum_{h=1}^mR_h\tilde X_h
 \]
-\#\# Missing Data
 
 \subsection{Normalization of X}\label{normalization-of-x}
 
 Constraint
 \[
-X'V_{11}^\star X = I
+X'R_\star X = I
 \]
-
-\subsection{The Unweighted Case}\label{the-unweighted-case}
-
-In the unweighted case we have \(V_{11}^r=k_jI\), \(V_{22}^r=nI\), and
-\(V_{12}^r=-E_{n\times k_j}\). Thus
-\(V_{1\mid2}^r=k_jJ_n\) and \(V_{1\mid 2}^\star=k_\star J_n\)
-with \(J_n=I_n-n^{-1}E_{n\times n}\), the centering matrix of order \$n.
-
-The Guttman transform also simplifies in the unweighted case. The formulas were already given in Heiser and De Leeuw (1979).
+Stationary equation \eqref{eq:stateq2} becomes
+\[
+R_\star X\Lambda =\sum_{j=1}^m\left\{R_j\tilde X_j-W_j(Y_j-\tilde Y_j)\right\}
+\]
+If we define
+\[
+P:=\sum_{j=1}^m\left\{R_j\tilde X_j-W_j(Y_j-\tilde Y_j)\right\}
+\]
+then, using the symmetric square root, \(\Lambda=(P'R_\star^{-1}P)^\frac12\) and thus \(X=R_\star^{-1}P(P'R_\star^{-1}P)^{-\frac12}\).
 
 \subsection{Centroid Constraints on Y}\label{centroid-constraints-on-y}
 
-\[
-Z_j=
-\kbordermatrix{
-\mbox{\ }&p\\
-n&I\\
-k_j&D_j^{-1}G_j'}X=H_jX
-\]
-\[
-\sum_{j=1}^m Z_j'V_jZ_j=X'\{\sum_{j=1}^mH_j'V_jH_j\}X.
-\]
+If we require that \(Y_j=(G_j'W_jG_j)^{-1}G_j'W_jX\) then this effectively eliminates the \(Y_j\) as variables from the optimization problem and we only have to optimize over \(X\).
 
-\[
-X'H_j'V_jH_jX=X'\{V_{11}^j+V_{12}^jD_j^{-1}G_j+G_jD_j^{-1}V_{22}^jD_j^{-1}G_j'\}X
-\]
+\(X-G_jY_j=(I-G_j(G_j'W_jG_j)^{-1}G_j'W_j)X=Q_jX\)
+\(d_i^j(X)=\sqrt{\text{tr}\ X'q^j_i\{q^j_i\}'X}\)
 
 \subsection{Rank Constraints on Y}\label{rank-constraints-on-y}
 
-As in homals it is possble to impose rank-one restrictions on some or all of the \(Y_j\). This means we require
+As in homals it is possible in smacofHO to impose rank-one restrictions on some or all of the \(Y_j\). This means we require
 \[
 y_l^j=\alpha_{l}^jy_l^{\ }{}
 \]
 Geometrically having all \(y_l^j\) on a line through the origin implies that
 all voronoi boundaries are hyperplanes perpendicular to that line, and consequently all voronoi regions are bounded by two parallel hyperplanes.
+
+\begin{multline}
+\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'R_j(X-\tilde X_j)-2\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'W_j(y_ja_j'-\tilde Y_j)+\\
+\sum_{j=1}^m\text{tr}\ (y_ja_j'-\tilde Y_j)'C_j(y_ja_j'-\tilde Y_j)
+\end{multline}
+
+\[
+-2a_j'\{(X-\tilde X_j)'W_j+\tilde Y_j'C_j\}y_j+a_j'a_jy_j'C_jy_j
+\]
 
 \section{Convergence and Degeneracy}\label{convergence-and-degeneracy}
 

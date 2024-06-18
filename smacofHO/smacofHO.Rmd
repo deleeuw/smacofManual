@@ -180,7 +180,8 @@ Loss function ... with $\Delta$ defined by ... vanishes if for each variable all
 
 ## The Guttman Transform
 
-The general majorization theory for MDS with restrictions calls for updates
+The general majorization theory for MDS with restrictions (@deleeuw_heiser_C_80)
+calls for updates
 in two steps. In the first step we compute the Guttman transform of the current configuration, and in the second step we project the Guttman transform on the
 set of constrained configurations.
 
@@ -264,6 +265,8 @@ Note that $C_W-W'R_W^{-1}W$ is doubly-centered and $Q+W'R_W^{-1}P$ is column-cen
 is not to big, and we avoid generalized inverses of very large and very
 sparse matrices.
 
+## Projection
+
 After computing the Guttman transforms $\tilde X_j$ and $\tilde Y_j$  
 we have to project them on the constrained configurations, in this
 case on the set $X_j=X$. More explicitly we must minimize
@@ -277,7 +280,7 @@ $-W_j$.
 The stationary equations are
 \begin{align}
 Y_j&=\tilde Y_j-C_j^{-1}W_j'(X-\tilde X_j),(\#eq:stateq1)\\
-X&=\{W_\star\}^{-1}\sum_{j=1}^m\left\{R_j\tilde X_j-W_j(Y_j-\tilde Y_j)\right\}.(\#eq:stateq2)
+X&=\{R_\star\}^{-1}\sum_{j=1}^m\left\{R_j\tilde X_j-W_j(Y_j-\tilde Y_j)\right\}.(\#eq:stateq2)
 \end{align}
 We could solve these equations iteratively using alternating least squares. This 
 means using \@ref(eq:stateq1) to compute a new $Y$ for given $X$ and \@ref(eq:stateq2) to compute a new $X$ for given $Y$. This introduces an
@@ -310,43 +313,70 @@ $$
 
 Constraint 
 $$
-X'V_{11}^\star X = I
+X'R_\star X = I
 $$
-
-## The Unweighted Case
-
-In the unweighted case we have $V_{11}^r=k_jI$, $V_{22}^r=nI$, and
-$V_{12}^r=-E_{n\times k_j}$. Thus
-$V_{1\mid2}^r=k_jJ_n$ and $V_{1\mid 2}^\star=k_\star J_n$
-with $J_n=I_n-n^{-1}E_{n\times n}$, the centering matrix of order $n.
-
-The Guttman transform also simplifies in the unweighted case. The formulas were already given in @heiser_deleeuw_A_79.
+Stationary equation \@ref(eq:stateq2) becomes
+$$
+R_\star X\Lambda =\sum_{j=1}^m\left\{R_j\tilde X_j-W_j(Y_j-\tilde Y_j)\right\}
+$$
+If we define
+$$
+P:=\sum_{j=1}^m\left\{R_j\tilde X_j-W_j(Y_j-\tilde Y_j)\right\}
+$$
+then, using the symmetric square root, $\Lambda=(P'R_\star^{-1}P)^\frac12$ and thus $X=R_\star^{-1}P(P'R_\star^{-1}P)^{-\frac12}$.
 
 ## Centroid Constraints on Y
 
-$$
-Z_j=
-\kbordermatrix{
-\mbox{\ }&p\\
-n&I\\
-k_j&D_j^{-1}G_j'}X=H_jX
-$$
-$$
-\sum_{j=1}^m Z_j'V_jZ_j=X'\{\sum_{j=1}^mH_j'V_jH_j\}X.
-$$
+If we require that $Y_j=(G_j'W_jG_j)^{-1}G_j'W_jX$ then this effectively eliminates the $Y_j$ as variables from the optimization problem and we only have to optimize over $X$.
 
 $$
-X'H_j'V_jH_jX=X'\{V_{11}^j+V_{12}^jD_j^{-1}G_j+G_jD_j^{-1}V_{22}^jD_j^{-1}G_j'\}X
+\left\{\begin{bmatrix}
+\tilde X_j\\
+\tilde Y_j
+\end{bmatrix}
+-
+\begin{bmatrix}
+I\\
+H_j
+\end{bmatrix}X\right\}'
+\begin{bmatrix}
+R_j&-W_j\\
+-W_j'&C_j
+\end{bmatrix}
+\left\{\begin{bmatrix}
+\tilde X_j\\
+\tilde Y_j
+\end{bmatrix}
+-
+\begin{bmatrix}
+I\\
+H_j
+\end{bmatrix}X\right\}
 $$
+
+
+
+
+
 
 ## Rank Constraints on Y
 
-As in homals it is possble to impose rank-one restrictions on some or all of the $Y_j$. This means we require
+As in homals it is possible in smacofHO to impose rank-one restrictions on some or all of the $Y_j$. This means we require
 $$
 y_l^j=\alpha_{l}^jy_l^{\ }{}
 $$
 Geometrically having all $y_l^j$ on a line through the origin implies that
 all voronoi boundaries are hyperplanes perpendicular to that line, and consequently all voronoi regions are bounded by two parallel hyperplanes.
+
+\begin{multline}
+\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'R_j(X-\tilde X_j)-2\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'W_j(y_ja_j'-\tilde Y_j)+\\
+\sum_{j=1}^m\text{tr}\ (y_ja_j'-\tilde Y_j)'C_j(y_ja_j'-\tilde Y_j)
+\end{multline}
+
+$$
+-2a_j'\{(X-\tilde X_j)'W_j+\tilde Y_j'C_j\}y_j+a_j'a_jy_j'C_jy_j
+$$
+
 
 # Convergence and Degeneracy
 
