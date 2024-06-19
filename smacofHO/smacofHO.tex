@@ -156,7 +156,7 @@
 \title{Smacof at 50: A Manual\\
 Part 8: Homogeneity Analysis with Smacof}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started April 13 2024, Version of June 17, 2024}
+\date{Started April 13 2024, Version of June 18, 2024}
 
 \begin{document}
 \maketitle
@@ -186,10 +186,10 @@ and smacofExamples.
 \item
   There are \(n\) \emph{objects}.
 \item
-  Each object defines a partial order over the categories of each variable.
+  Each object defines a \emph{partial order} over the categories of each variable.
 \end{itemize}
 
-The problem we analyze in this chapter is to minimize the stress loss function
+The simultaneous non-metric unfolding problem is to minimize the stress loss function
 \begin{equation}
 \sigma(X,Y_1,\cdots,Y_m):=\sum_{j=1}^m\sum_{i=1}^n\min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d(x_i,y_l^j))^2
 \label{eq:snmu}
@@ -197,15 +197,14 @@ The problem we analyze in this chapter is to minimize the stress loss function
 Note that for each object and variable there are different sets of transformations \(\Delta_j\)
 and for each variable there different matrices of \emph{category scores} \(Y_j\), but there is only a single matrix of \emph{object scores} \(X\). Also note that index \(j\), for variables, is sometimes used as a subscript and sometimes as a superscript, depending on what looks best.
 
-If the \(\Delta_i^j\) contain the zero vector, then the unconstrained minimum of \eqref{eq:snmu} iszero. Collapsing all \(x_i\) and all \(y_l^j\) into a single point makes all distances zero, and thus makes stress zero.
-In fact, it is easy to see that a minimum of zero is also possible in the situation where the \(\Delta_i^j\) contain the
-set of all constant vectors (or all non-negative constant vectors). Collapse all
-\(x_i\) into a single point, and place all \(y_l^j\) for variable \(j\) on a sphere around this point. There can be different spheres for different variables. This makes all \(d(x_i,y_l^j)\) equal and thus makes stress zero.
-Some comstraints on \(X\) and/or the \(Y_j\) is needed to prevent this trivial solution.
+If the \(\Delta_i^j\) contain the zero vector, then the unconstrained minimum of \eqref{eq:snmu} is zero. Collapsing all \(x_i\) and all \(y_l^j\) into a single point makes all distances zero, and thus makes stress zero. In fact, it is easy to see that a minimum of zero stress is also possible in the situation where the \(\Delta_i^j\) contain the set of all constant vectors (or all non-negative constant vectors). Collapse all
+\(x_i\) into a single point, and place all \(y_l^j\) for variable \(j\) on a sphere around this point. There can be different spheres for different variables. This makes all \(d(x_i,y_l^j)\) equal and thus makes stress zero. Some constraints on \(X\) and/or the \(Y_j\) are needed to prevent these trivial solutions.
+
+In the context of non-metric unfolding \ldots{}
 
 \section{Homogeneity Analysis}\label{hom}
 
-The Gifi System (Gifi (1990), Michailidis and De Leeuw (1998), De Leeuw and Mair (2009)) implements non-linear or non-metric versions of the classical linear multivariate analysis techniques (regression, analysis of variance, canonical analysis, discriminant analysis, principal component analysis) as special cases of \emph{Homogeneity Analysis}, better known as \emph{Multiple Correspondence Analysis}.
+The Gifi System (Gifi (1990), Michailidis and De Leeuw (1998), De Leeuw and Mair (2009)) implements non-linear or non-metric versions of the classical linear multivariate analysis techniques (regression, analysis of variance, canonical analysis, discriminant analysis, principal component analysis). The non-linear versions are introduced as special cases of \emph{Homogeneity Analysis}, which is better known under the name \emph{Multiple Correspondence Analysis}.
 
 In this section we present homogeneity analysis as a technique for
 minimizing the loss function \eqref{eq:snmu} when the data are \(n\times k_j\) \emph{indicator matrices} \(G_j\), with \(j=1,\cdots,M\). This is a non-standard
@@ -234,62 +233,75 @@ the sets \(\Delta_i^j\) are defined in such a way that \(\hat d_{il}^j\) is zero
 variable \(j\). There are no constraints on the other \(\hat d\)'s in row \(i\)
 of variable \(j\). Thus for zero loss we want an object to coincide with all \(m\) categories it is in. With this definition of the \(\Delta_i^j\) we have
 \begin{equation}
-\min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d(x_i,y_l^j))^2=w_{ij}d_{ij}^2(X,Y),
+\min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d(x_i,y_l^j))^2=f_{ij}d_{ij}^2(X,Y),
 \label{eq:homsnmu}
 \end{equation}
 where
+\begin{subequations}
 \begin{align}
-d_{ij}(X,Y)&=\sum_{l=1}^{k_j}g_{il}^jd(x_i,y^j_l),\label{eq:dred}\\
-w_{ij}&=\sum_{l=1}^{k_j}g_{il}^jw^j_{il}.\label{eq:wred}
+d_{ij}(X,Y)&:=\sum_{l=1}^{k_j}g_{il}^jd(x_i,y^j_l),\label{eq:dred}\\
+f_{ij}&:=\sum_{l=1}^{k_j}w^j_{il}w^j_{il}.\label{eq:wred}
 \end{align}
+\end{subequations}
+Note that the \(w^j_{il}\) for which \(g^j_{il}=0\) play no role in
+homogeneity analysis. In the usual implementations of homogeneity
+analysis and multiple correspondence analysis
+\(f_{ij}\) is either zero or one, depending on whether observation
+\(i\) on variable \(j\) is missing or non-missing.
 
 Using indicator matrices we can write loss function \eqref{eq:homsnmu} as
 \begin{equation}
 \sigma(X,Y_1,\cdots,Y_m)=
-\sum_{j=1}^m\text{tr}\ (X-G_jY_j)'W_j(X-G_jY_j),
+\sum_{j=1}^m\text{tr}\ (X-G_jY_j)'F_j(X-G_jY_j),
 \label{eq:matsnmu}
 \end{equation}
-The \(W_j\) are diagonal matrices with the \(w_{ij}\) from \eqref{eq:wred}
+The \(F_j\) are diagonal matrices with the \(f_{ij}\) from \eqref{eq:wred}
 on the diagonal.
 
 In homogeneity analysis we minimize \eqref{eq:matsnmu} using the
-explicit normalization \(X'W_\star X=I\), where \(W_\star\) is the
-sum of the \(W_j\). The solution is given by the singular value
+explicit normalization \(X'F_\star X=I\), where \(F_\star\) is the
+sum of the \(F_j\). The solution is given by the singular value
 equations
+\begin{subequations}
 \begin{align}
-X\Lambda&=W_\star^{-1}\sum_{j=1}^m W_jG_jY_j,\label{eq:homsvd1}\\
-Y_j&=(G_j'W_jG_j)^{-1}G_j'W_jX,\label{eq:homsvd2}
+X\Lambda&=F_\star^{-1}\sum_{j=1}^m F_jG_jY_j,\label{eq:homsvd1}\\
+Y_j&=(G_j'F_jG_j)^{-1}G_j'F_jX,\label{eq:homsvd2}
 \end{align}
-where \(\Lambda\) is a symmetric matrix of Lagrange multipliers. Remember that in addition we require \(X'W_\star X=I\).
+\end{subequations}
+where \(\Lambda\) is a symmetric matrix of Lagrange multipliers.
 
 In homals (Gifi (1980), De Leeuw and Mair (2009)) alternating least squares is used
 to solve the equations \eqref{eq:homsvd1} and \eqref{eq:homsvd2}. We start with
 some initial \(X\), then compute the corresponding \(Y_j\) using \eqref{eq:homsvd2},
 then for these new \(Y_j\) we compute a new corresponding \(X\) from \eqref{eq:homsvd1},
 and so on. Computations are efficient, because only diagonal matrices need to
-be inverted and matrix multiplication with an indicator matrix is not really multiplication but simply selection of a particular row or column. Alternating least squares becomes reciprocal averaging.
+be inverted and matrix multiplication with an indicator matrix is not really multiplication but simply selection of a particular row or column. Alternating least squares thus becomes \emph{reciprocal averaging}. Equation \eqref{eq:homsvd2} says that the optimal category
+point is the weighted averages of the objects points in the category, and \eqref{eq:homsvd1}
+says that, except for rescaling with the Lagrange multipliers, the optimal object
+point is the weighted average of the category points that the object scores in.
 
 Alternative methods of computation (and interpretation) are possible if we
 substitute \eqref{eq:homsvd2} in \eqref{eq:homsvd1} to eliminate the \(Y_j\)
 and obtain an equation in \(X\) only. This gives
 \begin{equation}
-W_\star X\Lambda=\sum_{j=1}^m W_jG_j(G_j'W_jG_j)^{-1}G_j'W_jX,
+F_\star X\Lambda=\sum_{j=1}^m F_jG_j(G_j'F_jG_j)^{-1}G_j'F_jX,
 \label{eq:geneigx}
 \end{equation}
 which is a generalized eigenvalue equation for \(X\). If we substitute \eqref{eq:homsvd1}
 in \eqref{eq:homsvd2} we obtain generalized eigenvalue equations for \(Y\).
 \begin{equation}
-(G_j'W_jG_j)Y_j\Lambda=\sum_{h=1}^m G_j'W_jW_\star^{-1}W_hG_hY_h.
+(G_j'F_jG_j)Y_j\Lambda=\sum_{h=1}^m G_j'F_jW_\star^{-1}F_hG_hY_h.
 \label{eq:geneigy}
 \end{equation}
-If \(k_\star\), the sum of the \(k_j\), is not too large then finding the \(p\) largest non-trivial eigenvalues with corresponding eigenvectors from \eqref{eq:geneigy} may be computationally efficient. The largest ``trivial'' eigenvalue is always equal to one, no matter what the \(G_j\) and \(W_j\) are, and we can safely ignore it. The trivial solutions mentioned in section \ref{snmu} correspond with this largest eigenvalue.
+If \(k_\star\), the sum of the \(k_j\), is not too large then finding the \(p\) largest non-trivial eigenvalues with corresponding eigenvectors from \eqref{eq:geneigy} may be computationally efficient. The largest ``trivial'' eigenvalue is always equal to one, no matter what the \(G_j\) and \(W_j\) are, and we can safely ignore it. The trivial solution with all distances equal to zero mentioned in section \ref{snmu} corresponds with this largest eigenvalue.
 
-Homogeneity analysis can be most naturally introduced using the concept of a \emph{star plot}. For variable \(j\) we plot \(k_j\) category points and \(n\) object
+Homogeneity analysis can be most convincingly introduced using the concept of a \emph{star plot}. For variable \(j\) we plot \(k_j\) category points and \(n\) object
 points in a single joint plot. We then draw a line from each category point to the object points of the objects in that category. This creates \(k_j\) groups of
 lines and points in \(\mathbb{R}^p\), and each of these groups is called a \emph{star}.
-The sum of squares of the line lengths of a star is the loss of homogeneity for category \(l\) of variable \(j\), and the total sum of squares of all line lengths in the \(k_j\) stars is the loss \eqref{eq:matsnmu} for variable \(j\). Homogeneity analysis chooses \(X\) and the \(Y_j\) such that \(X\) is normalized by \(X'W_\star X=I\) and the stars are as small or as compact as possible, measured by the squared line lengths. For given \(X\) the stars are as small as possible by choosing the category points \(Y_j\) as the centroids of the object points in the category. That explains the use of the word star, because now the stars really look like stars. Thus, given the choice of the \(Y_j\) as centroids, we can also say that homogeneity analysis quantifies the \(n\) objcets in such a way that the resulting stars are as small as possible.
+The sum of squares of the line lengths of a star is the loss of homogeneity for category \(l\) of variable \(j\), and the total sum of squares of all line lengths in the \(k_j\) stars is the loss \eqref{eq:matsnmu} for variable \(j\). Homogeneity analysis chooses \(X\) and the \(Y_j\) such that \(X\) is normalized by \(X'F_\star X=I\) and the stars are as small or as compact as possible, measured by the squared line lengths. For given \(X\) the stars are as small as possible by choosing the category points \(Y_j\) as the centroids of the object points in the category, as in equation
+\eqref{eq:homsvd2}. That explains the use of the word ``star'', because now the stars really look like stars. In graph theory a star is a tree with one internal node (the category point) and \(k\) leaves (the object points). Thus, given the optimum choice of the \(Y_j\) as centroids, we can also say that homogeneity analysis quantifies the \(n\) objects in such a way that the resulting stars are as small as possible.
 
-\section{Loss Function}\label{loss-function}
+\section{The smacofHO Loss Function}\label{the-smacofho-loss-function}
 
 The smacofHO technique solves the closely related problem in which we do not require,
 as in homogeneity analysis, that
@@ -299,7 +311,7 @@ as in homogeneity analysis, that
 \end{equation}
 for all $i$ and $j$, but we impose the weaker condition that for all $i$ and $j$
 \begin{equation}
-\sum_{l=1}^{k_j}g^j_{il}\hat d^j_{il}\leq \hat d^j_{i\nu}
+\sum_{l=1}^{k_j}g^j_{il}\hat d^j_{il}\leq\hat d^j_{i\nu}
 \end{equation}
 \end{subequations}
 for all \(\nu=1,\cdots,k_j\).
@@ -310,27 +322,90 @@ they do not score in.
 
 This can be formalized using the notion of \emph{Voronoi regions}. The Voronoi region of
 category \(l\) of variable \(j\) is the polyhedral convex set of all points of \(\mathbb{R}^p\) closer to category \(l\) than to any other category of variable \(j\). The plot of the the \(k_j\) categories of variable \(j\) defines \(k_j\) Voronoi regions that
-partition \(\mathbb{R}^p\).
+partition \(\mathbb{R}^p\). For a wealth of information about Voronoi regions we refer to
 
 Loss function \ldots{} with \(\Delta\) defined by \ldots{} vanishes if for each variable all \(x_i\) are in the Voronoi regions of the categories they score in. This condition implies, by the way, that the interiors of the \(k_j\) convex hulls of the \(x_i\) in a given category are disjoint, and the point clouds can consequently be weakly separated by hyperplanes. Since the category points themselves are in their own Voronoi region the convex hulls of the stars are also disjoint.
 
-\subsection{The Guttman Transform}\label{the-guttman-transform}
-
-The general majorization theory for MDS with restrictions calls for updates
+The general majorization theory for MDS with restrictions (De Leeuw and Heiser (1980))
+calls for updates
 in two steps. In the first step we compute the Guttman transform of the current configuration, and in the second step we project the Guttman transform on the
 set of constrained configurations.
 
-Configuration updates are alternated with updates of the \(\hat D_j\). Minimizing
-loss \ldots{} over the \(\hat d_i^j\) is a monotone regression problem for a simple tree
+Configuration updates are alternated with updates of the \(\hat D_j\). Initial: homals.
+
+Minimizing loss \ldots{} over the \(\hat d_i^j\) is a monotone regression problem for a simple tree
 order. This is easily solved by using Kruskal's primary approach to ties
 (Kruskal (1964a), Kruskal (1964b), De Leeuw (1977)).
 
-\subsection{Six analyses}\label{six-analyses}
+\subsection{The Guttman Transform}\label{the-guttman-transform}
+
+The smacof iterations, or Guttman transforms, more or less ignore the fact that we are dealing with a rectangular matrix and use the weights to transform the problem into a symmetric one (as in Heiser and De Leeuw (1979)).
+
+The loss function is
+\[
+\sigma(Z_1,\cdots,Z_m)=\sum_{j=1}^m\sum_{i=1}^{n_j}\sum_{k=1}^{n_j}w_{ik}^j(\hat d_{ik}^j-d_{ik}(Z_j))^2,
+\]
+with \(n_j:=n+k_j\) and with \(Z_j\) the \(n_j\times p\) matrices that stack \(X\) on top of
+\(Y_j\). The \(w_{ik}^j\) are zero for the diagonal \(n\times n\) and the diagonal
+\(k_j\times k_j\) block.
+
+To compute the Guttman transform of \(Z_j\) we have to solve
+the partitioned system
+\begin{equation}
+\begin{bmatrix}
+R_W&-W\\
+-W'&C_W
+\end{bmatrix}
+\begin{bmatrix}\tilde X\\\tilde Y\end{bmatrix}=
+\begin{bmatrix}
+R_B&-B\\
+-B'&C_B
+\end{bmatrix}
+\begin{bmatrix}X\\Y\end{bmatrix}
+\label{eq:guttman}
+\end{equation}
+Since we have to solve this system for each variable separately we forget about the index \(j\) here. In
+\eqref{eq:guttman} \(R_W\) and \(C_W\) are the diagonal matrices with row and column sums of \(-W\), while \(R_B\) and \(C_B\) are diagonal matrices with the row and columns sums of the \(n\times k_j\) matrix \(B\), which has elements
+\begin{equation}
+b_{il}=w_{il}\frac{\hat d_{il}}{d(x_i,y_l)}.
+\label{eq:bdef}
+\end{equation}
+Matrices \(X\) and \(Y\) are the two parts of the current \(Z\) that we are updating,
+while we solve for \(\tilde X\) and \(\tilde Y\), the two parts of the Guttman
+transform.
+
+Define
+\begin{equation}
+\begin{bmatrix}
+P\\Q
+\end{bmatrix}:=
+\begin{bmatrix}
+R_B&-B\\
+-B'&C_B
+\end{bmatrix}
+\begin{bmatrix}X\\Y\end{bmatrix}
+\label{eq:gusolve}
+\end{equation}
+Now
+\(R_W\tilde X-W\tilde Y=P\) or \(\tilde X=R_W^{-1}(P+W\tilde Y)\). Substitute this in \(C_W\tilde Y-W'\tilde X=Q\)
+to get \(C_W\tilde Y-W'R_W^{-1}(P+W\tilde Y)=Q\) or
+\begin{equation}
+(C_W-W'R_W^{-1}W)\tilde Y=Q+W'R_W^{-1}P
+\label{eq:solvefory}
+\end{equation}
+We solve equation \eqref{eq:solvefory} for \(\tilde Y\) and then use \(\tilde X=R_W^{-1}(P+W\tilde Y)\).
+Note that \(C_W-W'R_W^{-1}W\) is doubly-centered.
+As in homogeneity analysis we hope that \(k_\star\)
+is not to big, and we avoid generalized inverses of very large and very
+sparse matrices.
+
+\subsection{Nine analyses}\label{nine-analyses}
 
 There are three options for updating the \(Y_j\).
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{-1}
 \tightlist
 \item
   No further constraints on the \(Y_j\).
@@ -345,11 +420,14 @@ constrained to be the same for all variables, i.e.~\(X_j=X\).
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{-1}
 \tightlist
 \item
   No further constraints on \(X\).
 \item
-  \(X\) is normalized by \(X'W_\star X=I\)
+  \(X\) is normalized by \(\text{tr}\ X'W_\star X=1\).
+\item
+  \(X\) is normalized by \(X'W_\star X=I\).
 \end{enumerate}
 
 Note that the centroid constraint on the \(Y_j\) and the normalization
@@ -358,61 +436,14 @@ constraint on \(Y_j\) is taken from the Gifi system, where it serves
 to make homogeneity analysis into a form of non-linear principal
 component analysis.
 
-\subsection{The Unconstrained Case}\label{the-unconstrained-case}
+There are far more than nine possible analyses. For each of the
+\(m\) variables we can independently choose each of the three options for the
+\(Y_j\) and combine it with one of the three options for \(X\), making a total
+of \(3^{m+1}\) different analyses (in a given dimensionality \(p\)).
 
-Suppose there are no constraints on the \(Y_j\) and on \(X\) (except for the
-constraint \(X_j=X\)). The smacof iterations, or Guttman transforms, more or less ignore the fact that we are dealing with a rectangular matrix and use the weights to transform the problem into a symmetric one (as in Heiser and De Leeuw (1979)).
+\subsection{Categories unconstrained (yform = 0)}\label{categories-unconstrained-yform-0}
 
-The loss function is
-\[
-\sigma(Z_1,\cdots,Z_m)=\sum_{j=1}^m\sum_{i=1}^{n_j}\sum_{k=1}^{n_j}w_{ik}^j(\hat d_{ik}^j-d_{ik}(Z_j))^2,
-\]
-with \(n_j:=n+k_j\) and with \(Z_j\) the \(n_j\times p\) matrix that stacks \(X\) on top of
-\(Y_j\). The \(w_{ik}^j\) are zero for the diagonal \(n\times n\) and the diagonal
-\(k_j\times k_j\) block.
-
-To compute the Guttman transform of \(Z_j\) we have to solve
-the partitioned system
-\[
-\begin{bmatrix}
-R_W&-W\\
--W'&C_W
-\end{bmatrix}
-\begin{bmatrix}\tilde X\\\tilde Y\end{bmatrix}=
-\begin{bmatrix}
-R_B&-B\\
--B'&C_B
-\end{bmatrix}
-\begin{bmatrix}X\\Y\end{bmatrix}
-\]
-Since we have to solve this system for each variable separately we forget about the index \(j\) here. In \ldots{} \(R_W\) and \(C_W\) are the diagonal matrices with row and column sums of \(-W\), while \(R_B\) and \(C_B\) are diagonal matrices with the row and columns sums of the \(n\times k_j\) matrix \(B\), which has elements
-\[
-b_{il}=w_{il}\frac{\hat d_{il}}{d(x_i,y_l)}
-\]
-Matrices \(X\) and \(Y\) are the two parts of the current \(Z\) that we are updating,
-while we solve for \(\tilde X\) and \(\tilde Y\), the two parts of the Guttman
-transform. Define
-\[
-\begin{bmatrix}
-P\\Q
-\end{bmatrix}:=
-\begin{bmatrix}
-R_B&-B\\
--B'&C_B
-\end{bmatrix}
-\begin{bmatrix}X\\Y\end{bmatrix}
-\]
-Now
-\(R_W\tilde X-W\tilde Y=P\) or \(\tilde X=R_W^{-1}(P+W\tilde Y)\). Substitute this in \(C_W\tilde Y-W'\tilde X=Q\)
-to get \(C_W\tilde Y-W'R_W^{-1}(P+W\tilde Y)=Q\) or
-\[
-(C_W-W'R_W^{-1}W)\tilde Y=Q+W'R_W^{-1}P
-\]
-We solve \ldots{} for \(\tilde Y\) and then use \(\tilde X=R_W^{-1}(P+W\tilde Y)\).
-Note that \(C_W-W'R_W^{-1}W\) is doubly-centered and \(Q+W'R_W^{-1}P\) is column-centered. As in homogeneity analysis we hope that \(k_\star\)
-is not to big, and we avoid generalized inverses of very large and very
-sparse matrices.
-
+Suppose there are no constraints on the \(Y_j\).
 After computing the Guttman transforms \(\tilde X_j\) and \(\tilde Y_j\)\\
 we have to project them on the constrained configurations, in this
 case on the set \(X_j=X\). More explicitly we must minimize
@@ -428,55 +459,94 @@ The stationary equations are
 Y_j&=\tilde Y_j-C_j^{-1}W_j'(X-\tilde X_j),\label{eq:stateq1}\\
 X&=\{R_\star\}^{-1}\sum_{j=1}^m\left\{R_j\tilde X_j-W_j(Y_j-\tilde Y_j)\right\}.\label{eq:stateq2}
 \end{align}
-We could solve these equations iteratively using alternating least squares. This
-means using \eqref{eq:stateq1} to compute a new \(Y\) for given \(X\) and \eqref{eq:stateq2} to compute a new \(X\) for given \(Y\). This introduces an
-infinite inner iteration loop within the main outer iteration loop. We have tried this, and it does not seem to be the way to go. The argument is the same as in
-our section \ldots{} on homogeneity analysis.
+We solve these equations iteratively using alternating least squares. This
+means using \eqref{eq:stateq1} to compute a new \(Y\) for given \(X\) and \eqref{eq:stateq2} to compute a new \(X\) for given \(Y\). We alternate these two updates until convergence.
 
-Alternatively, we can substitute \eqref{eq:stateq2} into \eqref{eq:stateq1}. This
-gives linear equations in the \(Y_j\), which we can solve. Then use \eqref{eq:stateq2}
-to compute the corresponding optimal \(X\). No inner iterations are necessary.
-In the same way we can substitute \eqref{eq:stateq1} into \eqref{eq:stateq2}, solve for
-\(X\) and compute the corresponding \(Y_j\). Since in most applications the number of
-objects \(n\) is much larger than the total number of categories \(\sum k_j\) the first
-substitution of \eqref{eq:stateq2} into \eqref{eq:stateq1} seems the most
-promising. Again, the argument is the same as in
-our section \ldots{} on homogeneity analysis.
+\subsubsection{Normalization of X}\label{normalization-of-x}
 
+We can impose the weak normalization constraint \(\text{tr}\ X'R_\star X=1\) or the
+strong normalization constraint \(X'R_\star X=I\). In both cases the stationary
+equation \eqref{eq:stateq1} remains the same, while \eqref{eq:stateq1} becomes
 \[
-C_j(Y_j-\tilde Y_j)-W_j'R_\star^{-1}\sum_{h=1}^mW_h(Y_h-\tilde Y_h)=W_j'(\tilde X_j-R_\star^{-1}\sum_{h=1}^mR_h\tilde X_h)
+R_\star X\Lambda=P,
 \]
-
-\[
-(Y_j-\tilde Y_j)-\{V_{22}^j\}^{-1}V_{21}^j\{V_{11}^\star\}^{-1}\sum_{h=1}^mV_{12}^h(Y_h-\tilde Y_h)=\{V_{22}^j\}^{-1}V_{21}^j\tilde X_j-\{V_{22}^j\}^{-1}V_{21}^j\{V_{11}^\star\}^{-1}\sum_{h=1}^mV_{11}^h\tilde X_h
-\]
-
-\[
-C_j(Y_j-\tilde Y_j)-W_j'R_\star^{-1}\sum_{h=1}^mW_h(Y_h-\tilde Y_h)=-W_j\tilde X_j+W_j'R_\star^{-1}\sum_{h=1}^mR_h\tilde X_h
-\]
-
-\subsection{Normalization of X}\label{normalization-of-x}
-
-Constraint
-\[
-X'R_\star X = I
-\]
-Stationary equation \eqref{eq:stateq2} becomes
-\[
-R_\star X\Lambda =\sum_{j=1}^m\left\{R_j\tilde X_j-W_j(Y_j-\tilde Y_j)\right\}
-\]
-If we define
+with
 \[
 P:=\sum_{j=1}^m\left\{R_j\tilde X_j-W_j(Y_j-\tilde Y_j)\right\}
 \]
-then, using the symmetric square root, \(\Lambda=(P'R_\star^{-1}P)^\frac12\) and thus \(X=R_\star^{-1}P(P'R_\star^{-1}P)^{-\frac12}\).
+and with \(\Lambda\) a matrix of Lagrange multipliers. For weak normalization \(\Lambda\)
+is scalar, and
+\[
+X=\frac{1}{\text{tr}\ P'R_\star^{-1}P}R_\star^{-1}P
+\]
+For string normalization \(\Lambda\) is symmetric. Using the symmetric square root, \(\Lambda=(P'R_\star^{-1}P)^\frac12\) and thus
+\[
+X=R_\star^{-1}P(P'R_\star^{-1}P)^{-\frac12}.
+\]
+Thus requiring normalized object scores only needs small modifications in the \(X\) update step of the unnormalized update \(R_\star^{-1}P\).
 
 \subsection{Centroid Constraints on Y}\label{centroid-constraints-on-y}
 
-If we require that \(Y_j=(G_j'W_jG_j)^{-1}G_j'W_jX\) then this effectively eliminates the \(Y_j\) as variables from the optimization problem and we only have to optimize over \(X\).
+If we require that \(Y_j=(G_j'R_jG_j)^{-1}G_j'R_jX\) then this effectively eliminates the \(Y_j\) as variables from the optimization problem and we only have to optimize over \(X\).
 
-\(X-G_jY_j=(I-G_j(G_j'W_jG_j)^{-1}G_j'W_j)X=Q_jX\)
-\(d_i^j(X)=\sqrt{\text{tr}\ X'q^j_i\{q^j_i\}'X}\)
+\begin{equation}
+\left\{\begin{bmatrix}
+\tilde X_j\\
+\tilde Y_j
+\end{bmatrix}
+-
+\begin{bmatrix}
+I\\
+H_j
+\end{bmatrix}X\right\}'
+\begin{bmatrix}
+R_j&-W_j\\
+-W_j'&C_j
+\end{bmatrix}
+\left\{\begin{bmatrix}
+\tilde X_j\\
+\tilde Y_j
+\end{bmatrix}
+-
+\begin{bmatrix}
+I\\
+H_j
+\end{bmatrix}X\right\}
+\end{equation}
+
+where \(H_j:=(G_j'R_jG_j)^{-1}G_j'R_j\). Thus \(H_j\) is \(k_j\times n\).
+
+\[
+X'\{R_j-H_j'R_j'-R_jH_j+H_j'C_jH_j\}X-2X'\{(R_j-H_j'W_j')\tilde X_j+(-R_j+H_j'C_j)\tilde Y_j\}
+\]
+\begin{subequations}
+\begin{align}
+P&:=\sum_{j=1}^m\{R_j-H_j'W_j'-W_jH_j+H_j'C_jH_j\},\\
+Q&:=\sum_{j=1}^m\{(R_j-H_j'W_j')\tilde X_j+(-W_j+H_j'C_j)\tilde Y_j\}.
+\end{align}
+\end{subequations}
+
+Un-normalized \(X=P^+Q\). Too big. Majorization. \(P\leq\lambda W_\star\)
+
+\[\text{tr}\ (\tilde X+(X-\tilde X))'P(\tilde X+(X-\tilde X))-2\text{tr}\ (\tilde X+(X-\tilde X))'Q\]
+\[
+\text{tr}\ (X-\tilde X)'P(X-\tilde X)-2\text{tr}\ (X-\tilde X)'Q\leq
+\lambda\text{tr}\ (X-\tilde X)'R_\star(X-\tilde X)-2\text{tr}\ (X-\tilde X)'Q
+\]
+\[
+\lambda W_\star(X-\tilde X)=Q
+\]
+\(X=\tilde X+\lambda^{-1}R_\star^{-1}Q\)
+
+\subsubsection{Normalization}\label{normalization}
+
+It is tempting to normalize using \(X'PX\) but that would make comparison with
+the results for unconstrained and rank-one \(Y\) more difficult. Thus we continue
+with \(X'W_\star X\) and use the majorization .. The stationary equations are
+\[
+(Q+\lambda R_\star\tilde X)=R_\star X\Lambda
+\]
+which we solve in the usual way for weak and strong normalizations.
 
 \subsection{Rank Constraints on Y}\label{rank-constraints-on-y}
 
@@ -506,6 +576,15 @@ all voronoi boundaries are hyperplanes perpendicular to that line, and consequen
 
 \subsection{Joint Plot Function}\label{joint-plot-function}
 
+\subsection{Prediction Table}\label{prediction-table}
+
+In the solution \((X,Y)\) we say that pair \((i,j)\) is a \emph{hit} if
+\[
+d_{il}^j(X,Y)=\min_{\nu=1}^{k_j}d_{i\nu}^j(X,Y)
+\]
+or, in words, if object point \(x_i\) is in the Voronoi region of the category point
+corresponding to the category the object scores in.
+
 \section{Examples}\label{examples}
 
 Presenting examples runs into some difficulties.
@@ -515,6 +594,17 @@ Presenting examples runs into some difficulties.
 \subsection{Senate}\label{senate}
 
 \subsection{GALO}\label{galo}
+
+\section{Generalizations}\label{generalizations}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Fuzzy Indicators
+\item
+  Voronoi with general sites
+\end{enumerate}
 
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
@@ -529,6 +619,9 @@ De Leeuw, J. 1923. {``Deconstructing Multiple Correspondence Analysis. Essays in
 
 \bibitem[\citeproctext]{ref-deleeuw_C_14}
 ---------. 2014. {``{History of Nonlinear Principal Component Analysis}.''} In \emph{{The Visualization and Verbalization of Data}}, edited by J. Blasius and M. Greenacre. Chapman; Hall.
+
+\bibitem[\citeproctext]{ref-deleeuw_heiser_C_80}
+De Leeuw, J., and W. J. Heiser. 1980. {``Multidimensional Scaling with Restrictions on the Configuration.''} In \emph{Multivariate Analysis, Volume {V}}, edited by P. R. Krishnaiah, 501--22. Amsterdam, The Netherlands: North Holland Publishing Company.
 
 \bibitem[\citeproctext]{ref-deleeuw_mair_A_09a}
 De Leeuw, J., and P. Mair. 2009. {``{Homogeneity Analysis in {R}: the Package homals}.''} \emph{Journal of Statistical Software} 31 (4): 1--21. \url{https://www.jstatsoft.org/v31/i04/}.
