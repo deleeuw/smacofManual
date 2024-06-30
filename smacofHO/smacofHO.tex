@@ -39,6 +39,46 @@
 \makeatother
 \usepackage{xcolor}
 \usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
 \usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
 % Correct order of tables after \paragraph or \subparagraph
@@ -154,9 +194,9 @@
   pdfcreator={LaTeX via pandoc}}
 
 \title{Smacof at 50: A Manual\\
-Part 8: Gifi Smacofified}
+Part 8: Gifi with Rank Constraints Smacofified}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started April 13 2024, Version of June 23, 2024}
+\date{Started April 13 2024, Version of June 29, 2024}
 
 \begin{document}
 \maketitle
@@ -175,7 +215,9 @@ appreciated, but is not required. The files can be found at
 \url{https://github.com/deleeuw} in the repositories smacofCode, smacofManual,
 and smacofExamples.
 
-\section{Simultaneous Non-Metric Unfolding}\label{snmu}
+\section{Introduction: Categorical Data}\label{introduction-categorical-data}
+
+In this chapter we shall analyze categorical data, with the following components.
 
 \begin{itemize}
 \tightlist
@@ -189,44 +231,69 @@ and smacofExamples.
   Each object defines a \emph{partial order} over the categories of each variable.
 \end{itemize}
 
-The simultaneous non-metric unfolding problem is to minimize the stress loss function
+Thus the data are the \(n\times m\) partial orders \(\lesssim_{ij}\).
+
+We study minimization of the stress \emph{loss function}
 \begin{equation}
 \sigma(X,Y_1,\cdots,Y_m):=\sum_{j=1}^m\sum_{i=1}^n\min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d(x_i,y_l^j))^2
 \label{eq:snmu}
 \end{equation}
-Note that for each object and variable there are different sets of transformations \(\Delta_j\)
-and for each variable there different matrices of \emph{category scores} \(Y_j\), but there is only a single matrix of \emph{object scores} \(X\). Also note that index \(j\), for variables, is sometimes used as a subscript and sometimes as a superscript, depending on what looks best.
+over the \(n\times p\) matrix of \emph{object scores} \(X\), the \(k_j\times p\)
+matrices of \emph{category scores} \(Y_j\), and the \(n\times k_j\) \emph{transformations} (or \emph{optimal scalings}) \(\Delta_j\).
 
-If the \(\Delta_i^j\) contain the zero vector, then the unconstrained minimum of \eqref{eq:snmu} is zero. Collapsing all \(x_i\) and all \(y_l^j\) into a single point makes all distances zero, and thus makes stress zero. In fact, it is easy to see that a minimum of zero stress is also possible in the situation where the \(\Delta_i^j\) contain the set of all constant vectors (or all non-negative constant vectors). Collapse all
-\(x_i\) into a single point, and place all \(y_l^j\) for variable \(j\) on a sphere around this point. There can be different spheres for different variables. This makes all \(d(x_i,y_l^j)\) equal and thus makes stress zero. Some constraints on \(X\) and/or the \(Y_j\) are needed to prevent these trivial solutions.
+The \(w_{il}^j\) in \eqref{eq:snmu}
+are non-negative \emph{weights}. Formulas and derivations simplify if the data are \emph{row-weighted}, by which we mean that \(w_{il}^j=w_i^j\). They simplify
+even more if weights are \emph{constant}, i.e.~if all non-zero weights
+are equal to one.
 
-In the context of non-metric unfolding \ldots{}
+The transformations in \eqref{eq:snmu}
+are \emph{row-conditional}, in the sense that for each \(i\) a vector
+\(\hat d_i^j\) of length \(k_j\) is selected from the cone of admissible transformations \(\Delta_i^j\). Each row has its own cone. Note that for each variable \(j\) there are different matrices of category scores \(Y_j\), but there is only a single matrix of object scores \(X\). Also note that index \(j\), for variables, is sometimes used as a subscript and sometimes as a superscript, depending on what looks best.
+
+We need a few words to discuss the meaning of the word ``model'' in this
+context, since it is used frequently in data analysis. The
+model corresponding with a loss function is the set of parameter
+values for which loss attains its global minimum (usually zero).
+Thus a model is a system of equations and/or inequalities.
+In the case of loss function \ref(eq:snmu) the model is
+that the \(d(x_,y_{il}^j)\) with \(w_{il}^j>0\) satisfy the partial order \(\lesssim_{ij}\).
+
+\[
+w_{il}^jw_{i\nu}^j\epsilon^j_{il\nu}(d^j_{il}(X,Y)-d^j_{i\nu}(X,Y))\geq 0
+\]
+\[
+w_{il}^jw_{i\nu}^j\epsilon^j_{il\nu}(-2x_{i}'(y^j_l-y^j_\nu)+\|y^j_l\|^2-\|y^j_\nu\|^2)\geq 0
+\]
+If the cones \(\Delta_i^j\) contain the zero vector, then the global minimum of \eqref{eq:snmu} is clearly equal to zero. Collapsing all \(x_i\) and all \(y_l^j\) into a single point makes all distances zero, and thus makes stress zero. There is also zero stress if we collapse all \(x_i\) into
+one point and all \(y_l^j\) into another points. There are more subtle
+trivial solutions, however.
+Suppose the cones \(\Delta_i^j\) contain the set of all constant vectors (or all non-negative constant vectors). Collapse all \(x_i\) into a single point, and place all \(y_l^j\) for variable \(j\) on a sphere around this point. There can be different radii for different variables. This makes all \(d(x_i,y_l^j)\) equal to the radius of the sphere and thus makes stress zero.
+
+It follows that we cannot define the purpose of our algorithms as finding the minimum of \eqref{eq:snmu} over all \(X\) and \(Y_j\). Some constraints on the optimization problems are needed to prevent these trivial or degenerate solutions.
+
+In the context of non-metric unfolding there has been much work
+on avoiding trivial and degenerate solutions. This started as soon as
+Kruskal-Guttman-type iterative MDS techniques using data transformation became available. Early contributions were Roskam (1968) and Kruskal and Carroll (1969). For valuable summaries of more recent work, mostly by Willem Heiser and his students, we refer to the dissertations of Van Deun (2005) and Busing (2010).
 
 \section{Homogeneity Analysis}\label{hom}
 
-The Gifi System (Gifi (1990), Michailidis and De Leeuw (1998), De Leeuw and Mair (2009)) implements non-linear or non-metric versions of the classical linear multivariate analysis techniques (regression, analysis of variance, canonical analysis, discriminant analysis, principal component analysis). The non-linear versions are introduced as special cases of \emph{Homogeneity Analysis}, which is better known under the name \emph{Multiple Correspondence Analysis}.
+The \emph{Gifi System} (Gifi (1990), Michailidis and De Leeuw (1998), De Leeuw and Mair (2009)) implements non-linear or non-metric versions of the classical linear multivariate analysis techniques (regression, analysis of variance, canonical analysis, discriminant analysis, principal component analysis). The non-linear versions are introduced as special cases of \emph{Homogeneity Analysis}, which is better known as \emph{Multiple Correspondence Analysis}.
 
 In this section we present homogeneity analysis as a technique for
-minimizing the loss function \eqref{eq:snmu} when the data are \(n\times k_j\) \emph{indicator matrices} \(G_j\), with \(j=1,\cdots,M\). This is a non-standard
-presentation, because usually homogeneity analysis is related to
-principal component analysis, and not to multidimensional scaling
+minimizing the loss function \eqref{eq:snmu} when the data are \(n\times k_j\) \emph{indicator matrices} \(G_j\), with \(j=1,\cdots,M\). This is a non-standard presentation, because usually homogeneity analysis is related to principal component analysis, and not to multidimensional scaling
 (see, for example, De Leeuw (2014) or De Leeuw (1923)).
+
+In homogeneity analysis the data are (or are coded as) \(m\) \emph{indicator matrices} \(G_j\), where \(G_j\) is \(n\times k_j\).
 Indicator matrices are binary matrices, with rows that add up to one or to zero.
-Thus each row has either a single elements equal to one and the rest zeroes,
-or all elements equal to zero. Indicator matrices are
-used to code categorical variables. Rows corresponds with objects
+Thus each row has either a single element equal to one and the rest zeroes, or it has all elements equal to zero. Indicator matrices are
+used to code our categorical variables. Rows corresponds with objects
 (or individuals), columns with the categories (or levels) of a variable.
-Element \(g_{il}^j\) is one if object \(i\) is in category \(l\) of variable \(j\),
-and all other elements in row \(i\) are zero. If an object is \emph{missing} on
-variable \(j\) then the whole row is zero.
+Element \(g_{il}^j\) is one if object \(i\) is in category \(l\) of variable \(j\), and all other elements in row \(i\) are zero. If an object is \emph{missing} on variable \(j\) then the whole row is zero.
 
 Homogeneity analysis makes joint maps in \(p\) dimensions of objects
 and categories, both represented as points. A joint map for variable \(j\)
 has \(n\) object points \(x_i\) and \(k_j\) category points \(y^j_{il}\).
-In a homogeneous solution the object points are close to the points of the categories that the objects score in, i.e, to those \(y^j_{il}\) for which \(g^j_{il}=1\).
-If there is only one variable then it is trivial to make a perfectly
-homogeneous map. We just make sure the object points coincide with
-their category points. But there are \(j>1\) indicator matrices, corresponding with \(m\) categorical variables, and there is only a single set of object scores. The solution is a compromise trying to achieve as much homogeneity as possible for all variables simultaneously.
+In a homogeneous solution the object points are close to the points of the categories that the objects score in, i.e, to those \(y^j_{il}\) for which \(g^j_{il}=1\). If there is only one variable then it is trivial to make a perfectly homogeneous map. We just make sure the object points coincide with their category points. But there are \(j>1\) indicator matrices, corresponding with \(m\) categorical variables, and there is only a single set of object scores. The solution is a compromise trying to achieve as much homogeneity as possible for all variables simultaneously.
 
 In loss function \eqref{eq:snmu} applied to homogeneity analysis
 the sets \(\Delta_i^j\) are defined in such a way that \(\hat d_{il}^j\) is zero if \(i\) is in category \(l\) of
@@ -296,15 +363,96 @@ in \eqref{eq:homsvd2} we obtain generalized eigenvalue equations for \(Y\).
 If \(k_\star\), the sum of the \(k_j\), is not too large then finding the \(p\) largest non-trivial eigenvalues with corresponding eigenvectors from \eqref{eq:geneigy} may be computationally efficient. The largest ``trivial'' eigenvalue is always equal to one, no matter what the \(G_j\) and \(W_j\) are, and we can safely ignore it. The trivial solution with all distances equal to zero mentioned in section \ref{snmu} corresponds with this largest eigenvalue.
 
 Homogeneity analysis can be most convincingly introduced using the concept of a \emph{star plot}. For variable \(j\) we plot \(k_j\) category points and \(n\) object
-points in a single joint plot. We then draw a line from each category point to the object points of the objects in that category. This creates \(k_j\) groups of
+points in a single joint plot. We then draw a line from each category point to the points of the objects in that category. This creates \(k_j\) groups of
 lines and points in \(\mathbb{R}^p\), and each of these groups is called a \emph{star}.
 The sum of squares of the line lengths of a star is the loss of homogeneity for category \(l\) of variable \(j\), and the total sum of squares of all line lengths in the \(k_j\) stars is the loss \eqref{eq:matsnmu} for variable \(j\). Homogeneity analysis chooses \(X\) and the \(Y_j\) such that \(X\) is normalized by \(X'F_\star X=I\) and the stars are as small or as compact as possible, measured by the squared line lengths. For given \(X\) the stars are as small as possible by choosing the category points \(Y_j\) as the centroids of the object points in the category, as in equation
 \eqref{eq:homsvd2}. That explains the use of the word ``star'', because now the stars really look like stars. In graph theory a star is a tree with one internal node (the category point) and \(k\) leaves (the object points). Thus, given the optimum choice of the \(Y_j\) as centroids, we can also say that homogeneity analysis quantifies the \(n\) objects in such a way that the resulting stars are as small as possible.
 
+\section{Multidimensional Structuple Analysis MSA}\label{multidimensional-structuple-analysis-msa}
+
+The Guttman-Lingoes series of programs (Lingoes (1973))
+discusses, among many others, several techniques for analyzing
+a number of indicator matrices. They have the acronyms
+MSA-I, MSA-II, MSA-III, and MSA-IV, where MSA is short for
+either Multidimensional Scalogram Analysis or Multidimensional
+Structuple Analysis. Unfortunately the techniques are rather
+poorly documented in the mainstream literature. I rely on Lingoes (1968b),
+Lingoes (1968a), Lingoes (1972), Lingoes (1979), and the various
+short program descriptions Lingoes published in Behavioural Science.
+Unfortunately I currently have no access to Lingoes (1973).
+
+All MSA programs start their iterations with MAC-II. MAC stands for
+Multivariate Analysis of Contingencies, and the technique implements
+the equations from Guttman (1941). In other words, MAC is homogeneity
+analysis or multiple correspondence analysis. Thus the MSA
+programs have the same starting configuration as our smacof
+programs for categorical data.
+
+The publications on MSA do not pay much attention to the existence
+of trivial solutions and to the speed of convergence of the
+iterations.
+
+The most interesting member of the MSA sequence is MSA-I.
+
+\begin{quote}
+The logic of MSA-I was worked out by Guttman as a creative reaction to a number of objections to other proposed solutions for multidimensional scalogram analysis raised by members of his course on multidimensional analysis during his visit to The University of Michigan (1964-1965).
+Some of the computational details and the programming of the technique were done by the author. (Lingoes (1968a), p.~76)
+\end{quote}
+
+The most complete description of MSA-I is probably Zvulun (1978). There
+are also some computational details in Lingoes (1968a). So what is the
+MSA-I model ?
+
+Partition the object points corresponding to any category A into inner and outer points. Take any point not in A and find the closest point in A to that point. Such a closest point is called an \emph{outer point} of category A. Go through all points not in A to find all outer points of A. The points of A that are not outer points of A are \emph{inner points} of A.
+Category A is \emph{contiguous} if each inner point of A is closer to an outer point of A than to any other outer point. Since the closest point in B to an inner point of A is by definition an outer point of B we have also contiguity if and only if each inner point of A is closer to some outer point of A than to any point outside A.
+
+In MSA-I there are no category points, only object points. This makes
+comparison with the partitioning by Voronoi regions complicated. In
+the same way there is no obvious connection with the convex hulls of
+the object points in a category. Separations and partitions can be quite
+irregular and in the various small examples I have seen are mostly
+done after the fact by hand.
+
+The algorithm to optimize contiguity is described in (\textbf{lingoes\_68?}). I will
+try to reconstruct it.
+
+Unlike MSA-I, MSA-II, which seems to be mostly due to Lingoes, is
+pretty straightforward. The model, as taken from Lingoes (1968a), is that
+there is a \(\rho>0\) such that \(g_{il}^j=1\) implies \(d(x_i,y_l^j)\leq\rho\)
+and \(g_{il}^j=1\) implies \(d(x_i,y_l^j)\geq\rho\). Geometrically:
+
+\begin{itemize}
+\tightlist
+\item
+  circles with center \(x_i\) and radius \(\rho\) contain all categories
+  object \(i\) scores in, all other category points are outside the circle
+\item
+  circles with center \(y_l^j\) and radius \(\rho\) contain all objects that score in category \(l\) of variable \(j\), all other object points are
+  outside the circle.
+\end{itemize}
+
+Computionally we interpret the \(n\times k_\star\) binary supermatrix
+\((G_1\mid\cdots\mid G_m)\) as a matrix of similarities and apply
+a non-metric MDS technique. The data consist of two tie-blocks,
+the ones and the zeroes, and we use the primary approach to ties.
+Observe there is no row-conditionality here and there is only a single
+radius \(\rho\).
+
+The loss function for MSA-II is simply Kruskal's stress formula one,
+implicitely normalized by the sum of all \(n\times k_\star\)
+distances, with monotone regression replaced by rank images.
+
+This use of rank images, by the way, is somewhat problematic.
+There are \(nm\) smallest distances, corresponding with the
+elements of \(G\) equal to one, and \(n(k_\star-m)\) largest distances.
+But how do we define the rank images within the two tie blocks ?
+Lingoes ranks the distances within the tie blocks from small to large, which seems rather arbitrary.
+
+MSA-III is closer to our smacofHO method.
+
 \section{The smacofHO Loss Function}\label{the-smacofho-loss-function}
 
-The smacofHO technique solves the closely related problem in which we do not require,
-as in homogeneity analysis, that
+The smacofHO technique solves the closely related problem in which we do not require, as in homogeneity analysis, that
 \begin{subequations}
 \begin{equation}
 \sum_{l=1}^{k_j}g^j_{il}\hat d^j_{il}=0
@@ -399,73 +547,63 @@ As in homogeneity analysis we hope that \(k_\star\)
 is not to big, and we avoid generalized inverses of very large and very
 sparse matrices.
 
-\subsection{Nine analyses}\label{nine-analyses}
+\subsection{The Guttman Projection}\label{the-guttman-projection}
 
-There are three options for updating the \(Y_j\).
+After computing the Guttman transforms \(\tilde X_j\) and \(\tilde Y_j\) we have to project them on the set of constrained configurations.
 
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\setcounter{enumi}{-1}
-\tightlist
-\item
-  No further constraints on the \(Y_j\).
-\item
-  The \(Y_j\) have rank one, i.e.~\(Y_j=q_ja_j'\).
-\item
-  The \(Y_j\) are centroids, i.e.~\(Y_j=(G_j'W_jG_j)^{-1}G_j'W_jX\).
-\end{enumerate}
-
-There are two options for updating \(X\). Note that \(X\) is always
-constrained to be the same for all variables, i.e.~\(X_j=X\).
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\setcounter{enumi}{-1}
-\tightlist
-\item
-  No further constraints on \(X\).
-\item
-  \(X\) is normalized by \(\text{tr}\ X'W_\star X=1\).
-\item
-  \(X\) is normalized by \(X'W_\star X=I\).
-\end{enumerate}
-
-Note that the centroid constraint on the \(Y_j\) and the normalization
-constraint on \(X\) are inspired by homogeneity analysis. The rank-one
-constraint on \(Y_j\) is taken from the Gifi system, where it serves
-to make homogeneity analysis into a form of non-linear principal
-component analysis.
-
-There are far more than nine possible analyses. For each of the
-\(m\) variables we can independently choose each of the three options for the
-\(Y_j\) and combine it with one of the three options for \(X\), making a total
-of \(3^{m+1}\) different analyses (in a given dimensionality \(p\)).
-
-\subsection{Categories unconstrained (yform = 0)}\label{categories-unconstrained-yform-0}
-
-Suppose there are no constraints on the \(Y_j\).
-After computing the Guttman transforms \(\tilde X_j\) and \(\tilde Y_j\)\\
-we have to project them on the constrained configurations, in this
-case on the set \(X_j=X\). More explicitly we must minimize
+First suppose the only constraint is \(X_j=X\). We will discuss some additional (optional) constraints in a while. To project we must minimize
 \begin{multline}
 \sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'R_j(X-\tilde X_j)-2\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'W_j(Y_j-\tilde Y_j)+\\
 \sum_{j=1}^m\text{tr}\ (Y_j-\tilde Y_j)'C_j(Y_j-\tilde Y_j)
 \end{multline}
-where \(R_j\) and \(C_j\) are now the diagonal matrices of row and column sums of the
-\(-W_j\).
+where \(R_j\) and \(C_j\) are now the diagonal matrices of row and column sums of the \(W_j\).
 
 The stationary equations are
 \begin{align}
 Y_j&=\tilde Y_j-C_j^{-1}W_j'(X-\tilde X_j),\label{eq:stateq1}\\
 X&=\{R_\star\}^{-1}\sum_{j=1}^m\left\{R_j\tilde X_j-W_j(Y_j-\tilde Y_j)\right\}.\label{eq:stateq2}
 \end{align}
-We solve these equations iteratively using alternating least squares. This
-means using \eqref{eq:stateq1} to compute a new \(Y\) for given \(X\) and \eqref{eq:stateq2} to compute a new \(X\) for given \(Y\). We alternate these two updates until convergence.
+We solve these equations iteratively using alternating least squares.
+This means using \eqref{eq:stateq1} to compute a new \(Y\) for given \(X\) and \eqref{eq:stateq2} to compute a new \(X\) for given \(Y\). We alternate these two updates until convergence.
+
+Thus we have an iterative ``inner'' ALS process within the iterative
+``outer'' ALS process of alternating the Guttman transform/projection and the monotone regressions. More precisely the inner iterations are in the
+projection phase of the Guttman update.
+
+If there are further constraints on \(X\), besides \(X_j=X\), and if there
+are constraints on \(Y_j\) the updates in the projection phase must
+be modified.
+
+\subsubsection{Rank Constraints for Y}\label{rank-constraints-for-y}
+
+If ww choose to do we can require the \(Y_j\) to have rank \(r_j\leq\min(k_j,p)\), i.e.~\(Y_j=Q_jA_j'\)
+with \(Q_j\) a \(k_j\times r_j\) matrix and \(A_j\) a \(p\times r_j\) matrix.
+The rank-constraint on \(Y_j\) is taken from the Gifi system, where it serves to connect homogeneity analysis with forms of non-linear principal
+component analysis.
+
+If \(r=1\) then geometrically having all \(y_l^j\) on a line through the origin implies that all Voronoi boundaries are hyperplanes perpendicular to that line, and consequently all Voronoi regions are bounded by two parallel hyperplanes (parallel lines if \(p=2\)). All objects scores must orthogonally project on the line in the interval corresponding with the category theyscore in. Note that the intervals on the line are actually the one-dimensional Voronoi regions of the line with the category points.
+
+If \(r=2\) and \(p=3\), another case that may be practically relevant, then category points are in a hyperplane through the origin. The Voronoi regions in three-dimensional space are bounded by lines perpendicular to that plane, intersecting the plane at the two-dimensional Voronoi points for that plane. The object points must be in the correct polyhedral cylinder.
+
+For each of the \(m\) variables we can independently choose the ranks \(r_j\) of the \(Y_j\) and combine it with one of the three options for \(X\), creating a large number of different analyses (in a given dimensionality \(p\)).
+
+If there are rank constraints on one of more of the \(Y_j\) then for those \(j\) we have to minimize
+\[
+2\text{tr}\ A_j'\{Y_j'C_j-(X-\tilde X_j)'W_j\}Q_j+
+\text{tr}\ A_j'Q_j'C_jQ_jA_j
+\]
+The stationary equations are
+\[
+\{Y_j'C_j-(X-\tilde X_j)'W_j\}Q_j=Q_j'C_jQ_jA_j,
+\]
+and
+\[
+\{Y_j'C_j-(X-\tilde X_j)'W_j\}'A_j=C_jQ_jA_jA_j'
+\]
 
 \subsubsection{Normalization of X}\label{normalization-of-x}
 
-We can impose the weak normalization constraint \(\text{tr}\ X'R_\star X=1\) or the
-strong normalization constraint \(X'R_\star X=I\). In both cases the stationary
+Besides \(X_j=X\) We can choose to impose the \emph{weak normalization constraint} \(\text{tr}\ X'R_\star X=1\) or the \emph{strong normalization constraint} \(X'R_\star X=I\). In both cases the stationary
 equation \eqref{eq:stateq1} remains the same, while \eqref{eq:stateq1} becomes
 \[
 R_\star X\Lambda=P,
@@ -484,67 +622,6 @@ For strong normalization \(\Lambda\) is symmetric. Using the symmetric square ro
 X=R_\star^{-1}P(P'R_\star^{-1}P)^{-\frac12}.
 \]
 Thus requiring normalized object scores only needs small modifications in the \(X\) update step of the unnormalized update \(R_\star^{-1}P\).
-
-\subsection{Rank Constraints on Y (yform = 1)}\label{rank-constraints-on-y-yform-1}
-
-As in homals it is possible in smacofHO to impose rank-one restrictions on some or all of the \(Y_j\). This means we require
-\[
-y_l^j=\alpha_{l}^jy_l^{\ }{}
-\]
-Geometrically having all \(y_l^j\) on a line through the origin implies that
-all Voronoi boundaries are hyperplanes perpendicular to that line, and consequently all Voronoi regions are bounded by two parallel hyperplanes.
-
-\begin{multline}
-\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'R_j(X-\tilde X_j)-2\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'W_j(y_ja_j'-\tilde Y_j)+\\
-\sum_{j=1}^m\text{tr}\ (y_ja_j'-\tilde Y_j)'C_j(y_ja_j'-\tilde Y_j)
-\end{multline}
-
-\[
--2a_j'\{(X-\tilde X_j)'W_j+\tilde Y_j'C_j\}y_j+a_j'a_jy_j'C_jy_j
-\]
-
-\subsubsection{Normalization}\label{normalization}
-
-\subsection{Centroid Constraints on Y (yform = 2)}\label{centroid-constraints-on-y-yform-2}
-
-If we require that \(Y_j=(G_j'R_jG_j)^{-1}G_j'R_jX\) then this effectively eliminates the \(Y_j\) as variables from the optimization problem and we only have to optimize over \(X\). This makes the projection problem
-quite different from the one with yform = 0 or yform = 1.
-
-Substituting \(Y_j=H_jX\) with \(H_j:=(G_j'R_jG_j)^{-1}G_j'R_j\) in .. and simplifying gives
-the stationary equations \(P_\star X= Q_\star\) with
-\begin{subequations}
-\begin{align}
-P_\star&:=\sum_{j=1}^m\{R_j-H_j'W_j'-W_jH_j+H_j'C_jH_j\},\\
-Q_\star&:=\sum_{j=1}^m\{(R_j-H_j'W_j')\tilde X_j-(W_j-H_j'C_j)\tilde Y_j\}.
-\end{align}
-\end{subequations}
-
-Thus the unnormlaized solution for the object scores is \(X=P^+_\star Q_\star\). But this requires inversion of the matrix \(P_\star\), which has order \(n\). We avoid the inversion by using majorization. Suppose \(\mu\) is such that \(P_\star\lesssim\mu R_\star\) in the Loewner sense. We would typically take \(\mu\) as the
-largest eigenvalue of \(R_\star^{-\frac12}P_\star R_\star^{-\frac12}\).
-
-\[\omega(X)=\text{tr}\ (\overline X+(X-\overline X))'P(\overline X+(X-\overline X))-2\text{tr}\ (\overline X+(X-\overline X))'Q\]
-\[
-\text{tr}\ (X-\tilde X)'P(X-\tilde X)-2\ \text{tr}\ (X-\tilde X)'(Q-P\tilde X)\leq
-\lambda\ \text{tr}\ (X-\tilde X)'R_\star(X-\tilde X)-2\ \text{tr}\ (X-\tilde X)'(Q-P\tilde X)
-\]
-
-\[
-\lambda R_\star(X-\tilde X)=Q-P\tilde X
-\]
-
-\[
-(P_\star-\lambda R_\star)\tilde X-Q=-\lambda R_\star X
-\]
-
-\subsubsection{Normalization}\label{normalization-1}
-
-It is tempting use a normalization based on \(X'P_\star X\) but that would make comparison with
-the results for unconstrained and rank-one \(Y\) more complicated. Thus we continue
-to normalize using \(X'R_\star X\) and use the majorization .. The stationary equations are
-\[
-(P-\lambda R_\star)\tilde X-Q=R_\star X\Lambda
-\]
-which we solve in the usual way for weak and strong normalizations.
 
 \section{Convergence and Degeneracy}\label{convergence-and-degeneracy}
 
@@ -567,7 +644,15 @@ corresponding to the category the object scores in.
 
 \section{Examples}\label{examples}
 
+Since there are so many different analyses that can be done (choosing
+the rank and normalization constraints), and since each analysis leads
+to a large number of plots, presentation of results is a problem. We encourage readers to repeat the analyses we present and study the output
+in more detail.
+
 \subsection{Small}\label{small}
+
+We start we a small artificial example, earlier used for illustrative purposes in Gifi (1990), chapter 2. The data have \(n=10\) objects and
+\(m=3\) variables with 3, 3, 2 categories.
 
 \begin{verbatim}
 ##    first second third
@@ -583,7 +668,22 @@ corresponding to the category the object scores in.
 ## 10     a      p     v
 \end{verbatim}
 
-\includegraphics{smacofHO_files/figure-latex/smallhomals-1.pdf}
+We first give the Voronoi + star joint plots for a homogeneity
+analysis of the data, using the function \texttt{smacofHomogeneityHO()}.
+
+\begin{figure}
+
+{\centering \includegraphics{smacofHO_files/figure-latex/smallhomals-1} 
+
+}
+
+\caption{Small example, Homogeneity Analysis}\label{fig:smallhomals}
+\end{figure}
+
+The solution is Voronoi homogeneous for variables one and three. For
+variable two the star for category \(p\) has objects in the Voronoi
+region of category \(r\), and is consequently not perfectly homogeneous.
+This also shows in the prediction table from this analysis.
 
 \begin{verbatim}
 ##       [,1] [,2] [,3]
@@ -599,25 +699,61 @@ corresponding to the category the object scores in.
 ## [10,]    1    1    1
 \end{verbatim}
 
-\includegraphics{smacofHO_files/figure-latex/small00-1.pdf}
+Note that varable \(p\) is atypical, because eight of the ten objects
+are in category \(p\), while \(q\) and \(r\) only have a single object
+in them.
 
-\begin{verbatim}
-##       [,1] [,2] [,3]
-##  [1,]    1    0    1
-##  [2,]    1    1    1
-##  [3,]    1    1    1
-##  [4,]    1    0    1
-##  [5,]    1    0    1
-##  [6,]    1    1    1
-##  [7,]    1    0    1
-##  [8,]    1    1    1
-##  [9,]    1    1    1
-## [10,]    1    1    1
-\end{verbatim}
-
+We next use the Homogeneity Analysis solution as intial estimate
+for a smacof analysis without normalization or rank constraints.
 Stress is \ensuremath{1.1313536\times 10^{-9}} after 169 iterations.
 
-\begin{center}\includegraphics{smacofHO_files/figure-latex/small10-1} \end{center}
+\begin{figure}
+
+{\centering \includegraphics{smacofHO_files/figure-latex/smallplot00-1} 
+
+}
+
+\caption{Small example, smacofHO unrestricted}\label{fig:smallplot00}
+\end{figure}
+
+As expected, variables one and three, which already has perfect fit, do not change. There is some change in variable two, in the right
+direction, but it is not enough to improve the number of correct
+predictions.
+
+\begin{verbatim}
+##       [,1] [,2] [,3]
+##  [1,]    1    0    1
+##  [2,]    1    1    1
+##  [3,]    1    1    1
+##  [4,]    1    0    1
+##  [5,]    1    0    1
+##  [6,]    1    1    1
+##  [7,]    1    0    1
+##  [8,]    1    1    1
+##  [9,]    1    1    1
+## [10,]    1    1    1
+\end{verbatim}
+
+Finally, for this example, we constrain the \(Y_j\) to be of rank one
+and leave \(X\) unnormalized. Stress is \ensuremath{4.3071361\times 10^{-10}} after 73 iterations.
+
+\begin{figure}
+
+{\centering \includegraphics{smacofHO_files/figure-latex/smallplot10-1} 
+
+}
+
+\caption{Small example, smacofHO rank one}\label{fig:smallplot10}
+\end{figure}
+
+Variable three, which is binary, does not change. The plot for variable two changes for the better. To improve the fit the algorithm moves the
+category points for categories \(p\) and \(r\) very close together. There is
+still one prediction violation in variable two, but
+if the category points of \(p\) and \(r\) coincide they have the same Voronoi
+region and the prediction violation disappears. This may happen if we
+continue iterating. The same is true for the prediction violation in
+variable one, where object five in category \(b\) is very close to the
+boundary between \(a\) and \(b\).
 
 \begin{verbatim}
 ##       [,1] [,2] [,3]
@@ -633,13 +769,254 @@ Stress is \ensuremath{1.1313536\times 10^{-9}} after 169 iterations.
 ## [10,]    1    1    1
 \end{verbatim}
 
-Stress is \ensuremath{4.3071361\times 10^{-10}} after 73 iterations.
+We do note that the constrained version does better than the
+unconstrained version. But this merely means that the constrained
+version finds a better local minimum -- both analyses do not
+find the global minimum, which we know is equal to zero.
 
 \subsection{Cetacea}\label{cetacea}
 
+Our first real example has \(m=15\) variables and \(n=37\) objects. The
+objects are genera of whales, dolphins, and porpoises . The variables are morphological, osteological, and behavioral descriptors,
+all categorical with a small number of categories. They are
+
+\begin{verbatim}
+##                                    [,1]
+## NECK                                  2
+## FORM OF THE HEAD                      6
+## SIZE OF THE HEAD                      2
+## BEAK                                  4
+## DORSAL FIN                            4
+## FLIPPERS                              4
+## SET OF TEETH                          5
+## FEEDING                               4
+## BLOW HOLE                             4
+## COLOR                                 5
+## CERVICAL VERTEBRAE                    2
+## LACRYMAL AND JUGAL BONES              3
+## HABITAT                               5
+## LONGITUDINAL FURROWS ON THE THROAT    3
+## HEAD BONES                            5
+\end{verbatim}
+
+The data matrix has been constructed by Vescia (1985). Chapter 1 of the
+book edited by Marcotorchino, Proth, and Janssen (1985) has the data, and a number of sub-chapters in which different data analysts
+apply various techniques to these data and discuss the results. Among the contenders were Multidimensional Structuple Analysis (Guttman (1985))
+and homals (Van der Burg (1985)).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hcethom }\OtherTok{\textless{}{-}} \FunctionTok{smacofHomogeneityHO}\NormalTok{(cetacea)}
+\NormalTok{hcetho }\OtherTok{\textless{}{-}} \FunctionTok{smacofHO}\NormalTok{(cetacea, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{itmax =} \DecValTok{10000}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Stress is \ensuremath{5.9054624\times 10^{-8}} after 3417 iterations.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{smacofObjectsPlotHO}\NormalTok{(hcethom, }\AttributeTok{cex =}\NormalTok{ .}\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-1-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hcethompre }\OtherTok{\textless{}{-}} \FunctionTok{smacofPredictionTable}\NormalTok{(hcethom)}
+\FunctionTok{print}\NormalTok{(}\FunctionTok{colSums}\NormalTok{(hcethompre, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] 31 17 34 25 28 20 21 17 26  8 31 34 16 18 25
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{smacofObjectsPlotHO}\NormalTok{(hcetho, }\AttributeTok{cex =}\NormalTok{ .}\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-1-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hcethopre }\OtherTok{\textless{}{-}} \FunctionTok{smacofPredictionTable}\NormalTok{(hcetho)}
+\FunctionTok{print}\NormalTok{(}\FunctionTok{colSums}\NormalTok{(hcethopre, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] 33 15 35 33 28 25 28 25 23 36 29 35 16 22 28
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hcetno }\OtherTok{\textless{}{-}} \FunctionTok{smacofHO}\NormalTok{(cetacea, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{xnorm =} \DecValTok{2}\NormalTok{, }\AttributeTok{itmax =} \DecValTok{10000}\NormalTok{)}
+\FunctionTok{smacofObjectsPlotHO}\NormalTok{(hcetno, }\AttributeTok{cex =}\NormalTok{ .}\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-2-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hcetnopre }\OtherTok{\textless{}{-}} \FunctionTok{smacofPredictionTable}\NormalTok{(hcetno)}
+\FunctionTok{print}\NormalTok{(}\FunctionTok{sum}\NormalTok{(hcetnopre, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 404
+\end{verbatim}
+
 \subsection{Senate}\label{senate}
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{data}\NormalTok{(senate, }\AttributeTok{package =} \StringTok{"homals"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hhom }\OtherTok{\textless{}{-}} \FunctionTok{smacofHomogeneityHO}\NormalTok{(senate[, }\DecValTok{2}\SpecialCharTok{:}\DecValTok{21}\NormalTok{])}
+\NormalTok{hho }\OtherTok{\textless{}{-}} \FunctionTok{smacofHO}\NormalTok{(senate[, }\DecValTok{2}\SpecialCharTok{:}\DecValTok{21}\NormalTok{], }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{itmax =} \DecValTok{10000}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Stress is \ensuremath{2.0710178\times 10^{-7}} after 7449 iterations.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{smacofObjectsPlotHO}\NormalTok{(hhom, }\AttributeTok{cex =}\NormalTok{ .}\DecValTok{5}\NormalTok{, }\AttributeTok{labels =} \FunctionTok{as.character}\NormalTok{(senate[, }\DecValTok{1}\NormalTok{]))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-4-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hhompre }\OtherTok{\textless{}{-}} \FunctionTok{smacofPredictionTable}\NormalTok{(hhom)}
+\FunctionTok{print}\NormalTok{(}\FunctionTok{colSums}\NormalTok{(hhompre, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1]  93  95  97  88  89 100  99  97 100  96  98  91  96  85  89  87  89  86  86
+## [20]  85
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{smacofObjectsPlotHO}\NormalTok{(hho, }\AttributeTok{cex =}\NormalTok{ .}\DecValTok{5}\NormalTok{, }\AttributeTok{labels =} \FunctionTok{as.character}\NormalTok{(senate[, }\DecValTok{1}\NormalTok{]))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-4-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hhopre }\OtherTok{\textless{}{-}} \FunctionTok{smacofPredictionTable}\NormalTok{(hho)}
+\FunctionTok{print}\NormalTok{(}\FunctionTok{colSums}\NormalTok{(hhopre, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1]  87  94  91  86  79 100  99  92 100  95  95  90  96  87  80  98  84  79 100
+## [20]  79
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hno }\OtherTok{\textless{}{-}} \FunctionTok{smacofHO}\NormalTok{(senate[, }\DecValTok{2}\SpecialCharTok{:}\DecValTok{21}\NormalTok{], }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{xnorm =} \DecValTok{2}\NormalTok{, }\AttributeTok{itmax =} \DecValTok{10000}\NormalTok{)}
+\FunctionTok{smacofObjectsPlotHO}\NormalTok{(hno, }\AttributeTok{cex =}\NormalTok{ .}\DecValTok{5}\NormalTok{, }\AttributeTok{labels =} \FunctionTok{as.character}\NormalTok{(senate[, }\DecValTok{1}\NormalTok{]))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hnopre }\OtherTok{\textless{}{-}} \FunctionTok{smacofPredictionTable}\NormalTok{(hno)}
+\FunctionTok{print}\NormalTok{(}\FunctionTok{sum}\NormalTok{(hnopre, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1833
+\end{verbatim}
+
 \subsection{GALO}\label{galo}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hgalohom }\OtherTok{\textless{}{-}} \FunctionTok{smacofHomogeneityHO}\NormalTok{(galo[, }\DecValTok{1}\SpecialCharTok{:}\DecValTok{4}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{smacofObjectsPlotHO}\NormalTok{(hgalohom, }\AttributeTok{cex =}\NormalTok{ .}\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hgalohompre }\OtherTok{\textless{}{-}} \FunctionTok{smacofPredictionTable}\NormalTok{(hgalohom)}
+\FunctionTok{print}\NormalTok{(}\FunctionTok{colSums}\NormalTok{(hgalohompre, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 863 828 799 525
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{))}
+\FunctionTok{smacofJointPlotsHO}\NormalTok{(hgalohom, }\AttributeTok{jvar =} \DecValTok{1}\SpecialCharTok{:}\DecValTok{2}\NormalTok{, }\AttributeTok{objects =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{voronoi =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{xcex =}\NormalTok{ .}\DecValTok{5}\NormalTok{, }\AttributeTok{ycex =}\NormalTok{ .}\DecValTok{5}\NormalTok{, }\AttributeTok{clabels =} \DecValTok{0}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-7-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hgaloho }\OtherTok{\textless{}{-}} \FunctionTok{smacofHO}\NormalTok{(galo[, }\DecValTok{1}\SpecialCharTok{:}\DecValTok{4}\NormalTok{], }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{itmax =} \DecValTok{10000}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{smacofObjectsPlotHO}\NormalTok{(hgaloho, }\AttributeTok{cex =}\NormalTok{ .}\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-8-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hgalohopre }\OtherTok{\textless{}{-}} \FunctionTok{smacofPredictionTable}\NormalTok{(hgaloho)}
+\FunctionTok{print}\NormalTok{(}\FunctionTok{colSums}\NormalTok{(hgalohopre, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1290  397  921  385
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow =} \FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{))}
+\FunctionTok{smacofJointPlotsHO}\NormalTok{(hgaloho, }\AttributeTok{objects =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{voronoi =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{xcex =}\NormalTok{ .}\DecValTok{5}\NormalTok{, }\AttributeTok{ycex =}\NormalTok{ .}\DecValTok{5}\NormalTok{, }\AttributeTok{clabels =} \DecValTok{0}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-9-1.pdf}
 
 \section{Generalizations}\label{generalizations}
 
@@ -657,6 +1034,9 @@ Stress is \ensuremath{4.3071361\times 10^{-10}} after 73 iterations.
 
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-busing_10}
+Busing, Frank M. T. A. 2010. {``Advances in Multidimensional Unfolding.''} PhD thesis, Leiden University.
+
 \bibitem[\citeproctext]{ref-deleeuw_C_23}
 De Leeuw, J. 1923. {``Deconstructing Multiple Correspondence Analysis. Essays in Honour of Shizuhiko Nishisato.''} In \emph{Analysis of Categorical Data from Historical Perspectives}, edited by Eric J. Beh, Rosaria Lombardo, and Jose G. Clavel, 383--407. Springer.
 
@@ -678,6 +1058,12 @@ Gifi, A. 1980. \emph{Niet-Lineaire Multivariate Analyse {[}Nonlinear Multivariat
 \bibitem[\citeproctext]{ref-gifi_B_90}
 ---------. 1990. \emph{Nonlinear Multivariate Analysis}. New York, N.Y.: Wiley.
 
+\bibitem[\citeproctext]{ref-guttman_41}
+Guttman, L. 1941. {``{The Quantification of a Class of Attributes: A Theory and Method of Scale Construction}.''} In \emph{The Prediction of Personal Adjustment}, edited by P. Horst, 321--48. New York: Social Science Research Council.
+
+\bibitem[\citeproctext]{ref-guttman_85}
+---------. 1985. {``Multidimensional Structuple Analysis (MSA-i) for the Classification ofCetacea: Whales, Porpoises and Dolphins.''} In \emph{Data Analysis in Real Life Environment: Ins and Outs of Solving Problems}, edited by J.-F. Marcotorchino, J. M. Proth, and J. Janssen. North-Holland.
+
 \bibitem[\citeproctext]{ref-heiser_deleeuw_A_79}
 Heiser, W. J., and J. De Leeuw. 1979. {``Metric Multidimensional Unfolding.''} \emph{Methoden En Data Nieuwsbrief SWS/VVS} 4: 26--50.
 
@@ -687,8 +1073,44 @@ Kruskal, J. B. 1964a. {``{Multidimensional Scaling by Optimizing Goodness of Fit
 \bibitem[\citeproctext]{ref-kruskal_64b}
 ---------. 1964b. {``{Nonmetric Multidimensional Scaling: a Numerical Method}.''} \emph{Psychometrika} 29: 115--29.
 
+\bibitem[\citeproctext]{ref-kruskal_carroll_69}
+Kruskal, J. B., and J. D. Carroll. 1969. {``{Geometrical Models and Badness of Fit Functions}.''} In \emph{Multivariate Analysis, Volume II}, edited by P. R. Krishnaiah, 639--71. North Holland Publishing Company.
+
+\bibitem[\citeproctext]{ref-lingoes_68b}
+Lingoes, J. C. 1968a. {``{The Multivariate Analysis Of Qualitative Data}.''} \emph{Multivariate Behavioral Research} 3 (1): 61--94.
+
+\bibitem[\citeproctext]{ref-lingoes_68a}
+---------. 1968b. {``{The Rationale of the Guttman-Lingoes Nonmetric Series: A Letter to Doctor Philip Runkel}.''} \emph{Multivariate Behavioral Research} 3 (4): 495--507.
+
+\bibitem[\citeproctext]{ref-lingoes_72}
+---------. 1972. {``A General Survey of the Guttman-Lingoes Nonmetric Program Series.''} In \emph{Multidimensional Scaling. Theory and Applications in the Behavioral Siences, Volume i, Theory}, edited by R. N. Shepard, A. K. Romney, and S. B. Nerlove, 52--68. Seminar Press.
+
+\bibitem[\citeproctext]{ref-lingoes_73}
+---------. 1973. \emph{{The Guttman-Lingoes Nonmetric Program Series}}. Mathesis Press.
+
+\bibitem[\citeproctext]{ref-lingoes_79}
+---------. 1979. {``Additional Programs in the Guttman-Lingoes Nonmetric Program Series: An Update.''} In \emph{{Geometric Representations of Relational Data}}, edited by J. C. Lingoes, Roskam E. E., and I. Borg, 283--87. Mathesis Press.
+
+\bibitem[\citeproctext]{ref-marcotorchino_proth_janssen_85}
+Marcotorchino, J.-F., J. M. Proth, and J. Janssen, eds. 1985. \emph{Data Analysis in Real Life Environment: Ins and Outs of Solving Problems}. North-Holland.
+
 \bibitem[\citeproctext]{ref-michailidis_deleeuw_A_98}
 Michailidis, G., and J. De Leeuw. 1998. {``The Gifi System for Descriptive Multivariate Analysis.''} \emph{Statistical Science} 13: 307--36.
+
+\bibitem[\citeproctext]{ref-roskam_68}
+Roskam, E. E. 1968. {``{Metric Analysis of Ordinal Data in Psychology}.''} PhD thesis, University of Leiden.
+
+\bibitem[\citeproctext]{ref-vanderburg_85}
+Van der Burg, E. 1985. {``HOMALS Classification of Whales, Porpoises and Dolphins.''} In \emph{Data Analysis in Real Life Environment: Ins and Outs of Solving Problems}, edited by J.-F. Marcotorchino, J. M. Proth, and J. Janssen. North-Holland.
+
+\bibitem[\citeproctext]{ref-vandeun_05}
+Van Deun, Katrijn. 2005. {``Degeneracies in Multidimensional Scaling.''} PhD thesis, KU Leuven.
+
+\bibitem[\citeproctext]{ref-vescia_85}
+Vescia, G. 1985. {``Descriptive Classification of Cetacea: Whales, Porpoises and Dolphins.''} In \emph{Data Analysis in Real Life Environment: Ins and Outs of Solving Problems}, edited by J.-F. Marcotorchino, J. M. Proth, and J. Janssen, 7--13. North-Holland.
+
+\bibitem[\citeproctext]{ref-zvulun_78}
+Zvulun, Eli. 1978. {``Multidimensional Scalogram Analysis:the Method and Its Application.''} In \emph{Theory Construction and Data Analysis in the Behavioral Sciences}, edited by Samuel Shye, 237--64. Jossey-Bass.
 
 \end{CSLReferences}
 

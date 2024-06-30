@@ -1,7 +1,7 @@
 ---
 title: |
     | Smacof at 50: A Manual
-    | Part 8: Gifi Smacofified
+    | Part 8: Gifi with Rank Constraints Smacofified 
 author: 
 - Jan de Leeuw - University of California Los Angeles
 date: '`r paste("Started April 13 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
@@ -27,7 +27,7 @@ bibliography: ["mypubs.bib","total.bib"]
 abstract: smacofHO
 ---
 ```{r loadpackages, echo = FALSE}
-suppressPackageStartupMessages (library (smacofHO, quietly = TRUE))
+suppressPackageStartupMessages(library(smacofHO, quietly = TRUE))
 ```
 
 ```{r load code, echo = FALSE}
@@ -43,52 +43,78 @@ appreciated, but is not required. The files can be found at
 <https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
 and smacofExamples.
 
+# Introduction: Categorical Data
 
-# Simultaneous Non-Metric Unfolding{#snmu}
+In this chapter we shall analyze categorical data, with the following components.
 
 * There are $m$ *variables*. 
 * Variable $j$ has $k_j>1$ *categories*.
 * There are $n$ *objects*.
 * Each object defines a *partial order* over the categories of each variable.
 
-The simultaneous non-metric unfolding problem is to minimize the stress loss function
+Thus the data are the $n\times m$ partial orders $\lesssim_{ij}$.
+
+We study minimization of the stress *loss function*
 \begin{equation}
 \sigma(X,Y_1,\cdots,Y_m):=\sum_{j=1}^m\sum_{i=1}^n\min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d(x_i,y_l^j))^2
 (\#eq:snmu)
 \end{equation}
-Note that for each object and variable there are different sets of transformations $\Delta_j$
-and for each variable there different matrices of *category scores* $Y_j$, but there is only a single matrix of *object scores* $X$. Also note that index $j$, for variables, is sometimes used as a subscript and sometimes as a superscript, depending on what looks best.
+over the $n\times p$ matrix of *object scores* $X$, the $k_j\times p$
+matrices of *category scores* $Y_j$, and the $n\times k_j$  *transformations* (or *optimal scalings*) $\Delta_j$. 
 
-If the $\Delta_i^j$ contain the zero vector, then the unconstrained minimum of \@ref(eq:snmu) is zero. Collapsing all $x_i$ and all $y_l^j$ into a single point makes all distances zero, and thus makes stress zero. In fact, it is easy to see that a minimum of zero stress is also possible in the situation where the $\Delta_i^j$ contain the set of all constant vectors (or all non-negative constant vectors). Collapse all
-$x_i$ into a single point, and place all $y_l^j$ for variable $j$ on a sphere around this point. There can be different spheres for different variables. This makes all $d(x_i,y_l^j)$ equal and thus makes stress zero. Some constraints on $X$ and/or the $Y_j$ are needed to prevent these trivial solutions.
+The $w_{il}^j$ in \@ref(eq:snmu)
+are non-negative *weights*. Formulas and derivations simplify if the data are *row-weighted*, by which we mean that $w_{il}^j=w_i^j$. They simplify 
+even more if weights are *constant*, i.e. if all non-zero weights
+are equal to one.
 
-In the context of non-metric unfolding ... 
+The transformations in \@ref(eq:snmu)
+are *row-conditional*, in the sense that for each $i$ a vector 
+$\hat d_i^j$ of length $k_j$ is selected from the cone of admissible transformations $\Delta_i^j$. Each row has its own cone. Note that for each variable $j$ there are different matrices of category scores $Y_j$, but there is only a single matrix of object scores $X$. Also note that index $j$, for variables, is sometimes used as a subscript and sometimes as a superscript, depending on what looks best.
+
+We need a few words to discuss the meaning of the word "model" in this
+context, since it is used frequently in data analysis. The
+model corresponding with a loss function is the set of parameter
+values for which loss attains its global minimum (usually zero).
+Thus a model is a system of equations and/or inequalities.
+In the case of loss function \ref(eq:snmu) the model is 
+that the $d(x_,y_{il}^j)$ with $w_{il}^j>0$ satisfy the partial order $\lesssim_{ij}$.
+
+$$
+w_{il}^jw_{i\nu}^j\epsilon^j_{il\nu}(d^j_{il}(X,Y)-d^j_{i\nu}(X,Y))\geq 0
+$$
+$$
+w_{il}^jw_{i\nu}^j\epsilon^j_{il\nu}(-2x_{i}'(y^j_l-y^j_\nu)+\|y^j_l\|^2-\|y^j_\nu\|^2)\geq 0
+$$
+If the cones $\Delta_i^j$ contain the zero vector, then the global minimum of \@ref(eq:snmu) is clearly equal to zero. Collapsing all $x_i$ and all $y_l^j$ into a single point makes all distances zero, and thus makes stress zero. There is also zero stress if we collapse all $x_i$ into
+one point and all $y_l^j$ into another points. There are more subtle
+trivial solutions, however.
+Suppose the cones $\Delta_i^j$ contain the set of all constant vectors (or all non-negative constant vectors). Collapse all $x_i$ into a single point, and place all $y_l^j$ for variable $j$ on a sphere around this point. There can be different radii for different variables. This makes all $d(x_i,y_l^j)$ equal to the radius of the sphere and thus makes stress zero. 
+
+It follows that we cannot define the purpose of our algorithms as finding the minimum of \@ref(eq:snmu) over all $X$ and $Y_j$. Some constraints on the optimization problems are needed to prevent these trivial or degenerate solutions.
+
+In the context of non-metric unfolding there has been much work
+on avoiding trivial and degenerate solutions. This started as soon as
+Kruskal-Guttman-type iterative MDS techniques using data transformation became available. Early contributions were @roskam_68 and @kruskal_carroll_69. For valuable summaries of more recent work, mostly by Willem Heiser and his students, we refer to the dissertations of @vandeun_05 and @busing_10.
 
 # Homogeneity Analysis{#hom}
 
-The Gifi System (@gifi_B_90, @michailidis_deleeuw_A_98, @deleeuw_mair_A_09a) implements non-linear or non-metric versions of the classical linear multivariate analysis techniques (regression, analysis of variance, canonical analysis, discriminant analysis, principal component analysis). The non-linear versions are introduced as special cases of *Homogeneity Analysis*, which is better known under the name  *Multiple Correspondence Analysis*.
+The *Gifi System* (@gifi_B_90, @michailidis_deleeuw_A_98, @deleeuw_mair_A_09a) implements non-linear or non-metric versions of the classical linear multivariate analysis techniques (regression, analysis of variance, canonical analysis, discriminant analysis, principal component analysis). The non-linear versions are introduced as special cases of *Homogeneity Analysis*, which is better known as *Multiple Correspondence Analysis*.
 
 In this section we present homogeneity analysis as a technique for
-minimizing the loss function \@ref(eq:snmu) when the data are $n\times k_j$ *indicator matrices* $G_j$, with $j=1,\cdots,M$. This is a non-standard
-presentation, because usually homogeneity analysis is related to
-principal component analysis, and not to multidimensional scaling
+minimizing the loss function \@ref(eq:snmu) when the data are $n\times k_j$ *indicator matrices* $G_j$, with $j=1,\cdots,M$. This is a non-standard presentation, because usually homogeneity analysis is related to principal component analysis, and not to multidimensional scaling
 (see, for example, @deleeuw_C_14 or @deleeuw_C_23).
+
+In homogeneity analysis the data are (or are coded as) $m$ *indicator matrices* $G_j$, where $G_j$ is $n\times k_j$.
 Indicator matrices are binary matrices, with rows that add up to one or to zero. 
-Thus each row has either a single elements equal to one and the rest zeroes,
-or all elements equal to zero. Indicator matrices are
-used to code categorical variables. Rows corresponds with objects
+Thus each row has either a single element equal to one and the rest zeroes, or it has all elements equal to zero. Indicator matrices are
+used to code our categorical variables. Rows corresponds with objects
 (or individuals), columns with the categories (or levels) of a variable.
-Element $g_{il}^j$ is one if object $i$ is in category $l$ of variable $j$,
-and all other elements in row $i$ are zero. If an object is *missing* on
-variable $j$ then the whole row is zero.
+Element $g_{il}^j$ is one if object $i$ is in category $l$ of variable $j$, and all other elements in row $i$ are zero. If an object is *missing* on variable $j$ then the whole row is zero.
 
 Homogeneity analysis makes joint maps in $p$ dimensions of objects
 and categories, both represented as points. A joint map for variable $j$
 has $n$ object points $x_i$ and $k_j$ category points $y^j_{il}$.
-In a homogeneous solution the object points are close to the points of the categories that the objects score in, i.e, to those $y^j_{il}$ for which $g^j_{il}=1$.
-If there is only one variable then it is trivial to make a perfectly 
-homogeneous map. We just make sure the object points coincide with
-their category points. But there are $j>1$ indicator matrices, corresponding with $m$ categorical variables, and there is only a single set of object scores. The solution is a compromise trying to achieve as much homogeneity as possible for all variables simultaneously.
+In a homogeneous solution the object points are close to the points of the categories that the objects score in, i.e, to those $y^j_{il}$ for which $g^j_{il}=1$. If there is only one variable then it is trivial to make a perfectly homogeneous map. We just make sure the object points coincide with their category points. But there are $j>1$ indicator matrices, corresponding with $m$ categorical variables, and there is only a single set of object scores. The solution is a compromise trying to achieve as much homogeneity as possible for all variables simultaneously.
 
 In loss function \@ref(eq:snmu) applied to homogeneity analysis
 the sets $\Delta_i^j$ are defined in such a way that $\hat d_{il}^j$ is zero if $i$ is in category $l$ of 
@@ -158,15 +184,95 @@ in \@ref(eq:homsvd2) we obtain generalized eigenvalue equations for $Y$.
 If $k_\star$, the sum of the $k_j$, is not too large then finding the $p$ largest non-trivial eigenvalues with corresponding eigenvectors from \@ref(eq:geneigy) may be computationally efficient. The largest "trivial" eigenvalue is always equal to one, no matter what the $G_j$ and $W_j$ are, and we can safely ignore it. The trivial solution with all distances equal to zero mentioned in section \@ref(snmu) corresponds with this largest eigenvalue.
 
 Homogeneity analysis can be most convincingly introduced using the concept of a *star plot*. For variable $j$ we plot $k_j$ category points and $n$ object
-points in a single joint plot. We then draw a line from each category point to the object points of the objects in that category. This creates $k_j$ groups of
+points in a single joint plot. We then draw a line from each category point to the points of the objects in that category. This creates $k_j$ groups of
 lines and points in $\mathbb{R}^p$, and each of these groups is called a *star*.
 The sum of squares of the line lengths of a star is the loss of homogeneity for category $l$ of variable $j$, and the total sum of squares of all line lengths in the $k_j$ stars is the loss \@ref(eq:matsnmu) for variable $j$. Homogeneity analysis chooses $X$ and the $Y_j$ such that $X$ is normalized by $X'F_\star X=I$ and the stars are as small or as compact as possible, measured by the squared line lengths. For given $X$ the stars are as small as possible by choosing the category points $Y_j$ as the centroids of the object points in the category, as in equation
-\@ref(eq:homsvd2). That explains the use of the word "star", because now the stars really look like stars. In graph theory a star is a tree with one internal node (the category point) and $k$ leaves (the object points). Thus, given the optimum choice of the $Y_j$ as centroids, we can also say that homogeneity analysis quantifies the $n$ objects in such a way that the resulting stars are as small as possible. 
+\@ref(eq:homsvd2). That explains the use of the word "star", because now the stars really look like stars. In graph theory a star is a tree with one internal node (the category point) and $k$ leaves (the object points). Thus, given the optimum choice of the $Y_j$ as centroids, we can also say that homogeneity analysis quantifies the $n$ objects in such a way that the resulting stars are as small as possible.
+
+# Multidimensional Structuple Analysis MSA
+
+The Guttman-Lingoes series of programs (@lingoes_73)
+discusses, among many others, several techniques for analyzing
+a number of indicator matrices. They have the acronyms
+MSA-I, MSA-II, MSA-III, and MSA-IV, where MSA is short for
+either Multidimensional Scalogram Analysis or Multidimensional
+Structuple Analysis. Unfortunately the techniques are rather
+poorly documented in the mainstream literature. I rely on @lingoes_68a,
+@lingoes_68b, @lingoes_72, @lingoes_79, and the various
+short program descriptions Lingoes published in Behavioural Science.
+Unfortunately I currently have no access to @lingoes_73.
+
+All MSA programs start their iterations with MAC-II. MAC stands for
+Multivariate Analysis of Contingencies, and the technique implements
+the equations from @guttman_41. In other words, MAC is homogeneity
+analysis or multiple correspondence analysis. Thus the MSA
+programs have the same starting configuration as our smacof
+programs for categorical data.
+
+The publications on  MSA do not pay much attention to the existence
+of trivial solutions and to the speed of convergence of the
+iterations. 
+
+## MSA-I
+
+The most interesting member of the MSA sequence is MSA-I.
+
+>The logic of MSA-I was worked out by Guttman as a creative reaction to a number of objections to other proposed solutions for multidimensional scalogram analysis raised by members of his course on multidimensional analysis during his visit to The University of Michigan (1964-1965). 
+Some of the computational details and the programming of the technique were done by the author. (@lingoes_68b, p. 76)
+
+The most complete description of MSA-I is probably @zvulun_78. There
+are also some computational details in @lingoes_68b. So what is this
+MSA-I model ?
+
+Partition the object points corresponding to any category A into inner and outer points. Take any point not in A and find the closest point in A to that point. Such a closest point is called an *outer point* of category A. Go through all points not in A to find all outer points of A. The points of A that are not outer points of A are *inner points* of A. 
+Category A is *contiguous* if each inner point of A is closer to an outer point of A than to any other outer point. Since the closest point in B to an inner point of A is by definition an outer point of B we have also contiguity if and only if each inner point of A is closer to some outer point of A than to any point outside A.
+
+In MSA-I there are no category points, only object points. This makes
+comparison with the partitioning by Voronoi regions complicated. In
+the same way there is no obvious connection with the convex hulls of
+the object points in a category. Separations and partitions can be quite
+irregular and in the various small examples I have seen are mostly
+done after the fact by hand.
+
+The algorithm to optimize contiguity is described in @lingoes_68. I will
+try to reconstruct it.
+
+## MSA-II
+
+Unlike MSA-I, MSA-II, which seems to be mostly due to Lingoes, is
+pretty straightforward. The model, as taken from @lingoes_68b, is that
+there is a $\rho>0$ such that $g_{il}^j=1$ implies $d(x_i,y_l^j)\leq\rho$
+and $g_{il}^j=1$ implies $d(x_i,y_l^j)\geq\rho$. Geometrically: 
+
+* circles with center $x_i$ and radius $\rho$ contain all categories
+object $i$ scores in, all other category points are outside the circle
+* circles with center $y_l^j$ and radius $\rho$ contain all objects that score in category $l$ of variable $j$, all other object points are
+outside the circle.
+
+Computionally we interpret the $n\times k_\star$ binary supermatrix 
+$(G_1\mid\cdots\mid G_m)$ as a matrix of similarities and apply
+a non-metric MDS technique. The data consist of two tie-blocks,
+the ones and the zeroes, and we use the primary approach to ties.
+Observe there is no row-conditionality here and there is only a single
+radius $\rho$.
+
+The loss function for MSA-II is simply Kruskal's stress formula one,
+implicitely normalized by the sum of all $n\times k_\star$
+distances, with monotone regression replaced by rank images.
+
+This use of rank images, by the way, is somewhat problematic.
+There are $nm$ smallest distances, corresponding with the
+elements of $G$ equal to one, and $n(k_\star-m)$ largest distances.
+But how do we define the rank images within the two tie blocks ?
+Lingoes ranks the distances within the tie blocks from small to large, which seems rather arbitrary. 
+
+## MSA-III
+
+MSA-III is closer to our smacofHO method. 
 
 # The smacofHO Loss Function
 
-The smacofHO technique solves the closely related problem in which we do not require,
-as in homogeneity analysis, that 
+The smacofHO technique solves the closely related problem in which we do not require, as in homogeneity analysis, that 
 \begin{subequations}
 \begin{equation}
 \sum_{l=1}^{k_j}g^j_{il}\hat d^j_{il}=0
@@ -185,7 +291,6 @@ they do not score in.
 This can be formalized using the notion of *Voronoi regions*. The Voronoi region of
 category $l$ of variable $j$ is the polyhedral convex set of all points of $\mathbb{R}^p$ closer to category $l$ than to any other category of variable $j$. The plot of the the $k_j$ categories of variable $j$ defines $k_j$ Voronoi regions that
 partition $\mathbb{R}^p$. For a wealth of information about Voronoi regions we refer to
-
 
 Loss function ... with $\Delta$ defined by ... vanishes if for each variable all $x_i$ are in the Voronoi regions of the categories they score in. This condition implies, by the way, that the interiors of the $k_j$ convex hulls of the $x_i$ in a given category are disjoint, and the point clouds can consequently be weakly separated by hyperplanes. Since the category points themselves are in their own Voronoi region the convex hulls of the stars are also disjoint.
 
@@ -263,57 +368,64 @@ is not to big, and we avoid generalized inverses of very large and very
 sparse matrices.
 
 
-## Nine analyses
+## The Guttman Projection
 
-There are three options for updating the $Y_j$. 
+After computing the Guttman transforms $\tilde X_j$ and $\tilde Y_j$ we have to project them on the set of constrained configurations. 
 
-0. No further constraints on the $Y_j$.
-1. The $Y_j$ have rank one, i.e. $Y_j=q_ja_j'$.
-2. The $Y_j$ are centroids, i.e. $Y_j=(G_j'W_jG_j)^{-1}G_j'W_jX$.
-
-There are two options for updating $X$. Note that $X$ is always
-constrained to be the same for all variables, i.e. $X_j=X$.
-
-0. No further constraints on $X$.
-1. $X$ is normalized by $\text{tr}\ X'W_\star X=1$.
-2. $X$ is normalized by $X'W_\star X=I$.
-
-Note that the centroid constraint on the $Y_j$ and the normalization
-constraint on $X$ are inspired by homogeneity analysis. The rank-one
-constraint on $Y_j$ is taken from the Gifi system, where it serves
-to make homogeneity analysis into a form of non-linear principal
-component analysis. 
-
-There are far more than nine possible analyses. For each of the
-$m$ variables we can independently choose each of the three options for the
-$Y_j$ and combine it with one of the three options for $X$, making a total
-of $3^{m+1}$ different analyses (in a given dimensionality $p$).
-
-## Categories unconstrained (yform = 0)
-
-Suppose there are no constraints on the $Y_j$. 
-After computing the Guttman transforms $\tilde X_j$ and $\tilde Y_j$  
-we have to project them on the constrained configurations, in this
-case on the set $X_j=X$. More explicitly we must minimize
+First suppose the only constraint is $X_j=X$. We will discuss some additional (optional) constraints in a while. To project we must minimize
 \begin{multline}
 \sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'R_j(X-\tilde X_j)-2\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'W_j(Y_j-\tilde Y_j)+\\
 \sum_{j=1}^m\text{tr}\ (Y_j-\tilde Y_j)'C_j(Y_j-\tilde Y_j)
 \end{multline}
-where $R_j$ and $C_j$ are now the diagonal matrices of row and column sums of the
-$-W_j$.
+where $R_j$ and $C_j$ are now the diagonal matrices of row and column sums of the $W_j$.
 
 The stationary equations are
 \begin{align}
 Y_j&=\tilde Y_j-C_j^{-1}W_j'(X-\tilde X_j),(\#eq:stateq1)\\
 X&=\{R_\star\}^{-1}\sum_{j=1}^m\left\{R_j\tilde X_j-W_j(Y_j-\tilde Y_j)\right\}.(\#eq:stateq2)
 \end{align}
-We solve these equations iteratively using alternating least squares. This 
-means using \@ref(eq:stateq1) to compute a new $Y$ for given $X$ and \@ref(eq:stateq2) to compute a new $X$ for given $Y$. We alternate these two updates until convergence.
+We solve these equations iteratively using alternating least squares.
+This means using \@ref(eq:stateq1) to compute a new $Y$ for given $X$ and \@ref(eq:stateq2) to compute a new $X$ for given $Y$. We alternate these two updates until convergence.
+
+Thus we have an iterative "inner" ALS process within the iterative
+"outer" ALS process of alternating the Guttman transform/projection and the monotone regressions. More precisely the inner iterations are in the
+projection phase of the Guttman update.
+
+If there are further constraints on $X$, besides $X_j=X$, and if there
+are constraints on $Y_j$ the updates in the projection phase must
+be modified. 
+
+### Rank Constraints for Y
+
+If ww choose to do we can require the $Y_j$ to have rank $r_j\leq\min(k_j,p)$, i.e. $Y_j=Q_jA_j'$
+with $Q_j$ a $k_j\times r_j$ matrix and $A_j$ a $p\times r_j$ matrix.
+The rank-constraint on $Y_j$ is taken from the Gifi system, where it serves to connect homogeneity analysis with forms of non-linear principal
+component analysis. 
+
+If $r=1$ then geometrically having all $y_l^j$ on a line through the origin implies that all Voronoi boundaries are hyperplanes perpendicular to that line, and consequently all Voronoi regions are bounded by two parallel hyperplanes (parallel lines if $p=2$). All objects scores must orthogonally project on the line in the interval corresponding with the category theyscore in. Note that the intervals on the line are actually the one-dimensional Voronoi regions of the line with the category points.
+
+If $r=2$ and $p=3$, another case that may be practically relevant, then category points are in a hyperplane through the origin. The Voronoi regions in three-dimensional space are bounded by lines perpendicular to that plane, intersecting the plane at the two-dimensional Voronoi points for that plane. The object points must be in the correct polyhedral cylinder.
+
+For each of the $m$ variables we can independently choose the ranks $r_j$ of the $Y_j$ and combine it with one of the three options for $X$, creating a large number of different analyses (in a given dimensionality $p$).
+
+If there are rank constraints on one of more of the $Y_j$ then for those $j$ we have to minimize
+$$
+2\text{tr}\ A_j'\{Y_j'C_j-(X-\tilde X_j)'W_j\}Q_j+
+\text{tr}\ A_j'Q_j'C_jQ_jA_j
+$$
+The stationary equations are
+$$
+\{Y_j'C_j-(X-\tilde X_j)'W_j\}Q_j=Q_j'C_jQ_jA_j,
+$$
+and 
+$$
+\{Y_j'C_j-(X-\tilde X_j)'W_j\}'A_j=C_jQ_jA_jA_j'
+$$
+
 
 ### Normalization of X
 
-We can impose the weak normalization constraint $\text{tr}\ X'R_\star X=1$ or the
-strong normalization constraint $X'R_\star X=I$. In both cases the stationary
+Besides $X_j=X$ We can choose to impose the *weak normalization constraint* $\text{tr}\ X'R_\star X=1$ or the *strong normalization constraint* $X'R_\star X=I$. In both cases the stationary
 equation \@ref(eq:stateq1) remains the same, while \@ref(eq:stateq1) becomes
 $$
 R_\star X\Lambda=P,
@@ -332,70 +444,6 @@ $$
 X=R_\star^{-1}P(P'R_\star^{-1}P)^{-\frac12}.
 $$
 Thus requiring normalized object scores only needs small modifications in the $X$ update step of the unnormalized update $R_\star^{-1}P$.
-
-## Rank Constraints on Y (yform = 1)
-
-As in homals it is possible in smacofHO to impose rank-one restrictions on some or all of the $Y_j$. This means we require
-$$
-y_l^j=\alpha_{l}^jy_l^{\ }{}
-$$
-Geometrically having all $y_l^j$ on a line through the origin implies that
-all Voronoi boundaries are hyperplanes perpendicular to that line, and consequently all Voronoi regions are bounded by two parallel hyperplanes.
-
-\begin{multline}
-\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'R_j(X-\tilde X_j)-2\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'W_j(y_ja_j'-\tilde Y_j)+\\
-\sum_{j=1}^m\text{tr}\ (y_ja_j'-\tilde Y_j)'C_j(y_ja_j'-\tilde Y_j)
-\end{multline}
-
-$$
--2a_j'\{(X-\tilde X_j)'W_j+\tilde Y_j'C_j\}y_j+a_j'a_jy_j'C_jy_j
-$$
-
-### Normalization
-
-
-## Centroid Constraints on Y (yform = 2)
-
-If we require that $Y_j=(G_j'R_jG_j)^{-1}G_j'R_jX$ then this effectively eliminates the $Y_j$ as variables from the optimization problem and we only have to optimize over $X$. This makes the projection  problem
-quite different from the one with yform = 0 or yform = 1.
-
-Substituting $Y_j=H_jX$ with $H_j:=(G_j'R_jG_j)^{-1}G_j'R_j$ in .. and simplifying gives
-the stationary equations $P_\star X= Q_\star$ with
-\begin{subequations}
-\begin{align}
-P_\star&:=\sum_{j=1}^m\{R_j-H_j'W_j'-W_jH_j+H_j'C_jH_j\},\\
-Q_\star&:=\sum_{j=1}^m\{(R_j-H_j'W_j')\tilde X_j-(W_j-H_j'C_j)\tilde Y_j\}.
-\end{align}
-\end{subequations}
-
-Thus the unnormlaized solution for the object scores is $X=P^+_\star Q_\star$. But this requires inversion of the matrix $P_\star$, which has order $n$. We avoid the inversion by using majorization. Suppose $\mu$ is such that $P_\star\lesssim\mu R_\star$ in  the Loewner sense. We would typically take $\mu$ as the
-largest eigenvalue of $R_\star^{-\frac12}P_\star R_\star^{-\frac12}$.
-
-$$\omega(X)=\text{tr}\ (\overline X+(X-\overline X))'P(\overline X+(X-\overline X))-2\text{tr}\ (\overline X+(X-\overline X))'Q$$
-$$
-\text{tr}\ (X-\tilde X)'P(X-\tilde X)-2\ \text{tr}\ (X-\tilde X)'(Q-P\tilde X)\leq
-\lambda\ \text{tr}\ (X-\tilde X)'R_\star(X-\tilde X)-2\ \text{tr}\ (X-\tilde X)'(Q-P\tilde X)
-$$
-
-$$
-\lambda R_\star(X-\tilde X)=Q-P\tilde X
-$$
-
-$$
-(P_\star-\lambda R_\star)\tilde X-Q=-\lambda R_\star X
-$$
-
-
-### Normalization
-
-It is tempting use a normalization based on $X'P_\star X$ but that would make comparison with
-the results for unconstrained and rank-one $Y$ more complicated. Thus we continue
-to normalize using $X'R_\star X$ and use the majorization .. The stationary equations are
-$$
-(P-\lambda R_\star)\tilde X-Q=R_\star X\Lambda
-$$
-which we solve in the usual way for weak and strong normalizations.
-
 
 # Convergence and Degeneracy
 
@@ -418,7 +466,15 @@ corresponding to the category the object scores in.
 
 # Examples
 
+Since there are so many different analyses that can be done (choosing
+the rank and normalization constraints), and since each analysis leads
+to a large number of plots, presentation of results is a problem. We encourage readers to repeat the analyses we present and study the output
+in more detail.
+
 ## Small
+
+We start we a small artificial example, earlier used for illustrative purposes in @gifi_B_90, chapter 2. The data have $n=10$ objects and 
+$m=3$ variables with `r c(3,3,2)` categories.
 
 ```{r smalldata, echo = FALSE}
 small <-
@@ -429,34 +485,226 @@ structure(list(first = c("a", "b", "a", "a", "b", "c", "a", "a",
 "04", "05", "06", "07", "08", "09", "10"))
 small
 ```
-```{r smallhomals, echo = FALSE}
+We first give the Voronoi + star joint plots for a homogeneity
+analysis of the data, using the function `smacofHomogeneityHO()`.
+
+```{r smallhomals, echo = FALSE, fig.align = "center", fig.cap = "Small example, Homogeneity Analysis"}
 par(mfrow = c(1, 3))
 h0 <- smacofHomogeneityHO(small)
 smacofJointPlotsHO(h0, objects = TRUE, stars = TRUE, voronoi = TRUE, xlabels = 3)
+```
+The solution is Voronoi homogeneous for variables one and three. For
+variable two the star for category $p$ has objects in the Voronoi
+region of category $r$, and is consequently not perfectly homogeneous.
+This also shows in the prediction table from this analysis.
+```{r smallhompred, echo = FALSE}
 smacofPredictionTable(h0)
 ```
+Note that varable $p$ is atypical, because eight of the ten objects
+are in category $p$, while $q$ and $r$ only have a single object
+in them.
 
-```{r small00, echo = FALSE}
-par(mfrow = c(1, 3))
+
+```{r smallanalysis00, echo = FALSE}
 h00 <- smacofHO(small, verbose = FALSE, eps = 1e-10)
-smacofJointPlotsHO(h00, objects = TRUE, stars = TRUE, voronoi = TRUE, xlabels = 3)
-smacofPredictionTable(h00)
 ```
+We next use the Homogeneity Analysis solution as intial estimate
+for a smacof analysis without normalization or rank constraints.
 Stress is `r h00$stress` after `r h00$itel` iterations.
 
-```{r small10, echo = FALSE, fig.align = "center"}
+```{r smallplot00, echo = FALSE, fig.align = "center", fig.cap = "Small example, smacofHO unrestricted"}
 par(mfrow = c(1, 3))
+smacofJointPlotsHO(h00, objects = TRUE, stars = TRUE, voronoi = TRUE, xlabels = 3)
+```
+As expected, variables one and three, which already has perfect fit, do not change. There is some change in variable two, in the right
+direction, but it is not enough to improve the number of correct
+predictions.
+
+```{r smallpred00, echo = FALSE}
+smacofPredictionTable(h00)
+```
+
+```{r smallanalysis10, echo = FALSE}
 h10 <- smacofHO(small, verbose = FALSE, yform = 1, eps = 1e-10)
+```
+Finally, for this example, we constrain the $Y_j$ to be of rank one
+and leave $X$ unnormalized. Stress is `r h10$stress` after `r h10$itel` iterations.
+
+```{r smallplot10, echo = FALSE, fig.align = "center", fig.cap = "Small example, smacofHO rank one"}
+par(mfrow = c(1, 3))
 smacofJointPlotsHO(h10, objects = TRUE, stars = TRUE, voronoi = TRUE, xlabels = 3)
+```
+Variable three, which is binary, does not change. The plot for variable two changes for the better. To improve the fit the algorithm moves the
+category points for categories $p$ and $r$ very close together. There is
+still one prediction violation in variable two, but
+if the category points of $p$ and $r$ coincide they have the same Voronoi
+region and the prediction violation disappears. This may happen if we
+continue iterating. The same is true for the prediction violation in
+variable one, where object five in category $b$ is very close to the
+boundary between $a$ and $b$.
+
+```{r smacofpred10, echo = FALSE}
 smacofPredictionTable(h10)
 ```
-Stress is `r h10$stress` after `r h10$itel` iterations.
+
+We do note that the constrained version does better than the 
+unconstrained version. But this merely means that the constrained
+version finds a better local minimum -- both analyses do not
+find the global minimum, which we know is equal to zero.
 
 ## Cetacea
 
+```{r cetaceadata, echo = FALSE}
+cetacea <-
+structure(list(NECK = c(0L, 0L, 0L, 1L, 0L, 1L, 0L, 0L, 0L, 0L, 
+0L, 1L, 1L, 0L, 0L, 1L, 0L, 0L, 1L, 1L, 0L, 0L, 1L, 0L, 0L, 0L, 
+1L, 0L, 0L, 0L, 0L, 0L, 1L, 0L, 0L, 0L), `FORM OF THE HEAD` = c(5L, 
+4L, 4L, 2L, 1L, 3L, 2L, 1L, 5L, 3L, 3L, 2L, 2L, 0L, 2L, 2L, 1L, 
+4L, 1L, 3L, 1L, 1L, 3L, 3L, 1L, 0L, 2L, 3L, 2L, 2L, 2L, 1L, 2L, 
+3L, 2L, 1L), `SIZE OF THE HEAD` = c(0L, 0L, 0L, 1L, 1L, 1L, 1L, 
+0L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 0L, 1L, 1L, 0L, 1L, 1L, 
+1L, 1L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L), BEAK = c(0L, 
+0L, 0L, 2L, 1L, 0L, 2L, 0L, 0L, 0L, 0L, 2L, 3L, 0L, 2L, 3L, 1L, 
+0L, 2L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 3L, 0L, 2L, 2L, 2L, 2L, 3L, 
+2L, 2L, 2L), `DORSAL FIN` = c(0L, 3L, 3L, 2L, 2L, 0L, 2L, 0L, 
+0L, 2L, 2L, 2L, 1L, 1L, 2L, 1L, 0L, 3L, 2L, 0L, 3L, 0L, 2L, 2L, 
+1L, 0L, 1L, 2L, 2L, 2L, 2L, 2L, 1L, 2L, 2L, 2L), FLIPPERS = c(1L, 
+0L, 3L, 0L, 2L, 1L, 2L, 3L, 1L, 3L, 3L, 0L, 1L, 0L, 2L, 1L, 2L, 
+3L, 0L, 1L, 0L, 0L, 0L, 1L, 0L, 0L, 1L, 3L, 2L, 2L, 2L, 2L, 1L, 
+0L, 2L, 0L), `SET OF TEETH` = c(2L, 4L, 4L, 0L, 1L, 1L, 1L, 3L, 
+2L, 1L, 0L, 0L, 1L, 0L, 1L, 1L, 1L, 4L, 0L, 0L, 2L, 1L, 1L, 1L, 
+1L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 0L), FEEDING = c(3L, 
+3L, 3L, 0L, 0L, 1L, 1L, 3L, 3L, 0L, 0L, 0L, 1L, 0L, 1L, 1L, 1L, 
+3L, 0L, 0L, 3L, 1L, 1L, 2L, 1L, 0L, 1L, 0L, 1L, 1L, 1L, 1L, 1L, 
+0L, 1L, 0L), `BLOW HOLE` = c(3L, 3L, 3L, 2L, 1L, 1L, 1L, 3L, 
+3L, 1L, 1L, 2L, 2L, 0L, 1L, 0L, 1L, 3L, 2L, 1L, 3L, 1L, 1L, 1L, 
+1L, 0L, 2L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 1L, 2L), COLOR = c(4L, 
+0L, 3L, 0L, 4L, 2L, 0L, 3L, 1L, 3L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 
+3L, 0L, 3L, 0L, 3L, 1L, 3L, 0L, 0L, 1L, 1L, 2L, 0L, 3L, 0L, 1L, 
+0L, 0L, 3L), `CERVICAL VERTEBRAE` = c(1L, 0L, 0L, 1L, 1L, 0L, 
+1L, 0L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 0L, 1L, 0L, 1L, 0L, 1L, 1L, 
+1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L, 1L, 1L, 0L, 1L, 1L, 1L), `LACRYMAL AND JUGAL BONES` = c(-1L, 
+-1L, -1L, 1L, 1L, 1L, 1L, -1L, -1L, 1L, 1L, 1L, 0L, -1L, 1L, 
+0L, 1L, -1L, 1L, 1L, -1L, 1L, 1L, 1L, 1L, 0L, 0L, 1L, 1L, 1L, 
+1L, 1L, 0L, 1L, 1L, 1L), HABITAT = c(2L, 4L, 4L, 2L, 2L, 2L, 
+1L, 4L, 2L, 1L, 4L, 4L, 0L, 4L, 2L, 0L, 1L, 4L, 4L, 2L, 2L, 4L, 
+3L, 2L, 4L, 1L, 0L, 4L, 3L, 3L, 4L, 1L, 0L, 2L, 4L, 4L), `LONGITUDINAL FURROWS ON THE THROAT` = c(0L, 
+2L, 2L, 1L, 0L, 0L, 0L, 1L, 0L, 0L, 0L, 1L, 0L, 0L, 0L, 0L, 0L, 
+2L, 1L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 
+1L, 0L, 1L), `HEAD BONES` = c(0L, 0L, 0L, 2L, 1L, 2L, 1L, 0L, 
+0L, 1L, 1L, 2L, -1L, 3L, 1L, -1L, 1L, 0L, 2L, 2L, 0L, 1L, 1L, 
+1L, 1L, 3L, 1L, 1L, 1L, 1L, 1L, 1L, -1L, 2L, 1L, 2L)), class = "data.frame", row.names = c("Bowhead whales", 
+"Rorquals", "Blue whale", "Giant bottle-nosed whales", "Commerson's Dolphins", 
+"White whales", "Common dolphins", "Grey whales", "Right whales", 
+"Pilot whales", "Risso's dolphins", "Bottle-nosed whales", "Amazon dolphins", 
+"Pygmy sperm whales", "White-sided dolphins", "Chinese river dolphins", 
+"Right whale dolphins", "Humpback whales", "Sowerby's whales", 
+"Narwhals", "Pygmy right whales", "Finless black porpoises", 
+"Irawady dolphins", "Killer whales", "Common porpoises", "Sperm whales", 
+"Gangetic dolphins", "False killer whales", "Guyanian river dolphins", 
+"Cameroun's dolphins", "Spotted dolphins", "Rough toothed dolphins", 
+"La Plata's dolphins", "Shepherd's beaked whales", "Bottle-nosed dolphins", 
+"Goosebeak whales"))
+```
+
+Our first real example has $m=15$ variables and $n=37$ objects. The
+objects are genera of whales, dolphins, and porpoises . The variables are morphological, osteological, and behavioral descriptors,
+all categorical with a small number of categories. They are
+```{r cetaceancat, echo = FALSE}
+matrix(apply(cetacea, 2, function(x) length(unique(x))), 15, 1,
+       dimnames =  list(names(cetacea), NULL))
+```
+The data matrix has been constructed by @vescia_85. Chapter 1 of the
+book edited by @marcotorchino_proth_janssen_85 has the data, and a number of sub-chapters in which different data analysts
+apply various techniques to these data and discuss the results. Among the contenders were Multidimensional Structuple Analysis (@guttman_85)
+and homals (@vanderburg_85).
+
+
+```{r cetacomp, cache = TRUE}
+hcethom <- smacofHomogeneityHO(cetacea)
+hcetho <- smacofHO(cetacea, verbose = FALSE, itmax = 10000)
+```
+
+Stress is `r hcetho$stress` after `r hcetho$itel` iterations.
+
+```{r}
+smacofObjectsPlotHO(hcethom, cex = .5)
+hcethompre <- smacofPredictionTable(hcethom)
+print(colSums(hcethompre, na.rm = TRUE))
+smacofObjectsPlotHO(hcetho, cex = .5)
+hcethopre <- smacofPredictionTable(hcetho)
+print(colSums(hcethopre, na.rm = TRUE))
+```
+```{r}
+hcetno <- smacofHO(cetacea, verbose = FALSE, xnorm = 2, itmax = 10000)
+smacofObjectsPlotHO(hcetno, cex = .5)
+hcetnopre <- smacofPredictionTable(hcetno)
+print(sum(hcetnopre, na.rm = TRUE))
+```
+
+
 ## Senate
 
+```{r}
+data(senate, package = "homals")
+```
+```{r senatecomp, cache = TRUE}
+hhom <- smacofHomogeneityHO(senate[, 2:21])
+hho <- smacofHO(senate[, 2:21], verbose = FALSE, itmax = 10000)
+```
+
+Stress is `r hho$stress` after `r hho$itel` iterations.
+
+```{r}
+smacofObjectsPlotHO(hhom, cex = .5, labels = as.character(senate[, 1]))
+hhompre <- smacofPredictionTable(hhom)
+print(colSums(hhompre, na.rm = TRUE))
+smacofObjectsPlotHO(hho, cex = .5, labels = as.character(senate[, 1]))
+hhopre <- smacofPredictionTable(hho)
+print(colSums(hhopre, na.rm = TRUE))
+```
+
+```{r cache = TRUE}
+hno <- smacofHO(senate[, 2:21], verbose = FALSE, xnorm = 2, itmax = 10000)
+smacofObjectsPlotHO(hno, cex = .5, labels = as.character(senate[, 1]))
+hnopre <- smacofPredictionTable(hno)
+print(sum(hnopre, na.rm = TRUE))
+```
+
 ## GALO
+
+```{r galodata, echo = FALSE}
+data(galo, package="homals")
+```
+
+```{r galohomcomp, cache = TRUE}
+hgalohom <- smacofHomogeneityHO(galo[, 1:4])
+```
+
+```{r}
+smacofObjectsPlotHO(hgalohom, cex = .5)
+hgalohompre <- smacofPredictionTable(hgalohom)
+print(colSums(hgalohompre, na.rm = TRUE))
+```
+```{r}
+par(mfrow = c(1, 2))
+smacofJointPlotsHO(hgalohom, jvar = 1:2, objects = TRUE, voronoi = TRUE, xcex = .5, ycex = .5, clabels = 0)
+```
+
+```{r galohocomp, cache = TRUE}
+hgaloho <- smacofHO(galo[, 1:4], verbose = FALSE, itmax = 10000)
+```
+
+```{r}
+smacofObjectsPlotHO(hgaloho, cex = .5)
+hgalohopre <- smacofPredictionTable(hgaloho)
+print(colSums(hgalohopre, na.rm = TRUE))
+```
+
+```{r}
+par(mfrow = c(2, 2))
+smacofJointPlotsHO(hgaloho, objects = TRUE, voronoi = TRUE, xcex = .5, ycex = .5, clabels = 0)
+```
 
 
 # Generalizations
