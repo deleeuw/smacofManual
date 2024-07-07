@@ -49,11 +49,10 @@ The paired comparison of pairs of objects is the simplest and
 the most basic one of the cartwheel methods for collecting 
 similarity judgments (@coombs_54). 
 Pairs of objects from a set
-$\mathcal{O}$ of $n$ objects are compared, and the data inducate which if the two
-pairs is the most similar. @torgerson_58 (p. 261-262) calls this the *method of tetrads*, and we shall adopt this terminology by referring to a pair of pairs of objects $((o_i,o_j),(o_k,o_l))$ as a *tetrad*. This is of course not to be confused
-with the use of "tetrads" in factor analysis.
+$\mathcal{O}$ of $n$ objects are compared, and the data indicate which of the two
+pairs is the most similar. @torgerson_58 (p. 261-262) calls this the *method of tetrads*, and we shall adopt this terminology by referring to a pair of pairs of objects $((o_i,o_j),(o_k,o_l))$ as a *tetrad*. This is of course not to be confused with the use of "tetrads" in factor analysis.
 
-In Torgerson's method of tetrads we need replications over occasions (or subjects) to estimate the probability of the $(o_i,o_j)\lesssim (o_k,o_l)$ judgments, which can then turned into scale values using Thurstonianpaired comparison methods. In the smacofPC method we discuss here no replications are needed and we can apply MDS to the data from a single occasion without replications of tetrads. 
+In Torgerson's method of tetrads we need replications over occasions (or subjects) to estimate the probability of the $(o_i,o_j)\lesssim (o_k,o_l)$ judgments, which can then turned into scale values using Thurstonian paired comparison methods. In the smacofPC method we discuss here no replications are needed and we can apply MDS to the data from a single occasion without replications of tetrads. 
 
 
 In the MDS context the response 
@@ -64,13 +63,11 @@ finds an approximate solution to this highly non-linear and
 highly non-convex system of inequalities.
 
 smacofPC() is not limited to data collected as comparisons of 
-pairs of objects. Many different data collection methods produce data that are nt of this form, but can be
+pairs of objects. Many different data collection methods produce data that are not directly of this form, but that can be
 coded as such paired comparisons. Examples are the various versions of the
 method of triads, the method of conditional rank orders, and the
 complete or partial ranking of all $\binom{n}{2}$ dissimilarities.
-In general the comparison data for pairs of pairs do not require transitivity
-or symmetry and allow for replications of some or all pairs of
-pairs.
+In general the comparison data for pairs of pairs do not require transitivity or symmetry and allow for replications of some or all pairs of pairs.
 
 There have been earlier versions of non-metric MDS methods based
 on comparisons of pairs of objects. Around 1970 various people proposed the *positive orthant method (POM)* (@deleeuw_R_68g, @deleeuw_R_70a, @hartmann_79), the *absolute value principle (AVP)* (@guttman_69), and the
@@ -115,7 +112,7 @@ signatures (or, equivalently, over the convex set of all matrices with entries b
 
 As we shall see, the loss function used in smacofPO is an explicitly normalized version of equation \@ref(eq:pom) with $q=2$. The explicit normalization is a major difference with POM/AVP/PNM, which use implicit normalization of stress with denominator \@ref(eq:lambdad). The loss function used for our initial estimate is an explicitly normalized version of equation \@ref(eq:pom) that has $q=1$ and uses squared distances.
 
-The MAXSCAL method proposed by @takane_78a, @takane_78b is very different from the POM, AVP, PNM trio, and consequently also different from smacofPC. The loss function is not 
+The MAXSCAL method for tetrads proposed by @takane_78a, @takane_78b is very different from the POM, AVP, PNM trio, and consequently also different from smacofPC. The loss function is not 
 least squares, at least not conceptually, but is based on the likelihood function for a simple choice model for the tetrad responses. Computationally the negative likelihood is minimized by using a Gauss-Newton approximation to the Hessian, which leads in the usual way to iterative reweighted least squares.
 
 Another recent excursion into scaling tetrads is @agarwal_wills_cayton_lanckriet_kriegman_belongie_07. They do not use 
@@ -441,8 +438,7 @@ for (i in 3:20) {
 There are a number of ways to deal with this fundamental problem. If we take the psychophysical point of view that subjects are merely replications then we
 can use multiple subjects, each handling a subset of the tetrads. 
 Alternatively, we can select a random subset of the total set of tetrads.
-Or we could use a design to select a preferably balanced subset. If the data are not behavioural and machine generated a complete set of tetrads may be
-feasible.
+Or we could use a design to select a preferably balanced subset. zaborsky_24 is an empirical study of the number of  possible tetrads to include to get a faithful representation. If the data are not behavioural and machine generated a complete set of tetrads may be feasible. 
 
 Two utility functions are included in the package to collect data and organize them into the appropriate format. They are `smacofMakeAllPairs <- function(names, ties = 0)` and `smacofMakeRandomPairs <- function(names, nrandom, ties = 0)`.
 

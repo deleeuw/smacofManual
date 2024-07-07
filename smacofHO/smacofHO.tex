@@ -91,15 +91,17 @@
 \makesavenoteenv{longtable}
 \usepackage{graphicx}
 \makeatletter
-\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
-\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
-\makeatother
-% Scale images if necessary, so that they will not overflow the page
-% margins by default, and it is still possible to overwrite the defaults
-% using explicit options in \includegraphics[width, height, ...]{}
-\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
 % Set default figure placement to htbp
-\makeatletter
 \def\fps@figure{htbp}
 \makeatother
 \setlength{\emergencystretch}{3em} % prevent overfull lines
@@ -182,9 +184,6 @@
 \newcommand{\jis}{\mathop{\sum\sum}_{1\leq j<i\leq n}}
 \newcommand{\sij}{\sum_{i=1}^n\sum_{j=1}^n}
 	
-\ifLuaTeX
-  \usepackage{selnolig}  % disable illegal ligatures
-\fi
 \usepackage{bookmark}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
@@ -194,9 +193,9 @@
   pdfcreator={LaTeX via pandoc}}
 
 \title{Smacof at 50: A Manual\\
-Part 8: Gifi with Rank Constraints Smacofified}
+Part 8: Homogeneity Analysis}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started April 13 2024, Version of June 29, 2024}
+\date{Started April 13 2024, Version of July 05, 2024}
 
 \begin{document}
 \maketitle
@@ -217,7 +216,7 @@ and smacofExamples.
 
 \section{Introduction: Categorical Data}\label{introduction-categorical-data}
 
-In this chapter we shall analyze categorical data, with the following components.
+In this chapter we shall analyze categorical data structures, with the following components.
 
 \begin{itemize}
 \tightlist
@@ -228,60 +227,74 @@ In this chapter we shall analyze categorical data, with the following components
 \item
   There are \(n\) \emph{objects}.
 \item
-  Each object defines a \emph{partial order} over the categories of each variable.
+  Each object defines a \emph{partial order} over the categories of each variable. Make this the simple tree.
 \end{itemize}
 
-Thus the data are the \(n\times m\) partial orders \(\lesssim_{ij}\).
+Introduce indicators
+
+Discuss: separation and compactness. Start with MSA and De Leeuw (1969),
+De Leeuw (2004), De Leeuw (2003)
+
+Thus the actual data we collect are the \(n\times m\) partial orders \(\lesssim_{ij}\).
 
 We study minimization of the stress \emph{loss function}
 \begin{equation}
-\sigma(X,Y_1,\cdots,Y_m):=\sum_{j=1}^m\sum_{i=1}^n\min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d(x_i,y_l^j))^2
+\sigma(X,Y_1,\cdots,Y_m):=\sum_{j=1}^m\sum_{i=1}^n\min_{\hat d_i^j\in\Delta_i^j}\sum_{l=1}^{k_j}w_{il}^j(\hat d_{il}^j-d_{il}(X,Y_j))^2
 \label{eq:snmu}
 \end{equation}
 over the \(n\times p\) matrix of \emph{object scores} \(X\), the \(k_j\times p\)
-matrices of \emph{category scores} \(Y_j\), and the \(n\times k_j\) \emph{transformations} (or \emph{optimal scalings}) \(\Delta_j\).
+matrices of \emph{category scores} \(Y_j\), and the \(n\times k_j\) \emph{transformations} (or \emph{optimal scalings}) \(\Delta_j\). We write
+\(d_{il}(X,Y_j)\) for the distance between object \(i\) and category
+\(l\) of variable \(j\). Note that for each variable \(j\) there are different matrices of category scores \(Y_j\), but there is only a single matrix of object scores \(X\).
 
-The \(w_{il}^j\) in \eqref{eq:snmu}
+The \(w_{il}^j\) in definition \eqref{eq:snmu}
 are non-negative \emph{weights}. Formulas and derivations simplify if the data are \emph{row-weighted}, by which we mean that \(w_{il}^j=w_i^j\). They simplify
 even more if weights are \emph{constant}, i.e.~if all non-zero weights
 are equal to one.
 
 The transformations in \eqref{eq:snmu}
 are \emph{row-conditional}, in the sense that for each \(i\) a vector
-\(\hat d_i^j\) of length \(k_j\) is selected from the cone of admissible transformations \(\Delta_i^j\). Each row has its own cone. Note that for each variable \(j\) there are different matrices of category scores \(Y_j\), but there is only a single matrix of object scores \(X\). Also note that index \(j\), for variables, is sometimes used as a subscript and sometimes as a superscript, depending on what looks best.
+\(\hat d_i^j\) of length \(k_j\) is selected by the technique
+from a cone of admissible transformations \(\Delta_i^j\). Each row has its own cone.
 
 We need a few words to discuss the meaning of the word ``model'' in this
 context, since it is used frequently in data analysis. The
-model corresponding with a loss function is the set of parameter
-values for which loss attains its global minimum (usually zero).
+model corresponding with a loss function \(\sigma\) is the set of parameter
+values for which \(\sigma\) attains its global minimum (usually zero).
 Thus a model is a system of equations and/or inequalities.
-In the case of loss function \ref(eq:snmu) the model is
-that the \(d(x_,y_{il}^j)\) with \(w_{il}^j>0\) satisfy the partial order \(\lesssim_{ij}\).
+In the case of loss function \eqref{eq:snmu} the model is
+that the \(d_{il}(X,Y_j)\) with \(w_{il}^j>0\) satisfy the partial order \(\lesssim_{ij}\). Define
+\begin{equation}
+\epsilon^j_{il\nu}:=
+\begin{cases}
+1&\text{ if we require }\hat d^j_{il}\lesssim\hat d^j_{i\nu},\\
+0&\text{ otherwise}
+\end{cases}
+\end{equation}
+Then the model is the system of inequalities
+\begin{equation}
+w_{il}^jw_{i\nu}^j\epsilon^j_{il\nu}(d_{il}(X,Y_j)-d_{i\nu}(X,Y_j))\geq 0
+\label{eq:model}
+\end{equation}
 
-\[
-w_{il}^jw_{i\nu}^j\epsilon^j_{il\nu}(d^j_{il}(X,Y)-d^j_{i\nu}(X,Y))\geq 0
-\]
-\[
-w_{il}^jw_{i\nu}^j\epsilon^j_{il\nu}(-2x_{i}'(y^j_l-y^j_\nu)+\|y^j_l\|^2-\|y^j_\nu\|^2)\geq 0
-\]
-If the cones \(\Delta_i^j\) contain the zero vector, then the global minimum of \eqref{eq:snmu} is clearly equal to zero. Collapsing all \(x_i\) and all \(y_l^j\) into a single point makes all distances zero, and thus makes stress zero. There is also zero stress if we collapse all \(x_i\) into
-one point and all \(y_l^j\) into another points. There are more subtle
-trivial solutions, however.
-Suppose the cones \(\Delta_i^j\) contain the set of all constant vectors (or all non-negative constant vectors). Collapse all \(x_i\) into a single point, and place all \(y_l^j\) for variable \(j\) on a sphere around this point. There can be different radii for different variables. This makes all \(d(x_i,y_l^j)\) equal to the radius of the sphere and thus makes stress zero.
-
-It follows that we cannot define the purpose of our algorithms as finding the minimum of \eqref{eq:snmu} over all \(X\) and \(Y_j\). Some constraints on the optimization problems are needed to prevent these trivial or degenerate solutions.
+If the cones \(\Delta_i^j\) contain the zero vector, then the global minimum of loss function \eqref{eq:snmu} is clearly equal to zero. Collapsing all \(x_i\) and all \(y_l^j\) into a single point makes all distances zero, and thus makes stress zero. There is also zero stress if we collapse all \(x_i\) into one point and all \(y_l^j\) into another point. These solutions are \emph{trivial} in the sense that, although they satisfy the model, they are
+independent of the data and consequently not informative. There are also more subtle
+trivial solutions.
+Suppose the cones \(\Delta_i^j\) contain the set of all non-negative constant vectors. Collapse all \(x_i\) into a single point, and place all \(y_l^j\) for variable \(j\) on a sphere around the point \(x_i\). There can be different radii for different variables. This makes all \(d(x_i,y_l^j)\) equal to the radius of the sphere and thus makes stress zero.
 
 In the context of non-metric unfolding there has been much work
 on avoiding trivial and degenerate solutions. This started as soon as
 Kruskal-Guttman-type iterative MDS techniques using data transformation became available. Early contributions were Roskam (1968) and Kruskal and Carroll (1969). For valuable summaries of more recent work, mostly by Willem Heiser and his students, we refer to the dissertations of Van Deun (2005) and Busing (2010).
+
+It follows from the existence of these trivial solutions that we cannot define the purpose of our algorithms as finding the minimum of \eqref{eq:snmu} over all \(\hat D_j\), \(X\) and \(Y_j\). Some constraints on the optimization problems are needed to prevent these trivial or degenerate solutions.
 
 \section{Homogeneity Analysis}\label{hom}
 
 The \emph{Gifi System} (Gifi (1990), Michailidis and De Leeuw (1998), De Leeuw and Mair (2009)) implements non-linear or non-metric versions of the classical linear multivariate analysis techniques (regression, analysis of variance, canonical analysis, discriminant analysis, principal component analysis). The non-linear versions are introduced as special cases of \emph{Homogeneity Analysis}, which is better known as \emph{Multiple Correspondence Analysis}.
 
 In this section we present homogeneity analysis as a technique for
-minimizing the loss function \eqref{eq:snmu} when the data are \(n\times k_j\) \emph{indicator matrices} \(G_j\), with \(j=1,\cdots,M\). This is a non-standard presentation, because usually homogeneity analysis is related to principal component analysis, and not to multidimensional scaling
-(see, for example, De Leeuw (2014) or De Leeuw (1923)).
+minimizing the loss function \eqref{eq:snmu} when the data are \(n\times k_j\) \emph{indicator matrices} \(G_j\), with \(j=1,\cdots,m\). This is a non-standard presentation, because usually homogeneity analysis is related to principal component analysis, and not to multidimensional scaling
+(see, for example, De Leeuw (2014) or De Leeuw (1923)). Hoffman and De Leeuw (1992)
 
 In homogeneity analysis the data are (or are coded as) \(m\) \emph{indicator matrices} \(G_j\), where \(G_j\) is \(n\times k_j\).
 Indicator matrices are binary matrices, with rows that add up to one or to zero.
@@ -392,6 +405,8 @@ The publications on MSA do not pay much attention to the existence
 of trivial solutions and to the speed of convergence of the
 iterations.
 
+\subsection{MSA-I}\label{msa-i}
+
 The most interesting member of the MSA sequence is MSA-I.
 
 \begin{quote}
@@ -400,7 +415,7 @@ Some of the computational details and the programming of the technique were done
 \end{quote}
 
 The most complete description of MSA-I is probably Zvulun (1978). There
-are also some computational details in Lingoes (1968a). So what is the
+are also some computational details in Lingoes (1968a). So what is this
 MSA-I model ?
 
 Partition the object points corresponding to any category A into inner and outer points. Take any point not in A and find the closest point in A to that point. Such a closest point is called an \emph{outer point} of category A. Go through all points not in A to find all outer points of A. The points of A that are not outer points of A are \emph{inner points} of A.
@@ -415,6 +430,8 @@ done after the fact by hand.
 
 The algorithm to optimize contiguity is described in (\textbf{lingoes\_68?}). I will
 try to reconstruct it.
+
+\subsection{MSA-II}\label{msa-ii}
 
 Unlike MSA-I, MSA-II, which seems to be mostly due to Lingoes, is
 pretty straightforward. The model, as taken from Lingoes (1968a), is that
@@ -448,6 +465,8 @@ elements of \(G\) equal to one, and \(n(k_\star-m)\) largest distances.
 But how do we define the rank images within the two tie blocks ?
 Lingoes ranks the distances within the tie blocks from small to large, which seems rather arbitrary.
 
+\subsection{MSA-III}\label{msa-iii}
+
 MSA-III is closer to our smacofHO method.
 
 \section{The smacofHO Loss Function}\label{the-smacofho-loss-function}
@@ -456,15 +475,17 @@ The smacofHO technique solves the closely related problem in which we do not req
 \begin{subequations}
 \begin{equation}
 \sum_{l=1}^{k_j}g^j_{il}\hat d^j_{il}=0
+\label{eq:homcons}
 \end{equation}
 for all $i$ and $j$, but we impose the weaker condition that for all $i$ and $j$
 \begin{equation}
 \sum_{l=1}^{k_j}g^j_{il}\hat d^j_{il}\leq\hat d^j_{i\nu}
+\label{eq:hocons}
 \end{equation}
 \end{subequations}
 for all \(\nu=1,\cdots,k_j\).
 In homogeneity analysis the geometric interpretation of loss is that we
-want objects to coincide with all categories they score in. The geometric interpretation of loss function \ldots{} is that we want
+want objects to coincide with all categories they score in. The geometric interpretation of loss function \eqref{eq:snmu} is that we want
 objects to be closer to the categories they score in than to the categories
 they do not score in.
 
@@ -472,27 +493,23 @@ This can be formalized using the notion of \emph{Voronoi regions}. The Voronoi r
 category \(l\) of variable \(j\) is the polyhedral convex set of all points of \(\mathbb{R}^p\) closer to category \(l\) than to any other category of variable \(j\). The plot of the the \(k_j\) categories of variable \(j\) defines \(k_j\) Voronoi regions that
 partition \(\mathbb{R}^p\). For a wealth of information about Voronoi regions we refer to
 
-Loss function \ldots{} with \(\Delta\) defined by \ldots{} vanishes if for each variable all \(x_i\) are in the Voronoi regions of the categories they score in. This condition implies, by the way, that the interiors of the \(k_j\) convex hulls of the \(x_i\) in a given category are disjoint, and the point clouds can consequently be weakly separated by hyperplanes. Since the category points themselves are in their own Voronoi region the convex hulls of the stars are also disjoint.
+Loss function \eqref{eq:snmu} with \(\Delta\) defined by constraint\eqref{eq:hocons} vanishes if for each variable all \(x_i\) are in the Voronoi regions of the categories they score in. This condition implies, by the way, that the interiors of the \(k_j\) convex hulls of the \(x_i\) in a given category are disjoint, and the point clouds can consequently be weakly separated by hyperplanes. Since the category points themselves are in their own Voronoi region the convex hulls of the stars are also disjoint.
 
-The general majorization theory for MDS with restrictions (De Leeuw and Heiser (1980))
-calls for updates
-in two steps. In the first step we compute the Guttman transform of the current configuration, and in the second step we project the Guttman transform on the
-set of constrained configurations.
+The initial configuration for the iterations is computed using homogeneity analysis. In each iteration configuration updates are alternated with updates of the \(\hat D_j\).
+The general majorization theory for MDS with restrictions (De Leeuw and Heiser (1980)) calls for configuration updates
+in two steps. In the first step we compute the Guttman transform of the current configuration, and in the second step we project the Guttman transform on the set of constrained configurations.
 
-Configuration updates are alternated with updates of the \(\hat D_j\). Initial: homals.
-
-Minimizing loss \ldots{} over the \(\hat d_i^j\) is a monotone regression problem for a simple tree
-order. This is easily solved by using Kruskal's primary approach to ties
-(Kruskal (1964a), Kruskal (1964b), De Leeuw (1977)).
+Minimizing loss \eqref{eq:snmu} over the \(\hat d_i^j\) is a monotone regression problem for a simple tree order. This is easily solved by using Kruskal's primary approach to ties (Kruskal (1964a), Kruskal (1964b), De Leeuw (1977)).
 
 \subsection{The Guttman Transform}\label{the-guttman-transform}
 
 The smacof iterations, or Guttman transforms, more or less ignore the fact that we are dealing with a rectangular matrix and use the weights to transform the problem into a symmetric one (as in Heiser and De Leeuw (1979)).
 
 The loss function is
-\[
+\begin{equation}
 \sigma(Z_1,\cdots,Z_m)=\sum_{j=1}^m\sum_{i=1}^{n_j}\sum_{k=1}^{n_j}w_{ik}^j(\hat d_{ik}^j-d_{ik}(Z_j))^2,
-\]
+\label{eq:fullloss}
+\end{equation}
 with \(n_j:=n+k_j\) and with \(Z_j\) the \(n_j\times p\) matrices that stack \(X\) on top of
 \(Y_j\). The \(w_{ik}^j\) are zero for the diagonal \(n\times n\) and the diagonal
 \(k_j\times k_j\) block.
@@ -515,7 +532,7 @@ R_B&-B\\
 Since we have to solve this system for each variable separately we forget about the index \(j\) here. In
 \eqref{eq:guttman} \(R_W\) and \(C_W\) are the diagonal matrices with row and column sums of \(-W\), while \(R_B\) and \(C_B\) are diagonal matrices with the row and columns sums of the \(n\times k_j\) matrix \(B\), which has elements
 \begin{equation}
-b_{il}=w_{il}\frac{\hat d_{il}}{d(x_i,y_l)}.
+b_{il}=w_{il}\frac{\hat d_{il}}{d_{il}(X,Y_l)}.
 \label{eq:bdef}
 \end{equation}
 Matrices \(X\) and \(Y\) are the two parts of the current \(Z\) that we are updating,
@@ -547,7 +564,7 @@ As in homogeneity analysis we hope that \(k_\star\)
 is not to big, and we avoid generalized inverses of very large and very
 sparse matrices.
 
-\subsection{The Guttman Projection}\label{the-guttman-projection}
+\subsection{The smacof Projection}\label{the-smacof-projection}
 
 After computing the Guttman transforms \(\tilde X_j\) and \(\tilde Y_j\) we have to project them on the set of constrained configurations.
 
@@ -601,23 +618,70 @@ and
 \{Y_j'C_j-(X-\tilde X_j)'W_j\}'A_j=C_jQ_jA_jA_j'
 \]
 
+\subsubsection{Centroid Constraints on Y}\label{centroid-constraints-on-y}
+
+If we require that \(Y_j=(G_j'R_jG_j)^{-1}G_j'R_jX\) then this effectively eliminates the \(Y_j\) as variables from the optimization problem and we only have to optimize over \(X\). We must minimize
+\begin{multline}
+\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'R_j(X-\tilde X_j) -
+\text{tr}\ (X-\tilde X_j)'W_j(H_jX-\tilde Y_j)+\\
+\text{tr}\ (H_jX-\tilde Y_j)'C_j(H_jX-\tilde Y_j)
+\end{multline}
+Expanding
+\begin{multline}
+2\ X'R_\star X-2\ \text{tr}\ X'\sum_{j=1}^mR_j\tilde X_j-2\ \text{tr}\ X'\{\sum_{j=1}^mW_jH_j\}X + 2\text{tr}\ X'\sum_{j=1}^mW_j\tilde Y_j+\\
+\text{tr}\ X'\{\sum_{j=1}^mH_j'C_jH_j\}X-2\text{tr}\ X'\{\sum_{j=1}^mH_j'C_j\tilde Y_j\}
+\end{multline}
+
+Substituting \(Y_j=H_jX\) with \(H_j:=(G_j'R_jG_j)^{-1}G_j'R_j\) in .. and simplifying gives
+the stationary equations \(P_\star X= Q_\star\) with
+\begin{subequations}
+\begin{align}
+P_\star&:=\sum_{j=1}^m\{R_j-H_j'W_j'-W_jH_j+H_j'C_jH_j\},\\
+Q_\star&:=\sum_{j=1}^m\{(R_j-H_j'W_j')\tilde X_j-(W_j-H_j'C_j)\tilde Y_j\}.
+\end{align}
+\end{subequations}
+Thus the unnormalized solution for the object scores is \(X=P^+_\star Q_\star\).
+
+We want to avoid inversion of the matrix \(P_\star\), which has order \(n\). In fact we do not want to compute and store \(P_\star\) at all. huppel
+
+We avoid the inversion by using majorization. Suppose \(\mu\) is such that \(P_\star\lesssim\mu R_\star\) in the Loewner sense. We would typically take \(\mu\) as the largest eigenvalue of \(R_\star^{-1}P_\star\).
+
+Define
+\[
+\omega(X):=\text{tr}\ X'P_\star X-2\ \text{tr}\ X'Q_\star
+\]
+Then, reculer pour mieux sauter, writing \(\overline{X}\) for the current best
+\(X\),
+\[
+\omega(X)=\text{tr}\ (\overline X+(X-\overline X))'P_\star(\overline X+(X-\overline X))-2\ \text{tr}\ (\overline X+(X-\overline X))'Q_\star
+\]
+Now
+\begin{multline}
+\omega(X)\leq\omega(\overline X)+
+\mu\text{tr}\ (X-\overline X)'R_\star(X-\overline X)-2\ \text{tr}\ (X-\overline X)'(Q_\star-P_\star\overline X)
+\end{multline}
+The stationary equations in the unnormalized case have solution
+\[
+X=\overline X+\mu^{-1}R_\star^{-1}(Q_\star-P_\star\overline X)
+\]
+If we require the normalization \(X'R_\star X=I\) then we must solve the Procrustus problem
+\[
+(\mu R_\star-P_\star)\overline X - Q_\star=R_\star X\Lambda
+\]
+with \(\Lambda\) a symmetric matrix of Lagrange multipliers.
+
 \subsubsection{Normalization of X}\label{normalization-of-x}
 
-Besides \(X_j=X\) We can choose to impose the \emph{weak normalization constraint} \(\text{tr}\ X'R_\star X=1\) or the \emph{strong normalization constraint} \(X'R_\star X=I\). In both cases the stationary
-equation \eqref{eq:stateq1} remains the same, while \eqref{eq:stateq1} becomes
+Besides \(X_j=X\) we can also optionally require the normalization constraint \(X'R_\star X=I\). In both cases the stationary equation \eqref{eq:stateq1} remains the same, while \eqref{eq:stateq1} becomes
 \[
-R_\star X\Lambda=P,
+R_\star X\Lambda=P_\star,
 \]
 with
 \[
-P:=\sum_{j=1}^m\left\{R_j\tilde X_j-W_j(Y_j-\tilde Y_j)\right\}
+P_\star:=\sum_{j=1}^m\left\{R_j\tilde X_j-W_j(Y_j-\tilde Y_j)\right\}
 \]
-and with \(\Lambda\) a matrix of Lagrange multipliers. For weak normalization \(\Lambda\)
-is scalar, and
-\[
-X=\frac{1}{\sqrt{\text{tr}\ P'R_\star^{-1}P}}R_\star^{-1}P
-\]
-For strong normalization \(\Lambda\) is symmetric. Using the symmetric square root, \(\Lambda=(P'R_\star^{-1}P)^\frac12\) and thus
+and with \(\Lambda\) a symmetric matrix of Lagrange multipliers.
+Using the symmetric square root, \(\Lambda=(P'R_\star^{-1}P)^\frac12\) and thus
 \[
 X=R_\star^{-1}P(P'R_\star^{-1}P)^{-\frac12}.
 \]
@@ -819,7 +883,7 @@ Stress is \ensuremath{5.9054624\times 10^{-8}} after 3417 iterations.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-1-1.pdf}
+\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/cetaplot-1.pdf}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -838,7 +902,7 @@ Stress is \ensuremath{5.9054624\times 10^{-8}} after 3417 iterations.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-1-2.pdf}
+\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/cetaplot-2.pdf}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -858,7 +922,7 @@ Stress is \ensuremath{5.9054624\times 10^{-8}} after 3417 iterations.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-2-1.pdf}
+\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/cetanorm-1.pdf}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -894,7 +958,7 @@ Stress is \ensuremath{2.0710178\times 10^{-7}} after 7449 iterations.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-4-1.pdf}
+\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-1-1.pdf}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -914,7 +978,7 @@ Stress is \ensuremath{2.0710178\times 10^{-7}} after 7449 iterations.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-4-2.pdf}
+\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-1-2.pdf}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -935,7 +999,7 @@ Stress is \ensuremath{2.0710178\times 10^{-7}} after 7449 iterations.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-5-1.pdf}
+\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-2-1.pdf}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -962,7 +1026,7 @@ Stress is \ensuremath{2.0710178\times 10^{-7}} after 7449 iterations.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-6-1.pdf}
+\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-3-1.pdf}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -982,7 +1046,7 @@ Stress is \ensuremath{2.0710178\times 10^{-7}} after 7449 iterations.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-7-1.pdf}
+\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-4-1.pdf}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -996,7 +1060,7 @@ Stress is \ensuremath{2.0710178\times 10^{-7}} after 7449 iterations.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-8-1.pdf}
+\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-5-1.pdf}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1016,7 +1080,7 @@ Stress is \ensuremath{2.0710178\times 10^{-7}} after 7449 iterations.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{smacofHO_files/figure-latex/unnamed-chunk-9-1.pdf}
+\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-6-1.pdf}}
 
 \section{Generalizations}\label{generalizations}
 
@@ -1040,8 +1104,17 @@ Busing, Frank M. T. A. 2010. {``Advances in Multidimensional Unfolding.''} PhD t
 \bibitem[\citeproctext]{ref-deleeuw_C_23}
 De Leeuw, J. 1923. {``Deconstructing Multiple Correspondence Analysis. Essays in Honour of Shizuhiko Nishisato.''} In \emph{Analysis of Categorical Data from Historical Perspectives}, edited by Eric J. Beh, Rosaria Lombardo, and Jose G. Clavel, 383--407. Springer.
 
+\bibitem[\citeproctext]{ref-deleeuw_R_69d}
+---------. 1969. {``{Some Contributions to the Analysis of Categorical Data}.''} Research Note 004-69. Leiden, The Netherlands: Department of Data Theory FSW/RUL.
+
 \bibitem[\citeproctext]{ref-deleeuw_A_77}
 ---------. 1977. {``Correctness of Kruskal's Algorithms for Monotone Regression with Ties.''} \emph{Psychometrika} 42: 141--44.
+
+\bibitem[\citeproctext]{ref-deleeuw_U_03d}
+---------. 2003. {``{Homogeneity Analysis Using Euclidean Minimum Spanning Trees}.''}
+
+\bibitem[\citeproctext]{ref-deleeuw_R_04e}
+---------. 2004. {``{Homogeneity Analysis of Pavings}.''} Preprint Series 389. Los Angeles, CA: UCLA Department of Statistics.
 
 \bibitem[\citeproctext]{ref-deleeuw_C_14}
 ---------. 2014. {``{History of Nonlinear Principal Component Analysis}.''} In \emph{{The Visualization and Verbalization of Data}}, edited by J. Blasius and M. Greenacre. Chapman; Hall.
@@ -1066,6 +1139,9 @@ Guttman, L. 1941. {``{The Quantification of a Class of Attributes: A Theory and 
 
 \bibitem[\citeproctext]{ref-heiser_deleeuw_A_79}
 Heiser, W. J., and J. De Leeuw. 1979. {``Metric Multidimensional Unfolding.''} \emph{Methoden En Data Nieuwsbrief SWS/VVS} 4: 26--50.
+
+\bibitem[\citeproctext]{ref-hoffman_deleeuw_A_92}
+Hoffman, D. L., and J. De Leeuw. 1992. {``Interpreting Multiple Correspondence Analysis as a Multidimensional Scaling Method.''} \emph{Marketing Letters} 3: 259--72.
 
 \bibitem[\citeproctext]{ref-kruskal_64a}
 Kruskal, J. B. 1964a. {``{Multidimensional Scaling by Optimizing Goodness of Fit to a Nonmetric Hypothesis}.''} \emph{Psychometrika} 29: 1--27.

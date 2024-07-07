@@ -156,7 +156,7 @@
 \title{Smacof at 50: A Manual\\
 Part 9: Gifi with Centroid Constraints Smacofified}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started June 24 2024, Version of July 01, 2024}
+\date{Started June 24 2024, Version of July 03, 2024}
 
 \begin{document}
 \maketitle
@@ -442,33 +442,36 @@ P_\star&:=\sum_{j=1}^m\{R_j-H_j'W_j'-W_jH_j+H_j'C_jH_j\},\\
 Q_\star&:=\sum_{j=1}^m\{(R_j-H_j'W_j')\tilde X_j-(W_j-H_j'C_j)\tilde Y_j\}.
 \end{align}
 \end{subequations}
+Thus the unnormalized solution for the object scores is \(X=P^+_\star Q_\star\).
 
-Thus the unnormlaized solution for the object scores is \(X=P^+_\star Q_\star\). But this requires inversion of the matrix \(P_\star\), which has order \(n\). We avoid the inversion by using majorization. Suppose \(\mu\) is such that \(P_\star\lesssim\mu R_\star\) in the Loewner sense. We would typically take \(\mu\) as the
-largest eigenvalue of \(R_\star^{-\frac12}P_\star R_\star^{-\frac12}\).
+We want to avoid inversion of the matrix \(P_\star\), which has order \(n\). In fact we do not want to compute and store \(P_\star\) at all. huppel
 
-\[\omega(X)=\text{tr}\ (\overline X+(X-\overline X))'P(\overline X+(X-\overline X))-2\text{tr}\ (\overline X+(X-\overline X))'Q\]
+We avoid the inversion by using majorization. Suppose \(\mu\) is such that \(P_\star\lesssim\mu R_\star\) in the Loewner sense. We would typically take \(\mu\) as the largest eigenvalue of \(R_\star^{-1}P_\star\).
+
+Define
 \[
-\text{tr}\ (X-\tilde X)'P(X-\tilde X)-2\ \text{tr}\ (X-\tilde X)'(Q-P\tilde X)\leq
-\lambda\ \text{tr}\ (X-\tilde X)'R_\star(X-\tilde X)-2\ \text{tr}\ (X-\tilde X)'(Q-P\tilde X)
+\omega(X):=\text{tr}\ X'P_\star X-2\ \text{tr}\ X'Q_\star
+\]
+Then, reculer pour mieux sauter, writing \(\overline{X}\) for the current best
+\(X\),
+\[
+\omega(X)=\text{tr}\ (\overline X+(X-\overline X))'P_\star(\overline X+(X-\overline X))-2\ \text{tr}\ (\overline X+(X-\overline X))'Q_\star
+\]
+Now
+\begin{multline}
+\omega(X)\leq\omega(\overline X)+
+\mu\text{tr}\ (X-\overline X)'R_\star(X-\overline X)-2\ \text{tr}\ (X-\overline X)'(Q_\star-P_\star\overline X)
+\end{multline}
+The stationary equations in the unnormalized case have solution
+\[
+X=\overline X+\mu^{-1}R_\star^{-1}(Q_\star-P_\star\overline X)
 \]
 
+If we require the normalization \(X'R_\star X=I\) then we must solve the Procrustus problem
 \[
-\lambda R_\star(X-\tilde X)=Q-P\tilde X
+(\mu R_\star-P_\star)\overline X - Q_\star=R_\star X\Lambda
 \]
-
-\[
-(P_\star-\lambda R_\star)\tilde X-Q=-\lambda R_\star X
-\]
-
-\subsubsection{Normalization}\label{normalization}
-
-It is tempting use a normalization based on \(X'P_\star X\) but that would make comparison with
-the results for unconstrained and rank-one \(Y\) more complicated. Thus we continue
-to normalize using \(X'R_\star X\) and use the majorization .. The stationary equations are
-\[
-(P-\lambda R_\star)\tilde X-Q=R_\star X\Lambda
-\]
-which we solve in the usual way for weak and strong normalizations.
+with \(\Lambda\) a symmetric matrix of Lagrange multipliers.
 
 \section{Convergence and Degeneracy}\label{convergence-and-degeneracy}
 
@@ -507,7 +510,7 @@ corresponding to the category the object scores in.
 ## 10     a      p     v
 \end{verbatim}
 
-\includegraphics{smacofHO_files/figure-latex/smallhomals-1.pdf}
+\includegraphics{smacofHC_files/figure-latex/smallhomals-1.pdf}
 
 \begin{verbatim}
 ##       [,1] [,2] [,3]
@@ -523,7 +526,7 @@ corresponding to the category the object scores in.
 ## [10,]    1    1    1
 \end{verbatim}
 
-\includegraphics{smacofHO_files/figure-latex/small00-1.pdf}
+\includegraphics{smacofHC_files/figure-latex/small00-1.pdf}
 
 \begin{verbatim}
 ##       [,1] [,2] [,3]
@@ -541,7 +544,7 @@ corresponding to the category the object scores in.
 
 Stress is \ensuremath{1.1313536\times 10^{-9}} after 169 iterations.
 
-\begin{center}\includegraphics{smacofHO_files/figure-latex/small10-1} \end{center}
+\begin{center}\includegraphics{smacofHC_files/figure-latex/small10-1} \end{center}
 
 \begin{verbatim}
 ##       [,1] [,2] [,3]

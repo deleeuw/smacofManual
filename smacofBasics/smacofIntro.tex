@@ -154,15 +154,12 @@
   pdfcreator={LaTeX via pandoc}}
 
 \title{Smacof at 50: A Manual\\
-Part 1: Smacof Basics}
+Part 1: Basics}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started February 21 2024, Version of May 05, 2024}
+\date{Started February 21 2024, Version of July 01, 2024}
 
 \begin{document}
 \maketitle
-\begin{abstract}
-TBD
-\end{abstract}
 
 {
 \setcounter{tocdepth}{4}
@@ -181,9 +178,32 @@ and smacofExamples.
 
 In \emph{Multidimensional Scaling (MDS)} the data consists of information
 about the similarity or dissimilarity between pairs of objects selected
-from a finite set \(\mathcal{O}=\{o_1,\cdots,o_n\}\).
+from a finite set \(\mathcal{O}=\{o_1,\cdots,o_n\}\). The purpose of MDS,
+at least of the forms of MDS discussed in this manual, is to map
+the \(o_i\) into elements \(x_i\) of a metric space in such a way that
+the pairwise distances between the \(x_i\) mirror the information we have about the dissimilarities. This is admittedly vague and we'll make it more
+precise in a moment.
 
-In \emph{metric MDS} we have numerical dissimilarity measures \(\delta\) on
+It is not our intention in these chapters to give an introduction to MDS
+and a complete overview of MDS models, techniques, algorithms, and
+applications. This has already been done admirably in
+Borg and Groenen (2005). We limit outselves to discussing the definitions, results, and notations necessary to understand the MDS techniques presented in this manual.
+
+\subsection{Euclidean MDS}\label{euclidean-mds}
+
+The MDS techniques discussed in this manual are \emph{Euclidean}, by which we mean that we map the objects \(o_i\) into elements \(x_i\) of a p-dimensional vector space with metric
+
+\subsubsection{Weights}\label{weights}
+
+\subsection{Metric, Non-metric, and Non-linear MDS}\label{metric-non-metric-and-non-linear-mds}
+
+\subsection{Square and Rectangular MDS}\label{square-and-rectangular-mds}
+
+\subsection{Alternating Least Squares}\label{alternating-least-squares}
+
+\subsection{Majorization (or MM)}\label{majorization-or-mm}
+
+In \emph{metric MDS} we have a numerical dissimilarity measure \(\delta\) on
 a subset of \(\mathcal{O}\times\mathcal{O}\) and we want to
 map the objects \(o_i\) into \(n\) points \(x_i\) of some metric space in such
 a way that the distances between the points approximate the
@@ -197,8 +217,7 @@ theory, algorithms, and computer programs, the metric space is
 \end{equation}
 (the symbol \(:=\) is used for definitions). Note that \emph{distance matrix completion} (Fang and O'Leary (2012)) is an example of metric MDS.
 
-Besides metric MDS there is also something called \emph{non-metric MDS}. The terms is ambiguous and can mean either one of two things. One definition is that
-we do not have numerical information about the dissimilarities, but only
+Besides metric MDS there is also something called \emph{non-metric MDS}. The term is ambiguous and can mean either one of two things. One definition is that we do not have numerical information about the dissimilarities, but only
 ordinal of nominal information. In the ordinal case we know that some dissimilarities are larger or smaller than others, in the nominal case
 that the objects are partitioned into groups and within-group
 distances are smaller than between-group distances. An MDS analysis
@@ -212,7 +231,6 @@ such that
 (o_i,o_j)\preceq_\delta(o_k,o_l)\quad\Rightarrow\quad d_{ij}(X)\preceq_d d_{kl}(X).
 \label{eq:relations}
 \end{equation}
-For most non-metric MDS problems both \(\preceq_\delta\) and \(\prec_d\) are partial orders, but for nominal data they can be equivalence relations.
 
 The term ``non-metric'' is sometimes also used in the case in which we do have numerical dissimilarities \(\delta_{ij}\), but the MDS problem is to find Euclidean distances which approximate some partially unknown function of the dissimilarities. The function should be member of a well-defined class of functions, for
 instance a third degree polynomial or a piecewise linear spline on a
@@ -237,10 +255,10 @@ only a single element, the identity transformation, in which case
 non-linear MDS is metric MDS.
 
 One way to solve this terminological dilemma is to simply define
-MDS as finding an approximate solution \((X,\Delta)\) to
+MDS as finding an approximate solution \((X,\hat D)\) to
 \begin{subequations}
 \begin{align}
-\Delta&\in\mathfrak{D}\label{eq:gmdsdef1},\\
+\hat D&\in\mathfrak{D}\label{eq:gmdsdef1},\\
 X&\in\mathfrak{X}\label{eq:gmdsdef2},\\
 D(X)&=\Delta\label{eq:gmdsdef3},
 \end{align}
@@ -249,74 +267,12 @@ where \(D(X)\) is the matrix of Euclidean distances and \(\mathfrak{D}\) is the 
 metric MDS, linear MDS, non-linear MDS, and non-metric MDS as special cases,
 defined by different sets \(\mathfrak{D}\).
 
-\section{Types of Data}\label{types-of-data}
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\item
-  \(\mathcal{R}\) is a set of \(n\) objects called \emph{rows}.
-\item
-  \(\mathcal{C}\) is a set of \(m\) objects called \emph{columns}.
-\item
-  Numerical
-\end{enumerate}
-
-\begin{itemize}
-\tightlist
-\item
-  \(\mathcal{RR}\) data, \(\langle\mathcal{R}\times\mathcal{R}, \delta\rangle\), real-valued function \(\delta\) on a subset of \(\mathcal{R}\times\mathcal{R}\).
-\item
-  \(\mathcal{CC}\) data, \(\langle\mathcal{C}\times\mathcal{C}, \delta\rangle\), real-valued function \(\delta\) on a subset of \(\mathcal{C}\times\mathcal{C}\).
-\item
-  \(\mathcal{RC}\) data, \(\langle\mathcal{R}\times\mathcal{C}, \delta\rangle\), real-valued function \(\delta\) on a subset of \(\mathcal{R}\times\mathcal{C}\).
-\end{itemize}
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\setcounter{enumi}{1}
-\tightlist
-\item
-  Ordinal
-\end{enumerate}
-
-\begin{itemize}
-\tightlist
-\item
-  XX data, partial order on a subset of \(X\times X\)
-\item
-  XY data, partial order \(\leq\) on the \(n\times m\)-element set \(X\times Y\)
-\end{itemize}
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\setcounter{enumi}{2}
-\tightlist
-\item
-  Nominal
-\end{enumerate}
-
-\begin{itemize}
-\tightlist
-\item
-  XX data, equivalence relation on a subset of \(X\times X\)
-\item
-  XY data, equivalence relation on a subset of \(X\times Y\)
-\end{itemize}
-
-Conditional Data
-+ XX data, \(n\) partial \(\leq\) is the union of \(n\) partial orders \(\leq_i\) on the \(n\) disjoint \(n\)-element sets \(x_i\times X\)
-+ XY data, the partial order \(\leq\) is the union of \(n\) partial orders \(\leq_i\) on the \(n\) disjoint \(m\)-element sets \(x_i\times Y\)
-
-Replicated Data
-
-As ordinal, but the partial orders are equivalence relations.
-
 \section{Loss Function}\label{loss-function}
 
 In the pioneering papers Kruskal (1964a) and Kruskal (1964b) the MDS problem
 was formulated for the first time as minimization of an explicit \emph{loss
 function} or \emph{badness-of-fit function}, which measures the quality of the approximation of the dissimilarities by the distances. To be historically accurate, we should
-mention that the non-metric MDS technique proposed by Shepard (1962a) and Shepard (1962b) can be reformulated as minimization of an explicit loss function (see, for example, De Leeuw (2017b)). And the classical Young-Householder-Torgerson MDS technique (Torgerson (1952)) for metric MDS can be reformulated as minimizing an explicit least squares loss function (De Leeuw and Heiser (1982)) as well.
+mention that the non-metric MDS technique proposed by Shepard (1962a) and Shepard (1962b) can be reformulated as minimization of an explicit loss function (see, for example, De Leeuw (2017)). And the classical Young-Householder-Torgerson MDS technique (Torgerson (1952)) for metric MDS can be reformulated as minimizing an explicit least squares loss function (De Leeuw and Heiser (1982)) as well.
 But neither of these two predecessors was formulated originally as an explicit minimization
 problem for a specific loss function
 
@@ -564,7 +520,7 @@ permutation of the \(d_{ij}(X)\) that makes them monotone with the
 \end{equation}
 where the \(\hat d_{ij}^\%(X)\) are \emph{Shepard's rank images}, i.e.~the
 permutation of the \(\delta_{ij}\) that makes them monotone with the
-\(d_{ij}(X)\) (Shepard (1962a), Shepard (1962b), De Leeuw (2017b)).
+\(d_{ij}(X)\) (Shepard (1962a), Shepard (1962b), De Leeuw (2017)).
 
 Minimizing the Shepard or Guttman single-phase loss functions is
 computationally more complicated than Kruskal's \emph{monotone regression}
@@ -614,8 +570,11 @@ step in the second phase.
 
 \section{Smacof Notation and Terminology}\label{smacof-notation-and-terminology}
 
-We discuss some standard MDS notation, first introduced in
-De Leeuw (1977). This notation is useful for the second phase of the ALS
+We discuss some the MDS notation used in smacof, which was first introduced in De Leeuw (1977) and De Leeuw and Heiser (1977). More
+detailed De Leeuw and Heiser (1980), De Leeuw (1988), Borg and Groenen (2005),
+Groenen and Van de Velden (2016)
+
+This notation is useful for the second phase of the ALS
 algorithm, in which solve the metric MDS problem of we minimizing
 unnormalized \(\sigma(X,\hat D)\) over \(X\) for fixed \(\hat D\). We will
 discuss the first ALS phase later in the paper.
@@ -781,149 +740,6 @@ and
 \[
 \frac{\omega(\alpha)}{\eta^2(\alpha)}\leq\sigma(Y)
 \]
-
-\section{Properties of Smacof Loss}\label{properties-of-smacof-loss}
-
-\subsection{Derivatives}\label{derivatives}
-
-The Euclidean distance function \(d_{ij}\) from \ldots{} is not differentiable
-at configurations \(X\) with \(x_i=x_j\). If \(d_{ij}(X)>0\) then
-\[
-\mathcal{D}\sigma(X)=\frac{1}{d_{ij}(X)}A_{ij}X
-\]
-If \(d_{ij}(X)=0\) then \[
-D_+d_{ij}(X,Y)=\lim_{\epsilon\downarrow 0}\frac{d_{ij}(X+\epsilon Y)-d_{ij}(X)}{\epsilon}=d_{ij}(Y)
-\] which is non-linear in \(Y\), showing non-differentiability.
-
-\[
-D_+\sigma(X,Y)=\text{tr}\ Y'(V-B(X))X+\sum\{w_{ij}\delta_{ij}d_{ij}(Y)\mid d_{ij}(X)=0\}
-\] This form of the directional derivative is used by De Leeuw (1984) to
-show that two independent necessary conditions for a local minimum are
-\((V-B(X))X=0\) and \(d_{ij}(X)>0\) for all \((i,j)\) with
-\(w_{ij}\delta_{ij}>0\).
-
-\subsubsection{Gradient}\label{gradient}
-
-\[
-\mathcal{D}\sigma(X)=(V-B(X))X
-\]
-At a stationary point \(B(X)X=VX\) or \(V^+B(X)X=X\). Thus a necessary
-condition for a local minimum is that \(V^+B(X)\) has at least \(p\)
-eigenvalues equal to one. De Leeuw (2014) has shown that if
-\(V^+B(X)\lesssim I\) then actually \(X\) is a global minimizer of stress.
-
-\[
-\rho(X)=\sum w_{ij}\delta_{ij}(X)
-\]
-
-\[
-\nabla d_{ij}(X)=\begin{bmatrix}0\\
-\frac{x_i-x_j}{d_{ij}(X)}\\0\\-\frac{x_i-x_j}{d_{ij}(X)}\\0\end{bmatrix}
-\]
-
-\[
-\partial d_{ij}(X)=\left\{\begin{bmatrix}0\\
-y\\0\\-y\\0\end{bmatrix}\mid y'y\leq 1\right\}.
-\]
-
-\subsubsection{Hessian}\label{hessian}
-
-The results on the Hessian of stress are largely unpublished. So we
-summarize them here in this manual, so they'll be even more unpublished.
-
-\[
-H_{st}(X):=\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{\frac{A_{ij}x_sx_t'A_{ij}}{d_{ij}^2(X)}\right\}
-\]
-
-\[
-H_{st}(X)=\sum   w_{ij}\frac{\delta_{ij}}{d_{ij}^3(X)}(x_{is}-x_{js})(x_{it}-x_{jt})A_{ij}
-\]
-\[
-\mathcal{D}_{st}\sigma(X)=\begin{cases}H_{st}(X)&\text{ if }s\not= t,\\
-V-B(X)+H_{st}&\text{ if }s= t.
-\end{cases}
-\]
-If \(I_p\) is the identity matrix of order \(p\), and \(\otimes\) is the
-Kronecker product, then \[
-\mathcal{D}^2\sigma(X)=I_p\otimes(V - B(X))+ H(X)
-\] \[
-\sum_{s=1}^p\sum_{t=1}^p y_s'H_{st}y_t=\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{\frac{(\text{tr} \ Y'A_{ij}X)^2}{d_{ij}^2(X)}\right\}\leq\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\text{tr}\ Y'A_{ij}Y=\text{tr}\ Y'B(X)Y.
-\]
-Thus
-\[
-0\lesssim H\lesssim I_p\otimes B(X),
-\]
-and
-\[
-I_p\otimes (V-B(X))\lesssim\mathcal{D}^2\sigma(X)\lesssim I_p\otimes V
-\]
-At a local minimum of \(\sigma\)
-\[
-0\lesssim\mathcal{D}^2\sigma(X)\lesssim I_p\otimes V
-\]
-In comparing the lower bounds on \(\mathcal{D}^2\sigma(X)\) in \ldots{} and
-\ldots{} De Leeuw (2014) shows that \(V-B(X)\gtrsim 0\) is sufficient for a
-\emph{global} minimum of stress (but far from necessary).
-
-Also \[
-\sum_{t=1}^p H_{st}y_t=\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{\frac{\text{tr}\ Y'A_{ij}X }{d_{ij}^2(X)}\right\}A_{ij}x_s
-\] If \(Y=X\) then \(H(X)y=(I_p\otimes B(X))x\) and thus
-\[\mathcal{D}^2\sigma(X)x=(I_p\otimes V)x.\] In the unweighted case this
-means that \(X\) is an eigenvector of \(\mathcal{D}^2\sigma(X)\) with
-eigenvalue \(n\). Inequalities \ldots{} show that this is actually the largest
-eigenvalue. Or \((I_p\otimes V)^+\mathcal{D}^2\sigma(X)\lesssim I\).
-
-If \(Y=XT\) with \(T\) anti-symmetric then \(\text{tr}\ Y'A_{ij}X=0\) then
-thus \(H(X)y=0\). Thus \[
-\sum_{t=1}^p\mathcal{D}_{st}\sigma(X)y_t=(V-B(X))y_t
-\] which is zero if \(\mathcal{D}\sigma(X)\) is zero. Thus at a stationary
-point of stress \(\mathcal{D}^\sigma(X)\) has \(\frac12p(p-1)\) zero
-eigenvalues.
-
-There are several ways to think of the Hessian. The simplest one
-(perhaps) is as an \(np\times np\) symmetric matrix (corresponding to
-
-column-major R vector of length \(\frac12 np(np+1)\)). This is what we
-would use for a straightforward version of Newton-Raphson.
-
-It is more elegant, however, to think of \(H\) as a symmetric super-matrix
-of order \(p\), with as elements \(n\times n\) matrices. And, for some
-purposes, such as the pseudo-confidence ellipsoids in De Leeuw (2017a), as
-a super-matrix of order \(n\) with as elements \(p\times p\) matrices. Both
-the super-matrix interpretations lead to four-dimensional arrays, the
-first a \(p\times p\times n\times n\) array, the second an
-\(n\times n\times p\times p\) array. The different interpretations lead to
-different ways to store the Hessian in memory, and to different ways to
-retrieve its elements. Of course we can write routines to transform from
-one interpretation to another.
-
-\subsection{Lagrangian}\label{lagrangian}
-
-In our implementation of the smacof algorithm we minimize stress over
-configurations with \(\eta(X)=1\), or, equivalently,
-\(\sum w_{ij}d_{ij}^2(X)=1\). This means we do not look for \(X\) with
-\(\mathcal{D}\sigma(X)=(V-B(X))X=0\), but we look for solutions of \[
-(V-B(X))X-\lambda VX=0,\\
-\text{tr}\ X'VX= 1.
-\] At the solution \[
-\lambda=1-\rho(X)
-\] and \[
-X = \frac{\Gamma(X)}{\eta(\Gamma(X))}
-\] Also it is necessary for a local minimum that \[
-\Gamma(X)=\rho(X)X
-\] Because the Guttman transform is homogeneous of degree zero this
-implies \[
-\Gamma(\Gamma(X)=\Gamma(X),
-\] so although \(X\) is not a fixed point of the Guttman transform,
-\(\Gamma(X)\) is.
-
-The second order necessary condition is that \[
-H(X)\gtrsim I_p\otimes (\rho(X)V - B(X))
-\] is positive
-
-\subsubsection{Kuhn-Tucker Points}\label{kuhn-tucker-points}
-
-bozo
 
 \section{Smacof Algorithm}\label{smacof-algorithm}
 
@@ -1111,6 +927,9 @@ Bauschke, H. H., M. N. Bui, and X. Wang. 2018. {``{Projecting onto the Intersect
 \bibitem[\citeproctext]{ref-boehning_lindsay_88}
 Böhning, D., and B. G. Lindsay. 1988. {``{Monotonicity of Quadratic-approximation Algorithms}.''} \emph{Annals of the Institute of Statistical Mathematics} 40 (4): 641--63.
 
+\bibitem[\citeproctext]{ref-borg_groenen_05}
+Borg, I., and P. J. F. Groenen. 2005. \emph{Modern Multidimensional Scaling}. Second Edition. Springer.
+
 \bibitem[\citeproctext]{ref-deleeuw_R_68d}
 De Leeuw, J. 1968. {``Nonmetric Discriminant Analysis.''} Research Note 06-68. Department of Data Theory, University of Leiden.
 
@@ -1120,26 +939,26 @@ De Leeuw, J. 1968. {``Nonmetric Discriminant Analysis.''} Research Note 06-68. D
 \bibitem[\citeproctext]{ref-deleeuw_C_77}
 ---------. 1977. {``Applications of Convex Analysis to Multidimensional Scaling.''} In \emph{Recent Developments in Statistics}, edited by J. R. Barra, F. Brodeau, G. Romier, and B. Van Cutsem, 133--45. Amsterdam, The Netherlands: North Holland Publishing Company.
 
-\bibitem[\citeproctext]{ref-deleeuw_A_84f}
----------. 1984. {``{Differentiability of Kruskal's Stress at a Local Minimum}.''} \emph{Psychometrika} 49: 111--13.
+\bibitem[\citeproctext]{ref-deleeuw_A_88b}
+---------. 1988. {``Convergence of the Majorization Method for Multidimensional Scaling.''} \emph{Journal of Classification} 5: 163--80.
 
 \bibitem[\citeproctext]{ref-deleeuw_C_94c}
 ---------. 1994. {``{Block Relaxation Algorithms in Statistics}.''} In \emph{Information Systems and Data Analysis}, edited by H. H. Bock, W. Lenski, and M. M. Richter, 308--24. Berlin: Springer Verlag. \url{https://jansweb.netlify.app/publication/deleeuw-c-94-c/deleeuw-c-94-c.pdf}.
 
-\bibitem[\citeproctext]{ref-deleeuw_U_14b}
----------. 2014. {``{Bounding, and Sometimes Finding, the Global Minimum in Multidimensional Scaling}.''} UCLA Department of Statistics. \url{https://jansweb.netlify.app/publication/deleeuw-u-14-b/deleeuw-u-14-b.pdf}.
-
-\bibitem[\citeproctext]{ref-deleeuw_E_17q}
----------. 2017a. {``{Pseudo Confidence Regions for MDS}.''} 2017. \url{https://jansweb.netlify.app/publication/deleeuw-e-17-q/deleeuw-e-17-q.pdf}.
-
 \bibitem[\citeproctext]{ref-deleeuw_E_17e}
----------. 2017b. {``{Shepard Non-metric Multidimensional Scaling}.''} 2017. \url{https://jansweb.netlify.app/publication/deleeuw-e-17-e/deleeuw-e-17-e.pdf}.
+---------. 2017. {``{Shepard Non-metric Multidimensional Scaling}.''} 2017. \url{https://jansweb.netlify.app/publication/deleeuw-e-17-e/deleeuw-e-17-e.pdf}.
 
 \bibitem[\citeproctext]{ref-deleeuw_E_19d}
 ---------. 2019. {``Normalized Cone Regression.''} 2019. \url{https://jansweb.netlify.app/publication/deleeuw-e-19-d/deleeuw-e-19-d.pdf}.
 
+\bibitem[\citeproctext]{ref-deleeuw_heiser_C_77}
+De Leeuw, J., and W. J. Heiser. 1977. {``Convergence of Correction Matrix Algorithms for Multidimensional Scaling.''} In \emph{Geometric Representations of Relational Data}, edited by J. C. Lingoes, 735--53. Ann Arbor, Michigan: Mathesis Press.
+
+\bibitem[\citeproctext]{ref-deleeuw_heiser_C_80}
+---------. 1980. {``Multidimensional Scaling with Restrictions on the Configuration.''} In \emph{Multivariate Analysis, Volume {V}}, edited by P. R. Krishnaiah, 501--22. Amsterdam, The Netherlands: North Holland Publishing Company.
+
 \bibitem[\citeproctext]{ref-deleeuw_heiser_C_82}
-De Leeuw, J., and W. J. Heiser. 1982. {``Theory of Multidimensional Scaling.''} In \emph{Handbook of Statistics, Volume {II}}, edited by P. R. Krishnaiah and L. Kanal. Amsterdam, The Netherlands: North Holland Publishing Company.
+---------. 1982. {``Theory of Multidimensional Scaling.''} In \emph{Handbook of Statistics, Volume {II}}, edited by P. R. Krishnaiah and L. Kanal. Amsterdam, The Netherlands: North Holland Publishing Company.
 
 \bibitem[\citeproctext]{ref-deleeuw_mair_A_09c}
 De Leeuw, J., and P. Mair. 2009. {``{Multidimensional Scaling Using Majorization: SMACOF in R}.''} \emph{Journal of Statistical Software} 31 (3): 1--30. \url{https://www.jstatsoft.org/article/view/v031i03}.
@@ -1149,6 +968,9 @@ Dempster, A. P., N. M. Laird, and D. B. Rubin. 1977. {``{Maximum Likelihood for 
 
 \bibitem[\citeproctext]{ref-fang_oleary_12}
 Fang, H., and D. P. O'Leary. 2012. {``Euclidean Distance Matrix Completion Problems Euclidean Distance Matrix Completion Problems Euclidean Distance Matrix Completion Problems.''} \emph{Oprtimization Methods and Software} 27 (4-5): 695--717.
+
+\bibitem[\citeproctext]{ref-groenen_vandevelden_16}
+Groenen, P. J. F., and M. Van de Velden. 2016. {``{Multidimensional Scaling by Majorization: A Review}.''} \emph{Journal of Statistical Software} 73 (8): 1--26. \url{https://www.jstatsoft.org/index.php/jss/article/view/v073i08}.
 
 \bibitem[\citeproctext]{ref-guttman_68}
 Guttman, L. 1968. {``{A General Nonmetric Technique for Fitting the Smallest Coordinate Space for a Configuration of Points}.''} \emph{Psychometrika} 33: 469--506.

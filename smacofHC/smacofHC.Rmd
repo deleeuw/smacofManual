@@ -263,13 +263,7 @@ is not to big, and we avoid generalized inverses of very large and very
 sparse matrices.
 
 
-## Nine analyses
 
-There are three options for updating the $Y_j$. 
-
-0. No further constraints on the $Y_j$.
-1. The $Y_j$ have rank one, i.e. $Y_j=q_ja_j'$.
-2. The $Y_j$ are centroids, i.e. $Y_j=(G_j'W_jG_j)^{-1}G_j'W_jX$.
 
 There are two options for updating $X$. Note that $X$ is always
 constrained to be the same for all variables, i.e. $X_j=X$.
@@ -284,80 +278,20 @@ constraint on $Y_j$ is taken from the Gifi system, where it serves
 to make homogeneity analysis into a form of non-linear principal
 component analysis. 
 
-There are far more than nine possible analyses. For each of the
-$m$ variables we can independently choose each of the three options for the
-$Y_j$ and combine it with one of the three options for $X$, making a total
-of $3^{m+1}$ different analyses (in a given dimensionality $p$).
 
-## Categories unconstrained (yform = 0)
+## Centroid Constraints on Y
 
-Suppose there are no constraints on the $Y_j$. 
-After computing the Guttman transforms $\tilde X_j$ and $\tilde Y_j$  
-we have to project them on the constrained configurations, in this
-case on the set $X_j=X$. More explicitly we must minimize
+If we require that $Y_j=(G_j'R_jG_j)^{-1}G_j'R_jX$ then this effectively eliminates the $Y_j$ as variables from the optimization problem and we only have to optimize over $X$. We must minimize
 \begin{multline}
-\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'R_j(X-\tilde X_j)-2\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'W_j(Y_j-\tilde Y_j)+\\
-\sum_{j=1}^m\text{tr}\ (Y_j-\tilde Y_j)'C_j(Y_j-\tilde Y_j)
+\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'R_j(X-\tilde X_j) -
+\text{tr}\ (X-\tilde X_j)'W_j(H_jX-\tilde Y_j)+\\
+\text{tr}\ (H_jX-\tilde Y_j)'C_j(H_jX-\tilde Y_j)
 \end{multline}
-where $R_j$ and $C_j$ are now the diagonal matrices of row and column sums of the
-$-W_j$.
-
-The stationary equations are
-\begin{align}
-Y_j&=\tilde Y_j-C_j^{-1}W_j'(X-\tilde X_j),(\#eq:stateq1)\\
-X&=\{R_\star\}^{-1}\sum_{j=1}^m\left\{R_j\tilde X_j-W_j(Y_j-\tilde Y_j)\right\}.(\#eq:stateq2)
-\end{align}
-We solve these equations iteratively using alternating least squares. This 
-means using \@ref(eq:stateq1) to compute a new $Y$ for given $X$ and \@ref(eq:stateq2) to compute a new $X$ for given $Y$. We alternate these two updates until convergence.
-
-### Normalization of X
-
-We can impose the weak normalization constraint $\text{tr}\ X'R_\star X=1$ or the
-strong normalization constraint $X'R_\star X=I$. In both cases the stationary
-equation \@ref(eq:stateq1) remains the same, while \@ref(eq:stateq1) becomes
-$$
-R_\star X\Lambda=P,
-$$
-with
-$$
-P:=\sum_{j=1}^m\left\{R_j\tilde X_j-W_j(Y_j-\tilde Y_j)\right\}
-$$
-and with $\Lambda$ a matrix of Lagrange multipliers. For weak normalization $\Lambda$
-is scalar, and
-$$
-X=\frac{1}{\sqrt{\text{tr}\ P'R_\star^{-1}P}}R_\star^{-1}P
-$$
-For strong normalization $\Lambda$ is symmetric. Using the symmetric square root, $\Lambda=(P'R_\star^{-1}P)^\frac12$ and thus 
-$$
-X=R_\star^{-1}P(P'R_\star^{-1}P)^{-\frac12}.
-$$
-Thus requiring normalized object scores only needs small modifications in the $X$ update step of the unnormalized update $R_\star^{-1}P$.
-
-## Rank Constraints on Y (yform = 1)
-
-As in homals it is possible in smacofHO to impose rank-one restrictions on some or all of the $Y_j$. This means we require
-$$
-y_l^j=\alpha_{l}^jy_l^{\ }{}
-$$
-Geometrically having all $y_l^j$ on a line through the origin implies that
-all Voronoi boundaries are hyperplanes perpendicular to that line, and consequently all Voronoi regions are bounded by two parallel hyperplanes.
-
+Expanding
 \begin{multline}
-\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'R_j(X-\tilde X_j)-2\sum_{j=1}^m\text{tr}\ (X-\tilde X_j)'W_j(y_ja_j'-\tilde Y_j)+\\
-\sum_{j=1}^m\text{tr}\ (y_ja_j'-\tilde Y_j)'C_j(y_ja_j'-\tilde Y_j)
+2\ X'R_\star X-2\ \text{tr}\ X'\sum_{j=1}^mR_j\tilde X_j-2\ \text{tr}\ X'\{\sum_{j=1}^mW_jH_j\}X + 2\text{tr}\ X'\sum_{j=1}^mW_j\tilde Y_j+\\
+\text{tr}\ X'\{\sum_{j=1}^mH_j'C_jH_j\}X-2\text{tr}\ X'\{\sum_{j=1}^mH_j'C_j\tilde Y_j\}
 \end{multline}
-
-$$
--2a_j'\{(X-\tilde X_j)'W_j+\tilde Y_j'C_j\}y_j+a_j'a_jy_j'C_jy_j
-$$
-
-### Normalization
-
-
-## Centroid Constraints on Y (yform = 2)
-
-If we require that $Y_j=(G_j'R_jG_j)^{-1}G_j'R_jX$ then this effectively eliminates the $Y_j$ as variables from the optimization problem and we only have to optimize over $X$. This makes the projection  problem
-quite different from the one with yform = 0 or yform = 1.
 
 Substituting $Y_j=H_jX$ with $H_j:=(G_j'R_jG_j)^{-1}G_j'R_j$ in .. and simplifying gives
 the stationary equations $P_\star X= Q_\star$ with
@@ -367,35 +301,36 @@ P_\star&:=\sum_{j=1}^m\{R_j-H_j'W_j'-W_jH_j+H_j'C_jH_j\},\\
 Q_\star&:=\sum_{j=1}^m\{(R_j-H_j'W_j')\tilde X_j-(W_j-H_j'C_j)\tilde Y_j\}.
 \end{align}
 \end{subequations}
+Thus the unnormalized solution for the object scores is $X=P^+_\star Q_\star$.
 
-Thus the unnormlaized solution for the object scores is $X=P^+_\star Q_\star$. But this requires inversion of the matrix $P_\star$, which has order $n$. We avoid the inversion by using majorization. Suppose $\mu$ is such that $P_\star\lesssim\mu R_\star$ in  the Loewner sense. We would typically take $\mu$ as the
-largest eigenvalue of $R_\star^{-\frac12}P_\star R_\star^{-\frac12}$.
+We want to avoid inversion of the matrix $P_\star$, which has order $n$. In fact we do not want to compute and store $P_\star$ at all. huppel
 
-$$\omega(X)=\text{tr}\ (\overline X+(X-\overline X))'P(\overline X+(X-\overline X))-2\text{tr}\ (\overline X+(X-\overline X))'Q$$
+We avoid the inversion by using majorization. Suppose $\mu$ is such that $P_\star\lesssim\mu R_\star$ in  the Loewner sense. We would typically take $\mu$ as the largest eigenvalue of $R_\star^{-1}P_\star$.
+
+Define 
 $$
-\text{tr}\ (X-\tilde X)'P(X-\tilde X)-2\ \text{tr}\ (X-\tilde X)'(Q-P\tilde X)\leq
-\lambda\ \text{tr}\ (X-\tilde X)'R_\star(X-\tilde X)-2\ \text{tr}\ (X-\tilde X)'(Q-P\tilde X)
+\omega(X):=\text{tr}\ X'P_\star X-2\ \text{tr}\ X'Q_\star
+$$
+Then, reculer pour mieux sauter, writing $\overline{X}$ for the current best 
+$X$,
+$$
+\omega(X)=\text{tr}\ (\overline X+(X-\overline X))'P_\star(\overline X+(X-\overline X))-2\ \text{tr}\ (\overline X+(X-\overline X))'Q_\star
+$$
+Now
+\begin{multline}
+\omega(X)\leq\omega(\overline X)+
+\mu\text{tr}\ (X-\overline X)'R_\star(X-\overline X)-2\ \text{tr}\ (X-\overline X)'(Q_\star-P_\star\overline X)
+\end{multline}
+The stationary equations in the unnormalized case have solution
+$$
+X=\overline X+\mu^{-1}R_\star^{-1}(Q_\star-P_\star\overline X)
 $$
 
+If we require the normalization $X'R_\star X=I$ then we must solve the Procrustus problem
 $$
-\lambda R_\star(X-\tilde X)=Q-P\tilde X
+(\mu R_\star-P_\star)\overline X - Q_\star=R_\star X\Lambda
 $$
-
-$$
-(P_\star-\lambda R_\star)\tilde X-Q=-\lambda R_\star X
-$$
-
-
-### Normalization
-
-It is tempting use a normalization based on $X'P_\star X$ but that would make comparison with
-the results for unconstrained and rank-one $Y$ more complicated. Thus we continue
-to normalize using $X'R_\star X$ and use the majorization .. The stationary equations are
-$$
-(P-\lambda R_\star)\tilde X-Q=R_\star X\Lambda
-$$
-which we solve in the usual way for weak and strong normalizations.
-
+with $\Lambda$ a symmetric matrix of Lagrange multipliers.
 
 # Convergence and Degeneracy
 

@@ -196,7 +196,7 @@
 \title{Smacof at 50: A Manual\\
 Part 4: Smacof for Tetrads}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started May 19 2024, Version of May 26, 2024}
+\date{Started May 19 2024, Version of July 01, 2024}
 
 \begin{document}
 \maketitle
@@ -220,11 +220,10 @@ The paired comparison of pairs of objects is the simplest and
 the most basic one of the cartwheel methods for collecting
 similarity judgments (Coombs (1954)).
 Pairs of objects from a set
-\(\mathcal{O}\) of \(n\) objects are compared, and the data inducate which if the two
-pairs is the most similar. Torgerson (1958) (p.~261-262) calls this the \emph{method of tetrads}, and we shall adopt this terminology by referring to a pair of pairs of objects \(((o_i,o_j),(o_k,o_l))\) as a \emph{tetrad}. This is of course not to be confused
-with the use of ``tetrads'' in factor analysis.
+\(\mathcal{O}\) of \(n\) objects are compared, and the data indicate which of the two
+pairs is the most similar. Torgerson (1958) (p.~261-262) calls this the \emph{method of tetrads}, and we shall adopt this terminology by referring to a pair of pairs of objects \(((o_i,o_j),(o_k,o_l))\) as a \emph{tetrad}. This is of course not to be confused with the use of ``tetrads'' in factor analysis.
 
-In Torgerson's method of tetrads we need replications over occasions (or subjects) to estimate the probability of the \((o_i,o_j)\lesssim (o_k,o_l)\) judgments, which can then turned into scale values using Thurstonianpaired comparison methods. In the smacofPC method we discuss here no replications are needed and we can apply MDS to the data from a single occasion without replications of tetrads.
+In Torgerson's method of tetrads we need replications over occasions (or subjects) to estimate the probability of the \((o_i,o_j)\lesssim (o_k,o_l)\) judgments, which can then turned into scale values using Thurstonian paired comparison methods. In the smacofPC method we discuss here no replications are needed and we can apply MDS to the data from a single occasion without replications of tetrads.
 
 In the MDS context the response
 that objects \(o_i\) and \(o_j\) are more similar than objects
@@ -234,13 +233,11 @@ finds an approximate solution to this highly non-linear and
 highly non-convex system of inequalities.
 
 smacofPC() is not limited to data collected as comparisons of
-pairs of objects. Many different data collection methods produce data that are nt of this form, but can be
+pairs of objects. Many different data collection methods produce data that are not directly of this form, but that can be
 coded as such paired comparisons. Examples are the various versions of the
 method of triads, the method of conditional rank orders, and the
 complete or partial ranking of all \(\binom{n}{2}\) dissimilarities.
-In general the comparison data for pairs of pairs do not require transitivity
-or symmetry and allow for replications of some or all pairs of
-pairs.
+In general the comparison data for pairs of pairs do not require transitivity or symmetry and allow for replications of some or all pairs of pairs.
 
 There have been earlier versions of non-metric MDS methods based
 on comparisons of pairs of objects. Around 1970 various people proposed the \emph{positive orthant method (POM)} (De Leeuw (1968), De Leeuw (1970), Hartmann (1979)), the \emph{absolute value principle (AVP)} (Guttman (1969)), and the
@@ -284,7 +281,7 @@ signatures (or, equivalently, over the convex set of all matrices with entries b
 
 As we shall see, the loss function used in smacofPO is an explicitly normalized version of equation \eqref{eq:pom} with \(q=2\). The explicit normalization is a major difference with POM/AVP/PNM, which use implicit normalization of stress with denominator \eqref{eq:lambdad}. The loss function used for our initial estimate is an explicitly normalized version of equation \eqref{eq:pom} that has \(q=1\) and uses squared distances.
 
-The MAXSCAL method proposed by Takane (1978b), Takane (1978a) is very different from the POM, AVP, PNM trio, and consequently also different from smacofPC. The loss function is not
+The MAXSCAL method for tetrads proposed by Takane (1978b), Takane (1978a) is very different from the POM, AVP, PNM trio, and consequently also different from smacofPC. The loss function is not
 least squares, at least not conceptually, but is based on the likelihood function for a simple choice model for the tetrad responses. Computationally the negative likelihood is minimized by using a Gauss-Newton approximation to the Hessian, which leads in the usual way to iterative reweighted least squares.
 
 Another recent excursion into scaling tetrads is Agarwal et al. (2007). They do not use
@@ -441,7 +438,7 @@ has been around even longer. It is discussed
 in the one-dimensional case as the ``fourth method of quantification''
 in Hayashi (1952). Suppose \(\Delta\) is a symmetric non-negative matrix of
 dissimilarities. Then, in the multidimensional extension proposed in
-Okamoto and Isogai (1878), we maximize
+Okamoto and Isogai (1978), we maximize
 \begin{equation}
 \sum\sum\delta_{ij}^2d_{ij}^2=\text{tr}\ X'BX,
 \label{eq:hayashi}
@@ -452,7 +449,7 @@ B:=\sum\sum\delta_{ij}^2 A_{ij}.
 \label{eq:bmatdef}
 \end{equation}
 Thus \(B\) is positive semi-definite, and if \(\Delta\) is irreducible it is
-of rank \(n-1\). Okamoto and Isogai (1878) observe in their
+of rank \(n-1\). Okamoto and Isogai (1978) observe in their
 Theorem 3, as we have above. that
 requiring \(\text{tr}\ X'X=1\) generally leads to a one dimensional solution.
 Only if the largest eigenvalue of \(B\) has multiplicity \(r>1\) an r-dimensional
@@ -462,7 +459,7 @@ solution is possible. We removed this problem by using the explicit normalizatio
 We should emphasize that in Hayashi's method similarities
 in stead of dissimilarities are used, and that the (dis)similarities are
 not squared. It seems natural to use squares dissimilarities in .., also because
-Okamoto and Isogai (1878) refer to earlier results (in Japanese), where Hayashi's fourth method compares unfavorably with the Torgerson classical MDS solution which is of course based on squared dissimilarities. Also note again that in the tetrad case we
+Okamoto and Isogai (1978) refer to earlier results (in Japanese), where Hayashi's fourth method compares unfavorably with the Torgerson classical MDS solution which is of course based on squared dissimilarities. Also note again that in the tetrad case we
 do not need a numerical measure of similarity or dissimilarity.
 
 \subsection{Pairwise Monotone Regression}\label{pairwise-monotone-regression}
@@ -656,8 +653,7 @@ tetrads, which is of the order \(\frac14n^4\). Here is a little table.
 There are a number of ways to deal with this fundamental problem. If we take the psychophysical point of view that subjects are merely replications then we
 can use multiple subjects, each handling a subset of the tetrads.
 Alternatively, we can select a random subset of the total set of tetrads.
-Or we could use a design to select a preferably balanced subset. If the data are not behavioural and machine generated a complete set of tetrads may be
-feasible.
+Or we could use a design to select a preferably balanced subset. zaborsky\_24 is an empirical study of the number of possible tetrads to include to get a faithful representation. If the data are not behavioural and machine generated a complete set of tetrads may be feasible.
 
 Two utility functions are included in the package to collect data and organize them into the appropriate format. They are \texttt{smacofMakeAllPairs\ \textless{}-\ function(names,\ ties\ =\ 0)} and \texttt{smacofMakeRandomPairs\ \textless{}-\ function(names,\ nrandom,\ ties\ =\ 0)}.
 
@@ -1001,7 +997,7 @@ Johnson, R. M. 1973. {``{Pairwise Nonmetric Multidimensional Scaling}.''} \emph{
 Kruskal, J. B., and J. D. Carroll. 1969. {``{Geometrical Models and Badness of Fit Functions}.''} In \emph{Multivariate Analysis, Volume II}, edited by P. R. Krishnaiah, 639--71. North Holland Publishing Company.
 
 \bibitem[\citeproctext]{ref-okamoto_isogai_78}
-Okamoto, M., and T. Isogai. 1878. {``Optimality of Multidimensional Representation in Hayashi's Fourth Method of Quantification.''} \emph{Journal of the Japanese Statistical Society} 8 (2): 63--69.
+Okamoto, M., and T. Isogai. 1978. {``Optimality of Multidimensional Representation in Hayashi's Fourth Method of Quantification.''} \emph{Journal of the Japanese Statistical Society} 8 (2): 63--69.
 
 \bibitem[\citeproctext]{ref-roskam_70}
 Roskam, E. E. 1970. {``The Method of Triads for Nonmetric Multidimensional Scaling.''} \emph{Nederlands Tijdschrift Voor de Psychologie} 25 (404-417).
