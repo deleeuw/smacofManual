@@ -1,0 +1,311 @@
+---
+title: "Accelerated SMACOF Multidimensional Scaling"
+author: 
+- Jan de Leeuw - University of California Los Angeles
+date: '`r paste("Started July 23 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
+output:
+  bookdown::pdf_document2:
+    latex_engine: lualatex 
+    includes:
+      in_header: preamble.tex
+    keep_tex: yes
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+  bookdown::html_document2:
+    keep_md: yes
+    css: preamble.css
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+graphics: yes
+mainfont: Times New Roman
+fontsize: 12pt
+bibliography: ["mypubs.bib","total.bib"]
+abstract: TBD
+---
+```{r loadpackages, echo = FALSE}
+#suppressPackageStartupMessages (library (foo, quietly = TRUE))
+data(ekman, package = "smacof")
+ekman <- as.matrix(1 - ekman)
+```
+
+```{r load code, echo = FALSE}
+source("smacofAccelerate.R")
+```
+
+```{r moredata, echo = FALSE}
+gruijter <-
+  structure(
+    c(
+      5.63,
+      5.27,
+      4.6,
+      4.8,
+      7.54,
+      6.73,
+      7.18,
+      6.17,
+      6.72,
+      5.64,
+      6.22,
+      5.12,
+      4.59,
+      7.22,
+      5.47,
+      5.46,
+      4.97,
+      8.13,
+      7.55,
+      6.9,
+      4.67,
+      3.2,
+      7.84,
+      6.73,
+      7.28,
+      6.13,
+      7.8,
+      7.08,
+      6.96,
+      6.04,
+      4.08,
+      6.34,
+      7.42,
+      6.88,
+      6.36,
+      7.36
+    ),
+    Labels = c("KVP", "PvdA", "VVD",
+               "ARP", "CHU", "CPN", "PSP", "BP", "D66"),
+    Size = 9L,
+    call = quote(as.dist.default(m = polpar)),
+    class = "dist",
+    Diag = FALSE,
+    Upper = FALSE
+  )
+gruijter <- as.matrix(gruijter)
+mPrint <- function(x,
+                   digits = 10,
+                   width = 15,
+                   format = "f",
+                   flag = "+") {
+  print(noquote(
+    formatC(
+      x,
+      digits = digits,
+      width = width,
+      format = format,
+      flag = flag
+    )
+  ))
+}
+```
+
+
+**Note:** This is a working paper which will be expanded/updated frequently. All suggestions for improvement are welcome. 
+
+# Introduction
+
+In this paper we study minimization of the loss function
+$$
+\sigma(X):=\frac12\sum_{i=1}^n\sum_{j=1}^n w_{ij}(\delta_{ij}-d_{ij}(X))^2
+$$
+over all $n\times p$ *configuration* matrices $X$. Here $W=\{w_{ij}\}$ and $\Delta=\{\delta_{ij}\}$ are known non-negative, symmetric, and hollow matrices of *weights* and *dissimilarities* and $D(X)=\{d_{ij}(X)\}$ is the matrix of *Euclidean distances* between  the rows of $X$.
+
+Define
+$$
+\rho(X):=\sum_{i=1}^n\sum_{j=1}^n w_{ij}\delta_{ij}d_{ij}(X)=\text{tr}\ X'B(X)X,
+$$
+where
+$$
+B(X):=\sum_{i=1}^n\sum_{j=1}^nw_{ij}\frac{\delta_{ij}}{d_{ij}(X)}A_{ij}.
+$$
+Aso define
+$$
+\eta^2(X):=\sum_{i=1}^n\sum_{j=1}^nw_{ij}d_{ij}^2(X)=\text{tr}\ X'VX,
+$$
+where
+$$
+V:=\sum_{i=1}^n\sum_{j=1}^n w_{ij}A_{ij}.
+$$
+Thus
+$$
+\sigma(X)=1-\rho(X)+\frac12\eta^2(X)
+$$
+Both $\rho$ and $\eta$ are homogeneous convex functions.
+
+$\rho(X)=0$ iff $d_{ij}(X)=0$ for all $(i,j)$ for which $w_{ij}\delta_{ij}>0$.
+
+
+
+# One-point Methods
+
+## Basic Iteration
+
+The *Guttman transform* of a configuration $X$, named after @guttman_68, is defined as
+$$
+\Phi(X)=V^+B(X)X,
+$$
+with $V^+$ the Moore-Penrose inverse of $V$. If $X=\Phi(X)$, i.e. if $X$ is
+fixed point of $\Phi$, then $VX-B(X)0$, which we can also write as
+$\mathcal{D}\sigma(X)=0$. Thus $X$ is a fixed point of $\Phi$ if and only 
+if the gradient of $\sigma$ vanishes at $X$, i.e. if and only if $X$ is a 
+stationary point if $\sigma$.
+
+We have to be somewhat careful here. Subdifferential
+$$
+\partial d_{ij}(X)=\frac{1}{d_{ij}(X)}A_{ij}X
+$$
+$$
+\partial d_{ij}(X)=A_{ij}Z
+$$
+
+Using the Guttman transform we can derive the basic smacof equality
+$$
+\sigma(X)=1+\eta^2(X-\Phi(X))-\eta^2(\Phi(X))
+$$
+for all $X$ and the inequality
+$$
+\sigma(X)\leq 1+\eta^2(X-\Phi(Y))-\eta^2(\Phi(Y))
+$$
+for all $X$ and $Y$.
+
+Taken together ,, and ,,, imply the sandwich inequality
+$$
+\sigma(\Phi(Y))\leq 1-\eta^2(\Phi(Y))\leq 1+\eta^2(Y-\Phi(Y))-\eta^2(\Phi(Y))=\sigma(Y)
+$$
+If $Y$ is not a fixed point of $\Phi$ then the second inequality in the
+chain is strict and thus $\sigma(\Phi(Y))<\sigma(Y)$. It also follows
+from ... that $\eta^2(\Phi(Y))\leq 1$.
+
+Algorithm
+
+
+$$
+\mathcal{D}\Phi_X(H)=V^+\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{A_{ij}H-\frac{\text{tr}\ X'A_{ij}H}{ \text{tr}\ X'A_{ij}X}A_{ij}X\right\}
+$$
+Thus $\mathcal{D}\Phi_X(X)=0$ for all $X$. If $X$ is a fixed point and $S$ is anti-symmetric  $\mathcal{D}\Phi_X(XS)=V^+B(X)XS=XS$,
+which means $\mathcal{D}\Phi_X$ has $\frac12p(p-1)$ eigenvalues equal to one.
+At a fixed point all eigenvalues are between zero and one.
+
+
+$$
+\mathcal{D}^2\rho_X(G,H)=\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{\text{tr}\ G'A_{ij}H-\frac{\text{tr}\ H'A_{ij}X\ \text{tr}\ G'A_{ij}X}{ d_{ij}^2(X)}\right\}
+$$
+
+
+```{r compute1, echo = FALSE, cache = TRUE}
+h1 <- smacofAccelerate(ekman, opt = 1, halt = 0, epsf = 1e-15, verbose = 1)
+```
+stress is `r prettyNum(h1$s, digits = 15, format = "f")`
+
+```{r eval1, echo = FALSE}
+jacob1 <- numHess(h1$x, h1$delta, h1$wgth, opt = 1)
+mPrint(as.matrix(Re(eigen(jacob1)$values)))
+```
+
+$$
+\mathcal{D}\Phi_X(H)=V^+\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{A_{ij}H-\frac{\text{tr}\ X'A_{ij}H}{ \text{tr}\ X'A_{ij}X}A_{ij}X\right\}
+$$
+Thus $\mathcal{D}\Phi_X(X)=0$ for all $X$. If $X$ is a fixed point and $S$ is anti-symmetric  $\mathcal{D}\Phi_X(XS)=V^+B(X)XS=XS$,
+which means $\mathcal{D}\Phi_X$ has $\frac12p(p-1)$ eigenvalues equal to one.
+At a fixed point all eigenvalues are between zero and one.
+
+
+$$
+\mathcal{D}^2\rho_X(G,H)=\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{\text{tr}\ G'A_{ij}H-\frac{\text{tr}\ H'A_{ij}X\ \text{tr}\ G'A_{ij}X}{ d_{ij}^2(X)}\right\}
+$$
+
+
+
+## Rotated Basic Iteration
+
+```{r compute2, echo = FALSE, cache = TRUE}
+h2 <- smacofAccelerate(ekman, opt = 2, halt = 0, epsf = 1e-15, verbose = 1)
+```
+
+stress is `r prettyNum(h2$s, digits = 15, format = "f")`
+
+
+```{r eval2, echo = FALSE}
+jacob2 <- numHess(h2$x, h2$delta, h2$wgth, opt = 2)
+mPrint(as.matrix(Re(eigen(jacob2)$values)))
+```
+
+```{r compute3, echo = FALSE, cache = TRUE}
+h3 <- smacofAccelerate(ekman, opt = 3, halt = 0, epsf = 1e-15, verbose = 1)
+```
+
+stress is `r prettyNum(h3$s, digits = 15, format = "f")`
+
+
+```{r eval3, echo = FALSE}
+jacob3 <- numHess(h3$x, h3$delta, h3$wgth, opt = 3)
+mPrint(as.matrix(Re(eigen(jacob3)$values)))
+```
+
+# Two Point Iteration
+
+@deleeuw_heiser_C_80 suggested the update
+$$
+\Psi(X)=2\Phi(X)-X
+$$
+The reasoning here is two-fold. The smacof inequality says
+$$
+\sigma(X)\leq 1+\eta^2(X-\Phi(Y))-\eta^2(\Phi(Y))
+$$
+If $X=\alpha\Phi(Y)+(1-\alpha)Y$ then this becomes
+$$
+\sigma(\alpha\Phi(Y)+(1-\alpha)Y)\leq 1+(1-\alpha)^2\eta^2(Y-\Phi(Y))-\eta^2(\Phi(Y))
+$$
+If $(1-\alpha)^2\leq 1$ then 
+$$
+1+(1-\alpha)^2\eta^2(Y-\Phi(Y))-\eta^2(\Phi(Y))\leq 1+\eta^2(Y-\Phi(Y))-\eta^2(\Phi(Y))=\sigma(Y)
+$$
+Thus updating with $X^{(k+1)}=\alpha\Phi(X^{(k)})+(1-\alpha)X^{(k)}$ is a stable
+algorithm as long as $0\leq\alpha\leq 2$.
+
+It turns out that applying the relaxed update
+$$
+X^{(k+1)}=2V^+B(X^{(k)})X^{(k)}-X^{(k)}
+$$
+has some unintended consequences.
+```{r compute4, echo = FALSE, cache = TRUE}
+h4 <- smacofAccelerate(ekman, opt = 4, halt = 0, epsf = 1e-15, verbose = 1)
+```
+
+stress is `r prettyNum(h4$s, digits = 15, format = "f")`
+
+We see that $\eta^2(X^{(k+1)}-X^{(k)})$ does not converge to zero, and that
+$\sigma_k$ converges to a value which does not even correspond to a local minimum
+of $\sigma$.
+
+```{r eval4, echo = FALSE}
+jacob4 <- numHess(h4$x, h4$delta, h4$wgth, opt = 4)
+mPrint(as.matrix(Re(eigen(jacob4)$values)))
+```
+
+A more thorough analysis of the results show that the method produces a sequence
+$X^{(k)}$ with two subseqences. If $\overline{X}$ is a fixed point of
+$\Phi$ then there is a $\tau>0$ such that
+the subsequence with $k$ even converges to $\tau\overline{X}$
+while the subsequence with $k$ odd converges to $(2-\tau)\overline{X}$.
+
+```{r compute5, echo = FALSE, cache = TRUE}
+h5 <- smacofAccelerate(ekman, opt = 5, halt = 0, epsf = 1e-15, verbose = 1)
+```
+stress is `r prettyNum(h5$s, digits = 15, format = "f")`
+
+```{r eval5, echo = FALSE}
+jacob5 <- numHess(h5$x, h5$delta, h5$wgth, opt = 4)
+mPrint(as.matrix(Re(eigen(jacob5)$values)))
+```
+
+```{r compareekman, echo = FALSE, cache = TRUE}
+smacofCompare(ekman)
+```
+
+```{r comparegruijter, echo = FALSE, cache = TRUE}
+smacofCompare(gruijter)
+```
+# References

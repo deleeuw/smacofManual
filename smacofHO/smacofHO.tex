@@ -195,7 +195,7 @@
 \title{Smacof at 50: A Manual\\
 Part 8: Homogeneity Analysis}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started April 13 2024, Version of July 05, 2024}
+\date{Started April 13 2024, Version of July 10, 2024}
 
 \begin{document}
 \maketitle
@@ -214,7 +214,7 @@ appreciated, but is not required. The files can be found at
 \url{https://github.com/deleeuw} in the repositories smacofCode, smacofManual,
 and smacofExamples.
 
-\section{Introduction: Categorical Data}\label{introduction-categorical-data}
+\section{Introduction: Categorical Data}\label{cat}
 
 In this chapter we shall analyze categorical data structures, with the following components.
 
@@ -232,7 +232,10 @@ In this chapter we shall analyze categorical data structures, with the following
 
 Introduce indicators
 
-Discuss: separation and compactness. Start with MSA and De Leeuw (1969),
+Discuss: separation and compactness. categories as points or regions.
+circles, stars, voronoi regions
+
+Start with MSA and De Leeuw (1969),
 De Leeuw (2004), De Leeuw (2003)
 
 Thus the actual data we collect are the \(n\times m\) partial orders \(\lesssim_{ij}\).
@@ -373,7 +376,7 @@ in \eqref{eq:homsvd2} we obtain generalized eigenvalue equations for \(Y\).
 (G_j'F_jG_j)Y_j\Lambda=\sum_{h=1}^m G_j'F_jW_\star^{-1}F_hG_hY_h.
 \label{eq:geneigy}
 \end{equation}
-If \(k_\star\), the sum of the \(k_j\), is not too large then finding the \(p\) largest non-trivial eigenvalues with corresponding eigenvectors from \eqref{eq:geneigy} may be computationally efficient. The largest ``trivial'' eigenvalue is always equal to one, no matter what the \(G_j\) and \(W_j\) are, and we can safely ignore it. The trivial solution with all distances equal to zero mentioned in section \ref{snmu} corresponds with this largest eigenvalue.
+If \(k_\star\), the sum of the \(k_j\), is not too large then finding the \(p\) largest non-trivial eigenvalues with corresponding eigenvectors from \eqref{eq:geneigy} may be computationally efficient. The largest ``trivial'' eigenvalue is always equal to one, no matter what the \(G_j\) and \(W_j\) are, and we can safely ignore it. The trivial solution with all distances equal to zero mentioned in section \ref{cat} corresponds with this largest eigenvalue.
 
 Homogeneity analysis can be most convincingly introduced using the concept of a \emph{star plot}. For variable \(j\) we plot \(k_j\) category points and \(n\) object
 points in a single joint plot. We then draw a line from each category point to the points of the objects in that category. This creates \(k_j\) groups of
@@ -428,7 +431,7 @@ the object points in a category. Separations and partitions can be quite
 irregular and in the various small examples I have seen are mostly
 done after the fact by hand.
 
-The algorithm to optimize contiguity is described in (\textbf{lingoes\_68?}). I will
+The algorithm to optimize contiguity is described in Lingoes (1968a). I will
 try to reconstruct it.
 
 \subsection{MSA-II}\label{msa-ii}
@@ -710,7 +713,7 @@ corresponding to the category the object scores in.
 
 Since there are so many different analyses that can be done (choosing
 the rank and normalization constraints), and since each analysis leads
-to a large number of plots, presentation of results is a problem. We encourage readers to repeat the analyses we present and study the output
+to a large number of plots, presentation of results is a problem. We encourage readers to repeat the analyses and study the output
 in more detail.
 
 \subsection{Small}\label{small}
@@ -732,22 +735,24 @@ We start we a small artificial example, earlier used for illustrative purposes i
 ## 10     a      p     v
 \end{verbatim}
 
-We first give the Voronoi + star joint plots for a homogeneity
+\subsubsection{Homogeneity}\label{homogeneity}
+
+We first give the Voronoi plus star joint plots for a homogeneity
 analysis of the data, using the function \texttt{smacofHomogeneityHO()}.
 
-\begin{figure}
+\begin{greybox}
 
-{\centering \includegraphics{smacofHO_files/figure-latex/smallhomals-1} 
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:smallhomals} ABOUT HERE}
 
-}
+\end{center}
 
-\caption{Small example, Homogeneity Analysis}\label{fig:smallhomals}
-\end{figure}
+\end{greybox}
 
 The solution is Voronoi homogeneous for variables one and three. For
 variable two the star for category \(p\) has objects in the Voronoi
 region of category \(r\), and is consequently not perfectly homogeneous.
-This also shows in the prediction table from this analysis.
+We also see this in the prediction table from this analysis.
 
 \begin{verbatim}
 ##       [,1] [,2] [,3]
@@ -763,24 +768,25 @@ This also shows in the prediction table from this analysis.
 ## [10,]    1    1    1
 \end{verbatim}
 
-Note that varable \(p\) is atypical, because eight of the ten objects
-are in category \(p\), while \(q\) and \(r\) only have a single object
-in them.
+Note that variable \(p\) is atypical, because eight of the ten objects
+are in category \(p\), while categories \(q\) and \(r\) only have a single object in them.
+
+\subsubsection{Voronoi}\label{voronoi}
 
 We next use the Homogeneity Analysis solution as intial estimate
-for a smacof analysis without normalization or rank constraints.
+for a smacofHO analysis without normalization or rank constraints.
 Stress is \ensuremath{1.1313536\times 10^{-9}} after 169 iterations.
 
-\begin{figure}
+\begin{greybox}
 
-{\centering \includegraphics{smacofHO_files/figure-latex/smallplot00-1} 
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:smallplot00} ABOUT HERE}
 
-}
+\end{center}
 
-\caption{Small example, smacofHO unrestricted}\label{fig:smallplot00}
-\end{figure}
+\end{greybox}
 
-As expected, variables one and three, which already has perfect fit, do not change. There is some change in variable two, in the right
+As expected, variables one and three, which already have perfect fit, do not change. There is some change in variable two, in the right
 direction, but it is not enough to improve the number of correct
 predictions.
 
@@ -798,17 +804,19 @@ predictions.
 ## [10,]    1    1    1
 \end{verbatim}
 
-Finally, for this example, we constrain the \(Y_j\) to be of rank one
+\subsubsection{Rank one}\label{rank-one}
+
+Bext, for this example, we constrain the \(Y_j\) to be of rank one
 and leave \(X\) unnormalized. Stress is \ensuremath{4.3071361\times 10^{-10}} after 73 iterations.
 
-\begin{figure}
+\begin{greybox}
 
-{\centering \includegraphics{smacofHO_files/figure-latex/smallplot10-1} 
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:smallplot10} ABOUT HERE}
 
-}
+\end{center}
 
-\caption{Small example, smacofHO rank one}\label{fig:smallplot10}
-\end{figure}
+\end{greybox}
 
 Variable three, which is binary, does not change. The plot for variable two changes for the better. To improve the fit the algorithm moves the
 category points for categories \(p\) and \(r\) very close together. There is
@@ -816,7 +824,7 @@ still one prediction violation in variable two, but
 if the category points of \(p\) and \(r\) coincide they have the same Voronoi
 region and the prediction violation disappears. This may happen if we
 continue iterating. The same is true for the prediction violation in
-variable one, where object five in category \(b\) is very close to the
+variable one, where object five in category \(b\) is only marginally on the wrong side of the
 boundary between \(a\) and \(b\).
 
 \begin{verbatim}
@@ -838,11 +846,56 @@ unconstrained version. But this merely means that the constrained
 version finds a better local minimum -- both analyses do not
 find the global minimum, which we know is equal to zero.
 
+\subsubsection{Centroids}\label{centroids}
+
+The next analysis has unnormalized \(X\) and centroid restrictions
+on the \(Y_j\).
+
+Stress is \ensuremath{1.4410786\times 10^{-9}} after 288 iterations.
+
+\begin{greybox}
+
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:smallplot20} ABOUT HERE}
+
+\end{center}
+
+\end{greybox}
+
+\begin{verbatim}
+##       [,1] [,2] [,3]
+##  [1,]    1    1    1
+##  [2,]    1    1    1
+##  [3,]    1    1    1
+##  [4,]    1    1    1
+##  [5,]    0    0    1
+##  [6,]    1    1    1
+##  [7,]    1    1    1
+##  [8,]    1    1    1
+##  [9,]    1    1    1
+## [10,]    1    1    1
+\end{verbatim}
+
+\subsubsection{Circular}\label{circular}
+
+The final analysis for the small example has unnormalized \(X\) and circular restrictions on the \(Y_j\).
+
+Stress is \ensuremath{9.1284764\times 10^{-8}} after 203 iterations.
+
+\begin{greybox}
+
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:smallploths} ABOUT HERE}
+
+\end{center}
+
+\end{greybox}
+
 \subsection{Cetacea}\label{cetacea}
 
-Our first real example has \(m=15\) variables and \(n=37\) objects. The
+Our first real example has \(m=15\) variables and \(n=36\) objects. The
 objects are genera of whales, dolphins, and porpoises . The variables are morphological, osteological, and behavioral descriptors,
-all categorical with a small number of categories. They are
+all categorical with a small number of categories. They are (with the number of categories)
 
 \begin{verbatim}
 ##                                    [,1]
@@ -863,27 +916,66 @@ all categorical with a small number of categories. They are
 ## HEAD BONES                            5
 \end{verbatim}
 
+In order to be able to interpret the plots, we also give the 36 genera.
+
+\begin{verbatim}
+##       [,1]                       
+##  [1,] "Bowhead whales"           
+##  [2,] "Rorquals"                 
+##  [3,] "Blue whale"               
+##  [4,] "Giant bottle-nosed whales"
+##  [5,] "Commerson's Dolphins"     
+##  [6,] "White whales"             
+##  [7,] "Common dolphins"          
+##  [8,] "Grey whales"              
+##  [9,] "Right whales"             
+## [10,] "Pilot whales"             
+## [11,] "Risso's dolphins"         
+## [12,] "Bottle-nosed whales"      
+## [13,] "Amazon dolphins"          
+## [14,] "Pygmy sperm whales"       
+## [15,] "White-sided dolphins"     
+## [16,] "Chinese river dolphins"   
+## [17,] "Right whale dolphins"     
+## [18,] "Humpback whales"          
+## [19,] "Sowerby's whales"         
+## [20,] "Narwhals"                 
+## [21,] "Pygmy right whales"       
+## [22,] "Finless black porpoises"  
+## [23,] "Irawady dolphins"         
+## [24,] "Killer whales"            
+## [25,] "Common porpoises"         
+## [26,] "Sperm whales"             
+## [27,] "Gangetic dolphins"        
+## [28,] "False killer whales"      
+## [29,] "Guyanian river dolphins"  
+## [30,] "Cameroun's dolphins"      
+## [31,] "Spotted dolphins"         
+## [32,] "Rough toothed dolphins"   
+## [33,] "La Plata's dolphins"      
+## [34,] "Shepherd's beaked whales" 
+## [35,] "Bottle-nosed dolphins"    
+## [36,] "Goosebeak whales"
+\end{verbatim}
+
 The data matrix has been constructed by Vescia (1985). Chapter 1 of the
 book edited by Marcotorchino, Proth, and Janssen (1985) has the data, and a number of sub-chapters in which different data analysts
-apply various techniques to these data and discuss the results. Among the contenders were Multidimensional Structuple Analysis (Guttman (1985))
-and homals (Van der Burg (1985)).
+apply various techniques to these data and discuss the results. Among the contenders were MSA-I (Guttman (1985)) and homals (Van der Burg (1985)).
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{hcethom }\OtherTok{\textless{}{-}} \FunctionTok{smacofHomogeneityHO}\NormalTok{(cetacea)}
-\NormalTok{hcetho }\OtherTok{\textless{}{-}} \FunctionTok{smacofHO}\NormalTok{(cetacea, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{itmax =} \DecValTok{10000}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
+\subsubsection{Homogeneity}\label{homogeneity-1}
 
-Stress is \ensuremath{5.9054624\times 10^{-8}} after 3417 iterations.
+We start with a homogeneity analysis.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{smacofObjectsPlotHO}\NormalTok{(hcethom, }\AttributeTok{cex =}\NormalTok{ .}\DecValTok{5}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
+\begin{greybox}
 
-\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/cetaplot-1.pdf}}
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:cetahomplot} ABOUT HERE}
+
+\end{center}
+
+\end{greybox}
+
+The number of correct predictions per variable, out of a possible 36, is
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -896,33 +988,41 @@ Stress is \ensuremath{5.9054624\times 10^{-8}} after 3417 iterations.
 ##  [1] 31 17 34 25 28 20 21 17 26  8 31 34 16 18 25
 \end{verbatim}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{smacofObjectsPlotHO}\NormalTok{(hcetho, }\AttributeTok{cex =}\NormalTok{ .}\DecValTok{5}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
+Thus we predict correctly in 65 percent of the cases.
 
-\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/cetaplot-2.pdf}}
+\subsubsection{Voronoi}\label{voronoi-1}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{hcethopre }\OtherTok{\textless{}{-}} \FunctionTok{smacofPredictionTable}\NormalTok{(hcetho)}
-\FunctionTok{print}\NormalTok{(}\FunctionTok{colSums}\NormalTok{(hcethopre, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{))}
-\end{Highlighting}
-\end{Shaded}
+Stress is \ensuremath{5.9054624\times 10^{-8}} after 3417 iterations.
+
+\begin{greybox}
+
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:ceta00plot} ABOUT HERE}
+
+\end{center}
+
+\end{greybox}
+
+The number of correct predictions per variable is
 
 \begin{verbatim}
 ##  [1] 33 15 35 33 28 25 28 25 23 36 29 35 16 22 28
 \end{verbatim}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{hcetno }\OtherTok{\textless{}{-}} \FunctionTok{smacofHO}\NormalTok{(cetacea, }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{xnorm =} \DecValTok{2}\NormalTok{, }\AttributeTok{itmax =} \DecValTok{10000}\NormalTok{)}
-\FunctionTok{smacofObjectsPlotHO}\NormalTok{(hcetno, }\AttributeTok{cex =}\NormalTok{ .}\DecValTok{5}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
+Thus we predict correctly in 76 percent of the cases.
 
-\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/cetanorm-1.pdf}}
+\subsubsection{Voronoi, Normed}\label{voronoi-normed}
+
+Stress is \ensuremath{6.3457203\times 10^{-8}} after 2584 iterations.
+
+\begin{greybox}
+
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:ceta01plot} ABOUT HERE}
+
+\end{center}
+
+\end{greybox}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -931,86 +1031,90 @@ Stress is \ensuremath{5.9054624\times 10^{-8}} after 3417 iterations.
 \end{Highlighting}
 \end{Shaded}
 
-\begin{verbatim}
-## [1] 404
-\end{verbatim}
+There is an alternative analysis available, based on the same model, which uses the smacofPC program. The indicator matrix can be
+converted into \(n(k_\star-m)\) tetrads, for the cetacea example
+that is 1548 tetrads. These tetrads are used in
+an MDS problem of order 94, using a matrix of weights
+in which only the 36 by 58 off-diagonal matrix is non-zero.
 
 \subsection{Senate}\label{senate}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{data}\NormalTok{(senate, }\AttributeTok{package =} \StringTok{"homals"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
+\subsubsection{Homogeneity}\label{homogeneity-2}
+
+\begin{greybox}
+
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:senatehomplot} ABOUT HERE}
+
+\end{center}
+
+\end{greybox}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{hhom }\OtherTok{\textless{}{-}} \FunctionTok{smacofHomogeneityHO}\NormalTok{(senate[, }\DecValTok{2}\SpecialCharTok{:}\DecValTok{21}\NormalTok{])}
-\NormalTok{hho }\OtherTok{\textless{}{-}} \FunctionTok{smacofHO}\NormalTok{(senate[, }\DecValTok{2}\SpecialCharTok{:}\DecValTok{21}\NormalTok{], }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{itmax =} \DecValTok{10000}\NormalTok{)}
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{3}\NormalTok{))}
+\FunctionTok{smacofJointPlotsHO}\NormalTok{(hhom, }\AttributeTok{jvar =} \FunctionTok{c}\NormalTok{(}\DecValTok{6}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{10}\NormalTok{), }\AttributeTok{objects =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{voronoi =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{stars =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{labels =} \FunctionTok{as.character}\NormalTok{(senate[, }\DecValTok{1}\NormalTok{]), }\AttributeTok{xcex =}\NormalTok{ .}\DecValTok{5}\NormalTok{, }\AttributeTok{clabels =} \ConstantTok{TRUE}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-Stress is \ensuremath{2.0710178\times 10^{-7}} after 7449 iterations.
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{smacofObjectsPlotHO}\NormalTok{(hhom, }\AttributeTok{cex =}\NormalTok{ .}\DecValTok{5}\NormalTok{, }\AttributeTok{labels =} \FunctionTok{as.character}\NormalTok{(senate[, }\DecValTok{1}\NormalTok{]))}
-\end{Highlighting}
-\end{Shaded}
-
-\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-1-1.pdf}}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{hhompre }\OtherTok{\textless{}{-}} \FunctionTok{smacofPredictionTable}\NormalTok{(hhom)}
-\FunctionTok{print}\NormalTok{(}\FunctionTok{colSums}\NormalTok{(hhompre, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{))}
-\end{Highlighting}
-\end{Shaded}
+\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-3-1.pdf}}
 
 \begin{verbatim}
 ##  [1]  93  95  97  88  89 100  99  97 100  96  98  91  96  85  89  87  89  86  86
 ## [20]  85
 \end{verbatim}
 
+Thus we predict correctly in 92.3 percent of the cases.
+
+\subsubsection{Voronoi}\label{voronoi-2}
+
+Stress is \ensuremath{2.0710178\times 10^{-7}} after 7449 iterations.
+
+\begin{greybox}
+
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:senatehoplot} ABOUT HERE}
+
+\end{center}
+
+\end{greybox}
+
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{smacofObjectsPlotHO}\NormalTok{(hho, }\AttributeTok{cex =}\NormalTok{ .}\DecValTok{5}\NormalTok{, }\AttributeTok{labels =} \FunctionTok{as.character}\NormalTok{(senate[, }\DecValTok{1}\NormalTok{]))}
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{3}\NormalTok{))}
+\FunctionTok{smacofJointPlotsHO}\NormalTok{(hho, }\AttributeTok{jvar =} \FunctionTok{c}\NormalTok{(}\DecValTok{6}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{10}\NormalTok{), }\AttributeTok{objects =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{voronoi =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{stars =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{labels =} \FunctionTok{as.character}\NormalTok{(senate[, }\DecValTok{1}\NormalTok{]), }\AttributeTok{xcex =}\NormalTok{ .}\DecValTok{5}\NormalTok{, }\AttributeTok{clabels =} \ConstantTok{TRUE}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-1-2.pdf}}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{hhopre }\OtherTok{\textless{}{-}} \FunctionTok{smacofPredictionTable}\NormalTok{(hho)}
-\FunctionTok{print}\NormalTok{(}\FunctionTok{colSums}\NormalTok{(hhopre, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{))}
-\end{Highlighting}
-\end{Shaded}
+\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-4-1.pdf}}
 
 \begin{verbatim}
 ##  [1]  87  94  91  86  79 100  99  92 100  95  95  90  96  87  80  98  84  79 100
 ## [20]  79
 \end{verbatim}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{hno }\OtherTok{\textless{}{-}} \FunctionTok{smacofHO}\NormalTok{(senate[, }\DecValTok{2}\SpecialCharTok{:}\DecValTok{21}\NormalTok{], }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{xnorm =} \DecValTok{2}\NormalTok{, }\AttributeTok{itmax =} \DecValTok{10000}\NormalTok{)}
-\FunctionTok{smacofObjectsPlotHO}\NormalTok{(hno, }\AttributeTok{cex =}\NormalTok{ .}\DecValTok{5}\NormalTok{, }\AttributeTok{labels =} \FunctionTok{as.character}\NormalTok{(senate[, }\DecValTok{1}\NormalTok{]))}
-\end{Highlighting}
-\end{Shaded}
+Thus we predict correctly in 90.55 percent of the cases.
 
-\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-2-1.pdf}}
+\subsubsection{Centroid}\label{centroid}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{hnopre }\OtherTok{\textless{}{-}} \FunctionTok{smacofPredictionTable}\NormalTok{(hno)}
-\FunctionTok{print}\NormalTok{(}\FunctionTok{sum}\NormalTok{(hnopre, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{))}
-\end{Highlighting}
-\end{Shaded}
+Stress is \ensuremath{3.8200404\times 10^{-5}} after \ensuremath{10^{4}} iterations.
+
+\begin{greybox}
+
+\begin{center}
+\textbf{INSERT FIGURE \ref{fig:senatehoplot} ABOUT HERE}
+
+\end{center}
+
+\end{greybox}
 
 \begin{verbatim}
-## [1] 1833
+##  [1] 78 84 90 85 84 95 97 94 95 95 95 79 79 73 81 82 89 82 99 85
 \end{verbatim}
+
+Thus we predict correctly in 87.05 percent of the cases.
+
+Stress is \ensuremath{3.8250142\times 10^{-5}} after \ensuremath{10^{4}} iterations.
 
 \subsection{GALO}\label{galo}
 
@@ -1026,7 +1130,7 @@ Stress is \ensuremath{2.0710178\times 10^{-7}} after 7449 iterations.
 \end{Highlighting}
 \end{Shaded}
 
-\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-3-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-5-1.pdf}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1046,7 +1150,7 @@ Stress is \ensuremath{2.0710178\times 10^{-7}} after 7449 iterations.
 \end{Highlighting}
 \end{Shaded}
 
-\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-4-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-6-1.pdf}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1060,7 +1164,7 @@ Stress is \ensuremath{2.0710178\times 10^{-7}} after 7449 iterations.
 \end{Highlighting}
 \end{Shaded}
 
-\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-5-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-7-1.pdf}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1080,7 +1184,7 @@ Stress is \ensuremath{2.0710178\times 10^{-7}} after 7449 iterations.
 \end{Highlighting}
 \end{Shaded}
 
-\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-6-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{smacofHO_files/figure-latex/unnamed-chunk-8-1.pdf}}
 
 \section{Generalizations}\label{generalizations}
 
@@ -1090,8 +1194,130 @@ Stress is \ensuremath{2.0710178\times 10^{-7}} after 7449 iterations.
 \item
   Fuzzy Indicators
 \item
-  Voronoi with general sites
+  Voronoi with clouds
+\item
+  Circles with varying radius
+\item
+  Disjoint circles
 \end{enumerate}
+
+\section{Figures}\label{figures}
+
+\subsection{Small}\label{small-1}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofHO_files/figure-latex/smallhomals-1} 
+
+}
+
+\caption{Small example, Homogeneity Analysis}\label{fig:smallhomals}
+\end{figure}
+\begin{figure}
+
+{\centering \includegraphics{smacofHO_files/figure-latex/smallplot00-1} 
+
+}
+
+\caption{Small example, smacofHO unrestricted}\label{fig:smallplot00}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofHO_files/figure-latex/smallplot10-1} 
+
+}
+
+\caption{Small example, smacofHO rank one}\label{fig:smallplot10}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofHO_files/figure-latex/smallplot20-1} 
+
+}
+
+\caption{Small example, smacofHC centroid}\label{fig:smallplot20}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofHO_files/figure-latex/smallploths-1} 
+
+}
+
+\caption{Small example, smacofHS circular}\label{fig:smallploths}
+\end{figure}
+
+\[\pagebreak\]
+
+\subsection{Cetacea}\label{cetacea-1}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofHO_files/figure-latex/cetahomplot-1} 
+
+}
+
+\caption{Cetacea Homogeneity Analysis}\label{fig:cetahomplot}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofHO_files/figure-latex/ceta00plot-1} 
+
+}
+
+\caption{Cetacea smacofHO unrestricted}\label{fig:ceta00plot}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofHO_files/figure-latex/ceta01plot-1} 
+
+}
+
+\caption{Cetacea smacofHO normed}\label{fig:ceta01plot}
+\end{figure}
+
+\[\pagebreak\]
+
+\subsection{Senate}\label{senate-1}
+
+\begin{figure}
+
+{\centering \includegraphics{smacofHO_files/figure-latex/senatehomplot-1} 
+
+}
+
+\caption{Senate Homogeneity Analysis}\label{fig:senatehomplot}
+\end{figure}
+\begin{figure}
+
+{\centering \includegraphics{smacofHO_files/figure-latex/senatehoplot-1} 
+
+}
+
+\caption{Senate smacofHO Unrestricted}\label{fig:senatehoplot}
+\end{figure}
+\begin{figure}
+
+{\centering \includegraphics{smacofHO_files/figure-latex/senatecenplot-1} 
+
+}
+
+\caption{Senate smacofHC Centroid}\label{fig:senatecenplot}
+\end{figure}
+\begin{figure}
+
+{\centering \includegraphics{smacofHO_files/figure-latex/senatecennormplot-1} 
+
+}
+
+\caption{Senate smacofHC Centroid}\label{fig:senatecennormplot}
+\end{figure}
+
+\[\pagebreak\]
 
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
@@ -1102,7 +1328,7 @@ Stress is \ensuremath{2.0710178\times 10^{-7}} after 7449 iterations.
 Busing, Frank M. T. A. 2010. {``Advances in Multidimensional Unfolding.''} PhD thesis, Leiden University.
 
 \bibitem[\citeproctext]{ref-deleeuw_C_23}
-De Leeuw, J. 1923. {``Deconstructing Multiple Correspondence Analysis. Essays in Honour of Shizuhiko Nishisato.''} In \emph{Analysis of Categorical Data from Historical Perspectives}, edited by Eric J. Beh, Rosaria Lombardo, and Jose G. Clavel, 383--407. Springer.
+De Leeuw, J. 1923. {``Deconstructing Multiple Correspondence Analysis.''} In \emph{Analysis of Categorical Data from Historical Perspectives. Essays in Honour of Shizuhiko Nishisato.}, edited by Eric J. Beh, Rosaria Lombardo, and Jose G. Clavel, 383--407. Springer.
 
 \bibitem[\citeproctext]{ref-deleeuw_R_69d}
 ---------. 1969. {``{Some Contributions to the Analysis of Categorical Data}.''} Research Note 004-69. Leiden, The Netherlands: Department of Data Theory FSW/RUL.

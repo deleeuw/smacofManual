@@ -41,8 +41,7 @@ frequently. All suggestions for improvement are welcome. All Rmd, tex,
 html, pdf, R, and C files are in the public domain. Attribution will be
 appreciated, but is not required. All files can be found at
 <https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
-and smacofExamples. A barebones R package is in the repository
-smacofLN.
+and smacofExamples. 
 
 # Introduction
 

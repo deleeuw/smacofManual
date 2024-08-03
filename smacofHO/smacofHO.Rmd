@@ -28,6 +28,9 @@ abstract: smacofHO
 ---
 ```{r loadpackages, echo = FALSE}
 suppressPackageStartupMessages(library(smacofHO, quietly = TRUE))
+suppressPackageStartupMessages(library(smacofHC, quietly = TRUE))
+suppressPackageStartupMessages(library(smacofHS, quietly = TRUE))
+suppressPackageStartupMessages(library(smacofPC, quietly = TRUE))
 ```
 
 ```{r load code, echo = FALSE}
@@ -43,7 +46,7 @@ appreciated, but is not required. The files can be found at
 <https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
 and smacofExamples.
 
-# Introduction: Categorical Data
+# Introduction: Categorical Data{#cat}
 
 In this chapter we shall analyze categorical data structures, with the following components.
 
@@ -200,7 +203,7 @@ in \@ref(eq:homsvd2) we obtain generalized eigenvalue equations for $Y$.
 (G_j'F_jG_j)Y_j\Lambda=\sum_{h=1}^m G_j'F_jW_\star^{-1}F_hG_hY_h.
 (\#eq:geneigy)
 \end{equation}
-If $k_\star$, the sum of the $k_j$, is not too large then finding the $p$ largest non-trivial eigenvalues with corresponding eigenvectors from \@ref(eq:geneigy) may be computationally efficient. The largest "trivial" eigenvalue is always equal to one, no matter what the $G_j$ and $W_j$ are, and we can safely ignore it. The trivial solution with all distances equal to zero mentioned in section \@ref(snmu) corresponds with this largest eigenvalue.
+If $k_\star$, the sum of the $k_j$, is not too large then finding the $p$ largest non-trivial eigenvalues with corresponding eigenvectors from \@ref(eq:geneigy) may be computationally efficient. The largest "trivial" eigenvalue is always equal to one, no matter what the $G_j$ and $W_j$ are, and we can safely ignore it. The trivial solution with all distances equal to zero mentioned in section \@ref(cat) corresponds with this largest eigenvalue.
 
 Homogeneity analysis can be most convincingly introduced using the concept of a *star plot*. For variable $j$ we plot $k_j$ category points and $n$ object
 points in a single joint plot. We then draw a line from each category point to the points of the objects in that category. This creates $k_j$ groups of
@@ -228,7 +231,7 @@ analysis or multiple correspondence analysis. Thus the MSA
 programs have the same starting configuration as our smacof
 programs for categorical data.
 
-The publications on  MSA do not pay much attention to the existence
+The publications on MSA do not pay much attention to the existence
 of trivial solutions and to the speed of convergence of the
 iterations. 
 
@@ -253,7 +256,7 @@ the object points in a category. Separations and partitions can be quite
 irregular and in the various small examples I have seen are mostly
 done after the fact by hand.
 
-The algorithm to optimize contiguity is described in @lingoes_68. I will
+The algorithm to optimize contiguity is described in @lingoes_68b. I will
 try to reconstruct it.
 
 ## MSA-II
@@ -533,7 +536,7 @@ corresponding to the category the object scores in.
 
 Since there are so many different analyses that can be done (choosing
 the rank and normalization constraints), and since each analysis leads
-to a large number of plots, presentation of results is a problem. We encourage readers to repeat the analyses we present and study the output
+to a large number of plots, presentation of results is a problem. We encourage readers to repeat the analyses and study the output
 in more detail.
 
 ## Small
@@ -550,38 +553,50 @@ structure(list(first = c("a", "b", "a", "a", "b", "c", "a", "a",
 "04", "05", "06", "07", "08", "09", "10"))
 small
 ```
-We first give the Voronoi + star joint plots for a homogeneity
+
+### Homogeneity 
+
+We first give the Voronoi plus star joint plots for a homogeneity
 analysis of the data, using the function `smacofHomogeneityHO()`.
 
-```{r smallhomals, echo = FALSE, fig.align = "center", fig.cap = "Small example, Homogeneity Analysis"}
-par(mfrow = c(1, 3))
+:::: {.greybox data-latex=""}
+::: {.center data-latex=""}
+**INSERT FIGURE \@ref(fig:smallhomals) ABOUT HERE**
+:::
+::::
+
+```{r smallhomalscomp, cache = TRUE, echo = FALSE}
 h0 <- smacofHomogeneityHO(small)
-smacofJointPlotsHO(h0, objects = TRUE, stars = TRUE, voronoi = TRUE, xlabels = 3)
 ```
+
+
 The solution is Voronoi homogeneous for variables one and three. For
 variable two the star for category $p$ has objects in the Voronoi
 region of category $r$, and is consequently not perfectly homogeneous.
-This also shows in the prediction table from this analysis.
+We also see this in the prediction table from this analysis.
 ```{r smallhompred, echo = FALSE}
 smacofPredictionTable(h0)
 ```
-Note that varable $p$ is atypical, because eight of the ten objects
-are in category $p$, while $q$ and $r$ only have a single object
-in them.
+Note that variable $p$ is atypical, because eight of the ten objects
+are in category $p$, while categories $q$ and $r$ only have a single object in them.
 
-
-```{r smallanalysis00, echo = FALSE}
+```{r smallanalysis00, echo = FALSE, cache = TRUE}
 h00 <- smacofHO(small, verbose = FALSE, eps = 1e-10)
 ```
+
+### Voronoi 
+
 We next use the Homogeneity Analysis solution as intial estimate
-for a smacof analysis without normalization or rank constraints.
+for a smacofHO analysis without normalization or rank constraints.
 Stress is `r h00$stress` after `r h00$itel` iterations.
 
-```{r smallplot00, echo = FALSE, fig.align = "center", fig.cap = "Small example, smacofHO unrestricted"}
-par(mfrow = c(1, 3))
-smacofJointPlotsHO(h00, objects = TRUE, stars = TRUE, voronoi = TRUE, xlabels = 3)
-```
-As expected, variables one and three, which already has perfect fit, do not change. There is some change in variable two, in the right
+:::: {.greybox data-latex=""}
+::: {.center data-latex=""}
+**INSERT FIGURE \@ref(fig:smallplot00) ABOUT HERE**
+:::
+::::
+
+As expected, variables one and three, which already have perfect fit, do not change. There is some change in variable two, in the right
 direction, but it is not enough to improve the number of correct
 predictions.
 
@@ -589,23 +604,29 @@ predictions.
 smacofPredictionTable(h00)
 ```
 
-```{r smallanalysis10, echo = FALSE}
+```{r smallanalysis10, echo = FALSE, cache = TRUE}
 h10 <- smacofHO(small, verbose = FALSE, yform = 1, eps = 1e-10)
 ```
-Finally, for this example, we constrain the $Y_j$ to be of rank one
+
+### Rank one
+
+Bext, for this example, we constrain the $Y_j$ to be of rank one
 and leave $X$ unnormalized. Stress is `r h10$stress` after `r h10$itel` iterations.
 
-```{r smallplot10, echo = FALSE, fig.align = "center", fig.cap = "Small example, smacofHO rank one"}
-par(mfrow = c(1, 3))
-smacofJointPlotsHO(h10, objects = TRUE, stars = TRUE, voronoi = TRUE, xlabels = 3)
-```
+:::: {.greybox data-latex=""}
+::: {.center data-latex=""}
+**INSERT FIGURE \@ref(fig:smallplot10) ABOUT HERE**
+:::
+::::
+
+
 Variable three, which is binary, does not change. The plot for variable two changes for the better. To improve the fit the algorithm moves the
 category points for categories $p$ and $r$ very close together. There is
 still one prediction violation in variable two, but
 if the category points of $p$ and $r$ coincide they have the same Voronoi
 region and the prediction violation disappears. This may happen if we
 continue iterating. The same is true for the prediction violation in
-variable one, where object five in category $b$ is very close to the
+variable one, where object five in category $b$ is only marginally on the wrong side of the
 boundary between $a$ and $b$.
 
 ```{r smacofpred10, echo = FALSE}
@@ -616,6 +637,43 @@ We do note that the constrained version does better than the
 unconstrained version. But this merely means that the constrained
 version finds a better local minimum -- both analyses do not
 find the global minimum, which we know is equal to zero.
+
+### Centroids
+
+The next analysis has unnormalized $X$ and centroid restrictions
+on the $Y_j$.
+```{r smallcomph20, echo = FALSE, cache = TRUE}
+h20 <- smacofHC(small, itpar = list(itmax = 10000, eps = 1e-10, verbose = FALSE))
+```
+
+Stress is `r h20$snew` after `r h20$itel` iterations.
+
+:::: {.greybox data-latex=""}
+::: {.center data-latex=""}
+**INSERT FIGURE \@ref(fig:smallplot20) ABOUT HERE**
+:::
+::::
+
+```{r smacofpred20, echo = FALSE}
+smacofPredictionTable(h10)
+```
+
+### Circular
+
+The final analysis for the small example has unnormalized $X$ and circular restrictions on the $Y_j$.
+```{r smallcomph2s, echo = FALSE, cache = TRUE}
+h2s <- smacofHS(small, verbose = FALSE)
+```
+
+Stress is `r h2s$stress` after `r h2s$itel` iterations.
+
+:::: {.greybox data-latex=""}
+::: {.center data-latex=""}
+**INSERT FIGURE \@ref(fig:smallploths) ABOUT HERE**
+:::
+::::
+
+
 
 ## Cetacea
 
@@ -672,71 +730,163 @@ structure(list(NECK = c(0L, 0L, 0L, 1L, 0L, 1L, 0L, 0L, 0L, 0L,
 "Goosebeak whales"))
 ```
 
-Our first real example has $m=15$ variables and $n=37$ objects. The
+Our first real example has $m=15$ variables and $n=36$ objects. The
 objects are genera of whales, dolphins, and porpoises . The variables are morphological, osteological, and behavioral descriptors,
-all categorical with a small number of categories. They are
+all categorical with a small number of categories. They are (with the number of categories)
 ```{r cetaceancat, echo = FALSE}
 matrix(apply(cetacea, 2, function(x) length(unique(x))), 15, 1,
        dimnames =  list(names(cetacea), NULL))
 ```
+In order to be able to interpret the plots, we also give the 36 genera.
+```{r cetaceagens, echo = FALSE}
+as.matrix(row.names(cetacea))
+```
 The data matrix has been constructed by @vescia_85. Chapter 1 of the
 book edited by @marcotorchino_proth_janssen_85 has the data, and a number of sub-chapters in which different data analysts
-apply various techniques to these data and discuss the results. Among the contenders were Multidimensional Structuple Analysis (@guttman_85)
-and homals (@vanderburg_85).
+apply various techniques to these data and discuss the results. Among the contenders were MSA-I (@guttman_85) and homals (@vanderburg_85).
 
+### Homogeneity 
 
-```{r cetacomp, cache = TRUE}
+We start with a homogeneity analysis.
+```{r cetahomcomp, cache = TRUE, echo = FALSE}
 hcethom <- smacofHomogeneityHO(cetacea)
+```
+:::: {.greybox data-latex=""}
+::: {.center data-latex=""}
+**INSERT FIGURE \@ref(fig:cetahomplot) ABOUT HERE**
+:::
+::::
+
+The number of correct predictions per variable, out of a possible 36, is
+```{r}
+hcethompre <- smacofPredictionTable(hcethom)
+print(colSums(hcethompre, na.rm = TRUE))
+```
+Thus we predict correctly in `r sum(hcethompre)/(15 * 36) * 100` percent of the cases.
+
+### Voronoi
+
+```{r cetacomp00, echo = FALSE, cache = TRUE}
 hcetho <- smacofHO(cetacea, verbose = FALSE, itmax = 10000)
 ```
 
 Stress is `r hcetho$stress` after `r hcetho$itel` iterations.
 
-```{r cetaplot}
-smacofObjectsPlotHO(hcethom, cex = .5)
-hcethompre <- smacofPredictionTable(hcethom)
-print(colSums(hcethompre, na.rm = TRUE))
-smacofObjectsPlotHO(hcetho, cex = .5)
+:::: {.greybox data-latex=""}
+::: {.center data-latex=""}
+**INSERT FIGURE \@ref(fig:ceta00plot) ABOUT HERE**
+:::
+::::
+
+The number of correct predictions per variable is
+```{r echo = FALSE}
 hcethopre <- smacofPredictionTable(hcetho)
 print(colSums(hcethopre, na.rm = TRUE))
 ```
+Thus we predict correctly in `r round(sum(hcethopre)/(15 * 36) * 100)` percent of the cases.
 
-```{r cetanorm}
-hcetno <- smacofHO(cetacea, verbose = FALSE, xnorm = 2, itmax = 10000)
-smacofObjectsPlotHO(hcetno, cex = .5)
+
+### Voronoi, Normed
+
+```{r cetacomp01, echo = FALSE, cache = TRUE}
+hcetno <- smacofHO(cetacea, verbose = FALSE, itmax = 10000, xnorm = TRUE)
+```
+
+Stress is `r hcetno$stress` after `r hcetno$itel` iterations.
+
+:::: {.greybox data-latex=""}
+::: {.center data-latex=""}
+**INSERT FIGURE \@ref(fig:ceta01plot) ABOUT HERE**
+:::
+::::
+
+```{r cetanorm, eval = FALSE, cache = TRUE}
 hcetnopre <- smacofPredictionTable(hcetno)
 print(sum(hcetnopre, na.rm = TRUE))
 ```
 
+There is an alternative analysis available, based on the same model, which uses the smacofPC program. The indicator matrix can be 
+converted into $n(k_\star-m)$ tetrads, for the cetacea example
+that is `r 36 * (58 - 15)` tetrads. These tetrads are used in
+an MDS problem of order `r 36 + 58`, using a matrix of weights
+in which only the 36 by 58 off-diagonal matrix is non-zero.
 
 ## Senate
 
-```{r senate data}
+```{r senatedata, echo = FALSE}
 data(senate, package = "homals")
 ```
 
-```{r senatecomp, cache = TRUE}
+### Homogeneity
+
+```{r senatehomcomp, cache = TRUE, echo= FALSE}
 hhom <- smacofHomogeneityHO(senate[, 2:21])
-hho <- smacofHO(senate[, 2:21], verbose = FALSE, itmax = 10000)
 ```
 
-Stress is `r hho$stress` after `r hho$itel` iterations.
+:::: {.greybox data-latex=""}
+::: {.center data-latex=""}
+**INSERT FIGURE \@ref(fig:senatehomplot) ABOUT HERE**
+:::
+::::
 
 ```{r}
-smacofObjectsPlotHO(hhom, cex = .5, labels = as.character(senate[, 1]))
+par(mfrow = c(1,3))
+smacofJointPlotsHO(hhom, jvar = c(6, 8, 10), objects = TRUE, voronoi = TRUE, stars = TRUE, labels = as.character(senate[, 1]), xcex = .5, clabels = TRUE)
+```
+
+```{r senhhompre, echo = FALSE}
 hhompre <- smacofPredictionTable(hhom)
 print(colSums(hhompre, na.rm = TRUE))
-smacofObjectsPlotHO(hho, cex = .5, labels = as.character(senate[, 1]))
+```
+Thus we predict correctly in `r sum(hhompre, na.rm = TRUE)/(20 * 100) * 100` percent of the cases.
+
+### Voronoi
+
+```{r senatehocomp, cache = TRUE, echo = FALSE}
+hho <- smacofHO(senate[, 2:21], verbose = FALSE, itmax = 10000)
+```
+Stress is `r hho$stress` after `r hho$itel` iterations.
+
+:::: {.greybox data-latex=""}
+::: {.center data-latex=""}
+**INSERT FIGURE \@ref(fig:senatehoplot) ABOUT HERE**
+:::
+::::
+
+```{r}
+par(mfrow = c(1,3))
+smacofJointPlotsHO(hho, jvar = c(6, 8, 10), objects = TRUE, voronoi = TRUE, stars = TRUE, labels = as.character(senate[, 1]), xcex = .5, clabels = TRUE)
+```
+
+```{r senhhopre, echo = FALSE}
 hhopre <- smacofPredictionTable(hho)
 print(colSums(hhopre, na.rm = TRUE))
 ```
+Thus we predict correctly in `r sum(hhopre, na.rm = TRUE)/(20 * 100) * 100` percent of the cases.
 
-```{r cache = TRUE}
-hno <- smacofHO(senate[, 2:21], verbose = FALSE, xnorm = 2, itmax = 10000)
-smacofObjectsPlotHO(hno, cex = .5, labels = as.character(senate[, 1]))
-hnopre <- smacofPredictionTable(hno)
-print(sum(hnopre, na.rm = TRUE))
+### Centroid
+
+```{r senatecencomp, cache = TRUE, echo = FALSE}
+hosencen <- smacofHC(senate[, 2:21], itpar = list(itmax = 10000, eps = 1e-10, verbose = FALSE))
 ```
+Stress is `r hosencen$snew` after `r hosencen$itel` iterations.
+
+:::: {.greybox data-latex=""}
+::: {.center data-latex=""}
+**INSERT FIGURE \@ref(fig:senatehoplot) ABOUT HERE**
+:::
+::::
+
+```{r senhocenpre, echo = FALSE}
+hosencenpre <- smacofPredictionTable(hosencen)
+print(colSums(hosencenpre, na.rm = TRUE))
+```
+Thus we predict correctly in `r sum(hosencenpre, na.rm = TRUE)/(20 * 100) * 100` percent of the cases.
+
+```{r senatecennorm, cache = TRUE, echo = FALSE}
+hosencennorm <- smacofHC(senate[, 2:21], itpar = list(itmax = 10000, eps = 1e-10, verbose = FALSE))
+```
+Stress is `r hosencennorm$snew` after `r hosencennorm$itel` iterations.
 
 ## GALO
 
@@ -777,6 +927,72 @@ smacofJointPlotsHO(hgaloho, objects = TRUE, voronoi = TRUE, xcex = .5, ycex = .5
 # Generalizations
 
 1. Fuzzy Indicators
-2. Voronoi with general sites
+2. Voronoi with clouds
+3. Circles with varying radius
+4. Disjoint circles
+
+# Figures
+
+## Small
+
+```{r smallhomals, echo = FALSE, fig.align = "center", fig.cap = "Small example, Homogeneity Analysis"}
+par(mfrow = c(1, 3))
+smacofJointPlotsHO(h0, objects = TRUE, stars = TRUE, voronoi = TRUE, xlabels = 3)
+```
+```{r smallplot00, echo = FALSE, fig.align = "center", fig.cap = "Small example, smacofHO unrestricted"}
+par(mfrow = c(1, 3))
+smacofJointPlotsHO(h00, objects = TRUE, stars = TRUE, voronoi = TRUE, xlabels = 3)
+```
+
+```{r smallplot10, echo = FALSE, fig.align = "center", fig.cap = "Small example, smacofHO rank one"}
+par(mfrow = c(1, 3))
+smacofJointPlotsHO(h10, objects = TRUE, stars = TRUE, voronoi = TRUE, xlabels = 3)
+```
+
+```{r smallplot20, echo = FALSE, fig.align = "center", fig.cap = "Small example, smacofHC centroid"}
+par(mfrow = c(1, 3))
+smacofJointPlotsHC(h20, objects = TRUE, stars = TRUE, voronoi = TRUE, xlabels = 1)
+```
+
+```{r smallploths, echo = FALSE, fig.align = "center", fig.cap = "Small example, smacofHS circular"}
+par(mfrow = c(1, 3))
+smacofObjectsCirclePlot(h2s)
+```
+$$\pagebreak$$
+
+
+## Cetacea
+
+```{r cetahomplot, fig.align = "center", fig.cap = "Cetacea Homogeneity Analysis", echo = FALSE}
+smacofObjectsPlotHO(hcethom, cex = .5, xlabels = 1)
+```
+
+```{r ceta00plot, fig.align = "center", fig.cap = "Cetacea smacofHO unrestricted", echo = FALSE}
+smacofObjectsPlotHO(hcetho, cex = .5, xlabels = 1)
+```
+
+```{r ceta01plot, fig.align = "center", fig.cap = "Cetacea smacofHO normed", echo = FALSE}
+smacofObjectsPlotHO(hcetno, cex = .5, xlabels = 1)
+```
+
+$$\pagebreak$$
+
+## Senate
+
+```{r senatehomplot, fig.align = "center", fig.cap = "Senate Homogeneity Analysis", echo = FALSE}
+smacofObjectsPlotHO(hhom, cex = .5, labels = as.character(senate[, 1]))
+```
+```{r senatehoplot, fig.align = "center", fig.cap = "Senate smacofHO Unrestricted", echo = FALSE}
+smacofObjectsPlotHO(hho, cex = .5, labels = as.character(senate[, 1]))
+```
+```{r senatecenplot, fig.align = "center", fig.cap = "Senate smacofHC Centroid", echo = FALSE}
+smacofObjectsPlotHO(hosencen, cex = .5, labels = as.character(senate[, 1]))
+```
+```{r senatecennormplot, fig.align = "center", fig.cap = "Senate smacofHC Centroid", echo = FALSE}
+smacofObjectsPlotHO(hosencennorm, cex = .5, labels = as.character(senate[, 1]))
+```
+
+$$\pagebreak$$
+
 
 # References

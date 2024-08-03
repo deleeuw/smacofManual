@@ -789,6 +789,38 @@ lines(x, z3, col = "BLUE")
 
 ### Majorizing Stress
 
+### Accelerating
+
+$$
+X^+=\frac12(1+\beta)\overline{X}+\frac12(1-\beta)X
+$$
+Regular smacof $\beta = 1$. Accelerated $\beta=3$
+
+# smacof Datastructure
+
+### Metric
+
+$(i, j, \text{dissimilarity}, \text{weight})$
+
+## Interval
+
+$(i, j, \text{lower bound}, \text{upper bound}, \text{weight})$
+
+## Ordinal
+
+$(i, j, \text{tied}, text{weight})$
+
+## Paired Comparisons
+
+$(i, j, k, l, \text{tied}, \text{weight})$
+
+## Complete triads
+
+$$(i, j, k, \text{smallest}, \text{largest}, \text{weight})$$
+## Indicator
+
+$$(i, l, \text{weight})$$
+
 
 # MDS topics not covered
 

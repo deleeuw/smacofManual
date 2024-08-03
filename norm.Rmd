@@ -1,0 +1,39 @@
+---
+title: "norm"
+author: "Jan de Leeuw"
+date: '`r Sys.Date()`'
+output: html_document
+---
+
+Problem: minimize $\|x-y\|^2$ over $x\in K\cap S$ and $y\in L\cap S$, where $S$ is the unit sphere and $K$ and $L$ are cones (not necessarily convex). This is equivalent to maximizing the inner product $\langle x,y\rangle$ over $x\in K\cap S$ and $y\in L\cap S$.
+
+We write $\Pi_X$ for the metric projection on a set $X$. Then 
+$$
+\Pi_K(\lambda x)=\lambda\Pi_K(x)
+$$ 
+for all $x$ and $\lambda\geq 0$, and
+$$
+\Pi_{K\cap S}(x)=\frac{\Pi_K(x)}{\|\Pi_K(x)||}.
+$$
+Now consider the sequences
+$$
+x^{(k+1)}=\Pi_{K\cap S}(y^{(k)})
+$$
+and
+$$
+y^{(k+1)}=\Pi_{L\cap S}(x^{(k+1)})
+$$
+Then
+$$
+x^{(k+1)}=\frac{\Pi_K(y^{(k)})}{\|\Pi_K(y^{(k)})\|}
+$$
+and
+$$
+y^{(k+1)}=\frac{\Pi_L\Pi_K(y^{(k)})}{\|\Pi_L\Pi_K(y^{(k)})\|}.
+$$
+More generally
+$$
+y^{(k)}=\frac{(\Pi_L\Pi_K)^k(y^{(0)})}{\|(\Pi_L\Pi_K)^k(y^{(0)})\|}.
+$$
+
+Thus we can geberate unnormalized sequences and normalize them whenver we like.
