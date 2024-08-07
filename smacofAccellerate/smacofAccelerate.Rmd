@@ -1,5 +1,5 @@
 ---
-title: "Accelerated SMACOF Multidimensional Scaling"
+title: "Accelerated Least Squares Multidimensional Scaling"
 author: 
 - Jan de Leeuw - University of California Los Angeles
 date: '`r paste("Started July 23 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
@@ -22,235 +22,367 @@ graphics: yes
 mainfont: Times New Roman
 fontsize: 12pt
 bibliography: ["mypubs.bib","total.bib"]
-abstract: TBD
+abstract: We discuss a simple accelerations of MDS smacof iterations, and compare them with recent boosted difference-of-convex algortithms.
 ---
 ```{r loadpackages, echo = FALSE}
 #suppressPackageStartupMessages (library (foo, quietly = TRUE))
-data(ekman, package = "smacof")
-ekman <- as.matrix(1 - ekman)
 ```
 
 ```{r load code, echo = FALSE}
-source("smacofAccelerate.R")
-```
-
-```{r moredata, echo = FALSE}
-gruijter <-
-  structure(
-    c(
-      5.63,
-      5.27,
-      4.6,
-      4.8,
-      7.54,
-      6.73,
-      7.18,
-      6.17,
-      6.72,
-      5.64,
-      6.22,
-      5.12,
-      4.59,
-      7.22,
-      5.47,
-      5.46,
-      4.97,
-      8.13,
-      7.55,
-      6.9,
-      4.67,
-      3.2,
-      7.84,
-      6.73,
-      7.28,
-      6.13,
-      7.8,
-      7.08,
-      6.96,
-      6.04,
-      4.08,
-      6.34,
-      7.42,
-      6.88,
-      6.36,
-      7.36
-    ),
-    Labels = c("KVP", "PvdA", "VVD",
-               "ARP", "CHU", "CPN", "PSP", "BP", "D66"),
-    Size = 9L,
-    call = quote(as.dist.default(m = polpar)),
-    class = "dist",
-    Diag = FALSE,
-    Upper = FALSE
-  )
+data(ekman, package = "smacof")
+ekman <- as.matrix(1 - ekman)
+data(morse, package = "smacof")
+morse <- as.matrix(morse)
+source("gruijter.R")
 gruijter <- as.matrix(gruijter)
-mPrint <- function(x,
-                   digits = 10,
-                   width = 15,
-                   format = "f",
-                   flag = "+") {
-  print(noquote(
-    formatC(
-      x,
-      digits = digits,
-      width = width,
-      format = format,
-      flag = flag
-    )
-  ))
-}
+source("smacofAccelerate.R")
+source("smacofUtils.R")
 ```
 
-
-**Note:** This is a working paper which will be expanded/updated frequently. All suggestions for improvement are welcome. 
+**Note:** This is a working manuscript which will be expanded/updated
+frequently. All suggestions for improvement are welcome. All Rmd, tex,
+html, pdf, R, and C files are in the public domain. Attribution will be
+appreciated, but is not required. The files can be found at
+<https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
+and smacofExamples.
 
 # Introduction
 
-In this paper we study minimization of the loss function
-$$
-\sigma(X):=\frac12\sum_{i=1}^n\sum_{j=1}^n w_{ij}(\delta_{ij}-d_{ij}(X))^2
-$$
-over all $n\times p$ *configuration* matrices $X$. Here $W=\{w_{ij}\}$ and $\Delta=\{\delta_{ij}\}$ are known non-negative, symmetric, and hollow matrices of *weights* and *dissimilarities* and $D(X)=\{d_{ij}(X)\}$ is the matrix of *Euclidean distances* between  the rows of $X$.
+In this paper we study minimization of the multidimensional scaling (MDS) loss function
+\begin{equation}
+\sigma(X):=\frac12\mathop{\sum\sum}_{1\leq i<j\leq n} w_{ij}(\delta_{ij}-d_{ij}(X))^2
+(\#eq:sdef)
+\end{equation}
+over all $n\times p$ *configuration* matrices $X$. Here $W=\{w_{ij}\}$ and $\Delta=\{\delta_{ij}\}$ are known non-negative, symmetric, and hollow matrices of *weights* and *dissimilarities* and $D(X)=\{d_{ij}(X)\}$ is the matrix of *Euclidean distances* between the rows of $X$. The symbol $:=$ is used for definitions.
 
-Define
-$$
-\rho(X):=\sum_{i=1}^n\sum_{j=1}^n w_{ij}\delta_{ij}d_{ij}(X)=\text{tr}\ X'B(X)X,
-$$
+Throughout we assume, without loss of generality, that $W$ is irreducible, that $X$ is  column-centered, and that $\Delta$ is normalized by
+\begin{equation}
+\frac12\mathop{\sum\sum}_{1\leq i<j\leq n} w_{ij}\delta_{ij}^2=1.
+(\#eq:delnorm)
+\end{equation}
+
+## Notation
+
+It is convenient to have some matrix notation for our MDS problem.
+We use the symmetric matrices $A_{ij}$, of order $n$, which have $+1$ at $(i,i)$ and $(j,j)$, $-1$ at $(i,j)$ and $(j,i)$, and zeroes everywhere else. Using unit vectors $e_i$ and $e_j$ we can write
+\begin{equation}
+A_{ij}:=(e_i-e_j)(e_i-e_j)'
+(\#eq:adef)
+\end{equation}
+
+Following @deleeuw_C_77 and @deleeuw_A_88b we define
+\begin{equation}
+\rho(X):=\mathop{\sum\sum}_{1\leq i<j\leq n} w_{ij}\delta_{ij}d_{ij}(X)=\text{tr}\ X'B(X)X,
+(\#eq:rhodef)
+\end{equation}
 where
-$$
-B(X):=\sum_{i=1}^n\sum_{j=1}^nw_{ij}\frac{\delta_{ij}}{d_{ij}(X)}A_{ij}.
-$$
-Aso define
-$$
-\eta^2(X):=\sum_{i=1}^n\sum_{j=1}^nw_{ij}d_{ij}^2(X)=\text{tr}\ X'VX,
-$$
+\begin{equation}
+B(X):=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\frac{\delta_{ij}}{r_{ij}(X)}A_{ij},
+(\#eq:bdef)
+\end{equation}
+with
+\begin{equation}
+r_{ij}(X)=\begin{cases}
+\frac{1}{d_{ij}(X)}&\text{ if }d_{ij}(X)>0,\\
+0&\text{ if }d_{ij}(X)=0.
+\end{cases}
+(\#eq:rdef)
+\end{equation}
+
+Also define
+\begin{equation}
+\eta^2(X):=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}d_{ij}^2(X)=\text{tr}\ X'VX,
+(\#eq:etadef)
+\end{equation}
 where
-$$
-V:=\sum_{i=1}^n\sum_{j=1}^n w_{ij}A_{ij}.
-$$
+\begin{equation}
+V:=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}A_{ij}.
+(\#eq:vdef)
+\end{equation}
 Thus
-$$
-\sigma(X)=1-\rho(X)+\frac12\eta^2(X)
-$$
-Both $\rho$ and $\eta$ are homogeneous convex functions.
+\begin{equation}
+\sigma(X)=1-\rho(X)+\frac12\eta^2(X)=1-\text{tr}\ X'B(X)X+\frac12\text{tr}\ X'VX.
+(\#eq:sform)
+\end{equation}
+Both $B(X)$ and $V$ are positive semi-definite and doubly-centered. Because of the irreducibility of $W$ the matrix $V$ has rank $n-1$, with only the constant vectors in its null space.
 
-$\rho(X)=0$ iff $d_{ij}(X)=0$ for all $(i,j)$ for which $w_{ij}\delta_{ij}>0$.
+Both $\rho$ and $\eta$ are homogeneous convex functions, with $\eta$ being a
+norm on the space of column-centered configurations. If the equations
+$d_{ij}(X)=0$, i.e. $x_i=x_j$, for all $(i,j)$ for which 
+$w_{ij}\delta_{ij}>0$ only have the trivial solution $X=0$ then 
+$\rho$ is a norm as well. Note that $\rho$ is not differentiable if
+$d_{ij}(X)=0$ for an $(i,j)$ for which  $w_{ij}\delta_{ij}>0$.  
+Because
+\begin{equation}
+|d_{ij}(X)-d_{ij}(Y)|^2\leq\text{tr}\ (X-Y)'A_{ij}(X-Y)\leq 2p\|X-Y\|^2
+(\#eq:lipschitz)
+\end{equation}
+we see that $\rho$, although not differentiable, is globally Lipschitz.
 
+## The Guttman Transform
+
+The *Guttman transform* of a configuration $X$, so named by @deleeuw_heiser_C_80 to honor the contribution of @guttman_68, is defined as the set-valued map
+\begin{equation}
+\Phi(X)=V^+\partial\rho(X),
+(\#eq:phidef)
+\end{equation}
+with $V^+$ the Moore-Penrose inverse of $V$ and $\partial\rho(X)$ the
+subdifferential of $\rho$ at $X$, i.e. the set of all $Z$ such that
+$\rho(Y)\geq\rho(X)+\text{tr}\ Z'(Y-X)$
+for all $Y$. Because of homogeneity we have that $Z\in\partial\rho(X)$
+if and only if $\text{tr}\ Z'X=\rho(X)$ and
+$\rho(Y)\geq\text{tr}\ Z'Y$ for all $Y$. Because $\rho$ is continuous,
+its subdifferential is compact and convex.
+
+From Moreau-Rockafellar theorem (@rockafellar_70) the subdifferential of
+$\rho$ is the Minkovski linear combination
+\begin{equation}
+\partial\rho(X)=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\delta_{ij}\partial d_{ij}(X)
+(\#eq:subdif)
+\end{equation}
+
+For completeness we give an explicit formula for the subdifferential of the distance function between rows $i$ and $j$ of an $n\times p$ matrix.
+\begin{equation}
+\partial d_{ij}(X)=\begin{cases}
+\left\{\frac{1}{d_{ij}}(e_i-e_j)(x_i-x_j)'\right\}&\text{ if }d_{ij}(X)>0,\\
+\left\{Z\mid Z=(e_i-e_j)z'\text{ with }z'z\leq1\right\}&\text{ if }d_{ij}(X)=0.
+\end{cases}
+(\#eq:dsubsef)
+\end{equation}
+Thus of $d_{ij}(X)>0$, i.e. if $d_{ij}$ is differentiable at $X$,
+then $\partial d_{ij}(X)$ is a singleton, containing only the gradient
+at $X$.
+
+It follows that
+\begin{equation}
+\partial\rho(X)=B(X)X+Z
+(\#eq:rhosubdef)
+\end{equation}
+with
+\begin{equation}
+Z\in\mathop{\sum\sum}\{w_{ij}\delta_{ij}\partial d_{ij}(X)\mid d_{ij}(X)=0\}.
+(\#eq:zsubdef)
+\end{equation}
+
+stationary point
+
+This little excursion into convex analysis is rarely needed in practice. It is
+shown by @deleeuw_A_84f that a necessary condition for a local minimum at $X$
+is that $d_{ij}(X)>0$ for all $(i,j)$ for which $w_{ij}\delta_{ij}>0$. At those
+points $\sigma$ is differentiable, and thus the subdifferential is a singleton,
+containing only the gradient.
+
+Cauchy Schwartz
+
+If $Z\in\partial\rho(X)$ then $\rho(Y)\geq\text{tr}\ Z'Y$.
+
+
+Using the Guttman transform we can derive the equality
+\begin{equation}
+\sigma(X)=1+\eta^2(X-\Phi(X))-\eta^2(\Phi(X))
+(\#eq:smacofequality)
+\end{equation}
+for all $X$ and the inequality
+\begin{equation}
+\sigma(X)\leq 1+\eta^2(X-\Phi(Y))-\eta^2(\Phi(Y))
+(\#eq:smacofinequality)
+\end{equation}
+for all $X$ and $Y$.
+
+Taken together \@ref(eq:smacofequality) and \@ref(eq:smacofinequality) imply the *sandwich inequality*
+\begin{equation}
+\sigma(\Phi(Y))\leq 1-\eta^2(\Phi(Y))\leq 1+\eta^2(Y-\Phi(Y))-\eta^2(\Phi(Y))=\sigma(Y).
+(\#eq:sandwich)
+\end{equation}
+If $Y$ is not a fixed point of $\Phi$ then the second inequality in the
+chain is strict and thus $\sigma(\Phi(Y))<\sigma(Y)$. It also follows
+from \@ref(eq:sandwich) that $\eta^2(\Phi(Y))\leq 1$.
 
 
 # One-point Methods
 
 ## Basic Iteration
 
-The *Guttman transform* of a configuration $X$, named after @guttman_68, is defined as
+The basic smacof algorithm generates the iterative sequence
 $$
-\Phi(X)=V^+B(X)X,
+X^{(k+1)}=\Phi(X^{(k)}),
 $$
-with $V^+$ the Moore-Penrose inverse of $V$. If $X=\Phi(X)$, i.e. if $X$ is
-fixed point of $\Phi$, then $VX-B(X)0$, which we can also write as
-$\mathcal{D}\sigma(X)=0$. Thus $X$ is a fixed point of $\Phi$ if and only 
-if the gradient of $\sigma$ vanishes at $X$, i.e. if and only if $X$ is a 
-stationary point if $\sigma$.
+where it is understood that we stop if $X^{(k)}$ is a fixed point. If
+$X^{(k)}$ is not a fixed point it follows from \@ref(eq:sandwich) that $\sigma(X^{(k+1)})<\sigma(X^{(k)})$.
 
-We have to be somewhat careful here. Subdifferential
-$$
-\partial d_{ij}(X)=\frac{1}{d_{ij}(X)}A_{ij}X
-$$
-$$
-\partial d_{ij}(X)=A_{ij}Z
-$$
+@deleeuw_A_88b derives some additional results. Using up-arrows and down-arrows
+to indicate monotone convergence we have
 
-Using the Guttman transform we can derive the basic smacof equality
-$$
-\sigma(X)=1+\eta^2(X-\Phi(X))-\eta^2(\Phi(X))
-$$
-for all $X$ and the inequality
-$$
-\sigma(X)\leq 1+\eta^2(X-\Phi(Y))-\eta^2(\Phi(Y))
-$$
-for all $X$ and $Y$.
+* $\rho(X^{(k)})\uparrow\rho_\infty$,
+* $\eta^2(X^{(k)})\uparrow\eta^2_\infty=\rho_\infty$,
+* $\sigma(X^{(k)})\downarrow\sigma_\infty=1-\rho_\infty$,
 
-Taken together ,, and ,,, imply the sandwich inequality
-$$
-\sigma(\Phi(Y))\leq 1-\eta^2(\Phi(Y))\leq 1+\eta^2(Y-\Phi(Y))-\eta^2(\Phi(Y))=\sigma(Y)
-$$
-If $Y$ is not a fixed point of $\Phi$ then the second inequality in the
-chain is strict and thus $\sigma(\Phi(Y))<\sigma(Y)$. It also follows
-from ... that $\eta^2(\Phi(Y))\leq 1$.
-
-Algorithm
-
+and, last but not least, the sequence $\{X^{(k)}\}$ is *asymptotically regular*, i.e.
 
 $$
-\mathcal{D}\Phi_X(H)=V^+\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{A_{ij}H-\frac{\text{tr}\ X'A_{ij}H}{ \text{tr}\ X'A_{ij}X}A_{ij}X\right\}
+\eta^2(X^{(k+1)}-X^{(k)})\rightarrow 0
 $$
-Thus $\mathcal{D}\Phi_X(X)=0$ for all $X$. If $X$ is a fixed point and $S$ is anti-symmetric  $\mathcal{D}\Phi_X(XS)=V^+B(X)XS=XS$,
+Since the subdifferential is a upper semi-continuous (closed) map, and all iterates
+are in the compact set $\eta^2(X)\leq 1$, and $\Phi$ is strictly monotonic
+(decreases stress at non-fixed points), it follows from @meyer_76 that
+all accumulation points are fixed points and have the same function value $\sigma_\infty$. Moreover, from @ostrowski_66, either the sequence
+converges or the accumulation points form a continuum. 
+
+In order to prove actual convergence, additional conditions are needed.
+@meyer_76 proves convergence if the number of fixed points with function value $\sigma_\infty$ is finite, or if the sequence has an accumulation point that is an isolated fixed point. Both these conditions are not met in our case, because
+of rotational indeterminacy. If $X_\infty$ is a fixed point, then the
+continuum of rotations of $X_\infty$ are all fixed points.
+
+@deleeuw_A_88b argues that the results so far are sufficient from a 
+practical point of view. If we define an $\epsilon$-fixed-point as
+any $X$ with $\eta(X-\Phi(X))<\eta$ then smacof produces such an
+$\epsilon$-fixed-point in a finite number of steps. 
+
+In two very recent
+papers @ram_sabach_24 and @robini_wang_zhu_24 use the powerful Kurdyka-Łojasiewicz (KL) 
+machinery (ref)
+to prove actual convergence of smacof to a fixed point. We shall
+use the more classical approach based on the differentiability of the Guttman 
+transform.
+
+
+## Majorization and Difference-of-Convex Function Algorithms
+
+The original derivation of the smacof algorithm (@deleeuw_C_77, @deleeuw_heiser_C_77)
+used the framework of maximizing the ratio of norms discussed by @robert_67. Later
+derivations (@deleeuw_heiser_C_80, @deleeuw_A_88b) used the fact that \@ref(eq:smacofinequality) defines a majorization scheme for stress. Convergence
+then follows from the general *majorization principle* (these days mostly known
+as the *MM principle*). A recent overview of the MM approach is @lange_16.
+
+It was also realized early on that the smacof algorithm was a special case of the 
+the difference-of-convex functions algorithm (DCA), introduced by Pham Dinh Tao around 
+1980. Pham Dinh also started his work in the context of ratio's of norms, using 
+Robert's fundamental ideas. Around 1985 he generalized his approach to minimizing
+DC functions of the form $h=f-g$, with both $f$ and $g$ convex. The basic idea
+is to use the subgradient inequality $g(x)\geq g(y)+z'(x-y)$, with $z\in\partial g(x)$,
+to construct the majorization $h(x):=f(x)-g(y)-z'(x-y)$. Now $h$ is obviously convex in $x$. The DC algorithm then chooses the successor of $y$ as the minimizer of this convex majorizer over $x$. In smacof the role of $f$ is played by $\eta^2$ and the role of $g$ by $\rho$. The convex subproblem in each step is quadratic, and has the closed form solution provided by the Guttman transform. DCA is applied to MDS in @lethi_tao_01, and extensive recent surveys of the DC/DCA approach are @lethi_tao_18 and @lethi_tao_24.
+
+## Rate of Convergence
+
+In order to study the asymptotic rate of convergence of smacof, we have to 
+study the Jacobian of the Guttman transform and its eigenvalues (@ortega_rheinboldt_70, chapter 10). Thus we assume we are in the neighborhood of a local minimum,
+where the Guttman transform is (infinitely many times) differentiable. The
+derivative is
+
+\begin{equation}
+\mathcal{D}\Phi_X(H)=V^+\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{A_{ij}H-\frac{\text{tr}\ X'A_{ij}H}{ \text{tr}\ X'A_{ij}X}A_{ij}X\right\}.
+(\#eq:jacobian)
+\end{equation}
+
+Thus $\mathcal{D}\Phi_X(X)=0$ for all $X$ and the Jacobian has at least one
+zero eigenvalue. If we think of \@ref(eq:jacobian) as a map on the space
+of all $n\times p$ matrices, then there are an additional $p$ zero eigenvalues
+corresponding with translational invariance. If we define \@ref(eq:jacobian)
+on the column-centered matrices, then these eigenvalues disappear.
+
+If $S$ is anti-symmetric and
+$H=XS$ then $\text{tr}\ X'A_{ij}H=0$ and thus $\mathcal{D}\Phi_X(XS)=\Phi(X)S$.
+If in addition $X$ is a fixed point  then  $\mathcal{D}\Phi_X(XS)=V^+B(X)XS=XS$,
 which means $\mathcal{D}\Phi_X$ has $\frac12p(p-1)$ eigenvalues equal to one.
-At a fixed point all eigenvalues are between zero and one.
+They quantify the rotational indeterminacy of the MDS problem and the
+smacof iterations.
+
+Since $\Phi(X)=V^+\mathcal{D}\rho(X)$ the Jacobian of the Guttman transform
+has a simple relationship with the second derivatives of $\rho$, which are 
+\begin{equation}
+\mathcal{D}^2\rho_X(H,H)=\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{\text{tr}\ H'A_{ij}H-\frac{\{\text{tr}\ H'A_{ij}X\}^2}{d_{ij}^2(X)}\right\}=\text{tr}\ H'V\mathcal{D}\Phi_X(H).
+(\#eq:hessian)
+\end{equation}
+It follows that
+$0\lesssim\mathcal{D}^2\rho_X\lesssim B(X)$
+in the Loewner sense. Of course
+$\mathcal{D}^2\sigma_X=V-\mathcal{D}^2\rho_X$
+At a local minimum $\mathcal{D}^2\sigma_X\gtrsim 0$, and consequently
+$\mathcal{D}\Phi_X\lesssim I$. Thus all eigenvalues of the Jacobian are  
+between zero and one.
 
 
-$$
-\mathcal{D}^2\rho_X(G,H)=\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{\text{tr}\ G'A_{ij}H-\frac{\text{tr}\ H'A_{ij}X\ \text{tr}\ G'A_{ij}X}{ d_{ij}^2(X)}\right\}
-$$
-
-
+We apply basic iterations to the color-circle example from @ekman_54, which has
+$n=14$ points. The fit is very good and convergence is rapid. We stop when
+$\sigma(X^{(k)})-\sigma(X^{(k+1)})<1e-15$. The
+results for the final iteration are
 ```{r compute1, echo = FALSE, cache = TRUE}
 h1 <- smacofAccelerate(ekman, opt = 1, halt = 0, epsf = 1e-15, verbose = 1)
 ```
-stress is `r prettyNum(h1$s, digits = 15, format = "f")`
+In this output chng is $\eta(X^{(k)}-X^{(k+1)}$, and labd is an estimate
+of the asymptotic convergence ratio, the chng divided by the chng of the 
+previous iteration. We always start with the classical Torgerson-Gower
+solution. To fifteen decimals stress is `r prettyNum(h1$s, digits = 15, format = "f")`
 
+We compute the Jacobian using the numDeriv package (@gilbert_varadhan_19). Its eigenvalues are
 ```{r eval1, echo = FALSE}
 jacob1 <- numHess(h1$x, h1$delta, h1$wgth, opt = 1)
-mPrint(as.matrix(Re(eigen(jacob1)$values)))
+mPrint(Re(eigen(jacob1)$values))
 ```
-
-$$
-\mathcal{D}\Phi_X(H)=V^+\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{A_{ij}H-\frac{\text{tr}\ X'A_{ij}H}{ \text{tr}\ X'A_{ij}X}A_{ij}X\right\}
-$$
-Thus $\mathcal{D}\Phi_X(X)=0$ for all $X$. If $X$ is a fixed point and $S$ is anti-symmetric  $\mathcal{D}\Phi_X(XS)=V^+B(X)XS=XS$,
-which means $\mathcal{D}\Phi_X$ has $\frac12p(p-1)$ eigenvalues equal to one.
-At a fixed point all eigenvalues are between zero and one.
-
-
-$$
-\mathcal{D}^2\rho_X(G,H)=\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{\text{tr}\ G'A_{ij}H-\frac{\text{tr}\ H'A_{ij}X\ \text{tr}\ G'A_{ij}X}{ d_{ij}^2(X)}\right\}
-$$
-
-
+Note that the second largest and forst non-trivial
+eigenvalue is equal to labd from the final iteration.
 
 ## Rotated Basic Iteration
+
+As @deleeuw_A_88b mentions, we cannot apply the basic Ostrowski point-of-attraction theorem 10.1.3 and the linear convergence theorem 10.1.4 from @ortega_rheinboldt_70, because there are these $\frac12 p(p-1$ eigenvalues equal to one. 
+
+One way around this problem is to rotate each update to orthogonality. Thus the
+update formula is $\Phi_o(X)=\Pi(\Phi(X))$ by
+applying the QR decomposition or the singular value decomposition to 
+$\Phi(X)$. Somes simple R code which can be used for this purpose is
+```{r eval = FALSE}
+x <- x %*% qr.Q(qr(t(x[1:ndim, ])))
+x <- x %*% svd(x)$v
+```
+Now clearly this modified algorithm generates the same sequence of 
+function values as basic smacof. Moreover $\Theta^n_o(X)=\Pi(\Phi^n(X))$,
+which means that we can find any term of the orthogonal sequence
+by orthogonalizing the corresponding term in the basic sequence.
+Thus, in actual computation, there is no need to orthogonalize, we
+may as well run the basic seuence and orthogonalize after
+convergence.
+
+Theoretically, however, orthogonalization gives the same 
+convergence rate as the basic sequence, but the Jacobian
+of $\Phi_o$ at a local minimum does not have the unit
+eigenvalues any more. They are replaced by zeroes, reflecting
+the fact that we are iterating on the nonlinear manifold
+or orthogonal column-centered matrices. It is now sufficient
+for linear convergence to assume that the largest
+eigenvalue of the Jacobian at the solution is strictly
+less than one, or alternatively assume that one of the accumulation
+points is an isolated local minimum.
+
+We guvce the results by applying the two orthogonalization methods
+to the Ekman sequence. 
 
 ```{r compute2, echo = FALSE, cache = TRUE}
 h2 <- smacofAccelerate(ekman, opt = 2, halt = 0, epsf = 1e-15, verbose = 1)
 ```
 
-stress is `r prettyNum(h2$s, digits = 15, format = "f")`
-
-
 ```{r eval2, echo = FALSE}
 jacob2 <- numHess(h2$x, h2$delta, h2$wgth, opt = 2)
-mPrint(as.matrix(Re(eigen(jacob2)$values)))
+mPrint(Re(eigen(jacob2)$values))
 ```
 
 ```{r compute3, echo = FALSE, cache = TRUE}
 h3 <- smacofAccelerate(ekman, opt = 3, halt = 0, epsf = 1e-15, verbose = 1)
 ```
 
-stress is `r prettyNum(h3$s, digits = 15, format = "f")`
-
-
 ```{r eval3, echo = FALSE}
 jacob3 <- numHess(h3$x, h3$delta, h3$wgth, opt = 3)
-mPrint(as.matrix(Re(eigen(jacob3)$values)))
+mPrint(Re(eigen(jacob3)$values))
 ```
 
 # Two Point Iteration
 
-@deleeuw_heiser_C_80 suggested the update
+## Basic
+
+@deleeuw_heiser_C_80 suggested the "relaxed" update
 $$
 \Psi(X)=2\Phi(X)-X
 $$
-The reasoning here is two-fold. The smacof inequality says
+The reasoning here is two-fold. The smacof inequality \@ref(eq:smacofinequality) says
 $$
 \sigma(X)\leq 1+\eta^2(X-\Phi(Y))-\eta^2(\Phi(Y))
 $$
@@ -262,19 +394,19 @@ If $(1-\alpha)^2\leq 1$ then
 $$
 1+(1-\alpha)^2\eta^2(Y-\Phi(Y))-\eta^2(\Phi(Y))\leq 1+\eta^2(Y-\Phi(Y))-\eta^2(\Phi(Y))=\sigma(Y)
 $$
-Thus updating with $X^{(k+1)}=\alpha\Phi(X^{(k)})+(1-\alpha)X^{(k)}$ is a stable
-algorithm as long as $0\leq\alpha\leq 2$.
+Thus updating with $X^{(k+1)}=\alpha\Phi(X^{(k)})+(1-\alpha)X^{(k)}$ is a stricly
+monotone algorithm as long as $0\leq\alpha\leq 2$.
+
+rate
 
 It turns out that applying the relaxed update
-$$
-X^{(k+1)}=2V^+B(X^{(k)})X^{(k)}-X^{(k)}
-$$
-has some unintended consequences.
+has some unintended consequences, which basically imply that it should never
+be used without some additional computation. Let's take a look at the
+Ekman results.
 ```{r compute4, echo = FALSE, cache = TRUE}
 h4 <- smacofAccelerate(ekman, opt = 4, halt = 0, epsf = 1e-15, verbose = 1)
 ```
 
-stress is `r prettyNum(h4$s, digits = 15, format = "f")`
 
 We see that $\eta^2(X^{(k+1)}-X^{(k)})$ does not converge to zero, and that
 $\sigma_k$ converges to a value which does not even correspond to a local minimum
@@ -282,7 +414,7 @@ of $\sigma$.
 
 ```{r eval4, echo = FALSE}
 jacob4 <- numHess(h4$x, h4$delta, h4$wgth, opt = 4)
-mPrint(as.matrix(Re(eigen(jacob4)$values)))
+mPrint(Re(eigen(jacob4)$values))
 ```
 
 A more thorough analysis of the results show that the method produces a sequence
@@ -291,6 +423,11 @@ $\Phi$ then there is a $\tau>0$ such that
 the subsequence with $k$ even converges to $\tau\overline{X}$
 while the subsequence with $k$ odd converges to $(2-\tau)\overline{X}$.
 
+what goes wrong ? not strictly monotone at $\tau\overline{X}$
+
+stress is `r prettyNum(h4$s, digits = 15, format = "f")`
+
+
 ```{r compute5, echo = FALSE, cache = TRUE}
 h5 <- smacofAccelerate(ekman, opt = 5, halt = 0, epsf = 1e-15, verbose = 1)
 ```
@@ -298,14 +435,303 @@ stress is `r prettyNum(h5$s, digits = 15, format = "f")`
 
 ```{r eval5, echo = FALSE}
 jacob5 <- numHess(h5$x, h5$delta, h5$wgth, opt = 4)
-mPrint(as.matrix(Re(eigen(jacob5)$values)))
+mPrint(Re(eigen(jacob5)$values))
 ```
+
+## Doubling
+
+## Scaling
+
+## Switching
+
+$$
+\Phi(\Psi(X))
+$$
+$$
+\max_s|\lambda_s(2\lambda_s-1)|
+$$
+# Benchmarking
+
+@mersmann_23
 
 ```{r compareekman, echo = FALSE, cache = TRUE}
 smacofCompare(ekman)
 ```
 
+@degruijter_67
+
 ```{r comparegruijter, echo = FALSE, cache = TRUE}
 smacofCompare(gruijter)
 ```
+
+```{r comparemorse, echo = FALSE, cache = TRUE}
+smacofCompare(morse)
+```
+
+# Code
+
+```{r thecode, eval = FALSE}
+library(MASS)
+library(microbenchmark)
+library(numDeriv)
+
+smacofAccelerate <- function(delta,
+                             ndim = 2,
+                             wgth = 1 - diag(nrow(delta)),
+                             xold = smacofTorgerson(delta, ndim),
+                             opt = 1,
+                             halt = 1,
+                             itmax = 1000,
+                             epsx = 1e-10,
+                             epsf = 1e-15,
+                             verbose = 1) {
+  v <- -wgth
+  diag(v) <- -rowSums(v)
+  vinv <- ginv(v)
+  n <- nrow(xold)
+  cold <- Inf
+  itel <- 1
+  last <- FALSE
+  repeat {
+    xold <- apply(xold, 2, function(x)
+      x - mean(x))
+    dold <- as.matrix(dist(xold))
+    sold <- sum(wgth * (delta - dold) ^ 2)
+    bold <- -wgth * delta / (dold + diag(n))
+    diag(bold) <- -rowSums(bold)
+    xbar <- vinv %*% bold %*% xold
+    if (opt == 1) {
+      xnew <- xbar
+      dnew <- as.matrix(dist(xnew))
+      snew <- sum(wgth * (delta - dnew) ^ 2)
+      cnew <- sum((xold - xnew) * (v %*% (xold - xnew)))
+    }
+    if (opt == 2) {
+      lbd <- sqrt(sum(xbar[1, ] ^ 2))
+      cs <- xbar[1, 2] / lbd
+      sn <- xbar[1, 1] / lbd
+      rot <- matrix(c(sn, cs, -cs, sn), 2, 2)
+      xnew <- xbar %*% rot
+      dnew <- as.matrix(dist(xnew))
+      snew <- sum(wgth * (delta - dnew) ^ 2)
+      cnew <- sum((xold - xnew) * (v %*% (xold - xnew)))
+    }
+    if (opt == 3) {
+      xnew <- xbar %*% svd(xbar)$v
+      dnew <- as.matrix(dist(xnew))
+      snew <- sum(wgth * (delta - dnew) ^ 2)
+      cnew <- sum((xold - xnew) * (v %*% (xold - xnew)))
+    }
+    if (opt == 4) {
+      xnew <- 2 * xbar - xold
+      dnew <- as.matrix(dist(xnew))
+      snew <- sum(wgth * (delta - dnew) ^ 2)
+      cnew <- sum((xold - xnew) * (v %*% (xold - xnew)))
+    }
+    if (opt == 5) {
+      xaux <- 2 * xbar - xold
+      daux <- as.matrix(dist(xaux))
+      baux <- -wgth * delta / (daux + diag(n))
+      diag(baux) <- -rowSums(baux)
+      xbaz <- vinv %*% baux %*% xaux
+      xnew <- 2 * xbaz - xaux
+      dnew <- as.matrix(dist(xnew))
+      snew <- sum(wgth * (delta - dnew) ^ 2)
+      cnew <- sum((xold - xnew) * (v %*% (xold - xnew)))
+    }
+    if (opt == 6) {
+      xaux <- 2 * xbar - xold
+      daux <- as.matrix(dist(xaux))
+      alpa <- sum(wgth * daux * delta) / sum(wgth * daux ^ 2)
+      xnew <- alpa * xaux
+      dnew <- alpa * daux
+      snew <- sum(wgth * (delta - dnew) ^ 2)
+      cnew <- sum((xold - xnew) * (v %*% (xold - xnew)))
+    }
+    if (opt == 7) {
+      xaux <- 2 * xbar - xold
+      daux <- as.matrix(dist(xaux))
+      baux <- -wgth * delta / (daux + diag(n))
+      diag(baux) <- -rowSums(baux)
+      xnew <- vinv %*% baux %*% xaux
+      dnew <- as.matrix(dist(xnew))
+      snew <- sum(wgth * (delta - dnew) ^ 2)
+      cnew <- sum((xold - xnew) * (v %*% (xold - xnew)))
+    }
+    labd <- sqrt(cnew / cold)
+    if (verbose == 2) {
+      cat(
+        "itel",
+        formatC(itel, digits = 2, format = "d"),
+        "sold",
+        formatC(sold, digits = 10, format = "f"),
+        "snew",
+        formatC(snew, digits = 10, format = "f"),
+        "chng",
+        formatC(cnew, digits =  10, format = "f"),
+        "labd",
+        formatC(labd, digits =  10, format = "f"),
+        "\n"
+      )
+    }
+    if (halt == 1) {
+      converge <- cnew < epsx
+    } else {
+      converge <- (sold - snew) < epsf
+    }
+    if ((itel == itmax) || converge) {
+      break
+    }
+    itel <- itel + 1
+    sold <- snew
+    xold <- xnew
+    cold <- cnew
+  }
+  if (verbose == 1) {
+    cat(
+      "itel",
+      formatC(itel, digits = 2, format = "d"),
+      "sold",
+      formatC(sold, digits = 10, format = "f"),
+      "snew",
+      formatC(snew, digits = 10, format = "f"),
+      "chng",
+      formatC(cnew, digits =  10, format = "f"),
+      "labd",
+      formatC(labd, digits =  10, format = "f"),
+      "\n"
+    )
+  }
+  if (opt == 4) {
+    xaux <- (xnew + xold) / 2
+    xnew <- (xnew + xold) / 2
+    dnew <- as.matrix(dist(xnew))
+    snew <- sum(wgth * (delta - dnew) ^ 2)
+  }
+  if (opt == 5) {
+    bold <- -wgth * delta / (dnew + diag(n))
+    diag(bold) <- -rowSums(bold)
+    xnew <- vinv %*% bold %*% xnew
+    dnew <- as.matrix(dist(xnew))
+    snew <- sum(wgth * (delta - dnew) ^ 2)
+  }
+  return(list(
+    x = xnew,
+    s = snew,
+    d = dnew,
+    itel = itel,
+    chng = cnew,
+    labd = labd,
+    wgth = wgth,
+    delta = delta
+  ))
+}
+
+smacofCompare <- function(delta, ndim = 2) {
+  n <- nrow(delta)
+  wgth <- 1 - diag(n)
+  xold <- smacofTorgerson(delta, ndim)
+  return(
+    microbenchmark(
+      smacofAccelerate(
+        delta,
+        ndim = 2,
+        opt = 1,
+        halt = 2,
+        verbose = FALSE
+      ),
+      smacofAccelerate(
+        delta,
+        ndim = 2,
+        opt = 2,
+        halt = 2,
+        verbose = FALSE
+      ),
+      smacofAccelerate(
+        delta,
+        ndim = 2,
+        opt = 3,
+        halt = 2,
+        verbose = FALSE
+      ),
+      smacofAccelerate(
+        delta,
+        ndim = 2,
+        opt = 4,
+        halt = 2,
+        verbose = FALSE
+      ),
+      smacofAccelerate(
+        delta,
+        ndim = 2,
+        opt = 5,
+        halt = 2,
+        verbose = FALSE
+      ),
+      smacofAccelerate(
+        delta,
+        ndim = 2,
+        opt = 6,
+        halt = 2,
+        verbose = FALSE
+      ),
+      smacofAccelerate(
+        delta,
+        ndim = 2,
+        opt = 7,
+        halt = 2,
+        verbose = FALSE
+      )
+    )
+  )
+}
+
+smacofTorgerson <- function(delta, ndim) {
+  n <- nrow(delta)
+  dd <- delta ^ 2
+  rd <- rowSums(dd) / n
+  sd <- mean(dd)
+  cc <- -.5 * (dd - outer(rd, rd, "+") + sd)
+  ee <- eigen(cc)
+  x <- ee$vectors[, 1:ndim] %*% diag(sqrt(ee$values[1:ndim]))
+  return(x)
+}
+
+numFunc <- function(x, nobj, ndim, wgth, delta, opt = 1) {
+  xx <- matrix(x, nobj, ndim)
+  dd <- as.matrix(dist(xx))
+  vv <- -wgth
+  diag(vv) <- -rowSums(vv)
+  vinv <- ginv(vv)
+  bb <- -wgth * delta / (dd + diag(nobj))
+  diag(bb) <- -rowSums(bb)
+  xaux <- vinv %*% bb %*% xx
+  if (opt == 1) {
+    yy <- xaux
+  }
+  if (opt == 2) {
+    lbd <- sqrt(sum(xaux[1, ] ^ 2))
+    cs <- xaux[1, 2] / lbd
+    sn <- xaux[1, 1] / lbd
+    rot <- matrix(c(sn, cs, -cs, sn), 2, 2)
+    yy <- xaux %*% rot
+  }
+  if (opt == 3) {
+    yy <- xaux %*% svd(xaux)$v
+  }
+  if (opt == 4) {
+    yy <- 2 * xaux - xx
+  }
+  return(as.vector(yy))
+}
+
+numHess <- function(x, delta, wgth = 1 - diag(nrow(x)), opt = 1) {
+  nobj <- nrow(x)
+  ndim <- ncol(x)
+  x <- as.vector(x)
+  h <- jacobian(numFunc, x, nobj = nobj, ndim = ndim, wgth = wgth, delta = delta, opt = opt )
+  return(h)
+}
+```
+
 # References
