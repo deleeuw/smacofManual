@@ -194,7 +194,7 @@
 
 \title{Accelerated Least Squares Multidimensional Scaling}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started July 23 2024, Version of August 06, 2024}
+\date{Started July 23 2024, Version of August 11, 2024}
 
 \begin{document}
 \maketitle
@@ -220,7 +220,10 @@ In this paper we study minimization of the multidimensional scaling (MDS) loss f
 \sigma(X):=\frac12\mathop{\sum\sum}_{1\leq i<j\leq n} w_{ij}(\delta_{ij}-d_{ij}(X))^2
 \label{eq:sdef}
 \end{equation}
-over all \(n\times p\) \emph{configuration} matrices \(X\). Here \(W=\{w_{ij}\}\) and \(\Delta=\{\delta_{ij}\}\) are known non-negative, symmetric, and hollow matrices of \emph{weights} and \emph{dissimilarities} and \(D(X)=\{d_{ij}(X)\}\) is the matrix of \emph{Euclidean distances} between the rows of \(X\). The symbol \(:=\) is used for definitions.
+over all \(n\times p\) \emph{configuration} matrices \(X\). Following Kruskal (1964a), Kruskal (1964b) we call \(\sigma(X)\) the \emph{stress} of \(X\). The symbol \(:=\) is used for definitions.
+
+In definition
+\eqref{eq:sdef} matrices \(W=\{w_{ij}\}\) and \(\Delta=\{\delta_{ij}\}\) are known non-negative, symmetric, and hollow. They contain, respectively, \emph{weights} and \emph{dissimilarities}. The matrix-valued function \(D\), with \(D(X)=\{d_{ij}(X)\}\), contains \emph{Euclidean distances} between the rows of \(X\).
 
 Throughout we assume, without loss of generality, that \(W\) is irreducible, that \(X\) is column-centered, and that \(\Delta\) is normalized by
 \begin{equation}
@@ -230,14 +233,14 @@ Throughout we assume, without loss of generality, that \(W\) is irreducible, tha
 
 \subsection{Notation}\label{notation}
 
-It is convenient to have some matrix notation for our MDS problem.
-We use the symmetric matrices \(A_{ij}\), of order \(n\), which have \(+1\) at \((i,i)\) and \((j,j)\), \(-1\) at \((i,j)\) and \((j,i)\), and zeroes everywhere else. Using unit vectors \(e_i\) and \(e_j\) we can write
+It is convenient to have some matrix notation for the MDS problem.
+We use the symmetric matrices \(A_{ij}\), of order \(n\), which have \(+1\) for elements \((i,i)\) and \((j,j)\), \(-1\) for elements \((i,j)\) and \((j,i)\), and zeroes everywhere else. Using unit vectors \(e_i\) and \(e_j\) we can write
 \begin{equation}
-A_{ij}:=(e_i-e_j)(e_i-e_j)'
+A_{ij}:=(e_i-e_j)(e_i-e_j)'.
 \label{eq:adef}
 \end{equation}
 
-Following De Leeuw (1977) and De Leeuw (1988) we define
+Following De Leeuw (1977) we define
 \begin{equation}
 \rho(X):=\mathop{\sum\sum}_{1\leq i<j\leq n} w_{ij}\delta_{ij}d_{ij}(X)=\text{tr}\ X'B(X)X,
 \label{eq:rhodef}
@@ -250,7 +253,7 @@ B(X):=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\frac{\delta_{ij}}{r_{ij}(X)}A_{i
 with
 \begin{equation}
 r_{ij}(X)=\begin{cases}
-\frac{1}{d_{ij}(X)}&\text{ if }d_{ij}(X)>0,\\
+d_{ij}^{-1}(X)&\text{ if }d_{ij}(X)>0,\\
 0&\text{ if }d_{ij}(X)=0.
 \end{cases}
 \label{eq:rdef}
@@ -274,12 +277,13 @@ Thus
 Both \(B(X)\) and \(V\) are positive semi-definite and doubly-centered. Because of the irreducibility of \(W\) the matrix \(V\) has rank \(n-1\), with only the constant vectors in its null space.
 
 Both \(\rho\) and \(\eta\) are homogeneous convex functions, with \(\eta\) being a
-norm on the space of column-centered configurations. If the equations
-\(d_{ij}(X)=0\), i.e.~\(x_i=x_j\), for all \((i,j)\) for which
-\(w_{ij}\delta_{ij}>0\) only have the trivial solution \(X=0\) then
-\(\rho\) is a norm as well. Note that \(\rho\) is not differentiable if
-\(d_{ij}(X)=0\) for an \((i,j)\) for which \(w_{ij}\delta_{ij}>0\).\\
-Because
+norm on the space of column-centered configurations. The equations
+\(d_{ij}(X)=0\) for all \((i,j)\) for which
+\(w_{ij}\delta_{ij}>0\) define a linear subspace of configuration space. If that
+subspace only contains the zero matrix then \(\rho\) is a norm as well.
+
+Note that \(\rho\) is continuous, but it is not differentiable at \(X\) if
+\(d_{ij}(X)=0\) for some \((i,j)\) for which \(w_{ij}\delta_{ij}>0\). Because
 \begin{equation}
 |d_{ij}(X)-d_{ij}(Y)|^2\leq\text{tr}\ (X-Y)'A_{ij}(X-Y)\leq 2p\|X-Y\|^2
 \label{eq:lipschitz}
@@ -296,29 +300,34 @@ The \emph{Guttman transform} of a configuration \(X\), so named by De Leeuw and 
 with \(V^+\) the Moore-Penrose inverse of \(V\) and \(\partial\rho(X)\) the
 subdifferential of \(\rho\) at \(X\), i.e.~the set of all \(Z\) such that
 \(\rho(Y)\geq\rho(X)+\text{tr}\ Z'(Y-X)\)
-for all \(Y\). Because of homogeneity we have that \(Z\in\partial\rho(X)\)
+for all \(Y\). Because \(\rho\) is homogeneous of degree one we have that \(Z\in\partial\rho(X)\)
 if and only if \(\text{tr}\ Z'X=\rho(X)\) and
-\(\rho(Y)\geq\text{tr}\ Z'Y\) for all \(Y\). Because \(\rho\) is continuous,
-its subdifferential is compact and convex.
+\(\rho(Y)\geq\text{tr}\ Z'Y\) for all \(Y\). For each \(X\)
+the subdifferential \(\partial\rho(X)\), and consequently the Guttman transform, is compact and convex. The map \(\partial\rho\)
+is also positively homogeneous of degree zero, i.e.~\(\partial\rho(\alpha X)=\partial\rho(X)\) for all \(X\) and all \(\alpha\geq 0\). And consequently so is the
+Guttman transform.
 
-From Moreau-Rockafellar theorem (Rockafellar (1970)) the subdifferential of
-\(\rho\) is the Minkovski linear combination
-\begin{equation}
-\partial\rho(X)=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\delta_{ij}\partial d_{ij}(X)
-\label{eq:subdif}
-\end{equation}
-
-For completeness we give an explicit formula for the subdifferential of the distance function between rows \(i\) and \(j\) of an \(n\times p\) matrix.
+We start with the subdifferential of the distance function between
+rows \(i\) and \(j\) of an \(n\times p\) matrix. Straightforward calculation
+gives
 \begin{equation}
 \partial d_{ij}(X)=\begin{cases}
-\left\{\frac{1}{d_{ij}}(e_i-e_j)(x_i-x_j)'\right\}&\text{ if }d_{ij}(X)>0,\\
+\left\{d_{ij}^{-1}(e_i-e_j)(x_i-x_j)'\right\}&\text{ if }d_{ij}(X)>0,\\
 \left\{Z\mid Z=(e_i-e_j)z'\text{ with }z'z\leq1\right\}&\text{ if }d_{ij}(X)=0.
 \end{cases}
 \label{eq:dsubsef}
 \end{equation}
-Thus of \(d_{ij}(X)>0\), i.e.~if \(d_{ij}\) is differentiable at \(X\),
+Thus if \(d_{ij}(X)>0\), i.e.~if \(d_{ij}\) is differentiable at \(X\),
 then \(\partial d_{ij}(X)\) is a singleton, containing only the gradient
 at \(X\).
+
+From subdifferential calculus (Rockafellar (1970), theorem 23.8 and 23.9) the subdifferential of \(\rho\) is the linear combination
+\begin{equation}
+\partial\rho(X)=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\delta_{ij}\partial d_{ij}(X)
+\label{eq:subdif}
+\end{equation}
+Summation here is in the Minkovski sense, i.e.~\(\partial\rho(X)\) is the compact convex set of all linear combinations \(\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\delta_{ij}z_{ij}\),
+with \(z_{ij}\in\partial d_{ij}(X)\).
 
 It follows that
 \begin{equation}
@@ -330,25 +339,53 @@ with
 Z\in\mathop{\sum\sum}\{w_{ij}\delta_{ij}\partial d_{ij}(X)\mid d_{ij}(X)=0\}.
 \label{eq:zsubdef}
 \end{equation}
+It also follows that
+\begin{equation}
+\partial\sigma(X)=VX-\partial\rho(X)
+\label{eq:sigsubdef}
+\end{equation}
+Since \(\sigma\) is not convex the subdifferential in \eqref{eq:sigsubdef} is
+the Clarke subdifferential (Clarke (1975)).
 
-stationary point
+Now \(X\) is a stationary point of \(\sigma\) if \(0\in\partial\sigma(X)\), i.e.
+if and only if \(X\in V^+\partial\rho(X)\). This means that stationary
+points are fixed points of the Guttman transform.
+A necessary condition for \(\sigma\) to have a local minimum at \(X\) is that \(X\) is a stationary point. The condition is far from sufficient, however, since stationary points can also be saddle points or local maxima. De Leeuw (1993) shows that stress
+only has a single local maximum at the origin \(X=0\), but generally there
+are many saddle points.
 
 This little excursion into convex analysis is rarely needed in practice. It is
 shown by De Leeuw (1984) that a necessary condition for a local minimum at \(X\)
 is that \(d_{ij}(X)>0\) for all \((i,j)\) for which \(w_{ij}\delta_{ij}>0\). At those
-points \(\sigma\) is differentiable, and thus the subdifferential is a singleton,
-containing only the gradient.
+points \(\sigma\) is differentiable, and thus the subdifferential
+\eqref{eq:sigsubdef} is a singleton, containing only the gradient.
+We have \(\nabla\rho(X)=B(X)X\) and \(\nabla\sigma(X)=VX-B(X)X\).
+Stationary points satisfy \(X=V^+B(X)X\).
 
-Cauchy Schwartz
+If \(w_{ij}\delta_{ij}=0\) for some \((i,j)\) then there can be local minima
+where \(\sigma\) is not differentiable. This typically happens in
+multidimensional unfolding (Mair, De Leeuw, and Wurzer (2015)).
 
-If \(Z\in\partial\rho(X)\) then \(\rho(Y)\geq\text{tr}\ Z'Y\).
+By the definition of the subdifferential \(Z\in\partial\rho(X)\) implies \(\rho(X)\geq\text{tr}\ Z'X\) and \(\rho(Y)\geq\text{tr}\ Z'Y\) for all \(Y\). If
+\(d{ij}(X)>0\) this follows directly from the Cauchy-Schwartz inequality
+\begin{equation}
+d_{ij}(Y)\geq d_{ij}^{-1}(X)\text{tr}\ X'A_{ij}Y.
+\label{eq:csineq}
+\end{equation}
+Multiplying both sides by \(w_{ij}\delta_{ij}\) and summing gives
+\begin{equation}
+\rho(Y)\geq\text{tr}\ Y'B(X)X
+\label{eq:rhoineq}
+\end{equation}
+for all \(Y\), with equality if \(Y=X\). Not ``if and only if'', but just ``if''. We
+also have equality if \(Y=\alpha X\) for some \(\alpha\geq 0\).
 
-Using the Guttman transform we can derive the equality
+Using the Guttman transform we can use \eqref{eq:rhioneq} as the basic smacof equality
 \begin{equation}
 \sigma(X)=1+\eta^2(X-\Phi(X))-\eta^2(\Phi(X))
 \label{eq:smacofequality}
 \end{equation}
-for all \(X\) and the inequality
+for all \(X\) and the basic smacof inequality
 \begin{equation}
 \sigma(X)\leq 1+\eta^2(X-\Phi(Y))-\eta^2(\Phi(Y))
 \label{eq:smacofinequality}
@@ -361,17 +398,23 @@ Taken together \eqref{eq:smacofequality} and \eqref{eq:smacofinequality} imply t
 \label{eq:sandwich}
 \end{equation}
 If \(Y\) is not a fixed point of \(\Phi\) then the second inequality in the
-chain is strict and thus \(\sigma(\Phi(Y))<\sigma(Y)\). It also follows
-from \eqref{eq:sandwich} that \(\eta^2(\Phi(Y))\leq 1\).
+chain is strict and thus \(\sigma(\Phi(Y))<\sigma(Y)\). As we mentioned, the
+first inequality may not be strict.
 
-\section{One-point Methods}\label{one-point-methods}
+It also follows
+from \eqref{eq:sandwich} that \(\eta^2(\Phi(Y))\leq 1\). Thus the Guttman
+transform of any configuration is in a convex and compact set, in fact an ellipsoid,
+containing the origin.
+
+\section{One-point Iteration}\label{one-point-iteration}
 
 \subsection{Basic Iteration}\label{basic-iteration}
 
 The basic smacof algorithm generates the iterative sequence
-\[
+\begin{equation}
 X^{(k+1)}=\Phi(X^{(k)}),
-\]
+\label{eq:basic}
+\end{equation}
 where it is understood that we stop if \(X^{(k)}\) is a fixed point. If
 \(X^{(k)}\) is not a fixed point it follows from \eqref{eq:sandwich} that \(\sigma(X^{(k+1)})<\sigma(X^{(k)})\).
 
@@ -389,14 +432,14 @@ to indicate monotone convergence we have
 \end{itemize}
 
 and, last but not least, the sequence \(\{X^{(k)}\}\) is \emph{asymptotically regular}, i.e.
-
-\[
-\eta^2(X^{(k+1)}-X^{(k)})\rightarrow 0
-\]
+\begin{equation}
+\eta^2(X^{(k+1)}-X^{(k)})\rightarrow 0.
+\label{eq:etaconv}
+\end{equation}
 Since the subdifferential is a upper semi-continuous (closed) map, and all iterates
 are in the compact set \(\eta^2(X)\leq 1\), and \(\Phi\) is strictly monotonic
-(decreases stress at non-fixed points), it follows from Meyer (1976) that
-all accumulation points are fixed points and have the same function value \(\sigma_\infty\). Moreover, from Ostrowski (1966), either the sequence
+(decreases stress at non-fixed points), it follows from theorem 3.1 of Meyer (1976) that
+all accumulation points are fixed points and have the same function value \(\sigma_\infty\). Moreover, from theorem 26.1 of Ostrowski (1973), either the sequence
 converges or the accumulation points form a continuum.
 
 In order to prove actual convergence, additional conditions are needed.
@@ -411,15 +454,15 @@ any \(X\) with \(\eta(X-\Phi(X))<\eta\) then smacof produces such an
 
 In two very recent
 papers Ram and Sabach (2024 (in press)) and Robini, Wang, and Zhu (2024) use the powerful Kurdyka-Łojasiewicz (KL)
-machinery (ref)
-to prove actual convergence of smacof to a fixed point. We shall
-use the more classical approach based on the differentiability of the Guttman
+framework (ref)
+to prove actual global convergence of smacof to a fixed point. We shall
+use a more classical approach, based on the differentiability of the Guttman
 transform.
 
-\subsection{Majorization and Difference-of-Convex Function Algorithms}\label{majorization-and-difference-of-convex-function-algorithms}
+\subsection{Majorization and DCA}\label{majorization-and-dca}
 
 The original derivation of the smacof algorithm (De Leeuw (1977), De Leeuw and Heiser (1977))
-used the framework of maximizing the ratio of norms discussed by Robert (1967). Later
+used the theory of maximization a ratio of norms discussed by Robert (1967). Later
 derivations (De Leeuw and Heiser (1980), De Leeuw (1988)) used the fact that \eqref{eq:smacofinequality} defines a majorization scheme for stress. Convergence
 then follows from the general \emph{majorization principle} (these days mostly known
 as the \emph{MM principle}). A recent overview of the MM approach is Lange (2016).
@@ -435,16 +478,13 @@ to construct the majorization \(h(x):=f(x)-g(y)-z'(x-y)\). Now \(h\) is obviousl
 \subsection{Rate of Convergence}\label{rate-of-convergence}
 
 In order to study the asymptotic rate of convergence of smacof, we have to
-study the Jacobian of the Guttman transform and its eigenvalues (Ortega and Rheinboldt (1970), chapter 10). Thus we assume we are in the neighborhood of a local minimum,
-where the Guttman transform is (infinitely many times) differentiable. The
-derivative is
-
+compute the Jacobian of the Guttman transform and its eigenvalues (Ortega and Rheinboldt (1970), chapter 10). Thus we assume we are in the neighborhood of a local minimum, where the Guttman transform is (infinitely many times) differentiable. The derivative is
 \begin{equation}
 \mathcal{D}\Phi_X(H)=V^+\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{A_{ij}H-\frac{\text{tr}\ X'A_{ij}H}{ \text{tr}\ X'A_{ij}X}A_{ij}X\right\}.
 \label{eq:jacobian}
 \end{equation}
 
-Thus \(\mathcal{D}\Phi_X(X)=0\) for all \(X\) and the Jacobian has at least one
+It follows that \(\mathcal{D}\Phi_X(X)=0\) for all \(X\) and the Jacobian has at least one
 zero eigenvalue. If we think of \eqref{eq:jacobian} as a map on the space
 of all \(n\times p\) matrices, then there are an additional \(p\) zero eigenvalues
 corresponding with translational invariance. If we define \eqref{eq:jacobian}
@@ -452,15 +492,19 @@ on the column-centered matrices, then these eigenvalues disappear.
 
 If \(S\) is anti-symmetric and
 \(H=XS\) then \(\text{tr}\ X'A_{ij}H=0\) and thus \(\mathcal{D}\Phi_X(XS)=\Phi(X)S\).
-If in addition \(X\) is a fixed point then \(\mathcal{D}\Phi_X(XS)=V^+B(X)XS=XS\),
+If in addition \(X\) is a fixed point then \(\mathcal{D}\Phi_X(XS)=XS\),
 which means \(\mathcal{D}\Phi_X\) has \(\frac12p(p-1)\) eigenvalues equal to one.
-They quantify the rotational indeterminacy of the MDS problem and the
+These correspond to the rotational indeterminacy of the MDS problem and the
 smacof iterations.
 
 Since \(\Phi(X)=V^+\mathcal{D}\rho(X)\) the Jacobian of the Guttman transform
-has a simple relationship with the second derivatives of \(\rho\), which are
+has a simple relationship with the second derivatives of \(\rho\). Since
+\(\rho\) is convex, all eigenvalues of the Jacobian are real and
+nonnegative.
+
+We have the bilinear form
 \begin{equation}
-\mathcal{D}^2\rho_X(H,H)=\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{\text{tr}\ H'A_{ij}H-\frac{\{\text{tr}\ H'A_{ij}X\}^2}{d_{ij}^2(X)}\right\}=\text{tr}\ H'V\mathcal{D}\Phi_X(H).
+\mathcal{D}^2\rho_X(G,H)=\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{\text{tr}\ G'A_{ij}H-\frac{\text{tr}\ G'A_{ij}X\text{tr}\ H'A_{ij}X}{d_{ij}^2(X)}\right\}=\text{tr}\ G'V\mathcal{D}\Phi_X(H).
 \label{eq:hessian}
 \end{equation}
 It follows that
@@ -468,60 +512,102 @@ It follows that
 in the Loewner sense. Of course
 \(\mathcal{D}^2\sigma_X=V-\mathcal{D}^2\rho_X\)
 At a local minimum \(\mathcal{D}^2\sigma_X\gtrsim 0\), and consequently
-\(\mathcal{D}\Phi_X\lesssim I\). Thus all eigenvalues of the Jacobian are\\
-between zero and one.
+\(\mathcal{D}\Phi_X\lesssim I\). Thus all eigenvalues of the Jacobian at a local minimum are between zero and one.
 
-We apply basic iterations to the color-circle example from Ekman (1954), which has
-\(n=14\) points. The fit is very good and convergence is rapid. We stop when
-\(\sigma(X^{(k)})-\sigma(X^{(k+1)})<1e-15\). The
+We compute and store the Jacobian as a partitioned matrix with \(p\) rows and columns
+of the \(n\times n\) matrices \(\mathcal{D}_t\Phi_s(X)\), with \(\Phi_s(X)\) column
+\(s\) of \(X\).
+\[
+\mathcal{D}^2\rho_X(e_ke_s',e_le_t')=
+\delta^{st}\{B(X)\}_{kl}-\{U_{st}(X)\}_{kl}
+\]
+\[
+U_{st}(X)=\sum w_{ij}\delta_{ij}\frac{(x_{is}-x_{js})(x_{it}-x_{jt})}{d_{ij}^3(X)}A_{ij}
+\]
+
+We apply basic iterations to the two-dimensional MDS analysis of the color-circle example from Ekman (1954), which has
+\(n=14\) points. We always start with the classical Torgerson-Gower
+solution and we stop if
+\(\sigma(X^{(k)})-\sigma(X^{(k+1)})<1e-15\). The fit in this example is very good and convergence is rapid. The
 results for the final iteration are
 
 \begin{verbatim}
-## itel  57 sold 2.1114112739 snew 2.1114112739 chng 0.0000000000 labd 0.7669812392
+## itel  56 sold 2.1114112739 snew 2.1114112739 chng 0.0000000000 labd 0.7669784529
 \end{verbatim}
 
-In this output chng is \(\eta(X^{(k)}-X^{(k+1)}\), and labd is an estimate
-of the asymptotic convergence ratio, the chng divided by the chng of the
-previous iteration. We always start with the classical Torgerson-Gower
-solution. To fifteen decimals stress is 2.1114112739076
+In this output ``chng'' is \(\eta(X^{(k)}-X^{(k+1)})\), and ``labd'' is an estimate
+of the asymptotic convergence ratio, the ``chng'' divided by the ``chng'' of the
+previous iteration. To fifteen decimals stress is 2.1114112739076
 
 We compute the Jacobian using the numDeriv package (Gilbert and Varadhan (2019)). Its eigenvalues are
 
 \begin{verbatim}
-##  [1]   +1.0000000000   +0.7669965027   +0.7480939418   +0.7185926293
-##  [5]   +0.7007452300   +0.6920114811   +0.6859492532   +0.6593334523
-##  [9]   +0.6541779410   +0.6477573342   +0.6237683212   +0.6178713315
-## [13]   +0.5735285948   +0.5483330654   +0.5260355535   +0.5112510731
-## [17]   +0.5064703617   +0.5059294793   +0.4919752629   +0.4827646549
-## [21]   +0.4782034983   +0.4757907684   +0.4682965897   +0.4619226490
-## [25]   +0.4559704883   +0.0000000000   +0.0000000000   -0.0000000000
+##  [1]   +1.0000000000   +0.7669964993   +0.7480939418   +0.7185926294
+##  [5]   +0.7007452309   +0.6920114813   +0.6859492534   +0.6593334529
+##  [9]   +0.6541779410   +0.6477573343   +0.6237683213   +0.6178713316
+## [13]   +0.5735285951   +0.5483330653   +0.5260355535   +0.5112510730
+## [17]   +0.5064703617   +0.5059294792   +0.4919752630   +0.4827646555
+## [21]   +0.4782034995   +0.4757907675   +0.4682965894   +0.4619226490
+## [25]   +0.4559704884   -0.0000000000   +0.0000000000   +0.0000000000
 \end{verbatim}
 
-Note that the second largest and forst non-trivial
-eigenvalue is equal to labd from the final iteration.
+Note that the second largest and first non-trivial
+eigenvalue is equal to ``labd'' from the final iteration.
 
-\subsection{Rotated Basic Iteration}\label{rotated-basic-iteration}
+\subsection{Orthogonalized Iteration}\label{orthogonalized-iteration}
 
-As De Leeuw (1988) mentions, we cannot apply the basic Ostrowski point-of-attraction theorem 10.1.3 and the linear convergence theorem 10.1.4 from Ortega and Rheinboldt (1970), because there are these \(\frac12 p(p-1\) eigenvalues equal to one.
+As De Leeuw (1988) mentions, we cannot apply the basic point-of-attraction theorem 10.1.3 and the linear convergence theorem 10.1.4 from Ortega and Rheinboldt (1970), because there are these \(\frac12 p(p-1\) eigenvalues equal to one.
 
-One way around this problem is to rotate each update to orthogonality. Thus the
-update formula is \(\Phi_o(X)=\Pi(\Phi(X))\) by
-applying the QR decomposition or the singular value decomposition to
-\(\Phi(X)\). Somes simple R code which can be used for this purpose is
+One way around this problem (De Leeuw (2019)) is to rotate each update to orthogonality,
+i.e.~to principal components. Thus the update formula becomes \(\Xi(X)=\Pi(\Phi(X))\),
+\(\Pi(X)=XL\), where \(L\) are the right singular vectors of \(X\).
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{x }\OtherTok{\textless{}{-}}\NormalTok{ x }\SpecialCharTok{\%*\%} \FunctionTok{qr.Q}\NormalTok{(}\FunctionTok{qr}\NormalTok{(}\FunctionTok{t}\NormalTok{(x[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{ndim, ])))}
-\NormalTok{x }\OtherTok{\textless{}{-}}\NormalTok{ x }\SpecialCharTok{\%*\%} \FunctionTok{svd}\NormalTok{(x)}\SpecialCharTok{$}\NormalTok{v}
-\end{Highlighting}
-\end{Shaded}
+We compute the Jacobian of \(\Xi\). By the chain rule
+\[
+\mathcal{D}\Xi_X(H)=\mathcal{D}\Pi_{\Phi(X)}(\mathcal{D}\Phi_X(H))
+\]
+If \(X'XL=L\Lambda\) with \(L'L=LL'=I\), assuming the eigenvalues in
+\(\Lambda\) are all different,
+\[
+\mathcal{D}\Pi_X(H)=HL+XLS\\
+\]
+where \(S\) is the anti-symmetric matrix with elements
+\[
+s_{ij}=-\frac{l_i'(H'X+X'H)l_j}{\lambda_i-\lambda_j}
+\]
+
+Thus, from \ldots{} and \ldots{}
+\[
+\mathcal{D}\Xi_X(H)=\mathcal{D}\Phi_X(H)L+\Phi(X)LS
+\]
+with \(L\) and \(S\) computed at \(\Phi(X)\).
+
+At a fixed point of \(\Xi\) we have \(\Phi(X)=X\) and \(\Pi(X)=X\) and consequently
+\(L=I\) and \(X'X=\Lambda\). Thus \ldots{} becomes
+\[
+\mathcal{D}\Xi_X(H)=\mathcal{D}\Phi_X(H)+XS
+\]
+where now
+\[
+s_{ij}=-\frac{(H'X+X'H)_{ij}}{\lambda_i-\lambda_j}
+\]
+If \(H=XA\) with \(A\) anti-symmetric then
+\[
+\mathcal{D}\Xi_X(XA)=XA+XS
+\]
+\[
+s_{ij}=-\frac{(A'\Lambda+\Lambda A)_{ij}}{\lambda_i-\lambda_j}=-a_{ij}
+\]
+Thus \(\mathcal{D}\Xi_X(XA)=0\).
+
+\subsubsection{end intermezzo}\label{end-intermezzo}
 
 Now clearly this modified algorithm generates the same sequence of
-function values as basic smacof. Moreover \(\Theta^n_o(X)=\Pi(\Phi^n(X))\),
+function values as basic smacof. Moreover \(\Phi^n(X)=\Pi(\Phi^n(X))\),
 which means that we can find any term of the orthogonal sequence
 by orthogonalizing the corresponding term in the basic sequence.
 Thus, in actual computation, there is no need to orthogonalize, we
-may as well run the basic seuence and orthogonalize after
+may as well compute the basic sequence and orthogonalize after
 convergence.
 
 Theoretically, however, orthogonalization gives the same
@@ -535,126 +621,193 @@ eigenvalue of the Jacobian at the solution is strictly
 less than one, or alternatively assume that one of the accumulation
 points is an isolated local minimum.
 
-We guvce the results by applying the two orthogonalization methods
-to the Ekman sequence.
-
 \begin{verbatim}
-## itel  54 sold 2.1114112739 snew 2.1114112739 chng 0.0000000000 labd 0.7669843896
+## itel  56 sold 2.1114112739 snew 2.1114112739 chng 0.0000000000 labd 0.7669940352
 \end{verbatim}
 
 \begin{verbatim}
-##  [1]   +0.7669964894   +0.7480939420   +0.7185926297   +0.7007452335
-##  [5]   +0.6920114817   +0.6859492534   +0.6593334543   +0.6541779412
-##  [9]   +0.6477573345   +0.6237683217   +0.6178713316   +0.5735285959
-## [13]   +0.5483330651   +0.5260355534   +0.5112510730   +0.5064703618
-## [17]   +0.5059294793   +0.4919752632   +0.4827646574   +0.4782035029
-## [21]   +0.4757907649   +0.4682965885   +0.4619226493   +0.4559704884
-## [25]   -0.0000000000   -0.0000000000   +0.0000000000   +0.0000000000
+##  [1]   +0.7669964994   +0.7480939418   +0.7185926294   +0.7007452309
+##  [5]   +0.6920114813   +0.6859492533   +0.6593334528   +0.6541779411
+##  [9]   +0.6477573343   +0.6237683211   +0.6178713315   +0.5735285949
+## [13]   +0.5483330653   +0.5260355534   +0.5112510731   +0.5064703617
+## [17]   +0.5059294792   +0.4919752628   +0.4827646550   +0.4782034998
+## [21]   +0.4757907672   +0.4682965894   +0.4619226491   +0.4559704888
+## [25]   +0.0000000002   -0.0000000001   -0.0000000001   +0.0000000001
 \end{verbatim}
 
-\begin{verbatim}
-## itel  56 sold 2.1114112739 snew 2.1114112739 chng 0.0000000000 labd 0.7669940008
-\end{verbatim}
+\[
+\Phi^o(X)=\Phi(X)K(\Phi(X))
+\]
+
+\subsection{Subspace Restrictions}\label{subspace-restrictions}
+
+Instead of orthogonalizing we can also restrict \(X\) to be in the subspace
+of all lower triangular column-centered \(n\times p\) matrices (which means \(x_{ij}=0\)
+for all \(i<j\)). There are two different ways to accomplish this.
+
+Method one uses a rotation of \(X\) to lower triangular form. The theory
+is pretty much the same as for the rotation to principal components
+in the previous section.
 
 \begin{verbatim}
-##  [1]   +0.7669964993   +0.7480939419   +0.7185926294   +0.7007452309
-##  [5]   +0.6920114813   +0.6859492533   +0.6593334529   +0.6541779410
-##  [9]   +0.6477573343   +0.6237683213   +0.6178713317   +0.5735285948
-## [13]   +0.5483330653   +0.5260355535   +0.5112510731   +0.5064703617
-## [17]   +0.5059294792   +0.4919752629   +0.4827646550   +0.4782034999
-## [21]   +0.4757907672   +0.4682965894   +0.4619226495   +0.4559704888
-## [25]   -0.0000000006   -0.0000000000   -0.0000000000   +0.0000000000
+## itel  57 sold 2.1114112739 snew 2.1114112739 chng 108.2873334994 labd 1.0000000000
 \end{verbatim}
+
+The results are the same as for the basis sequence, as predicted. The eigenvalues of the Jacobian are
+
+\begin{verbatim}
+##  [1]   -0.7669965027   -0.7480939418   -0.7185926293   -0.7007452300
+##  [5]   -0.6920114811   -0.6859492533   -0.6593334524   -0.6541779410
+##  [9]   -0.6477573342   -0.6237683212   -0.6178713316   -0.5735285947
+## [13]   -0.5483330654   -0.5260355535   -0.5112510731   -0.5064703617
+## [17]   -0.5059294793   -0.4919752630   -0.4827646550   -0.4782034983
+## [21]   -0.4757907684   -0.4682965896   -0.4619226489   -0.4559704883
+## [25]   +0.0000000001   +0.0000000001   -0.0000000000   -0.0000000000
+\end{verbatim}
+
+The unit eigenvalues from the unrotated solution have been replaced by zeroes.
+
+Method two uses the theory of constrained smacof from De Leeuw and Heiser (1980). This
+means computing the Guttman update and then projecting it on the subspace of
+lower triangular matrices. We create \(p\) column-centered matrices \(Y_s\), of dimension \(n\times(n-s)\), that satisfy \(Y_s'VY_s=I\) and have their first \(s-1\) rows equal to zero. Now column \(s\) of \(X\) is restricted to be of the form \(x_s=Y_s\theta_s\).
+\[
+x_s^{(k+1)}=Y_sY_s'V\{\Phi(X^{(k)})\}_s
+\]
 
 \section{Two Point Iteration}\label{two-point-iteration}
 
 \subsection{Basic}\label{basic}
 
 De Leeuw and Heiser (1980) suggested the ``relaxed'' update
-\[
-\Psi(X)=2\Phi(X)-X
-\]
-The reasoning here is two-fold. The smacof inequality \eqref{eq:smacofinequality} says
-\[
+\begin{equation}
+\Psi(X):=2\Phi(X)-X
+\end{equation}
+The reasoning here is two-fold. First, the smacof inequality \eqref{eq:smacofinequality} says
+\begin{equation}
 \sigma(X)\leq 1+\eta^2(X-\Phi(Y))-\eta^2(\Phi(Y))
-\]
+\end{equation}
 If \(X=\alpha\Phi(Y)+(1-\alpha)Y\) then this becomes
-\[
+\begin{equation}
 \sigma(\alpha\Phi(Y)+(1-\alpha)Y)\leq 1+(1-\alpha)^2\eta^2(Y-\Phi(Y))-\eta^2(\Phi(Y))
-\]
+\end{equation}
 If \((1-\alpha)^2\leq 1\) then
-\[
+\begin{equation}
 1+(1-\alpha)^2\eta^2(Y-\Phi(Y))-\eta^2(\Phi(Y))\leq 1+\eta^2(Y-\Phi(Y))-\eta^2(\Phi(Y))=\sigma(Y)
-\]
+\end{equation}
 Thus updating with \(X^{(k+1)}=\alpha\Phi(X^{(k)})+(1-\alpha)X^{(k)}\) is a stricly
 monotone algorithm as long as \(0\leq\alpha\leq 2\).
 
-rate
+The second reason for choosing the relaxed update given by De Leeuw and Heiser (1980)
+is that its asymptotic convergence rate is
+\begin{equation}
+\max_s|2\lambda_s-1|=\max(2\lambda_{\text{max}}-1,1-2\lambda_{\text{min}}).
+\end{equation}
+De Leeuw and Heiser (1980) then somewhat carelessly assume that this is equal to
+\(2\lambda_{\text{max}}-1\) and argue that if \(\lambda_{\text{max}}=1-\epsilon\)
+with \(\epsilon\) small then
+\begin{equation}
+2\lambda_{\text{max}}-1=1-2\epsilon\approx(1-\epsilon)^2=\lambda_{\text{max}}^2,
+\end{equation}
+so that the relaxed update requires approximately half the number of iterations of the
+basic update. Despite the somewhat sloppy reasoning, the approximate halving of the number of iterations is often observed in practice.
 
-It turns out that applying the relaxed update
+It turns out (De Leeuw (2006)), however, that applying the relaxed update
 has some unintended consequences, which basically imply that it should never
 be used without some additional computation. Let's take a look at the
 Ekman results.
 
 \begin{verbatim}
-## itel  23 sold 3.9946270666 snew 3.9946270666 chng 3.7664315853 labd 1.0000000000
+## itel 418 sold 2.1114112739 snew 2.1114112739 chng 0.0000000000 labd 0.9622371695
 \end{verbatim}
 
-We see that \(\eta^2(X^{(k+1)}-X^{(k)})\) does not converge to zero, and that
-\(\sigma_k\) converges to a value which does not even correspond to a local minimum
-of \(\sigma\).
+The loss function value decreases. The number of iterations is reduced from 57 to 23.
+But we see that \(\eta^2(X^{(k+1)}-X^{(k)})\) does not converge to zero, and that \(\sigma_k\) converges to a value which does not even correspond to a local minimum of \(\sigma\).
+
+The eigenvalues of the Jacobian are
 
 \begin{verbatim}
-##  [1]   -1.0000000000   +1.0000000000   -1.0000000000   -1.0000000000
-##  [5]   +0.5339929781   +0.4961878839   +0.4371852597   +0.4014904677
-##  [9]   +0.3840229636   +0.3718985068   +0.3186669088   +0.3083558824
-## [13]   +0.2955146690   +0.2475366434   +0.2357426633   +0.1470571918
-## [17]   +0.0966661301   -0.0880590224   -0.0761547015   -0.0634068231
-## [21]   +0.0520711068   -0.0484184707   -0.0435929937   -0.0344706856
-## [25]   +0.0225021460   -0.0160494738   +0.0129407235   +0.0118589584
+##  [1]   -1.0000000000   -1.0000000000   -1.0000000000   +0.9999999999
+##  [5]   +0.5339930116   +0.4961879098   +0.4371856275   +0.4014904423
+##  [9]   +0.3840229515   +0.3718985108   +0.3186668913   +0.3083558925
+## [13]   +0.2955146860   +0.2475366678   +0.2357426702   +0.1470571705
+## [17]   +0.0966661311   -0.0880590227   -0.0761546972   -0.0634068160
+## [21]   +0.0520711061   -0.0484184543   -0.0435930088   -0.0344706947
+## [25]   +0.0225021452   -0.0160494761   +0.0129407209   +0.0118589425
 \end{verbatim}
 
-A more thorough analysis of the results show that the method produces a sequence
-\(X^{(k)}\) with two subseqences. If \(\overline{X}\) is a fixed point of
-\(\Phi\) then there is a \(\tau>0\) such that
+If we check the conditions of theorem 3.1 in Meyer (1976) we see that, although the
+algorithmic map is closed and the iterates are in a compact set, \(\Psi\)
+is not strictly monotone at some non-fixed points. Suppose \(X\) is a fixed point and \(\tau\not= 1\). Then
+\(\tau\overline{X}\) is not a fixed point, because
+\(\Psi(\tau\overline{X})=(2-\tau)\overline{X}\). And
+\begin{equation}
+\sigma(\tau\overline{X})=1-\tau\rho(\overline{X})+\frac12\tau^2\eta^2(\overline{X})=
+1-\frac12\tau(2-\tau)\rho(\overline{X})=\sigma((2-\tau)\overline{X})
+\end{equation}
+Thus the algorithm has convergent subsequences which may not converge to a fixed
+point of \(\Psi\) (and thus of \(\Phi\)). And indeed, an analysis of the results show that the method produces a sequence \(X^{(k)}\) with two subseqences. If \(\overline{X}\) is a fixed point of \(\Phi\) then there is a \(\tau>0\) such that
 the subsequence with \(k\) even converges to \(\tau\overline{X}\)
 while the subsequence with \(k\) odd converges to \((2-\tau)\overline{X}\).
 
-what goes wrong ? not strictly monotone at \(\tau\overline{X}\)
-
-stress is 2.1114112739076
-
-\begin{verbatim}
-## itel  18 sold 3.9946270666 snew 3.9946270666 chng 0.0000000000 labd 0.2737973829
-\end{verbatim}
-
-stress is 2.1114112739076
-
-\begin{verbatim}
-##  [1]   +1.0000000000   -1.0000000000   -1.0000000000   -0.9999999999
-##  [5]   +0.5339930271   +0.4961878833   +0.4371852579   +0.4014904541
-##  [9]   +0.3840229612   +0.3718985063   +0.3186669016   +0.3083558816
-## [13]   +0.2955146680   +0.2475366415   +0.2357426629   +0.1470571877
-## [17]   +0.0966661315   -0.0880590242   -0.0761547024   -0.0634068192
-## [21]   +0.0520711070   -0.0484184575   -0.0435930109   -0.0344706938
-## [25]   +0.0225021463   -0.0160494743   +0.0129407234   +0.0118589585
-\end{verbatim}
+This suggests a simple fix. After convergence of the funcion values we make
+a final update using \(\Phi\) instead of \(\Psi\). Computationally this is simple to do. If the final iteration updates \(X^{(k)}\) to \(X^{(k+1)}=\Psi(X^{(k)})\) then
+set the final solution to \(\frac12(X^{(k)}+X^{(k+1)})\). Making thus final
+adjustment in the Ekman sequence gives us a final stress equal to 2.11141127390762.
 
 \subsection{Doubling}\label{doubling}
 
+The analysis in the previous section suggest the update function \(\Psi^2\), i.e.
+\[
+X^{(k+1)}=\Psi(\Psi(X^{(k)})).
+\]
+The asymptotic convergence rate is
+\[
+\max_s (2\lambda_s-1)^2=\max\{ (2\lambda_\text{max}-1)^2, (2\lambda_\text{min}-1)^2\}
+\].
+
+With \(\Psi^2\) the algorithm is everywhere strictly monotonic and
+converges to a fixed point. But not all problems have disappeared.
+If \(X\) is a stationary point of \(\sigma\), and thus a fixed
+point of \(\Phi\), \(\Psi\), and \(\Psi^2\), then \(\tau X\) is a
+fixed point of \(\Psi^2\) for all \(\tau>0\). Thus we cannot
+exclude the possibility that the sequence converges to
+a fixed point proportional to \(X\), but not equal to \(X\).
+
+Here are the results for the Ekman data if we use \(\Psi^2\).
+
+\begin{verbatim}
+## itel  23 sold 3.9946270666 snew 3.9946270666 chng 3.7664315853 labd 1.0000000000
+\end{verbatim}
+
+\begin{verbatim}
+##  [1]   +1.0000000001   -1.0000000001   -1.0000000000   -1.0000000000
+##  [5]   +0.5339929984   +0.4961878837   +0.4371852589   +0.4014904620
+##  [9]   +0.3840229626   +0.3718985067   +0.3186669058   +0.3083558821
+## [13]   +0.2955146686   +0.2475366426   +0.2357426630   +0.1470571901
+## [17]   +0.0966661308   -0.0880590232   -0.0761547018   -0.0634068213
+## [21]   +0.0520711070   -0.0484184653   -0.0435930008   -0.0344706891
+## [25]   +0.0225021462   -0.0160494740   +0.0129407234   +0.0118589585
+\end{verbatim}
+
+stress is 2.1114112739076
+
 \subsection{Scaling}\label{scaling}
+
+De Leeuw (2006) discusses some other ways to fix of the relaxed update problem.
 
 \subsection{Switching}\label{switching}
 
-\[
+\begin{equation}
 \Phi(\Psi(X))
-\]
-\[
-\max_s|\lambda_s(2\lambda_s-1)|
-\]
-\# Benchmarking
+\end{equation}
 
-Mersmann (2023)
+\begin{equation}
+\max_s|\lambda_s(2\lambda_s-1)|
+\end{equation}
+
+\section{Benchmarking}\label{benchmarking}
+
+We compare the eight different upgrades using the microbenchmark package (Mersmann (2023)).
 
 \begin{verbatim}
 ## Warning in microbenchmark(smacofAccelerate(delta, ndim = 2, opt = 1, halt = 2,
@@ -663,22 +816,24 @@ Mersmann (2023)
 
 \begin{verbatim}
 ## Unit: milliseconds
-##                                                                   expr      min
-##  smacofAccelerate(delta, ndim = 2, opt = 1, halt = 2, verbose = FALSE) 3.188775
-##  smacofAccelerate(delta, ndim = 2, opt = 2, halt = 2, verbose = FALSE) 3.151875
-##  smacofAccelerate(delta, ndim = 2, opt = 3, halt = 2, verbose = FALSE) 3.847276
-##  smacofAccelerate(delta, ndim = 2, opt = 4, halt = 2, verbose = FALSE) 1.421019
-##  smacofAccelerate(delta, ndim = 2, opt = 5, halt = 2, verbose = FALSE) 1.564027
-##  smacofAccelerate(delta, ndim = 2, opt = 6, halt = 2, verbose = FALSE) 1.639467
-##  smacofAccelerate(delta, ndim = 2, opt = 7, halt = 2, verbose = FALSE) 1.526307
-##        lq     mean   median       uq      max neval
-##  3.304825 3.602914 3.358987 3.476656 6.070009   100
-##  3.241993 3.521317 3.294924 3.374894 5.645618   100
-##  3.939567 4.335232 4.029644 4.215682 6.634046   100
-##  1.466795 1.601369 1.498222 1.541600 3.919846   100
-##  1.618536 1.762409 1.650004 1.712775 3.995286   100
-##  1.692829 1.827641 1.720585 1.775444 6.503174   100
-##  1.578336 1.718087 1.618106 1.683132 6.439214   100
+##                                                                   expr
+##  smacofAccelerate(delta, ndim = 2, opt = 1, halt = 2, verbose = FALSE)
+##  smacofAccelerate(delta, ndim = 2, opt = 2, halt = 2, verbose = FALSE)
+##  smacofAccelerate(delta, ndim = 2, opt = 3, halt = 2, verbose = FALSE)
+##  smacofAccelerate(delta, ndim = 2, opt = 4, halt = 2, verbose = FALSE)
+##  smacofAccelerate(delta, ndim = 2, opt = 5, halt = 2, verbose = FALSE)
+##  smacofAccelerate(delta, ndim = 2, opt = 6, halt = 2, verbose = FALSE)
+##  smacofAccelerate(delta, ndim = 2, opt = 7, halt = 2, verbose = FALSE)
+##  smacofAccelerate(delta, ndim = 2, opt = 8, halt = 2, verbose = FALSE)
+##        min        lq      mean    median        uq       max neval
+##   3.302304  3.404988  3.764543  3.564909  3.681083  6.229745   100
+##   4.362810  4.552537  4.920569  4.712991  4.902062  7.359951   100
+##   4.031981  4.176035  4.519865  4.299977  4.459303  8.645137   100
+##  24.817546 26.797497 27.845782 27.532094 28.340491 48.516120   100
+##   1.570505  1.636372  1.813730  1.704247  1.802278  3.869129   100
+##   1.375140  1.440514  1.597812  1.492625  1.575179  3.739774   100
+##   1.805681  1.880977  2.126657  1.961932  2.060824  4.392822   100
+##   1.700188  1.747133  1.901704  1.834852  1.931346  4.144936   100
 \end{verbatim}
 
 De Gruijter (1967)
@@ -686,49 +841,50 @@ De Gruijter (1967)
 \begin{verbatim}
 ## Unit: milliseconds
 ##                                                                   expr      min
-##  smacofAccelerate(delta, ndim = 2, opt = 1, halt = 2, verbose = FALSE) 43.06710
-##  smacofAccelerate(delta, ndim = 2, opt = 2, halt = 2, verbose = FALSE) 44.09382
-##  smacofAccelerate(delta, ndim = 2, opt = 3, halt = 2, verbose = FALSE) 54.69146
-##  smacofAccelerate(delta, ndim = 2, opt = 4, halt = 2, verbose = FALSE) 20.16495
-##  smacofAccelerate(delta, ndim = 2, opt = 5, halt = 2, verbose = FALSE) 14.30547
-##  smacofAccelerate(delta, ndim = 2, opt = 6, halt = 2, verbose = FALSE) 22.89670
-##  smacofAccelerate(delta, ndim = 2, opt = 7, halt = 2, verbose = FALSE) 20.67150
+##  smacofAccelerate(delta, ndim = 2, opt = 1, halt = 2, verbose = FALSE) 43.66922
+##  smacofAccelerate(delta, ndim = 2, opt = 2, halt = 2, verbose = FALSE) 60.01346
+##  smacofAccelerate(delta, ndim = 2, opt = 3, halt = 2, verbose = FALSE) 54.61708
+##  smacofAccelerate(delta, ndim = 2, opt = 4, halt = 2, verbose = FALSE) 53.96703
+##  smacofAccelerate(delta, ndim = 2, opt = 5, halt = 2, verbose = FALSE) 20.64793
+##  smacofAccelerate(delta, ndim = 2, opt = 6, halt = 2, verbose = FALSE) 14.30634
+##  smacofAccelerate(delta, ndim = 2, opt = 7, halt = 2, verbose = FALSE) 23.41904
+##  smacofAccelerate(delta, ndim = 2, opt = 8, halt = 2, verbose = FALSE) 20.66552
 ##        lq     mean   median       uq      max neval
-##  44.02676 45.24634 44.87503 45.65168 66.89129   100
-##  45.18950 46.15677 46.23545 46.68055 50.64677   100
-##  56.24936 56.93894 56.64076 57.10158 74.41721   100
-##  20.85358 22.01609 22.03133 22.24851 40.76454   100
-##  14.63911 15.66496 14.95206 16.28350 34.73516   100
-##  24.80289 25.22137 25.04815 25.37377 44.09050   100
-##  22.44541 22.52770 22.71785 22.93573 24.76105   100
-\end{verbatim}
-
-\begin{verbatim}
-## Warning in microbenchmark(smacofAccelerate(delta, ndim = 2, opt = 1, halt = 2,
-## : less accurate nanosecond times to avoid potential integer overflows
+##  44.90517 46.44803 46.22732 47.03663 59.89698   100
+##  61.31038 62.45559 61.93280 63.16255 77.60300   100
+##  57.03239 58.80424 57.56449 58.62414 76.46316   100
+##  56.32861 57.58191 57.01751 58.66670 64.54958   100
+##  22.37188 23.33055 22.77958 23.20621 45.44153   100
+##  14.71978 15.90683 15.79748 16.49192 35.54975   100
+##  25.37962 26.08471 25.63215 26.06641 44.67020   100
+##  22.32725 22.79460 22.81800 23.31959 25.65673   100
 \end{verbatim}
 
 \begin{verbatim}
 ## Unit: milliseconds
-##                                                                   expr      min
-##  smacofAccelerate(delta, ndim = 2, opt = 1, halt = 2, verbose = FALSE) 46.56747
-##  smacofAccelerate(delta, ndim = 2, opt = 2, halt = 2, verbose = FALSE) 48.06479
-##  smacofAccelerate(delta, ndim = 2, opt = 3, halt = 2, verbose = FALSE) 54.45587
-##  smacofAccelerate(delta, ndim = 2, opt = 4, halt = 2, verbose = FALSE) 18.63007
-##  smacofAccelerate(delta, ndim = 2, opt = 5, halt = 2, verbose = FALSE) 14.92945
-##  smacofAccelerate(delta, ndim = 2, opt = 6, halt = 2, verbose = FALSE) 25.26014
-##  smacofAccelerate(delta, ndim = 2, opt = 7, halt = 2, verbose = FALSE) 24.38951
-##        lq     mean   median       uq      max neval
-##  47.51435 50.23612 47.91568 48.57957 93.45950   100
-##  48.68481 50.85570 49.08241 49.91586 71.12811   100
-##  55.36041 58.24445 55.79360 57.31894 78.80885   100
-##  19.09593 21.63385 19.50159 22.16286 43.51994   100
-##  15.35686 17.05628 15.63457 18.36261 38.77669   100
-##  28.05058 29.18501 28.82068 29.54122 49.39791   100
-##  25.12099 28.54070 27.63353 28.10698 49.94571   100
+##                                                                   expr
+##  smacofAccelerate(delta, ndim = 2, opt = 1, halt = 2, verbose = FALSE)
+##  smacofAccelerate(delta, ndim = 2, opt = 2, halt = 2, verbose = FALSE)
+##  smacofAccelerate(delta, ndim = 2, opt = 3, halt = 2, verbose = FALSE)
+##  smacofAccelerate(delta, ndim = 2, opt = 4, halt = 2, verbose = FALSE)
+##  smacofAccelerate(delta, ndim = 2, opt = 5, halt = 2, verbose = FALSE)
+##  smacofAccelerate(delta, ndim = 2, opt = 6, halt = 2, verbose = FALSE)
+##  smacofAccelerate(delta, ndim = 2, opt = 7, halt = 2, verbose = FALSE)
+##  smacofAccelerate(delta, ndim = 2, opt = 8, halt = 2, verbose = FALSE)
+##        min        lq      mean    median        uq       max neval
+##   48.85945  49.81820  53.13325  50.30183  51.76998  74.76916   100
+##   57.82927  58.92885  61.29368  59.59676  60.97850  88.88115   100
+##   55.75360  56.94654  61.67891  57.89831  60.51864 102.74170   100
+##  109.66938 111.57547 116.77156 113.64247 116.60769 138.07271   100
+##   18.60367  19.39880  20.85011  19.81530  22.23578  27.08251   100
+##   15.47524  15.86499  17.94653  16.14521  18.91890  38.76784   100
+##   26.33061  29.11808  30.04142  29.78863  30.29945  52.95421   100
+##   24.71496  25.71698  27.75145  28.27087  28.73694  48.26262   100
 \end{verbatim}
 
 \section{Code}\label{code}
+
+\subsection{smacofAccelerate.R}\label{smacofaccelerate.r}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -736,161 +892,338 @@ De Gruijter (1967)
 \FunctionTok{library}\NormalTok{(microbenchmark)}
 \FunctionTok{library}\NormalTok{(numDeriv)}
 
+\FunctionTok{source}\NormalTok{(}\StringTok{"smacofUtils.R"}\NormalTok{)}
+
 \NormalTok{smacofAccelerate }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(delta,}
                              \AttributeTok{ndim =} \DecValTok{2}\NormalTok{,}
                              \AttributeTok{wgth =} \DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{diag}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(delta)),}
                              \AttributeTok{xold =} \FunctionTok{smacofTorgerson}\NormalTok{(delta, ndim),}
                              \AttributeTok{opt =} \DecValTok{1}\NormalTok{,}
-                             \AttributeTok{halt =} \DecValTok{1}\NormalTok{,}
+                             \AttributeTok{halt =} \DecValTok{0}\NormalTok{,}
+                             \AttributeTok{wd =} \DecValTok{4}\NormalTok{,}
+                             \AttributeTok{dg =} \DecValTok{15}\NormalTok{,}
                              \AttributeTok{itmax =} \DecValTok{1000}\NormalTok{,}
                              \AttributeTok{epsx =} \FloatTok{1e{-}10}\NormalTok{,}
                              \AttributeTok{epsf =} \FloatTok{1e{-}15}\NormalTok{,}
                              \AttributeTok{verbose =} \DecValTok{1}\NormalTok{) \{}
-\NormalTok{  v }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wgth}
-  \FunctionTok{diag}\NormalTok{(v) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(v)}
-\NormalTok{  vinv }\OtherTok{\textless{}{-}} \FunctionTok{ginv}\NormalTok{(v)}
-\NormalTok{  n }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(xold)}
+\NormalTok{  vmat }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wgth}
+  \FunctionTok{diag}\NormalTok{(vmat) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(vmat)}
+\NormalTok{  vinv }\OtherTok{\textless{}{-}} \FunctionTok{ginv}\NormalTok{(vmat)}
+\NormalTok{  nobj }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(xold)}
+\NormalTok{  xold }\OtherTok{\textless{}{-}}\NormalTok{ xold }\SpecialCharTok{\%*\%} \FunctionTok{qr.Q}\NormalTok{(}\FunctionTok{qr}\NormalTok{(}\FunctionTok{t}\NormalTok{(xold[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{ndim, ])))}
+\NormalTok{  bs }\OtherTok{\textless{}{-}} \FunctionTok{smacofMakeBasis}\NormalTok{(nobj, ndim, wgth)}
 \NormalTok{  cold }\OtherTok{\textless{}{-}} \ConstantTok{Inf}
 \NormalTok{  itel }\OtherTok{\textless{}{-}} \DecValTok{1}
-\NormalTok{  last }\OtherTok{\textless{}{-}} \ConstantTok{FALSE}
   \ControlFlowTok{repeat}\NormalTok{ \{}
 \NormalTok{    xold }\OtherTok{\textless{}{-}} \FunctionTok{apply}\NormalTok{(xold, }\DecValTok{2}\NormalTok{, }\ControlFlowTok{function}\NormalTok{(x)}
 \NormalTok{      x }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(x))}
 \NormalTok{    dold }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xold))}
 \NormalTok{    sold }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ dold) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
-\NormalTok{    bold }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wgth }\SpecialCharTok{*}\NormalTok{ delta }\SpecialCharTok{/}\NormalTok{ (dold }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(n))}
+\NormalTok{    bold }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wgth }\SpecialCharTok{*}\NormalTok{ delta }\SpecialCharTok{/}\NormalTok{ (dold }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}
     \FunctionTok{diag}\NormalTok{(bold) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(bold)}
 \NormalTok{    xbar }\OtherTok{\textless{}{-}}\NormalTok{ vinv }\SpecialCharTok{\%*\%}\NormalTok{ bold }\SpecialCharTok{\%*\%}\NormalTok{ xold}
     \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) \{}
-\NormalTok{      xnew }\OtherTok{\textless{}{-}}\NormalTok{ xbar}
-\NormalTok{      dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
-\NormalTok{      snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
-\NormalTok{      cnew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((xold }\SpecialCharTok{{-}}\NormalTok{ xnew) }\SpecialCharTok{*}\NormalTok{ (v }\SpecialCharTok{\%*\%}\NormalTok{ (xold }\SpecialCharTok{{-}}\NormalTok{ xnew)))}
+\NormalTok{      h }\OtherTok{\textless{}{-}} \FunctionTok{smacofOptionOne}\NormalTok{(xold, xbar, delta, wgth, vmat)}
 \NormalTok{    \}}
     \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{2}\NormalTok{) \{}
-\NormalTok{      lbd }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{(}\FunctionTok{sum}\NormalTok{(xbar[}\DecValTok{1}\NormalTok{, ] }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{))}
-\NormalTok{      cs }\OtherTok{\textless{}{-}}\NormalTok{ xbar[}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{] }\SpecialCharTok{/}\NormalTok{ lbd}
-\NormalTok{      sn }\OtherTok{\textless{}{-}}\NormalTok{ xbar[}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{] }\SpecialCharTok{/}\NormalTok{ lbd}
-\NormalTok{      rot }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(sn, cs, }\SpecialCharTok{{-}}\NormalTok{cs, sn), }\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{)}
-\NormalTok{      xnew }\OtherTok{\textless{}{-}}\NormalTok{ xbar }\SpecialCharTok{\%*\%}\NormalTok{ rot}
-\NormalTok{      dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
-\NormalTok{      snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
-\NormalTok{      cnew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((xold }\SpecialCharTok{{-}}\NormalTok{ xnew) }\SpecialCharTok{*}\NormalTok{ (v }\SpecialCharTok{\%*\%}\NormalTok{ (xold }\SpecialCharTok{{-}}\NormalTok{ xnew)))}
+\NormalTok{      h }\OtherTok{\textless{}{-}} \FunctionTok{smacofOptionTwo}\NormalTok{(xold, xbar, delta, wgth, vmat)}
 \NormalTok{    \}}
     \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{3}\NormalTok{) \{}
-\NormalTok{      xnew }\OtherTok{\textless{}{-}}\NormalTok{ xbar }\SpecialCharTok{\%*\%} \FunctionTok{svd}\NormalTok{(xbar)}\SpecialCharTok{$}\NormalTok{v}
-\NormalTok{      dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
-\NormalTok{      snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
-\NormalTok{      cnew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((xold }\SpecialCharTok{{-}}\NormalTok{ xnew) }\SpecialCharTok{*}\NormalTok{ (v }\SpecialCharTok{\%*\%}\NormalTok{ (xold }\SpecialCharTok{{-}}\NormalTok{ xnew)))}
+\NormalTok{      h }\OtherTok{\textless{}{-}} \FunctionTok{smacofOptionThree}\NormalTok{(xold, xbar, delta, wgth, vmat)}
 \NormalTok{    \}}
     \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{4}\NormalTok{) \{}
-\NormalTok{      xnew }\OtherTok{\textless{}{-}} \DecValTok{2} \SpecialCharTok{*}\NormalTok{ xbar }\SpecialCharTok{{-}}\NormalTok{ xold}
-\NormalTok{      dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
-\NormalTok{      snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
-\NormalTok{      cnew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((xold }\SpecialCharTok{{-}}\NormalTok{ xnew) }\SpecialCharTok{*}\NormalTok{ (v }\SpecialCharTok{\%*\%}\NormalTok{ (xold }\SpecialCharTok{{-}}\NormalTok{ xnew)))}
+\NormalTok{      h }\OtherTok{\textless{}{-}} \FunctionTok{smacofOptionFour}\NormalTok{(xold, xbar, delta, wgth, vmat, bs)}
 \NormalTok{    \}}
     \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{5}\NormalTok{) \{}
-\NormalTok{      xaux }\OtherTok{\textless{}{-}} \DecValTok{2} \SpecialCharTok{*}\NormalTok{ xbar }\SpecialCharTok{{-}}\NormalTok{ xold}
-\NormalTok{      daux }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xaux))}
-\NormalTok{      baux }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wgth }\SpecialCharTok{*}\NormalTok{ delta }\SpecialCharTok{/}\NormalTok{ (daux }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(n))}
-      \FunctionTok{diag}\NormalTok{(baux) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(baux)}
-\NormalTok{      xbaz }\OtherTok{\textless{}{-}}\NormalTok{ vinv }\SpecialCharTok{\%*\%}\NormalTok{ baux }\SpecialCharTok{\%*\%}\NormalTok{ xaux}
-\NormalTok{      xnew }\OtherTok{\textless{}{-}} \DecValTok{2} \SpecialCharTok{*}\NormalTok{ xbaz }\SpecialCharTok{{-}}\NormalTok{ xaux}
-\NormalTok{      dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
-\NormalTok{      snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
-\NormalTok{      cnew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((xold }\SpecialCharTok{{-}}\NormalTok{ xnew) }\SpecialCharTok{*}\NormalTok{ (v }\SpecialCharTok{\%*\%}\NormalTok{ (xold }\SpecialCharTok{{-}}\NormalTok{ xnew)))}
+\NormalTok{      h }\OtherTok{\textless{}{-}} \FunctionTok{smacofOptionFive}\NormalTok{(xold, xbar, delta, wgth, vmat)}
 \NormalTok{    \}}
     \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{6}\NormalTok{) \{}
-\NormalTok{      xaux }\OtherTok{\textless{}{-}} \DecValTok{2} \SpecialCharTok{*}\NormalTok{ xbar }\SpecialCharTok{{-}}\NormalTok{ xold}
-\NormalTok{      daux }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xaux))}
-\NormalTok{      alpa }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ daux }\SpecialCharTok{*}\NormalTok{ delta) }\SpecialCharTok{/} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ daux }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
-\NormalTok{      xnew }\OtherTok{\textless{}{-}}\NormalTok{ alpa }\SpecialCharTok{*}\NormalTok{ xaux}
-\NormalTok{      dnew }\OtherTok{\textless{}{-}}\NormalTok{ alpa }\SpecialCharTok{*}\NormalTok{ daux}
-\NormalTok{      snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
-\NormalTok{      cnew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((xold }\SpecialCharTok{{-}}\NormalTok{ xnew) }\SpecialCharTok{*}\NormalTok{ (v }\SpecialCharTok{\%*\%}\NormalTok{ (xold }\SpecialCharTok{{-}}\NormalTok{ xnew)))}
+\NormalTok{      h }\OtherTok{\textless{}{-}} \FunctionTok{smacofOptionSix}\NormalTok{(xold, xbar, delta, wgth, vmat, vinv)}
 \NormalTok{    \}}
     \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{7}\NormalTok{) \{}
-\NormalTok{      xaux }\OtherTok{\textless{}{-}} \DecValTok{2} \SpecialCharTok{*}\NormalTok{ xbar }\SpecialCharTok{{-}}\NormalTok{ xold}
-\NormalTok{      daux }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xaux))}
-\NormalTok{      baux }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wgth }\SpecialCharTok{*}\NormalTok{ delta }\SpecialCharTok{/}\NormalTok{ (daux }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(n))}
-      \FunctionTok{diag}\NormalTok{(baux) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(baux)}
-\NormalTok{      xnew }\OtherTok{\textless{}{-}}\NormalTok{ vinv }\SpecialCharTok{\%*\%}\NormalTok{ baux }\SpecialCharTok{\%*\%}\NormalTok{ xaux}
-\NormalTok{      dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
-\NormalTok{      snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
-\NormalTok{      cnew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((xold }\SpecialCharTok{{-}}\NormalTok{ xnew) }\SpecialCharTok{*}\NormalTok{ (v }\SpecialCharTok{\%*\%}\NormalTok{ (xold }\SpecialCharTok{{-}}\NormalTok{ xnew)))}
+\NormalTok{      h }\OtherTok{\textless{}{-}} \FunctionTok{smacofOptionSeven}\NormalTok{(xold, xbar, delta, wgth, vmat)}
 \NormalTok{    \}}
-\NormalTok{    labd }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{(cnew }\SpecialCharTok{/}\NormalTok{ cold)}
+    \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{8}\NormalTok{) \{}
+\NormalTok{      h }\OtherTok{\textless{}{-}} \FunctionTok{smacofOptionEight}\NormalTok{(xold, xbar, delta, wgth, vmat, vinv)}
+\NormalTok{    \}}
+\NormalTok{    labd }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{(h}\SpecialCharTok{$}\NormalTok{cnew }\SpecialCharTok{/}\NormalTok{ cold)}
     \ControlFlowTok{if}\NormalTok{ (verbose }\SpecialCharTok{==} \DecValTok{2}\NormalTok{) \{}
-      \FunctionTok{cat}\NormalTok{(}
-        \StringTok{"itel"}\NormalTok{,}
-        \FunctionTok{formatC}\NormalTok{(itel, }\AttributeTok{digits =} \DecValTok{2}\NormalTok{, }\AttributeTok{format =} \StringTok{"d"}\NormalTok{),}
-        \StringTok{"sold"}\NormalTok{,}
-        \FunctionTok{formatC}\NormalTok{(sold, }\AttributeTok{digits =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
-        \StringTok{"snew"}\NormalTok{,}
-        \FunctionTok{formatC}\NormalTok{(snew, }\AttributeTok{digits =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
-        \StringTok{"chng"}\NormalTok{,}
-        \FunctionTok{formatC}\NormalTok{(cnew, }\AttributeTok{digits =}  \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
-        \StringTok{"labd"}\NormalTok{,}
-        \FunctionTok{formatC}\NormalTok{(labd, }\AttributeTok{digits =}  \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
-        \StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}
-\NormalTok{      )}
+      \FunctionTok{smacofLinePrint}\NormalTok{(itel, sold, h}\SpecialCharTok{$}\NormalTok{snew, h}\SpecialCharTok{$}\NormalTok{cnew, labd, }\AttributeTok{wd =}\NormalTok{ wd, }\AttributeTok{dg =}\NormalTok{ dg)}
 \NormalTok{    \}}
     \ControlFlowTok{if}\NormalTok{ (halt }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) \{}
-\NormalTok{      converge }\OtherTok{\textless{}{-}}\NormalTok{ cnew }\SpecialCharTok{\textless{}}\NormalTok{ epsx}
+\NormalTok{      converge }\OtherTok{\textless{}{-}}\NormalTok{ h}\SpecialCharTok{$}\NormalTok{cnew }\SpecialCharTok{\textless{}}\NormalTok{ epsx}
 \NormalTok{    \} }\ControlFlowTok{else}\NormalTok{ \{}
-\NormalTok{      converge }\OtherTok{\textless{}{-}}\NormalTok{ (sold }\SpecialCharTok{{-}}\NormalTok{ snew) }\SpecialCharTok{\textless{}}\NormalTok{ epsf}
+\NormalTok{      converge }\OtherTok{\textless{}{-}}\NormalTok{ (sold }\SpecialCharTok{{-}}\NormalTok{ h}\SpecialCharTok{$}\NormalTok{snew) }\SpecialCharTok{\textless{}}\NormalTok{ epsf}
 \NormalTok{    \}}
     \ControlFlowTok{if}\NormalTok{ ((itel }\SpecialCharTok{==}\NormalTok{ itmax) }\SpecialCharTok{||}\NormalTok{ converge) \{}
       \ControlFlowTok{break}
 \NormalTok{    \}}
 \NormalTok{    itel }\OtherTok{\textless{}{-}}\NormalTok{ itel }\SpecialCharTok{+} \DecValTok{1}
-\NormalTok{    sold }\OtherTok{\textless{}{-}}\NormalTok{ snew}
-\NormalTok{    xold }\OtherTok{\textless{}{-}}\NormalTok{ xnew}
-\NormalTok{    cold }\OtherTok{\textless{}{-}}\NormalTok{ cnew}
+\NormalTok{    sold }\OtherTok{\textless{}{-}}\NormalTok{ h}\SpecialCharTok{$}\NormalTok{snew}
+\NormalTok{    xold }\OtherTok{\textless{}{-}}\NormalTok{ h}\SpecialCharTok{$}\NormalTok{xnew}
+\NormalTok{    cold }\OtherTok{\textless{}{-}}\NormalTok{ h}\SpecialCharTok{$}\NormalTok{cnew}
 \NormalTok{  \}}
   \ControlFlowTok{if}\NormalTok{ (verbose }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) \{}
-    \FunctionTok{cat}\NormalTok{(}
-      \StringTok{"itel"}\NormalTok{,}
-      \FunctionTok{formatC}\NormalTok{(itel, }\AttributeTok{digits =} \DecValTok{2}\NormalTok{, }\AttributeTok{format =} \StringTok{"d"}\NormalTok{),}
-      \StringTok{"sold"}\NormalTok{,}
-      \FunctionTok{formatC}\NormalTok{(sold, }\AttributeTok{digits =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
-      \StringTok{"snew"}\NormalTok{,}
-      \FunctionTok{formatC}\NormalTok{(snew, }\AttributeTok{digits =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
-      \StringTok{"chng"}\NormalTok{,}
-      \FunctionTok{formatC}\NormalTok{(cnew, }\AttributeTok{digits =}  \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
-      \StringTok{"labd"}\NormalTok{,}
-      \FunctionTok{formatC}\NormalTok{(labd, }\AttributeTok{digits =}  \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
-      \StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}
-\NormalTok{    )}
-\NormalTok{  \}}
-  \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{4}\NormalTok{) \{}
-\NormalTok{    xaux }\OtherTok{\textless{}{-}}\NormalTok{ (xnew }\SpecialCharTok{+}\NormalTok{ xold) }\SpecialCharTok{/} \DecValTok{2}
-\NormalTok{    xnew }\OtherTok{\textless{}{-}}\NormalTok{ (xnew }\SpecialCharTok{+}\NormalTok{ xold) }\SpecialCharTok{/} \DecValTok{2}
-\NormalTok{    dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
-\NormalTok{    snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
+    \FunctionTok{smacofLinePrint}\NormalTok{(itel, sold, h}\SpecialCharTok{$}\NormalTok{snew, h}\SpecialCharTok{$}\NormalTok{cnew, labd, }\AttributeTok{wd =}\NormalTok{ wd, }\AttributeTok{dg =}\NormalTok{ dg)}
 \NormalTok{  \}}
   \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{5}\NormalTok{) \{}
-\NormalTok{    bold }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wgth }\SpecialCharTok{*}\NormalTok{ delta }\SpecialCharTok{/}\NormalTok{ (dnew }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(n))}
-    \FunctionTok{diag}\NormalTok{(bold) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(bold)}
-\NormalTok{    xnew }\OtherTok{\textless{}{-}}\NormalTok{ vinv }\SpecialCharTok{\%*\%}\NormalTok{ bold }\SpecialCharTok{\%*\%}\NormalTok{ xnew}
-\NormalTok{    dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
-\NormalTok{    snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
+\NormalTok{    h}\SpecialCharTok{$}\NormalTok{xnew }\OtherTok{\textless{}{-}}\NormalTok{ (h}\SpecialCharTok{$}\NormalTok{xnew }\SpecialCharTok{+}\NormalTok{ xold) }\SpecialCharTok{/} \DecValTok{2}
+\NormalTok{    h}\SpecialCharTok{$}\NormalTok{dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(h}\SpecialCharTok{$}\NormalTok{xnew))}
+\NormalTok{    h}\SpecialCharTok{$}\NormalTok{snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ h}\SpecialCharTok{$}\NormalTok{dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
+    \FunctionTok{smacofLinePrint}\NormalTok{(itel, sold, h}\SpecialCharTok{$}\NormalTok{snew, h}\SpecialCharTok{$}\NormalTok{cnew, labd, }\AttributeTok{wd =}\NormalTok{ wd, }\AttributeTok{dg =}\NormalTok{ dg)}
 \NormalTok{  \}}
+  \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{6}\NormalTok{) \{}
+\NormalTok{    bold }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wgth }\SpecialCharTok{*}\NormalTok{ delta }\SpecialCharTok{/}\NormalTok{ (h}\SpecialCharTok{$}\NormalTok{dnew }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}
+    \FunctionTok{diag}\NormalTok{(bold) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(bold)}
+\NormalTok{    h}\SpecialCharTok{$}\NormalTok{xnew }\OtherTok{\textless{}{-}}\NormalTok{ vinv }\SpecialCharTok{\%*\%}\NormalTok{ bold }\SpecialCharTok{\%*\%}\NormalTok{ h}\SpecialCharTok{$}\NormalTok{xnew}
+\NormalTok{    h}\SpecialCharTok{$}\NormalTok{dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(h}\SpecialCharTok{$}\NormalTok{xnew))}
+\NormalTok{    h}\SpecialCharTok{$}\NormalTok{snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ h}\SpecialCharTok{$}\NormalTok{dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
+    \FunctionTok{smacofLinePrint}\NormalTok{(itel, sold, h}\SpecialCharTok{$}\NormalTok{snew, h}\SpecialCharTok{$}\NormalTok{cnew, labd, }\AttributeTok{wd =}\NormalTok{ wd, }\AttributeTok{dg =}\NormalTok{ dg)}
+\NormalTok{  \}}
+  \FunctionTok{return}\NormalTok{(}
+    \FunctionTok{list}\NormalTok{(}
+      \AttributeTok{x =}\NormalTok{ h}\SpecialCharTok{$}\NormalTok{xnew,}
+      \AttributeTok{s =}\NormalTok{ h}\SpecialCharTok{$}\NormalTok{snew,}
+      \AttributeTok{d =}\NormalTok{ h}\SpecialCharTok{$}\NormalTok{dnew,}
+      \AttributeTok{itel =}\NormalTok{ itel,}
+      \AttributeTok{chng =}\NormalTok{ h}\SpecialCharTok{$}\NormalTok{cnew,}
+      \AttributeTok{labd =}\NormalTok{ labd,}
+      \AttributeTok{wgth =}\NormalTok{ wgth,}
+      \AttributeTok{delta =}\NormalTok{ delta}
+\NormalTok{    )}
+\NormalTok{  )}
+\NormalTok{\}}
+
+\NormalTok{smacofOptionOne }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(xold, xbar, delta, wgth, vmat) \{}
+\NormalTok{  xnew }\OtherTok{\textless{}{-}}\NormalTok{ xbar}
+\NormalTok{  dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
+\NormalTok{  snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
+\NormalTok{  cnew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((xold }\SpecialCharTok{{-}}\NormalTok{ xnew) }\SpecialCharTok{*}\NormalTok{ (vmat }\SpecialCharTok{\%*\%}\NormalTok{ (xold }\SpecialCharTok{{-}}\NormalTok{ xnew)))}
   \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
-    \AttributeTok{x =}\NormalTok{ xnew,}
-    \AttributeTok{s =}\NormalTok{ snew,}
-    \AttributeTok{d =}\NormalTok{ dnew,}
-    \AttributeTok{itel =}\NormalTok{ itel,}
-    \AttributeTok{chng =}\NormalTok{ cnew,}
-    \AttributeTok{labd =}\NormalTok{ labd,}
-    \AttributeTok{wgth =}\NormalTok{ wgth,}
-    \AttributeTok{delta =}\NormalTok{ delta}
+    \AttributeTok{xnew =}\NormalTok{ xnew,}
+    \AttributeTok{dnew =}\NormalTok{ dnew,}
+    \AttributeTok{snew =}\NormalTok{ snew,}
+    \AttributeTok{cnew =}\NormalTok{ cnew}
 \NormalTok{  ))}
 \NormalTok{\}}
 
+\NormalTok{smacofOptionTwo }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(xold, xbar, delta, wgth, vmat) \{}
+\NormalTok{  ndim }\OtherTok{\textless{}{-}} \FunctionTok{ncol}\NormalTok{(xold)}
+\NormalTok{  xnew }\OtherTok{\textless{}{-}}\NormalTok{ xbar }\SpecialCharTok{\%*\%} \FunctionTok{qr.Q}\NormalTok{(}\FunctionTok{qr}\NormalTok{(}\FunctionTok{t}\NormalTok{(xbar[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{ndim, ])))}
+\NormalTok{  dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
+\NormalTok{  snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
+\NormalTok{  cnew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((xold }\SpecialCharTok{{-}}\NormalTok{ xnew) }\SpecialCharTok{*}\NormalTok{ (vmat }\SpecialCharTok{\%*\%}\NormalTok{ (xold }\SpecialCharTok{{-}}\NormalTok{ xnew)))}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{xnew =}\NormalTok{ xnew,}
+    \AttributeTok{dnew =}\NormalTok{ dnew,}
+    \AttributeTok{snew =}\NormalTok{ snew,}
+    \AttributeTok{cnew =}\NormalTok{ cnew}
+\NormalTok{  ))}
+\NormalTok{\}}
+
+\NormalTok{smacofOptionThree }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(xold, xbar, delta, wgth, vmat) \{}
+\NormalTok{  xnew }\OtherTok{\textless{}{-}}\NormalTok{ xbar }\SpecialCharTok{\%*\%} \FunctionTok{svd}\NormalTok{(xbar)}\SpecialCharTok{$}\NormalTok{v}
+\NormalTok{  dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
+\NormalTok{  snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
+\NormalTok{  cnew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((xold }\SpecialCharTok{{-}}\NormalTok{ xnew) }\SpecialCharTok{*}\NormalTok{ (vmat }\SpecialCharTok{\%*\%}\NormalTok{ (xold }\SpecialCharTok{{-}}\NormalTok{ xnew)))}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{xnew =}\NormalTok{ xnew,}
+    \AttributeTok{dnew =}\NormalTok{ dnew,}
+    \AttributeTok{snew =}\NormalTok{ snew,}
+    \AttributeTok{cnew =}\NormalTok{ cnew}
+\NormalTok{  ))}
+\NormalTok{\}}
+
+\NormalTok{smacofOptionFour }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(xold, xbar, delta, wgth, vmat, bs) \{}
+\NormalTok{  ndim }\OtherTok{\textless{}{-}} \FunctionTok{ncol}\NormalTok{(xold)}
+\NormalTok{  nobj }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(xold)}
+\NormalTok{  xnew }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\DecValTok{0}\NormalTok{, nobj, ndim)}
+  \ControlFlowTok{for}\NormalTok{ (s }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{ndim) \{}
+\NormalTok{    aux }\OtherTok{\textless{}{-}} \FunctionTok{crossprod}\NormalTok{(bs[[s]], vmat }\SpecialCharTok{\%*\%}\NormalTok{ xbar[, s])}
+\NormalTok{    xnew[, s] }\OtherTok{\textless{}{-}}\NormalTok{ bs[[s]] }\SpecialCharTok{\%*\%}\NormalTok{ aux}
+\NormalTok{  \}}
+\NormalTok{  dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
+\NormalTok{  snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
+\NormalTok{  cnew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((xold }\SpecialCharTok{{-}}\NormalTok{ xnew) }\SpecialCharTok{*}\NormalTok{ (vmat }\SpecialCharTok{\%*\%}\NormalTok{ (xold }\SpecialCharTok{{-}}\NormalTok{ xnew)))}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{xnew =}\NormalTok{ xnew,}
+    \AttributeTok{dnew =}\NormalTok{ dnew,}
+    \AttributeTok{snew =}\NormalTok{ snew,}
+    \AttributeTok{cnew =}\NormalTok{ cnew}
+\NormalTok{  ))}
+\NormalTok{\}}
+
+\NormalTok{smacofOptionFive }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(xold, xbar, delta, wgth, vmat) \{}
+\NormalTok{  xnew }\OtherTok{\textless{}{-}} \DecValTok{2} \SpecialCharTok{*}\NormalTok{ xbar }\SpecialCharTok{{-}}\NormalTok{ xold}
+\NormalTok{  dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
+\NormalTok{  snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
+\NormalTok{  cnew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((xold }\SpecialCharTok{{-}}\NormalTok{ xnew) }\SpecialCharTok{*}\NormalTok{ (vmat }\SpecialCharTok{\%*\%}\NormalTok{ (xold }\SpecialCharTok{{-}}\NormalTok{ xnew)))}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{xnew =}\NormalTok{ xnew,}
+    \AttributeTok{dnew =}\NormalTok{ dnew,}
+    \AttributeTok{snew =}\NormalTok{ snew,}
+    \AttributeTok{cnew =}\NormalTok{ cnew}
+\NormalTok{  ))}
+\NormalTok{\}}
+
+\NormalTok{smacofOptionSix }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(xold, xbar, delta, wgth, vmat, vinv) \{}
+\NormalTok{  nobj }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(xold)}
+\NormalTok{  xaux }\OtherTok{\textless{}{-}} \DecValTok{2} \SpecialCharTok{*}\NormalTok{ xbar }\SpecialCharTok{{-}}\NormalTok{ xold}
+\NormalTok{  daux }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xaux))}
+\NormalTok{  baux }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wgth }\SpecialCharTok{*}\NormalTok{ delta }\SpecialCharTok{/}\NormalTok{ (daux }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}
+  \FunctionTok{diag}\NormalTok{(baux) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(baux)}
+\NormalTok{  xbaz }\OtherTok{\textless{}{-}}\NormalTok{ vinv }\SpecialCharTok{\%*\%}\NormalTok{ baux }\SpecialCharTok{\%*\%}\NormalTok{ xaux}
+\NormalTok{  xnew }\OtherTok{\textless{}{-}} \DecValTok{2} \SpecialCharTok{*}\NormalTok{ xbaz }\SpecialCharTok{{-}}\NormalTok{ xaux}
+\NormalTok{  dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
+\NormalTok{  snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
+\NormalTok{  cnew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((xold }\SpecialCharTok{{-}}\NormalTok{ xnew) }\SpecialCharTok{*}\NormalTok{ (vmat }\SpecialCharTok{\%*\%}\NormalTok{ (xold }\SpecialCharTok{{-}}\NormalTok{ xnew)))}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{xnew =}\NormalTok{ xnew,}
+    \AttributeTok{dnew =}\NormalTok{ dnew,}
+    \AttributeTok{snew =}\NormalTok{ snew,}
+    \AttributeTok{cnew =}\NormalTok{ cnew}
+\NormalTok{  ))}
+\NormalTok{\}}
+
+\NormalTok{smacofOptionSeven }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(xold, xbar, delta, wgth, vmat) \{}
+\NormalTok{  xaux }\OtherTok{\textless{}{-}} \DecValTok{2} \SpecialCharTok{*}\NormalTok{ xbar }\SpecialCharTok{{-}}\NormalTok{ xold}
+\NormalTok{  daux }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xaux))}
+\NormalTok{  alpa }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ daux }\SpecialCharTok{*}\NormalTok{ delta) }\SpecialCharTok{/} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ daux }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
+\NormalTok{  xnew }\OtherTok{\textless{}{-}}\NormalTok{ alpa }\SpecialCharTok{*}\NormalTok{ xaux}
+\NormalTok{  dnew }\OtherTok{\textless{}{-}}\NormalTok{ alpa }\SpecialCharTok{*}\NormalTok{ daux}
+\NormalTok{  snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
+\NormalTok{  cnew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((xold }\SpecialCharTok{{-}}\NormalTok{ xnew) }\SpecialCharTok{*}\NormalTok{ (vmat }\SpecialCharTok{\%*\%}\NormalTok{ (xold }\SpecialCharTok{{-}}\NormalTok{ xnew)))}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{xnew =}\NormalTok{ xnew,}
+    \AttributeTok{dnew =}\NormalTok{ dnew,}
+    \AttributeTok{snew =}\NormalTok{ snew,}
+    \AttributeTok{cnew =}\NormalTok{ cnew}
+\NormalTok{  ))}
+\NormalTok{\}}
+
+\NormalTok{smacofOptionEight }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(xold, xbar, delta, wgth, vmat, vinv) \{}
+\NormalTok{  nobj }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(xold)}
+\NormalTok{  xaux }\OtherTok{\textless{}{-}} \DecValTok{2} \SpecialCharTok{*}\NormalTok{ xbar }\SpecialCharTok{{-}}\NormalTok{ xold}
+\NormalTok{  daux }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xaux))}
+\NormalTok{  baux }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wgth }\SpecialCharTok{*}\NormalTok{ delta }\SpecialCharTok{/}\NormalTok{ (daux }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}
+  \FunctionTok{diag}\NormalTok{(baux) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(baux)}
+\NormalTok{  xnew }\OtherTok{\textless{}{-}}\NormalTok{ vinv }\SpecialCharTok{\%*\%}\NormalTok{ baux }\SpecialCharTok{\%*\%}\NormalTok{ xaux}
+\NormalTok{  dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
+\NormalTok{  snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wgth }\SpecialCharTok{*}\NormalTok{ (delta }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
+\NormalTok{  cnew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((xold }\SpecialCharTok{{-}}\NormalTok{ xnew) }\SpecialCharTok{*}\NormalTok{ (vmat }\SpecialCharTok{\%*\%}\NormalTok{ (xold }\SpecialCharTok{{-}}\NormalTok{ xnew)))}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{xnew =}\NormalTok{ xnew,}
+    \AttributeTok{dnew =}\NormalTok{ dnew,}
+    \AttributeTok{snew =}\NormalTok{ snew,}
+    \AttributeTok{cnew =}\NormalTok{ cnew}
+\NormalTok{  ))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{smacofHessian.R}\label{smacofhessian.r}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{numFunc }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, nobj, ndim, wgth, delta, }\AttributeTok{opt =} \DecValTok{1}\NormalTok{) \{}
+\NormalTok{  xx }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(x, nobj, ndim)}
+\NormalTok{  dd }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xx))}
+\NormalTok{  vv }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wgth}
+  \FunctionTok{diag}\NormalTok{(vv) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(vv)}
+\NormalTok{  vinv }\OtherTok{\textless{}{-}} \FunctionTok{solve}\NormalTok{(vv }\SpecialCharTok{+}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{/}\NormalTok{ nobj)) }\SpecialCharTok{{-}}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{/}\NormalTok{ nobj)}
+\NormalTok{  bb }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wgth }\SpecialCharTok{*}\NormalTok{ delta }\SpecialCharTok{/}\NormalTok{ (dd }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}
+  \FunctionTok{diag}\NormalTok{(bb) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(bb)}
+\NormalTok{  xaux }\OtherTok{\textless{}{-}}\NormalTok{ vinv }\SpecialCharTok{\%*\%}\NormalTok{ bb }\SpecialCharTok{\%*\%}\NormalTok{ xx}
+  \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) \{}
+\NormalTok{    yy }\OtherTok{\textless{}{-}}\NormalTok{ xaux}
+\NormalTok{  \}}
+  \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{2}\NormalTok{) \{}
+\NormalTok{    lbd }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{(}\FunctionTok{sum}\NormalTok{(xaux[}\DecValTok{1}\NormalTok{, ] }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{))}
+\NormalTok{    cs }\OtherTok{\textless{}{-}}\NormalTok{ xaux[}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{] }\SpecialCharTok{/}\NormalTok{ lbd}
+\NormalTok{    sn }\OtherTok{\textless{}{-}}\NormalTok{ xaux[}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{] }\SpecialCharTok{/}\NormalTok{ lbd}
+\NormalTok{    rot }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(sn, cs, }\SpecialCharTok{{-}}\NormalTok{cs, sn), }\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{)}
+\NormalTok{    yy }\OtherTok{\textless{}{-}}\NormalTok{ xaux }\SpecialCharTok{\%*\%}\NormalTok{ rot}
+\NormalTok{  \}}
+  \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{3}\NormalTok{) \{}
+\NormalTok{    yy }\OtherTok{\textless{}{-}}\NormalTok{ xaux }\SpecialCharTok{\%*\%} \FunctionTok{svd}\NormalTok{(xaux)}\SpecialCharTok{$}\NormalTok{v}
+\NormalTok{  \}}
+  \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{4}\NormalTok{) \{}
+\NormalTok{    yy }\OtherTok{\textless{}{-}} \DecValTok{2} \SpecialCharTok{*}\NormalTok{ xaux }\SpecialCharTok{{-}}\NormalTok{ xx}
+\NormalTok{  \}}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{as.vector}\NormalTok{(yy))}
+\NormalTok{\}}
+
+\NormalTok{numHess }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x,}
+\NormalTok{                    delta,}
+                    \AttributeTok{wgth =} \DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{diag}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(x)),}
+                    \AttributeTok{opt =} \DecValTok{1}\NormalTok{) \{}
+\NormalTok{  nobj }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(x)}
+\NormalTok{  ndim }\OtherTok{\textless{}{-}} \FunctionTok{ncol}\NormalTok{(x)}
+\NormalTok{  x }\OtherTok{\textless{}{-}} \FunctionTok{as.vector}\NormalTok{(x)}
+\NormalTok{  h }\OtherTok{\textless{}{-}} \FunctionTok{jacobian}\NormalTok{(}
+\NormalTok{    numFunc,}
+\NormalTok{    x,}
+    \AttributeTok{nobj =}\NormalTok{ nobj,}
+    \AttributeTok{ndim =}\NormalTok{ ndim,}
+    \AttributeTok{wgth =}\NormalTok{ wgth,}
+    \AttributeTok{delta =}\NormalTok{ delta,}
+    \AttributeTok{opt =}\NormalTok{ opt}
+\NormalTok{  )}
+  \FunctionTok{return}\NormalTok{(h)}
+\NormalTok{\}}
+
+\NormalTok{smacofRhoHessian }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, delta, wgth) \{}
+\NormalTok{  n }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(x)}
+\NormalTok{  p }\OtherTok{\textless{}{-}} \FunctionTok{ncol}\NormalTok{(x)}
+\NormalTok{  np }\OtherTok{\textless{}{-}}\NormalTok{ n }\SpecialCharTok{*}\NormalTok{ p}
+\NormalTok{  dmat }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(x))}
+\NormalTok{  fac1 }\OtherTok{\textless{}{-}}\NormalTok{ wgth }\SpecialCharTok{*}\NormalTok{ delta }\SpecialCharTok{/}\NormalTok{ (dmat }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(n))}
+\NormalTok{  fac2 }\OtherTok{\textless{}{-}}\NormalTok{ wgth }\SpecialCharTok{*}\NormalTok{ delta }\SpecialCharTok{/}\NormalTok{ ((dmat }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(n)) }\SpecialCharTok{\^{}} \DecValTok{3}\NormalTok{)}
+\NormalTok{  bmat }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{fac1}
+  \FunctionTok{diag}\NormalTok{(bmat) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(bmat)}
+\NormalTok{  hess }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\DecValTok{0}\NormalTok{, np, np)}
+  \ControlFlowTok{for}\NormalTok{ (s }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{p) \{}
+\NormalTok{    ns }\OtherTok{\textless{}{-}}\NormalTok{ (s }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{) }\SpecialCharTok{*}\NormalTok{ n }\SpecialCharTok{+} \DecValTok{1}\SpecialCharTok{:}\NormalTok{n}
+\NormalTok{    hess[ns, ns] }\OtherTok{\textless{}{-}}\NormalTok{ bmat}
+    \ControlFlowTok{for}\NormalTok{ (t }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{p) \{}
+\NormalTok{      nt }\OtherTok{\textless{}{-}}\NormalTok{ (t }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{) }\SpecialCharTok{*}\NormalTok{ n }\SpecialCharTok{+} \DecValTok{1}\SpecialCharTok{:}\NormalTok{n}
+\NormalTok{      ds }\OtherTok{\textless{}{-}} \FunctionTok{outer}\NormalTok{(x[, s], x[, s], }\StringTok{"{-}"}\NormalTok{)}
+\NormalTok{      dt }\OtherTok{\textless{}{-}} \FunctionTok{outer}\NormalTok{(x[, t], x[, t], }\StringTok{"{-}"}\NormalTok{)}
+\NormalTok{      aux }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{fac2 }\SpecialCharTok{*}\NormalTok{ ds }\SpecialCharTok{*}\NormalTok{ dt}
+      \FunctionTok{diag}\NormalTok{(aux) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(aux)}
+\NormalTok{      hess[ns, nt] }\OtherTok{\textless{}{-}}\NormalTok{ hess[ns, nt] }\SpecialCharTok{{-}}\NormalTok{ aux}
+\NormalTok{    \}}
+\NormalTok{  \}}
+  \FunctionTok{return}\NormalTok{(hess)}
+\NormalTok{\}}
+
+\NormalTok{smacofJacobian }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, delta, wgth) \{}
+\NormalTok{  n }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(x)}
+\NormalTok{  p }\OtherTok{\textless{}{-}} \FunctionTok{ncol}\NormalTok{(x)}
+\NormalTok{  np }\OtherTok{\textless{}{-}}\NormalTok{ n }\SpecialCharTok{*}\NormalTok{ p}
+\NormalTok{  vmat }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wgth}
+  \FunctionTok{diag}\NormalTok{(vmat) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(vmat)}
+\NormalTok{  vinv }\OtherTok{\textless{}{-}} \FunctionTok{solve}\NormalTok{(vmat }\SpecialCharTok{+}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{/}\NormalTok{ n)) }\SpecialCharTok{{-}}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{/}\NormalTok{ n)}
+\NormalTok{  jacob }\OtherTok{\textless{}{-}} \FunctionTok{smacofRhoHessian}\NormalTok{(x, delta, wgth)}
+  \ControlFlowTok{for}\NormalTok{ (s }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{p) \{}
+\NormalTok{    ns }\OtherTok{\textless{}{-}}\NormalTok{ (s }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{) }\SpecialCharTok{*}\NormalTok{ n }\SpecialCharTok{+} \DecValTok{1}\SpecialCharTok{:}\NormalTok{n}
+    \ControlFlowTok{for}\NormalTok{ (t }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{p) \{}
+\NormalTok{      nt }\OtherTok{\textless{}{-}}\NormalTok{ (t }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{) }\SpecialCharTok{*}\NormalTok{ n }\SpecialCharTok{+} \DecValTok{1}\SpecialCharTok{:}\NormalTok{n}
+\NormalTok{      jacob[ns, nt] }\OtherTok{\textless{}{-}}\NormalTok{ vinv }\SpecialCharTok{\%*\%}\NormalTok{ jacob[ns, nt]}
+\NormalTok{    \}}
+\NormalTok{  \}}
+  \FunctionTok{return}\NormalTok{(jacob)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{smacofCompare.R}\label{smacofcompare.r}
+
+\begin{Shaded}
+\begin{Highlighting}[]
 \NormalTok{smacofCompare }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(delta, }\AttributeTok{ndim =} \DecValTok{2}\NormalTok{) \{}
-\NormalTok{  n }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(delta)}
-\NormalTok{  wgth }\OtherTok{\textless{}{-}} \DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{diag}\NormalTok{(n)}
+\NormalTok{  nobj }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(delta)}
+\NormalTok{  wgth }\OtherTok{\textless{}{-}} \DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{diag}\NormalTok{(nobj)}
 \NormalTok{  xold }\OtherTok{\textless{}{-}} \FunctionTok{smacofTorgerson}\NormalTok{(delta, ndim)}
   \FunctionTok{return}\NormalTok{(}
     \FunctionTok{microbenchmark}\NormalTok{(}
@@ -942,9 +1275,68 @@ De Gruijter (1967)
         \AttributeTok{opt =} \DecValTok{7}\NormalTok{,}
         \AttributeTok{halt =} \DecValTok{2}\NormalTok{,}
         \AttributeTok{verbose =} \ConstantTok{FALSE}
+\NormalTok{      ),}
+      \FunctionTok{smacofAccelerate}\NormalTok{(}
+\NormalTok{        delta,}
+        \AttributeTok{ndim =} \DecValTok{2}\NormalTok{,}
+        \AttributeTok{opt =} \DecValTok{8}\NormalTok{,}
+        \AttributeTok{halt =} \DecValTok{2}\NormalTok{,}
+        \AttributeTok{verbose =} \ConstantTok{FALSE}
 \NormalTok{      )}
 \NormalTok{    )}
 \NormalTok{  )}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{smacofUtils.R}\label{smacofutils.r}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mPrint }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x,}
+                   \AttributeTok{digits =} \DecValTok{10}\NormalTok{,}
+                   \AttributeTok{width =} \DecValTok{15}\NormalTok{,}
+                   \AttributeTok{format =} \StringTok{"f"}\NormalTok{,}
+                   \AttributeTok{flag =} \StringTok{"+"}\NormalTok{) \{}
+  \FunctionTok{print}\NormalTok{(}\FunctionTok{noquote}\NormalTok{(}
+    \FunctionTok{formatC}\NormalTok{(}
+\NormalTok{      x,}
+      \AttributeTok{digits =}\NormalTok{ digits,}
+      \AttributeTok{width =}\NormalTok{ width,}
+      \AttributeTok{format =}\NormalTok{ format,}
+      \AttributeTok{flag =}\NormalTok{ flag}
+\NormalTok{    )}
+\NormalTok{  ))}
+\NormalTok{\}}
+
+\NormalTok{smacofLinePrint }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(itel, sold, snew, cnew, labd, wd, dg) \{}
+  \FunctionTok{cat}\NormalTok{(}
+    \StringTok{"itel"}\NormalTok{,}
+    \FunctionTok{formatC}\NormalTok{(itel, }\AttributeTok{width =}\NormalTok{ wd, }\AttributeTok{format =} \StringTok{"d"}\NormalTok{),}
+    \StringTok{"sold"}\NormalTok{,}
+    \FunctionTok{formatC}\NormalTok{(sold, }\AttributeTok{digits =}\NormalTok{ dg, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
+    \StringTok{"snew"}\NormalTok{,}
+    \FunctionTok{formatC}\NormalTok{(snew, }\AttributeTok{digits =}\NormalTok{ dg, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
+    \StringTok{"chng"}\NormalTok{,}
+    \FunctionTok{formatC}\NormalTok{(cnew, }\AttributeTok{digits =}\NormalTok{  dg, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
+    \StringTok{"labd"}\NormalTok{,}
+    \FunctionTok{formatC}\NormalTok{(labd, }\AttributeTok{digits =}\NormalTok{  dg, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
+    \StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}
+\NormalTok{  )}
+\NormalTok{\}}
+
+\NormalTok{smacofMakeBasis }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(n, ndim, }\AttributeTok{wgth =} \DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{diag}\NormalTok{(n)) \{}
+\NormalTok{  vmat }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wgth}
+  \FunctionTok{diag}\NormalTok{(vmat) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(vmat)}
+\NormalTok{  y }\OtherTok{\textless{}{-}} \FunctionTok{as.list}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\NormalTok{ndim)}
+  \ControlFlowTok{for}\NormalTok{ (s }\ControlFlowTok{in} \DecValTok{0}\SpecialCharTok{:}\NormalTok{(ndim }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)) \{}
+\NormalTok{    ns }\OtherTok{\textless{}{-}}\NormalTok{ n }\SpecialCharTok{{-}}\NormalTok{ s}
+\NormalTok{    aux }\OtherTok{\textless{}{-}} \FunctionTok{qr.Q}\NormalTok{(}\FunctionTok{qr}\NormalTok{(ns }\SpecialCharTok{*} \FunctionTok{diag}\NormalTok{(ns) }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{))[, }\SpecialCharTok{{-}}\NormalTok{ns]}
+\NormalTok{    aux }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(}\FunctionTok{matrix}\NormalTok{(}\DecValTok{0}\NormalTok{, s, ns }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{), aux)}
+\NormalTok{    sux }\OtherTok{\textless{}{-}} \FunctionTok{crossprod}\NormalTok{(aux, vmat }\SpecialCharTok{\%*\%}\NormalTok{ aux)}
+\NormalTok{    y[[s }\SpecialCharTok{+} \DecValTok{1}\NormalTok{]] }\OtherTok{\textless{}{-}} \FunctionTok{tcrossprod}\NormalTok{(aux, }\FunctionTok{solve}\NormalTok{(}\FunctionTok{chol}\NormalTok{(sux)))}
+\NormalTok{  \}}
+  \FunctionTok{return}\NormalTok{(y)}
 \NormalTok{\}}
 
 \NormalTok{smacofTorgerson }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(delta, ndim) \{}
@@ -957,42 +1349,6 @@ De Gruijter (1967)
 \NormalTok{  x }\OtherTok{\textless{}{-}}\NormalTok{ ee}\SpecialCharTok{$}\NormalTok{vectors[, }\DecValTok{1}\SpecialCharTok{:}\NormalTok{ndim] }\SpecialCharTok{\%*\%} \FunctionTok{diag}\NormalTok{(}\FunctionTok{sqrt}\NormalTok{(ee}\SpecialCharTok{$}\NormalTok{values[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{ndim]))}
   \FunctionTok{return}\NormalTok{(x)}
 \NormalTok{\}}
-
-\NormalTok{numFunc }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, nobj, ndim, wgth, delta, }\AttributeTok{opt =} \DecValTok{1}\NormalTok{) \{}
-\NormalTok{  xx }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(x, nobj, ndim)}
-\NormalTok{  dd }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xx))}
-\NormalTok{  vv }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wgth}
-  \FunctionTok{diag}\NormalTok{(vv) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(vv)}
-\NormalTok{  vinv }\OtherTok{\textless{}{-}} \FunctionTok{ginv}\NormalTok{(vv)}
-\NormalTok{  bb }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wgth }\SpecialCharTok{*}\NormalTok{ delta }\SpecialCharTok{/}\NormalTok{ (dd }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}
-  \FunctionTok{diag}\NormalTok{(bb) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(bb)}
-\NormalTok{  xaux }\OtherTok{\textless{}{-}}\NormalTok{ vinv }\SpecialCharTok{\%*\%}\NormalTok{ bb }\SpecialCharTok{\%*\%}\NormalTok{ xx}
-  \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) \{}
-\NormalTok{    yy }\OtherTok{\textless{}{-}}\NormalTok{ xaux}
-\NormalTok{  \}}
-  \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{2}\NormalTok{) \{}
-\NormalTok{    lbd }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{(}\FunctionTok{sum}\NormalTok{(xaux[}\DecValTok{1}\NormalTok{, ] }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{))}
-\NormalTok{    cs }\OtherTok{\textless{}{-}}\NormalTok{ xaux[}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{] }\SpecialCharTok{/}\NormalTok{ lbd}
-\NormalTok{    sn }\OtherTok{\textless{}{-}}\NormalTok{ xaux[}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{] }\SpecialCharTok{/}\NormalTok{ lbd}
-\NormalTok{    rot }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(sn, cs, }\SpecialCharTok{{-}}\NormalTok{cs, sn), }\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{)}
-\NormalTok{    yy }\OtherTok{\textless{}{-}}\NormalTok{ xaux }\SpecialCharTok{\%*\%}\NormalTok{ rot}
-\NormalTok{  \}}
-  \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{3}\NormalTok{) \{}
-\NormalTok{    yy }\OtherTok{\textless{}{-}}\NormalTok{ xaux }\SpecialCharTok{\%*\%} \FunctionTok{svd}\NormalTok{(xaux)}\SpecialCharTok{$}\NormalTok{v}
-\NormalTok{  \}}
-  \ControlFlowTok{if}\NormalTok{ (opt }\SpecialCharTok{==} \DecValTok{4}\NormalTok{) \{}
-\NormalTok{    yy }\OtherTok{\textless{}{-}} \DecValTok{2} \SpecialCharTok{*}\NormalTok{ xaux }\SpecialCharTok{{-}}\NormalTok{ xx}
-\NormalTok{  \}}
-  \FunctionTok{return}\NormalTok{(}\FunctionTok{as.vector}\NormalTok{(yy))}
-\NormalTok{\}}
-
-\NormalTok{numHess }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, delta, }\AttributeTok{wgth =} \DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{diag}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(x)), }\AttributeTok{opt =} \DecValTok{1}\NormalTok{) \{}
-\NormalTok{  nobj }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(x)}
-\NormalTok{  ndim }\OtherTok{\textless{}{-}} \FunctionTok{ncol}\NormalTok{(x)}
-\NormalTok{  x }\OtherTok{\textless{}{-}} \FunctionTok{as.vector}\NormalTok{(x)}
-\NormalTok{  h }\OtherTok{\textless{}{-}} \FunctionTok{jacobian}\NormalTok{(numFunc, x, }\AttributeTok{nobj =}\NormalTok{ nobj, }\AttributeTok{ndim =}\NormalTok{ ndim, }\AttributeTok{wgth =}\NormalTok{ wgth, }\AttributeTok{delta =}\NormalTok{ delta, }\AttributeTok{opt =}\NormalTok{ opt )}
-  \FunctionTok{return}\NormalTok{(h)}
-\NormalTok{\}}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1001,6 +1357,9 @@ De Gruijter (1967)
 
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-clarke_75}
+Clarke, F. H. 1975. {``Generalized Gradients and Applications.''} \emph{Transactions of the American Mathematical Society} 205: 247--62.
+
 \bibitem[\citeproctext]{ref-degruijter_67}
 De Gruijter, D. N. M. 1967. {``{The Cognitive Structure of Dutch Political Parties in 1966}.''} Report E019-67. Psychological Institute, University of Leiden.
 
@@ -1012,6 +1371,15 @@ De Leeuw, J. 1977. {``Applications of Convex Analysis to Multidimensional Scalin
 
 \bibitem[\citeproctext]{ref-deleeuw_A_88b}
 ---------. 1988. {``Convergence of the Majorization Method for Multidimensional Scaling.''} \emph{Journal of Classification} 5: 163--80.
+
+\bibitem[\citeproctext]{ref-deleeuw_R_93c}
+---------. 1993. {``Fitting Distances by Least Squares.''} Preprint Series 130. Los Angeles, CA: UCLA Department of Statistics. \url{https://jansweb.netlify.app/publication/deleeuw-r-93-c/deleeuw-r-93-c.pdf}.
+
+\bibitem[\citeproctext]{ref-deleeuw_R_06b}
+---------. 2006. {``{Accelerated Least Squares Multidimensional Scaling}.''} Preprint Series 493. Los Angeles, CA: UCLA Department of Statistics. \url{https://jansweb.netlify.app/publication/deleeuw-r-06-b/deleeuw-r-06-b.pdf}.
+
+\bibitem[\citeproctext]{ref-deleeuw_E_19h}
+---------. 2019. {``{Convergence of SMACOF}.''} 2019. \url{https://jansweb.netlify.app/publication/deleeuw-e-19-h/deleeuw-e-19-h.pdf}.
 
 \bibitem[\citeproctext]{ref-deleeuw_heiser_C_77}
 De Leeuw, J., and W. J. Heiser. 1977. {``Convergence of Correction Matrix Algorithms for Multidimensional Scaling.''} In \emph{Geometric Representations of Relational Data}, edited by J. C. Lingoes, 735--53. Ann Arbor, Michigan: Mathesis Press.
@@ -1028,6 +1396,12 @@ Gilbert, P., and R. Varadhan. 2019. \emph{{numDeriv: Accurate Numerical Derivati
 \bibitem[\citeproctext]{ref-guttman_68}
 Guttman, L. 1968. {``{A General Nonmetric Technique for Fitting the Smallest Coordinate Space for a Configuration of Points}.''} \emph{Psychometrika} 33: 469--506.
 
+\bibitem[\citeproctext]{ref-kruskal_64a}
+Kruskal, J. B. 1964a. {``{Multidimensional Scaling by Optimizing Goodness of Fit to a Nonmetric Hypothesis}.''} \emph{Psychometrika} 29: 1--27.
+
+\bibitem[\citeproctext]{ref-kruskal_64b}
+---------. 1964b. {``{Nonmetric Multidimensional Scaling: a Numerical Method}.''} \emph{Psychometrika} 29: 115--29.
+
 \bibitem[\citeproctext]{ref-lange_16}
 Lange, K. 2016. \emph{MM Optimization Algorithms}. SIAM.
 
@@ -1040,6 +1414,9 @@ Le Thi, H. A., and P. D. Tao. 2001. {``D.c. Programming Approach to the Multidim
 \bibitem[\citeproctext]{ref-lethi_tao_24}
 ---------. 2024. {``Open Issues and Recent Advances in DC Programming and DCA.''} \emph{Journal of Global Optimization} 88: 533--90.
 
+\bibitem[\citeproctext]{ref-mair_deleeuw_wurzer_C_15}
+Mair, P., J. De Leeuw, and M. Wurzer. 2015. {``{Multidimensional Unfolding}.''} In \emph{Wiley {StatsRef}: Statistics Reference Online}, 1--4. Wiley.
+
 \bibitem[\citeproctext]{ref-mersmann_23}
 Mersmann, O. 2023. \emph{{microbenchmark: Accurate Timing Functions}}. \url{https://CRAN.R-project.org/package=microbenchmark}.
 
@@ -1049,8 +1426,8 @@ Meyer, R. R. 1976. {``{Sufficient Conditions for the Convergence of Monotonic Ma
 \bibitem[\citeproctext]{ref-ortega_rheinboldt_70}
 Ortega, J. M., and W. C. Rheinboldt. 1970. \emph{{Iterative Solution of Nonlinear Equations in Several Variables}}. New York, N.Y.: Academic Press.
 
-\bibitem[\citeproctext]{ref-ostrowski_66}
-Ostrowski, A. M. 1966. \emph{{Solution of Equations and Systems of Equations}}. New York, N.Y.: Academic Press.
+\bibitem[\citeproctext]{ref-ostrowski_73}
+Ostrowski, A. M. 1973. \emph{Solution of Equations in Euclidean and Banach Spaces}. Third Edition of Solution of Equations and Systems of Equations. Academic Press.
 
 \bibitem[\citeproctext]{ref-ram_sabach_24}
 Ram, N., and S. Sabach. 2024 (in press). {``A Globally Convergent Inertial First-Order Optimization Method for Multidimensional Scaling.''} \emph{Journal of Optimization Theory and Applications}, 2024 (in press).
