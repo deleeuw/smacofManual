@@ -1,5 +1,5 @@
 ---
-title: "Accelerated Least Squares Multidimensional Scaling"
+title: "Modifications of the smacof Algorithm for Multidimensional Scaling to Improve Convergence"
 author: 
 - Jan de Leeuw - University of California Los Angeles
 date: '`r paste("Started July 23 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
@@ -22,19 +22,20 @@ graphics: yes
 mainfont: Times New Roman
 fontsize: 12pt
 bibliography: ["mypubs.bib","total.bib"]
-abstract: We discuss a simple accelerations of MDS smacof iterations, and compare them with recent boosted difference-of-convex algortithms.
+abstract: We discuss a simple modifications/accelerations of MDS smacof iterations, and compare them with recent alternatives proposed in the literature.
 ---
 
 ```{r load code, echo = FALSE}
 data(ekman, package = "smacof")
 ekman <- as.matrix(1 - ekman)
+wgth <- 1 - diag(14)
 data(morse, package = "smacof")
 morse <- as.matrix(morse)
 source("gruijter.R")
 gruijter <- as.matrix(gruijter)
 source("smacofAccelerate.R")
 source("smacofUtils.R")
-source("smacofHessian.R")
+source("smacofDerivatives.R")
 source("smacofCompare.R")
 ```
 
@@ -79,7 +80,7 @@ Following @deleeuw_C_77 we define
 \end{equation}
 where
 \begin{equation}
-B(X):=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\frac{\delta_{ij}}{r_{ij}(X)}A_{ij},
+B(X):=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\delta_{ij}r_{ij}(X)A_{ij},
 (\#eq:bdef)
 \end{equation}
 with
@@ -106,21 +107,16 @@ Thus
 \sigma(X)=1-\rho(X)+\frac12\eta^2(X)=1-\text{tr}\ X'B(X)X+\frac12\text{tr}\ X'VX.
 (\#eq:sform)
 \end{equation}
-Both $B(X)$ and $V$ are positive semi-definite and doubly-centered. Because of the irreducibility of $W$ the matrix $V$ has rank $n-1$, with only the constant vectors in its null space.
-
-Both $\rho$ and $\eta$ are homogeneous convex functions, with $\eta$ being a
-norm on the space of column-centered configurations. The equations
-$d_{ij}(X)=0$ for all $(i,j)$ for which 
-$w_{ij}\delta_{ij}>0$ define a linear subspace of configuration space. If that
-subspace only contains the zero matrix then $\rho$ is a norm as well. 
+Both $B(X)$ and $V$ are positive semi-definite and doubly-centered. Because of the irreducibility of $W$ the matrix $V$ has rank $n-1$, with only the constant vectors in its null space. Both $\rho$ and $\eta$ are positively homogeneous convex functions, with $\eta$ being a norm on the space of column-centered configurations. 
 
 Note that $\rho$ is continuous, but it is not differentiable at $X$ if
 $d_{ij}(X)=0$ for some $(i,j)$ for which $w_{ij}\delta_{ij}>0$. Because
 \begin{equation}
-|d_{ij}(X)-d_{ij}(Y)|^2\leq\text{tr}\ (X-Y)'A_{ij}(X-Y)\leq 2p\|X-Y\|^2
+|d_{ij}(X)-d_{ij}(Y)|^2\leq\text{tr}\ (X-Y)'A_{ij}(X-Y)\leq 2\|X-Y\|^2
 (\#eq:lipschitz)
 \end{equation}
-we see that $\rho$, although not differentiable, is globally Lipschitz.
+we see that $\rho$, although not differentiable at some points, is globally 
+Lipschitz. $\eta^2$ is locally Lipschitz, and consequently so is $\sigma$.
 
 ## The Guttman Transform
 
@@ -176,30 +172,43 @@ It also follows that
 \partial\sigma(X)=VX-\partial\rho(X)
 (\#eq:sigsubdef)
 \end{equation}
-Since $\sigma$ is not convex the subdifferential in \@ref(eq:sigsubdef) is
+Since $\sigma$ is not convex the subdifferential $\partial\sigma(X)$ is
 the Clarke subdifferential (@clarke_75). 
 
-Now $X$ is a stationary point of $\sigma$ if $0\in\partial\sigma(X)$, i.e.
+Now $X$ is a Clarke stationary point of $\sigma$ if $0\in\partial\sigma(X)$, i.e.
 if and only if $X\in V^+\partial\rho(X)$. This means that stationary
-points are fixed points of the Guttman transform.
-A necessary condition for $\sigma$ to have a local minimum at $X$ is that $X$ is a stationary point. The condition is far from sufficient, however, since stationary points can also be saddle points or local maxima. @deleeuw_R_93c shows that stress
+points are generalized fixed points of the Guttman transform.
+A necessary condition for $\sigma$ to have a local minimum at $X$ is that $X$ is a Clarke stationary point. 
+The condition is far from sufficient, however, since stationary points can also be saddle points or local maxima. @deleeuw_R_93c shows that stress
 only has a single local maximum at the origin $X=0$, but generally there
 are many saddle points.
 
-This little excursion into convex analysis is rarely needed in practice. It is
-shown by @deleeuw_A_84f that a necessary condition for a local minimum at $X$
-is that $d_{ij}(X)>0$ for all $(i,j)$ for which $w_{ij}\delta_{ij}>0$. At those
-points $\sigma$ is differentiable, and thus the subdifferential 
-\@ref(eq:sigsubdef) is a singleton, containing only the gradient.
-We have $\nabla\rho(X)=B(X)X$ and $\nabla\sigma(X)=VX-B(X)X$.
-Stationary points satisfy $X=V^+B(X)X$.
+This little excursion into nonsmooth and convex analysis is rarely needed in practice. We 
+call a configuration $X$ *friendly* if $d_{ij}(X)>0$ for all $(i,j)$ for which $w_{ij}\delta_{ij}>0$. In @deleeuw_A_88b such configurations were called *usable*, but that seems somewhat misleading, because configurations which are not "usable" in this sense can sometimes even be optimal. Unfortunately the set of friendly configurations is far from convex. If $X$ is friendly, then so is $-X$, and halfway between the two is the zero configuration, which is very unfriendly.
 
-If $w_{ij}\delta_{ij}=0$ for some $(i,j)$ then there can be local minima
-where $\sigma$ is not differentiable. This typically happens in 
+The equation $d_{ij}(X)=0$, or equivalently
+$x_i=x_j$, defines a subspace of configuration space, and a configuration is
+friendly if it is not in the union of the subspaces for all $(i,j)$ for which 
+$w_{ij}\delta_{ij}=0$ (i.e. if it is in the intersection of their complements).
+
+Suppose $d_{ij}(X)>0$ and $d_{ij}(Y)>0$. There is an $\alpha$ sich that $d_{ij}(\alpha X+(1-\alpha)Y)=0$ iff $x_{is}-x_{js}=\lambda_{ij}(y_{is}-y_{js})$ with $\lambda_{ij}<0$.
+
+If $X$ is friendly then $X+\epsilon Y$ is friendly for $\epsilon$ small enough.
+
+If $X_1,\cdots,X_m$ are friendly then all $Y$ in their convex hull are a.s.
+friendly.
+
+If $X$ is friendly the rank of $B(X)$ is $n-1$. More importantly,
+it was shown by @deleeuw_A_84f that if $\sigma$ has local minimum at $X$
+then $X$ is friendly. At friendly configurations (and thus at local minima)
+$\sigma$ is differentiable, and the subdifferential 
+\@ref(eq:sigsubdef) is a singleton, containing only the gradient.
+Stationary points then satisfy $X=V^+B(X)X$.
+In the case in which $w_{ij}\delta_{ij}=0$ for some $(i,j)$, however, then there can be local minima where $\sigma$ is not differentiable. This happens, for example, in 
 multidimensional unfolding (@mair_deleeuw_wurzer_C_15).
 
 By the definition of the subdifferential $Z\in\partial\rho(X)$ implies $\rho(X)\geq\text{tr}\ Z'X$ and $\rho(Y)\geq\text{tr}\ Z'Y$ for all $Y$. If
-$d{ij}(X)>0$ this follows directly from the Cauchy-Schwartz inequality
+$d_{ij}(X)>0$ this follows directly from the Cauchy-Schwartz inequality
 \begin{equation}
 d_{ij}(Y)\geq d_{ij}^{-1}(X)\text{tr}\ X'A_{ij}Y.
 (\#eq:csineq)
@@ -209,10 +218,9 @@ Multiplying both sides by $w_{ij}\delta_{ij}$ and summing gives
 \rho(Y)\geq\text{tr}\ Y'B(X)X
 (\#eq:rhoineq)
 \end{equation}
-for all $Y$, with equality if $Y=X$. Not "if and only if", but just "if". We
-also have equality if $Y=\alpha X$ for some $\alpha\geq 0$.
+for all $Y$, with equality if $Y=X$. Note that we also have equality if $Y=\alpha X$ for some $\alpha\geq 0$, and more generally if for all $i<j$ with $w_{ij}\delta_{ij}(X)>0$ we have equality in \@ref(eq:csineq).
 
-Using the Guttman transform we can use \@ref(eq:rhioneq) as the basic smacof equality
+Using the Guttman transform we can use \@ref(eq:rhoineq) to derive the basic smacof equality
 \begin{equation}
 \sigma(X)=1+\eta^2(X-\Phi(X))-\eta^2(\Phi(X))
 (\#eq:smacofequality)
@@ -233,68 +241,32 @@ If $Y$ is not a fixed point of $\Phi$ then the second inequality in the
 chain is strict and thus $\sigma(\Phi(Y))<\sigma(Y)$. As we mentioned, the
 first inequality may not be strict.
 
-
 It also follows
 from \@ref(eq:sandwich) that $\eta^2(\Phi(Y))\leq 1$. Thus the Guttman
-transform of any configuration is in a convex and compact set, in fact an ellipsoid,
+transforms are all in a convex and compact set, in fact an ellipsoid,
 containing the origin.
 
+# Basic Iteration
 
-# One-point Iteration
-
-## Basic Iteration
+## Function Values
 
 The basic smacof algorithm generates the iterative sequence
 \begin{equation}
 X^{(k+1)}=\Phi(X^{(k)}),
 (\#eq:basic)
 \end{equation}
-where it is understood that we stop if $X^{(k)}$ is a fixed point. If
-$X^{(k)}$ is not a fixed point it follows from \@ref(eq:sandwich) that $\sigma(X^{(k+1)})<\sigma(X^{(k)})$.
+where it is understood that we stop iterating if $X^{(k)}$ is a fixed point. If
+$X^{(k)}$ is not a fixed point it follows from \@ref(eq:sandwich) that $\sigma(X^{(k+1)})<\sigma(X^{(k)})$. Thus, without any additional
+assumptions, and using basically only the Cauchy-Schwartz inequality, the algorithm either stops at a fixed point or produces a strictly decreasing sequence of loss function values. Since stress is bounded below by zero the sequence $\sigma(X^{k})$ converges to, say, $\sigma_\infty$.
 
-@deleeuw_A_88b derives some additional results. Using up-arrows and down-arrows
-to indicate monotone convergence we have
+It was clear from the beginning (@deleeuw_heiser_C_77) that the case $p=1$ is special. The 
+smacof algorithm always stops at a fixed point after a finite, and usually small, number of iterations. This is not as good as it sounds, because there are many (up to $n!$) local minima. The unidimensional problem (@mair_deleeuw_C_15) is essentially combinatorial, and requires a specialized treatment. In this paper we assume throughout that $p\geq 2$. 
 
-* $\rho(X^{(k)})\uparrow\rho_\infty$,
-* $\eta^2(X^{(k)})\uparrow\eta^2_\infty=\rho_\infty$,
-* $\sigma(X^{(k)})\downarrow\sigma_\infty=1-\rho_\infty$,
-
-and, last but not least, the sequence $\{X^{(k)}\}$ is *asymptotically regular*, i.e.
-\begin{equation}
-\eta^2(X^{(k+1)}-X^{(k)})\rightarrow 0.
-(\#eq:etaconv)
-\end{equation}
-Since the subdifferential is a upper semi-continuous (closed) map, and all iterates
-are in the compact set $\eta^2(X)\leq 1$, and $\Phi$ is strictly monotonic
-(decreases stress at non-fixed points), it follows from theorem 3.1 of @meyer_76 that
-all accumulation points are fixed points and have the same function value $\sigma_\infty$. Moreover, from theorem 26.1 of @ostrowski_73, either the sequence
-converges or the accumulation points form a continuum. 
-
-In order to prove actual convergence, additional conditions are needed.
-@meyer_76 proves convergence if the number of fixed points with function value $\sigma_\infty$ is finite, or if the sequence has an accumulation point that is an isolated fixed point. Both these conditions are not met in our case, because
-of rotational indeterminacy. If $X_\infty$ is a fixed point, then the
-continuum of rotations of $X_\infty$ are all fixed points.
-
-@deleeuw_A_88b argues that the results so far are sufficient from a 
-practical point of view. If we define an $\epsilon$-fixed-point as
-any $X$ with $\eta(X-\Phi(X))<\eta$ then smacof produces such an
-$\epsilon$-fixed-point in a finite number of steps. 
-
-In two very recent
-papers @ram_sabach_24 and @robini_wang_zhu_24 use the powerful Kurdyka-Łojasiewicz (KL) 
-framework (ref)
-to prove actual global convergence of smacof to a fixed point. We shall
-use a more classical approach, based on the differentiability of the Guttman 
-transform.
-
-
-## Majorization and DCA
-
-The original derivation of the smacof algorithm (@deleeuw_C_77, @deleeuw_heiser_C_77)
+The original derivation of the smacof algorithm (@deleeuw_C_77)
 used the theory of maximization a ratio of norms discussed by @robert_67. Later
 derivations (@deleeuw_heiser_C_80, @deleeuw_A_88b) used the fact that \@ref(eq:smacofinequality) defines a majorization scheme for stress. Convergence
 then follows from the general *majorization principle* (these days mostly known
-as the *MM principle*). A recent overview of the MM approach is @lange_16.
+as the *MM principle*), introduced in @deleeuw_C_94c. A recent overview of the MM approach is @lange_16.
 
 It was also realized early on that the smacof algorithm was a special case of the 
 the difference-of-convex functions algorithm (DCA), introduced by Pham Dinh Tao around 
@@ -302,200 +274,489 @@ the difference-of-convex functions algorithm (DCA), introduced by Pham Dinh Tao 
 Robert's fundamental ideas. Around 1985 he generalized his approach to minimizing
 DC functions of the form $h=f-g$, with both $f$ and $g$ convex. The basic idea
 is to use the subgradient inequality $g(x)\geq g(y)+z'(x-y)$, with $z\in\partial g(x)$,
-to construct the majorization $h(x):=f(x)-g(y)-z'(x-y)$. Now $h$ is obviously convex in $x$. The DC algorithm then chooses the successor of $y$ as the minimizer of this convex majorizer over $x$. In smacof the role of $f$ is played by $\eta^2$ and the role of $g$ by $\rho$. The convex subproblem in each step is quadratic, and has the closed form solution provided by the Guttman transform. DCA is applied to MDS in @lethi_tao_01, and extensive recent surveys of the DC/DCA approach are @lethi_tao_18 and @lethi_tao_24.
+to construct the majorization $h(x):=f(x)-g(y)-z'(x-y)$. Now $h$ is obviously convex in $x$. The DC algorithm then chooses the successor of $y$ as the minimizer of this convex majorizer over $x$. In smacof the role of $f$ is played by $\eta^2$ and the role of $g$ by $\rho$. DCA is applied to MDS in @lethi_tao_01. Extensive recent surveys of the DC/DCA approach are @lethi_tao_18 and @lethi_tao_24.
 
-## Rate of Convergence
+Thus the smacof algorithm is both MM and DCA, which means that it inherits all
+results that have been established for these more general classes of algorithms.
+But additional results can be obtained by using the special properties of
+the stress loss function and the smacof iterations. In the DCA context, for example, the convex subproblem that must be solved by smacof in each step is quadratic, and has the closed form solution provided by the Guttman transform. 
 
-In order to study the asymptotic rate of convergence of smacof, we have to 
-compute the Jacobian of the Guttman transform and its eigenvalues (@ortega_rheinboldt_70, chapter 10). Thus we assume we are in the neighborhood of a local minimum, where the Guttman transform is (infinitely many times) differentiable. The derivative is
+The loss function values are a bounded decreasing, and thus converging, sequence. @deleeuw_A_88b derives some additional smacof-specific results. Using up-arrows and down-arrows for monotone convergence 
+
+* $\rho(X^{(k)})\uparrow\rho_\infty$,
+* $\eta^2(X^{(k)})\uparrow\eta^2_\infty=\rho_\infty$,
+* $\sigma(X^{(k)})\downarrow\sigma_\infty=1-\rho_\infty$,
+
+and, last but not least, the sequence $\{X^{(k)}\}$ is *asymptotically regular*, i.e.
+\begin{equation}
+\omega^2(X):=\eta^2(X^{(k+1)}-X^{(k)})\rightarrow 0.
+(\#eq:etaconv)
+\end{equation}
+This last, very important, result follows because
+\begin{equation}
+\eta^2(X^{(k+1)}-X^{(k)})=\eta^2(X^{(k+1)})+\eta^2(X^{(k)})-2\rho(X^{(k)}),
+(\#eq:etanull)
+\end{equation}
+which converges to zero because $\eta^2_\infty=\rho_\infty$. 
+Note that these results are based completely on the Cauchy-Schwartz inequality and are consequently true for the general iteration $X^{(k+1)}\in V^+\partial\rho(X^{(k)})$, without assuming differentiability. 
+
+If 
+$$
+\partial\sigma(X^{(k)})=VX^{(k)}-\partial\rho(X^{(k)}) =V(X^{(k)}-X^{(k+1)})
+$$
+Consequently \@ref(eq:etaconv) can equivalently be written as
+$$
+\|\partial\sigma(X^{(k)})\|\rightarrow 0
+$$
+
+
+Strictly spoken, the results so far prove convergence of the scalar sequences
+$\{\rho(X^{(k)})\}, \{\eta^2(X^{(k)})\}$ and $\{\eta^2(X^{(k+1)}-X^{(k)})\}$ associated 
+with the iterations, and they do not prove convergence of the sequence 
+$X^{(k)}$. But in @deleeuw_A_88b I argue that these scalar convergence results are sufficient from a practical point of view. If we define an $\epsilon$-fixed-point as
+any configuration $X$ with $\eta(X-\Phi(X))<\epsilon$ then smacof produces such an
+$\epsilon$-fixed-point in a finite number of steps.
+
+Also, we can use the general convergence result in theorem 3.1 of @meyer_76
+to get results about $\{X^{(k)}\}$. Because
+
+* the subdifferential is a upper semi-continuous (closed) map, 
+* all iterates are in the compact set $\eta^2(X)\leq 1$, and 
+* $\Phi$ is strictly monotonic (decreases stress at non-fixed points), 
+
+it follows that the sequence $\{X^{(k)}\}$ has accumulation points 
+(converging subsequences) and that
+
+* all accumulation points are fixed points, and 
+* all accumulation points have the same function value $\sigma_\infty$. 
+
+Moreover, from asymptotic regularity and theorem 26.1 of @ostrowski_73, 
+
+* either the sequence $\{X^{(k)}\}$ converges or its accumulation points form a continuum
+  (a connected and compact set). 
+
+In order to prove actual Cauchy convergence, additional conditions are needed.
+@meyer_76 proves convergence if the number of fixed points with function value $\sigma_\infty$ is finite, or if the sequence has an accumulation point that is an isolated fixed point. Both these conditions are not met in MDS, because of rotational indeterminacy. If $X_\infty$ is a fixed point, then all elements of the continuum of rotations of $X_\infty$ are fixed points.
+
+It should also be mentioned that smacof can converge to stationary points that
+are not local minima (and thus saddle points). Suppose all weights are equal to one,
+$\delta_{12}>0$, and $\delta_{1j}=\delta_{2j}$ for all $j>2$. If $d_{12}(X)=0$ then also
+$d_{12}(\Phi(X))=0$, and $d_{12}(X)$ will be zero for all iterates, and thus for all subsequential limits, which consequently cannot be local minima. Another example
+uses the result that yet another necessary consition for a local minimum is that $X$ has full column rank. Suppose we start iterations at $(X\mid 0)$, i.e. $X$ with some columns of zeroes added. All
+updates will also have this form, and convergence again cannot be to a local minimum.
+This last example can be generalized to any $X$ with rank less than $p$, because
+all updates will then also have rank less than $p$. As a consequence if $q>p$ 
+all local minima for $p-$dimensional MDS are saddle points for $q-$dimensional MDS.
+
+In two very recent impressive papers @ram_sabach_24 and @robini_wang_zhu_24 use the powerful Kurdyka-Łojasiewicz (KL) framework (@bolte_daniilidis_lewis_07, @bolte_sabach_teboulle_14) to prove actual global convergence of the smacof iterates to a fixed point. We shall use the more classical local convergence analysis, based on the differentiability of the Guttman transform.
+
+We apply basic iterations to the two-dimensional MDS analysis of the classical color-circle example from @ekman_54, which has $n=14$ points. 
+In our numerical examples we always use weights equal to one. We always start with the classical Torgerson-Gower solution and we stop if
+$\sigma(X^{(k)})-\sigma(X^{(k+1)})<1e-15$. We distinguish $f-convergence$, which 
+happens if the stress value from one iteration to the next changes less than 
+a small $\epsilon$, and $x-convergence$, which happens if $\eta(\sigma(X^{(k)})-\sigma(X^{(k+1)})$ is less than another small $\epsilon$.
+
+```{r compute1, echo = FALSE, cache = FALSE}
+h1 <- smacofAccelerate(delta = ekman, wgth = wgth, opt = 1, halt = 0, epsf = 1e-15, verbose = 0)
+```
+The fit for the Ekman example is very good and convergence is rapid. 
+In iteration `r h1$itel`, the final iteration, stress is `r prettyNum(h1$s, digits = 15, format = "f")`. The change CHNG $\eta(X^{(k)}-X^{(k-1)})$ in the final iteraton is `r prettyNum(h1$chng, digits = 15, format = "f")`. The estimated asymptotic rate of convergence or *EARC* is
+the CHNG divided by the CHNG of the 
+previous iteration. In the final iteration of this analysis it is `r prettyNum(h1$labd, digits = 15, format = "f")`.
+
+## Asymptotic Rate of Convergence
+
+In order to study the asymptotic rate of convergence (ARC) of smacof, we have to 
+compute the derivative of the Guttman transform and its eigenvalues (@ortega_rheinboldt_70, chapter 10). Thus we assume we are in the neighborhood of a configuration where the Guttman transform is (infinitely many times) differentiable, for example near a local minimizer.
+
+The derivative of $\Phi$ at $X$, first given in @deleeuw_A_88b, is
+the linear transformation $\mathcal{D}\Phi_X$, mapping the space of column-centered
+$n\times p$ matrices into itself. Its value at matrix $H$ is equal to
 \begin{equation}
 \mathcal{D}\Phi_X(H)=V^+\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{A_{ij}H-\frac{\text{tr}\ X'A_{ij}H}{ \text{tr}\ X'A_{ij}X}A_{ij}X\right\}.
 (\#eq:jacobian)
 \end{equation}
 
-It follows that $\mathcal{D}\Phi_X(X)=0$ for all $X$ and the Jacobian has at least one
-zero eigenvalue. If we think of \@ref(eq:jacobian) as a map on the space
-of all $n\times p$ matrices, then there are an additional $p$ zero eigenvalues
+It follows that $\mathcal{D}\Phi_X(X)=0$ for all $X$ and the derivative has at least one
+zero eigenvalue. If we think of equation \@ref(eq:jacobian) as a linear transformation on the space of all $n\times p$ matrices, then there are an additional $p$ zero eigenvalues
 corresponding with translational invariance. If we define \@ref(eq:jacobian)
-on the column-centered matrices, then these eigenvalues disappear.
+on the space of column-centered matrices, then those zero eigenvalues disappear.
 
 If $S$ is anti-symmetric and
 $H=XS$ then $\text{tr}\ X'A_{ij}H=0$ and thus $\mathcal{D}\Phi_X(XS)=\Phi(X)S$.
-If in addition $X$ is a fixed point  then  $\mathcal{D}\Phi_X(XS)=XS$,
-which means $\mathcal{D}\Phi_X$ has $\frac12p(p-1)$ eigenvalues equal to one.
-These correspond to the rotational indeterminacy of the MDS problem and the
-smacof iterations.
+If in addition $X$ is a fixed point then  $\mathcal{D}\Phi_X(XS)=XS$,
+which means that at a fixed point $\mathcal{D}\Phi_X$ has $\frac12p(p-1)$ eigenvalues equal to one. These correspond to the rotational indeterminacy of the MDS problem and the
+smacof iterations. It also follows from $\mathcal{D}\Phi_X(XS)=\Phi(X)S$ that for all $X$ and all anti-symmetric $S$ the inner product $\text{tr}\ \Phi(X)'V\mathcal{D}\Phi_X(XS)$ is zero, i.e. $\Phi(X)$ is orthogonal to the $\frac12 p(p-1)$ dimensional subspace of all 
+$\mathcal{D}\Phi_X(XS)$.
 
-Since $\Phi(X)=V^+\mathcal{D}\rho(X)$ the Jacobian of the Guttman transform
-has a simple relationship with the second derivatives of $\rho$. Since 
-$\rho$ is convex, all eigenvalues of the Jacobian are real and
-nonnegative.
-
-We have the bilinear form 
+Since $\Phi(X)=V^+\mathcal{D}\rho(X)$ the derivative of the Guttman transform
+has a simple relationship with the second derivatives of $\rho$. 
+The second derivative, again from @deleeuw_A_88b, is giuven  by the quadratic form
 \begin{equation}
-\mathcal{D}^2\rho_X(G,H)=\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{\text{tr}\ G'A_{ij}H-\frac{\text{tr}\ G'A_{ij}X\text{tr}\ H'A_{ij}X}{d_{ij}^2(X)}\right\}=\text{tr}\ G'V\mathcal{D}\Phi_X(H).
+\mathcal{D}^2\rho_X(H,H)=\sum w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\left\{\text{tr}\ H'A_{ij}H-\frac{(\text{tr}\ H'A_{ij}X)^2}{d_{ij}^2(X)}\right\}.
 (\#eq:hessian)
 \end{equation}
-It follows that
+Since $\rho$ is convex, all eigenvalues of $\mathcal{D}^2\rho_X$, and thus of $\mathcal{D}\Phi_X$, are real and
+nonnegative. It also follows that if $G$ and $H$ are eigenvectors
+of $\mathcal{D}\Phi_X$ with different eigenvalues then $\text{tr}\ G'VH=0$. In addition we see from equation \@ref(eq:hessian) that
 $0\lesssim\mathcal{D}^2\rho_X\lesssim B(X)$
-in the Loewner sense. Of course
-$\mathcal{D}^2\sigma_X=V-\mathcal{D}^2\rho_X$
-At a local minimum $\mathcal{D}^2\sigma_X\gtrsim 0$, and consequently
-$\mathcal{D}\Phi_X\lesssim I$. Thus all eigenvalues of the Jacobian at a local minimum are between zero and one.
+in the Loewner sense. Since
+$\mathcal{D}^2\sigma_X=V-\mathcal{D}^2\rho_X$, and we have
+$\mathcal{D}^2\sigma_X\gtrsim 0$ at a local minimum, it follows that
+$\mathcal{D}\Phi_X\lesssim I$. Thus all eigenvalues of the derivative $\mathcal{D}\Phi_X$ at a local minimum $X$ are between zero and one.
 
-We compute and store the Jacobian as a partitioned matrix with $p$ rows and columns
-of the $n\times n$ matrices $\mathcal{D}_t\Phi_s(X)$, with $\Phi_s(X)$ column
-$s$ of $X$. 
-$$
-\mathcal{D}^2\rho_X(e_ke_s',e_le_t')=
-\delta^{st}\{B(X)\}_{kl}-\{U_{st}(X)\}_{kl}
-$$
-$$
-U_{st}(X)=\sum w_{ij}\delta_{ij}\frac{(x_{is}-x_{js})(x_{it}-x_{jt})}{d_{ij}^3(X)}A_{ij}
-$$
+We compute the Jacobian corresponding to the derivative $\mathcal{D}\Phi_X$ in two ways. First with a loop over $i=1,\cdots,n$ and $s=1,\cdots,p$ by  
+setting $H$ equal to each $e_i^{\ }e_s'$ in turn in formula \@ref(eq:jacobian). Second, just to be sure, by using the jacobian function from the numDeriv package (@gilbert_varadhan_19). If the
+two results agree, we use the one based on \@ref(eq:jacobian).
 
-We apply basic iterations to the two-dimensional MDS analysis of the color-circle example from @ekman_54, which has
-$n=14$ points. We always start with the classical Torgerson-Gower
-solution and we stop if
-$\sigma(X^{(k)})-\sigma(X^{(k+1)})<1e-15$. The fit in this example is very good and convergence is rapid. The
-results for the final iteration are
-```{r compute1, echo = FALSE, cache = TRUE}
-h1 <- smacofAccelerate(ekman, opt = 1, halt = 0, epsf = 1e-15, verbose = 1)
+The eigenvalues of the derivative $\mathcal{D}\Phi_X$ at the solution are
+
+```{r evalf1, echo = FALSE}
+jacobf1 <- smacofBasicJacobianFormula(h1$x, h1$delta, h1$wgth)
+smacofMatrixPrint(Re(eigen(jacobf1)$values))
 ```
-In this output "chng" is $\eta(X^{(k)}-X^{(k+1)})$, and "labd" is an estimate
-of the asymptotic convergence ratio, the "chng" divided by the "chng" of the 
-previous iteration. To fifteen decimals stress is `r prettyNum(h1$s, digits = 15, format = "f")`
+Note that the largest non-trivial eigenvalue, which is another and usually better 
+estimate of the ARC, is equal to the EARC in the final iteration.
 
-We compute the Jacobian using the numDeriv package (@gilbert_varadhan_19). Its eigenvalues are
-```{r eval1, echo = FALSE}
-jacob1 <- numHess(h1$x, h1$delta, h1$wgth, opt = 1)
-mPrint(Re(eigen(jacob1)$values))
-```
-Note that the second largest and first non-trivial
-eigenvalue is equal to "labd" from the final iteration.
+## Modifications
 
-## Orthogonalized Iteration
+As @deleeuw_A_88b mentions, we cannot directly apply the basic point-of-attraction theorem 10.1.3 and the equally basic linear convergence theorem 10.1.4 from @ortega_rheinboldt_70, because at a fixed point of smacof there are $\frac12 p(p-1$ eigenvalues equal to one. 
 
-As @deleeuw_A_88b mentions, we cannot apply the basic point-of-attraction theorem 10.1.3 and the linear convergence theorem 10.1.4 from @ortega_rheinboldt_70, because there are these $\frac12 p(p-1$ eigenvalues equal to one. 
+$$\Xi(X)=\Pi(\Phi(X))$$
+$$
+\mathcal{D}\Xi_X(H)=\mathcal{D}\Pi_{\Phi(X)}(D\Phi_X(H))
+$$
+$$
+\Xi(X)=\Pi(X,\Phi(X))
+$$
+$$
+\mathcal{D}\Xi_X(H)=\Pi(X+H,\Phi(X)+\mathcal{D}\Phi_X(H))=\mathcal{D}_1\Pi_{X,\Phi(X)}(H)+
+\mathcal{D}_2\Pi_{X,\Phi(X)}(\mathcal{D}\Phi_X(H)).
+$$
+
+# Orthogonalization
+
+## Modification
+
 
 One way around this problem (@deleeuw_E_19h) is to rotate each update to orthogonality,
-i.e. to principal components. Thus the update formula becomes $\Xi(X)=\Pi(\Phi(X))$, 
-$\Pi(X)=XL$, where $L$ are the right singular vectors of $X$.
+i.e. to principal components. Thus the update formula becomes $\Xi(X)=\Pi(\Phi(X))$, with $\Pi(X)=XL$, where $L$ are the right singular vectors of $X$. The reasoning is simple.
+If $\Omega$ is any differentiable mapping with $\Omega(XK)=\Omega(X)K$ for all orthonormal
+$K$ then $\mathcal{D}\Omega_X(XA)=XA$ for all anti-symmetric $A$. But if 
+$\Omega(XK)=\Omega(X)$ for all orthonormal $K$ then $\mathcal{D}\Omega_X(XA)=0$ for all
+anti-symmetric $A$.
 
-We compute the Jacobian of $\Xi$. By the chain rule
-$$
-\mathcal{D}\Xi_X(H)=\mathcal{D}\Pi_{\Phi(X)}(\mathcal{D}\Phi_X(H))
-$$
-If $X'XL=L\Lambda$ with $L'L=LL'=I$, assuming the eigenvalues in
-$\Lambda$ are all different,
-$$
-\mathcal{D}\Pi_X(H)=HL+XLS\\
-$$
-where $S$ is the anti-symmetric matrix with elements
-$$
-s_{ij}=-\frac{l_i'(H'X+X'H)l_j}{\lambda_i-\lambda_j}
-$$
+With orthogonality restrictions we can expect isolated local minima, where the
+largest eigenvalue of the algorithmic map is strictly less than one. Such
+local minima are points of attraction, which means convergence to that point
+if the iterations get close enough. It also means that if we assume that
+there is only a finite number of these orthogonal stationary points, then
+the smacof algorithm converges globally to one of them.
 
-Thus, from ... and ...
-$$
-\mathcal{D}\Xi_X(H)=\mathcal{D}\Phi_X(H)L+\Phi(X)LS
-$$
-with $L$ and $S$ computed at $\Phi(X)$. 
+## Function Values 
 
-At a fixed point of $\Xi$ we have $\Phi(X)=X$ and $\Pi(X)=X$ and consequently
-$L=I$ and $X'X=\Lambda$. Thus ... becomes
-$$
-\mathcal{D}\Xi_X(H)=\mathcal{D}\Phi_X(H)+XS
-$$
-where now
-$$
-s_{ij}=-\frac{(H'X+X'H)_{ij}}{\lambda_i-\lambda_j}
-$$
-If $H=XA$ with $A$ anti-symmetric then
-$$
-\mathcal{D}\Xi_X(XA)=XA+XS
-$$
-$$
-s_{ij}=-\frac{(A'\Lambda+\Lambda A)_{ij}}{\lambda_i-\lambda_j}=-a_{ij}
-$$
-Thus $\mathcal{D}\Xi_X(XA)=0$.
+This modified algorithm generates the same sequence of 
+$\rho$,  $\eta$, and $\sigma$ values as basic smacof. 
 
-### end intermezzo
+But $\mathfrak{e}$ is a different sequence
+In fact $\mathfrak{e}(XL)=\eta^2(X)+\eta^(\Phi(X))-2\ \text{tr}\ X'V\Phi(X)
 
-Now clearly this modified algorithm generates the same sequence of 
-function values as basic smacof. Moreover $\Phi^n(X)=\Pi(\Phi^n(X))$,
-which means that we can find any term of the orthogonal sequence
+Moreover $\Xi^n(X)=\Pi(\Phi^n(X))$,
+which means that we can find any term of the orthogonalized sequence
 by orthogonalizing the corresponding term in the basic sequence.
 Thus, in actual computation, there is no need to orthogonalize, we
 may as well compute the basic sequence and orthogonalize after
 convergence.
 
-Theoretically, however, orthogonalization gives the same 
-convergence rate as the basic sequence, but the Jacobian
-of $\Phi_o$ at a local minimum does not have the unit
+```{r compute3, echo = FALSE, cache = FALSE}
+h3 <- smacofAccelerate(ekman, wgth = wgth, opt = 3, halt = 0, epsf = 1e-15, verbose = 0)
+```
+In iteration `r h3$itel`, the final iteration, stress is `r prettyNum(h3$s, digits = 15, format = "f")`. The CHNG is `r prettyNum(h3$chng, digits = 15, format = "f")` and the EARC is `r prettyNum(h3$labd, digits = 15, format = "f")`. 
+
+## Asymptotic Rate of Convergence
+
+Reference: @deleeuw_B_21, section 5.4.5.2, @deleeuw_E_19h
+
+Suppose the singular value decomposition of $X$ is $X=K\Lambda L'$.
+We transform $X$ to $\Pi(X)=XL=K\Lambda$. 
+
+Thus  ref
+\begin{equation}
+\mathcal{D}\Pi_X(H)=HL+K\Lambda S.
+(\#eq:finalpca)
+\end{equation}
+where $S$ is anti-symmetric, with off-diagonal elements
+\begin{equation}
+s_{ij}=-\frac{\lambda_i u_{ij}+\lambda_j u_{ji}}{\lambda_i^2-\lambda_j^2},
+(\#eq:spca)
+\end{equation}
+where $U:= K'HL$.
+
+If $X$ is orthogonal, then $L=I$ and $X'X=\Lambda^2$. 
+
+* If $H=XA$ then $U=\Lambda L'AL$, $\Lambda U=\Lambda^2 L'AL$ and
+$U'\Lambda=L'A'L\Lambda^2$. If $A$ is anti-symmetric then
+$\Lambda U+U'\Lambda=\Lambda^2 L'AL-L'AL\Lambda^2$
+and $\{\Lambda U+U'\Lambda\}_{ij}=(\lambda_i^2-\lambda_j^2)\{L'AL\}_{ij}$.
+Thus $S=-L'AL$ and $\mathcal{D}\Pi_X(XA)=0$.
+
+* If $H=K\Lambda^{-1}A$ with $A$ anti-symmetric, then 
+$U=\Lambda^{-1}AL$
+$\Lambda U+U'\Lambda=AL+L'A'$ 
+If $L=I$ then $S=0$.
+
+* If $H=K\Lambda^{-1}D$ with $D$ diagonal, then $U=\Lambda^{-1}DL$
+and $\Lambda U+U'\Lambda=DL+L'D$. If $L=I$ this is diagonal, and
+thus $S=0$.
+
+
+Also
+$XS=0$ if and only if $S=0$ if and only if $\text{nondiag}(X'H)$ is
+anti-symmetric. Thus true for $H=X_\perp B$ as well as for
+$H$ with $X'H$ us diagonal. If $H=XU$ then $l_i'(H'X+X'H)l_j-
+$\{U'\Lambda+\Lambda U\}_{ij}=u_{ji}\lambda_j+\lambda_iu_{ij}$
+Eigenvalues of $\mathcal{D}\Pi_X(H)$. $XL=K\Lambda^\frac12$ $H=K\Lambda^\frac12 A+K_\perp B$.
+
+$$
+L'(H'X+X'H)L
+$$
+$X=K\Lambda L'$ $H=KAL'+K_\perp BL'$ $L'X'HL=\Lambda A$ $\Lambda A+A\Lambda=0$
+
+We next compute the derivative of $\Xi$. By the chain rule
+\begin{equation}
+\mathcal{D}\Xi_X(H)=\mathcal{D}\Pi_{\Phi(X)}(\mathcal{D}\Phi_X(H)).
+(\#eq:chain)
+\end{equation}
+Thus, from equations \@ref(eq:chain) and \@ref(eq:finalpca)
+\begin{equation}
+\mathcal{D}\Xi_X(H)=\mathcal{D}\Phi_X(H)L+\Phi(X)LS
+(\#eq:xideriv)
+\end{equation}
+with $L$ and $S$ computed from the singular value decomposition of $\Phi(X)$. 
+
+At a fixed point of $\Xi$ we have both $\Phi(X)=X$ and $\Pi(X)=X$, and consequently
+$L=I$ and $X'X=\Lambda$. (Is this true ? We could have $\Phi(X)=XK$, because then
+still $\Xi(X)=X$)
+
+Equation \@ref(eq:xideriv) becomes
+\begin{equation}
+\mathcal{D}\Xi_X(H)=\mathcal{D}\Phi_X(H)+XS,
+(\#eq:xiderivfixed)
+\end{equation}
+where now
+\begin{equation}
+s_{ij}=-\frac{(H'X+X'H)_{ij}}{\lambda_i-\lambda_j}.
+(\#eq:sdeffixed)
+\end{equation}
+
+At a fixed point $X$ the eigenvectors $H$ of $\mathcal{D}\Phi_X$ with eigenvalue one are of the form $H=XA$ with $A$ any anti-symmetric matrix.  From \@ref(eq:xiderivfixed)
+\begin{equation}
+\mathcal{D}\Xi_X(XA)=XA+XS,
+(\#eq:xiderivasym)
+\end{equation}
+where
+\begin{equation}
+s_{ij}=-\frac{(A'\Lambda+\Lambda A)_{ij}}{\lambda_i-\lambda_j}=-a_{ij}.
+(\#eq:sdefasym)
+\end{equation}
+Thus $\mathcal{D}\Xi_X(XA)=0$ and the unit eigenvalue has been replaced by a 
+zero eigenvalue.
+
+Moreover, at a fixed point $X$ of $\Phi$, if $H$ is an eigenvector of $\mathcal{D}\Phi_X$ with eigenvalue $\lambda<1$, then $H+\lambda^{-1}XS$ is an eigenvector of $\mathcal{D}\Xi_X$ with eigenvalue $\lambda$. This follows from
+\begin{equation}
+\mathcal{D}\Xi_X(H+\lambda^{-1}XS)=\mathcal{D}\Xi_X(H)=\lambda H+XS=\lambda(H+\lambda^{-1}XS).
+(\#eq:evaltrans)
+\end{equation}
+Thus, except for the trivial unit eigenvalue which becomes zero, both sets of eigenvalues are the same, and so is the ARC.
+
+$$
+\mathcal{D}\Xi_X(H)=\mathcal{D}\Phi_X(H)+XS
+$$
+$$
+\mathcal{D}\Xi_X(X)=\mathcal{D}\Phi_X(X)+XS=XS
+$$
+
+If $\mathcal{D}\Phi_X(H)=\lambda H$ then
+$$
+\text{tr}\ X'V\mathcal{D}\Xi_X(H)=\lambda\ \text{tr}\ X'VH+\text{tr}\ X'VXS=0
+$$
+
+
+which implies $\lambda = 1$.
+The eigenvalues of the Jacobian are
+
+```{r eval3, echo = FALSE}
+jacob3 <- smacofPCAJacobianFormula(h3$x, h3$delta, h3$wgth)
+smacofMatrixPrint(Re(eigen(jacob3)$values))
+```
+
+Orthogonalization gives the same 
+EARC as the basic sequence, but the Jacobian
+of $\Xi$ at a local minimum does not have the unit
 eigenvalues any more. They are replaced by zeroes, reflecting
 the fact that we are iterating on the nonlinear manifold
-or orthogonal column-centered matrices. It is now sufficient
-for linear convergence to assume that the largest
+or orthogonal column-centered matrices. 
+
+It is now sufficient for local linear convergence to assume that the largest
 eigenvalue of the Jacobian at the solution is strictly
 less than one, or alternatively assume that one of the accumulation
 points is an isolated local minimum.
 
+# Subspace Rotation
 
+## Modification
 
-
-```{r compute3, echo = FALSE, cache = TRUE}
-h3 <- smacofAccelerate(ekman, opt = 3, halt = 0, epsf = 1e-15, verbose = 1)
-```
-
-```{r eval3, echo = FALSE}
-jacob3 <- numHess(h3$x, h3$delta, h3$wgth, opt = 3)
-mPrint(Re(eigen(jacob3)$values))
-```
-
-$$
-\Phi^o(X)=\Phi(X)K(\Phi(X))
-$$
-
-## Subspace Restrictions
-
-Instead of orthogonalizing we can also restrict $X$ to be in the subspace
+Instead of orthogonality we can also require $X$ to be in the subspace
 of all lower triangular column-centered $n\times p$ matrices (which means $x_{ij}=0$
-for all $i<j$). There are two different ways to accomplish this.
+for all $i<j$). This also identifies $X$ in the manifold of rotated solutions.
 
-Method one uses a rotation of $X$ to lower triangular form. The theory
-is pretty much the same as for the rotation to principal components
+In subspace rotation we use a rotation of $X$ to lower triangular form. We use the same
+notation as in the previous section, overloading some symbols. The transformation
+of the update is again $\Pi$ and the transformed update is $\Xi$. Thus $\Xi(X)=\Pi(\Phi(X))$. 
+
+Suppose $X_1$ are the first $p$ rows of $X$, and $X_1'=QR$ is the QR-decomposition
+of the transpose. Thus $Q$ is square orthonormal and $R$ is upper triangular.
+Then $X_1Q=R'Q'Q=R'$, which is lower triangular, as desired. 
+Note that the transformation to lower triangular form only uses the first
+$p$ rows of $X$, and does not depend on the other $(n - p)\times p$
+elements.
+
+## Function Values
+
+The results are pretty much the same as for the rotation to principal components
 in the previous section.
 
-```{r compute2, echo = FALSE, cache = TRUE}
-h2 <- smacofAccelerate(ekman, opt = 2, halt = 0, epsf = 1e-15, verbose = 1)
+```{r compute2, echo = FALSE, cache = FALSE}
+h2 <- smacofAccelerate(ekman, opt = 2, halt = 0, epsf = 1e-15, verbose = 0)
 ```
-The results are the same as for the basis sequence, as predicted. The eigenvalues of the Jacobian are
-```{r eval2, echo = FALSE}
-jacob2 <- numHess(h2$x, h2$delta, h2$wgth, opt = 2)
-mPrint(Re(eigen(jacob2)$values))
-```
-The unit eigenvalues from the unrotated solution have been replaced by zeroes.
+In iteration `r h2$itel`, the final iteration, stress is `r prettyNum(h2$s, digits = 15, format = "f")`. CHNG $\eta(X^{(k)}-X^{(k+1)})$ is `r prettyNum(h2$chng, digits = 15, format = "f")` and EARC is `r prettyNum(h2$labd, digits = 15, format = "f")`.
 
-Method two uses the theory of constrained smacof from @deleeuw_heiser_C_80. This
-means computing the Guttman update and then projecting it on the subspace of
-lower triangular matrices. We create $p$ column-centered matrices $Y_s$, of dimension $n\times(n-s)$, that satisfy $Y_s'VY_s=I$ and have their first $s-1$ rows equal to zero. Now column $s$ of $X$ is restricted to be of the form $x_s=Y_s\theta_s$. 
-$$
-x_s^{(k+1)}=Y_sY_s'V\{\Phi(X^{(k)})\}_s
-$$
+## Asymptotic Rate of Convergence
 
-
-# Two Point Iteration
-
-## Basic
-
-@deleeuw_heiser_C_80 suggested the "relaxed" update
+To compute the derivative of $\Pi$ we first compute the derivative of the 
+QR decomposition of a square non-singular matrix $X$, using the results of 
+@deleeuw_E_23a.  Perturb $X=QR$, with Q square orthonormal and R upper
+triangular, to $X+H=(Q+P)(R+S)$. Collecting the first order terms gives 
 \begin{equation}
-\Psi(X):=2\Phi(X)-X
+H=QS+PR.
+(\#eq:qrfirst)
 \end{equation}
-The reasoning here is two-fold. First, the smacof inequality \@ref(eq:smacofinequality) says
+Because $(Q+P)'(Q+P)=I$ we see that $Q'P+P'Q=0$, and thus $P=QA$ with
+$A$ anti-symmetric.
 \begin{equation}
-\sigma(X)\leq 1+\eta^2(X-\Phi(Y))-\eta^2(\Phi(Y))
+H=QS+QAR.
+(\#eq:qrsecond)
+\end{equation}
+Pre-multiplying by $Q'$ and post-multiplying by $R^{-1}$ gives
+\begin{equation}
+A=Q'HR^{-1}-SR^{-1}
+(\#eq:qrthird)
+\end{equation}
+Both $S$ and $R^{-1}$ are upper triangular, and so is their product. Suppose $\text{lt}$
+replaces the upper triangular part (including the diagonal) of a matrix by zeroes. Then, from \@ref(eq:qrthird), 
+\begin{equation}
+\text{lt}(A)=\text{lt}(Q'HR^{-1})
+(\#eq:qrfourth)
+\end{equation}
+and by anti-symmetry the upper-triangular part of $A$ is minus the transpose of $\text{lt}(A)$.
+This gives the derivative 
+\begin{equation}
+\mathcal{D}Q_X(H)=QA.
+(\#eq:qrfifth)
+\end{equation}
+
+In our rotation procedure we apply QR to $X_1$, which is the transpose of the leading $p\times p$ submatrix of the $n\times p$ matrix $X$ (assumed to be non-singular). Let $H_1$
+be the transpose of the corresponding submatrix of $H$. Then \ref(eq:qrfifth) applies with $Q$ and $A$ computed at $X_1$ and $H_1$. Thus
+$$
+\mathcal{D}\Pi_X(H)=HQ+XQA
+$$
+(Eigenvalues Jacobian one zero, one negative (equal to trace), 13 minus one, 13 plus one)
+
+and thus
+$$
+\mathcal{D}\Xi_X(H)=\mathcal{D}\Pi_{\Phi(X)}(D\Phi_X(H))=HQ+\Phi(X)QA
+$$
+with $Q$ and $A$ now computed at the submatrices 
+$\{\Phi(X)\}_1$ and $\{D\Phi_X(H)\}_1$.
+
+At a fixed point $\Phi(X)=X$ and both $Q=I$ and $R=I$. Thus
+$$
+\mathcal{D}\Xi_X(H)=H+XA.
+$$
+
+# Subspace Restriction
+
+## Modification
+
+Method two uses the theory of constrained smacof of @deleeuw_heiser_C_80. In this case this means computing the Guttman update and then projecting it on the subspace of
+lower triangular matrices. We create $p$ column-centered matrices $Y_s$, $s=1,\cdots,p$, of dimension $n\times(n-s)$, that satisfy $Y_s'VY_s=I$ and have their first $s-1$ rows equal to zero. Now column $s$ of $X$ is restricted to be of the form $x_s=Y_s\theta_s$. The
+transformation $\Pi$, for dimension $s$, is
+\begin{equation}
+\Pi(X)_s=Y_sY_s'Vx_s
+(\#eq:subspace)
+\end{equation}
+
+Alt: Minimize
+$$
+\text{tr}\ (X_1-Y_1)'V_{11}(X_1-Y_1)+2\text{tr}\ (X_1-Y_1)'V_{12}(X_2-Y_2)+\text{tr}\ (X_2-Y_2)'V_{22}(X_2-Y_2)
+$$
+requiring that $Y_1$ is upper-triangular. Now
+$$
+X_2-Y_2=V_{22}^{-1}V_{21}(X_1-Y_1)
+$$
+and thus it suffices to minimize
+$$
+\text{tr}\ (X_1-Y_1)'V_{1|2}(X_1-Y_1)
+$$
+with $V_{1|2}$ the Schur complement $V_{11}-V_{12}V_{22}^{-1}V_{21}$ over upper-triangular $Y$. 
+
+Alt: direct
+
+$$
+d_{ij}(\theta)=\sqrt{\sum_{s=1}^p\theta_s'Y_s'A_{ij}Y_s\theta_s}.
+$$
+$$
+\rho(\theta)=\theta_s'Y_s'B(\theta)Y_s\theta_s\geq\theta_s'Y_s'B(\tilde\theta)Y_s\tilde\theta_s.
+$$
+$$
+\theta_s^{(k+1)}=Y_s'B(\theta^{(k)})Y_s\theta_s^{(k)}
+$$
+
+## Function Values
+
+The subspace restrictions have a devastating effect on the rate of convergence of
+the smacof iterations.
+
+```{r compute4, echo = FALSE, cache = FALSE}
+h4 <- smacofAccelerate(delta = ekman, wgth = wgth, opt = 4, halt = 0, epsf = 1e-15, verbose = 0)
+```
+Although the final stress is the correct `r prettyNum(h4$s, digits = 15, format = "f")`,
+and the final CHNG is `r prettyNum(h4$chng, digits = 15, format = "f")`, it takes
+`r h4$itel` iterations and the EARC is `r prettyNum(h4$labd, digits = 15, format = "f")`.
+
+## Asymptotic Rate of Convergence
+
+In this case computing the derivatives of \@ref(eq:subspace) is very simple indeed. We
+
+
+```{r eval4f, echo = FALSE}
+jacob4f <- smacofYbasJacobianFormula(h4$x, h4$delta, h4$wgth)
+smacofMatrixPrint(Re(eigen(jacob4f)$values))
+```
+
+# Relaxed
+
+## Modification
+
+@deleeuw_heiser_C_80 first suggested the "relaxed" update
+\begin{equation}
+\Psi(X):=2\Phi(X)-X.
+(\#eq:relax)
+\end{equation}
+The reason for recommending \@ref(eq:relax) is two-fold. First, the smacof inequality \@ref(eq:smacofinequality) says
+\begin{equation}
+\sigma(X)\leq 1+\eta^2(X-\Phi(Y))-\eta^2(\Phi(Y)).
+(\#eq:smaineq)
 \end{equation}
 If $X=\alpha\Phi(Y)+(1-\alpha)Y$ then this becomes
 \begin{equation}
@@ -508,68 +769,93 @@ If $(1-\alpha)^2\leq 1$ then
 Thus updating with $X^{(k+1)}=\alpha\Phi(X^{(k)})+(1-\alpha)X^{(k)}$ is a stricly
 monotone algorithm as long as $0\leq\alpha\leq 2$.
 
-The second reason for choosing the relaxed update given by @deleeuw_heiser_C_80
+But if $\alpha=2$ an $Y=\lambda X$ !!
+
+The second reason for choosing the relaxed update \@ref(eq:relax) given by @deleeuw_heiser_C_80
 is that its asymptotic convergence rate is 
 \begin{equation}
 \max_s|2\lambda_s-1|=\max(2\lambda_{\text{max}}-1,1-2\lambda_{\text{min}}).
 \end{equation}
 @deleeuw_heiser_C_80 then somewhat carelessly assume that this is equal to
 $2\lambda_{\text{max}}-1$ and argue that if $\lambda_{\text{max}}=1-\epsilon$
-with $\epsilon$ small then 
+with $\epsilon$ small, as it usually is in MDS,  then 
 \begin{equation}
 2\lambda_{\text{max}}-1=1-2\epsilon\approx(1-\epsilon)^2=\lambda_{\text{max}}^2,
 \end{equation}
 so that the relaxed update requires approximately half the number of iterations of the
 basic update. Despite the somewhat sloppy reasoning, the approximate halving of the number of iterations is often observed in practice. 
 
-It turns out (@deleeuw_R_06b), however, that applying the relaxed update
-has some unintended consequences, which basically imply that it should never
-be used without some additional computation. Let's take a look at the
-Ekman results.
-```{r compute4, echo = FALSE, cache = TRUE}
-h4 <- smacofAccelerate(ekman, opt = 4, halt = 0, epsf = 1e-15, verbose = 1)
-```
-The loss function value decreases. The number of iterations is reduced from 57 to 23.
-But we see that $\eta^2(X^{(k+1)}-X^{(k)})$ does not converge to zero, and that $\sigma_k$ converges to a value which does not even correspond to a local minimum of $\sigma$.
+## Function Values
 
-The eigenvalues of the Jacobian are 
-```{r eval4, echo = FALSE}
-jacob4 <- numHess(h4$x, h4$delta, h4$wgth, opt = 4)
-mPrint(Re(eigen(jacob4)$values))
+It turns out (@groenen_glunt_hayden_96, @deleeuw_R_06b), however, that applying the relaxed update
+has some unintended consequences, which basically imply that it should never
+be used without additional precautions. Let's take a look at the
+Ekman results.
+```{r compute5, echo = FALSE, cache = FALSE}
+h5 <- smacofAccelerate(ekman, opt = 5, halt = 0, epsf = 1e-15, verbose = 1)
 ```
+In iteration `r h5$itel`, the final iteration, stress is `r prettyNum(h5$s, digits = 15, format = "f")`. The "change" $\eta(X^{(k)}-X^{(k+1)})$ is `r prettyNum(h5$chng, digits = 15, format = "f")` and the estimate
+of the asymptotic convergence ratio, the "change" divided by the "change" of the 
+previous iteration, is `r prettyNum(h5$labd, digits = 15, format = "f")`.
+
+The loss function values converge and the number of iterations is reduced from 57 to 23.
+But we see that $\eta(X^{(k+1)}-X^{(k)})$ does not converge to zero, and that $\sigma_k$ converges to a value which does not correspond to a local minimum of $\sigma$.
+
+
 
 If we check the conditions of theorem 3.1 in @meyer_76 we see that, although the 
 algorithmic map is closed and the iterates are in a compact set, $\Psi$
-is not strictly monotone at some non-fixed points. Suppose $X$ is a fixed point and  $\tau\not= 1$. Then
-$\tau\overline{X}$ is not a fixed point, because 
+is not strictly monotone at some non-fixed points. The problem was first discussed
+in @groenen_glunt_hayden_96. Suppose $X$ is a fixed point and  $\tau\not= 1$. Then
+$\tau\overline{X}$ is not a fixed point of $\Psi$, because 
 $\Psi(\tau\overline{X})=(2-\tau)\overline{X}$. And
 \begin{equation}
 \sigma(\tau\overline{X})=1-\tau\rho(\overline{X})+\frac12\tau^2\eta^2(\overline{X})=
 1-\frac12\tau(2-\tau)\rho(\overline{X})=\sigma((2-\tau)\overline{X})
+(\#eq:sigmatau)
 \end{equation}
 Thus the algorithm has convergent subsequences which may not converge to a fixed
-point of $\Psi$ (and thus of $\Phi$). And indeed, an analysis of the results show that the method produces a sequence $X^{(k)}$ with two subseqences. If $\overline{X}$ is a fixed point of $\Phi$ then there is a $\tau>0$ such that
+point of $\Psi$ (and thus of $\Phi$). And indeed, the computational results show that the method produces a sequence $X^{(k)}$ with two subseqences. If $\overline{X}$ is a fixed point of $\Phi$ then there is a $\tau>0$ such that
 the subsequence with $k$ even converges to $\tau\overline{X}$
 while the subsequence with $k$ odd converges to $(2-\tau)\overline{X}$.
 
 This suggests a simple fix. After convergence of the funcion values we make
 a final update using $\Phi$ instead of $\Psi$. Computationally this is simple to do. If the final iteration updates $X^{(k)}$ to $X^{(k+1)}=\Psi(X^{(k)})$ then
-set the final solution to $\frac12(X^{(k)}+X^{(k+1)})$. Making thus final
-adjustment in the Ekman sequence gives us a final stress equal to `r prettyNum(h4$s, digits = 15, format = "f")`.
+set the final solution to the average $\frac12(X^{(k)}+X^{(k+1)})$. Making this 
+adjustment at the end of the Ekman sequence gives us a final stress equal to `r prettyNum(h4$s, digits = 15, format = "f")`.
 
-## Doubling
+## Asymptotic Rate of Convergence
+
+The eigenvalues of the Jacobian are 
+```{r eval5f, echo = FALSE, eval = FALSE}
+jacob4f <- smacofRelaxJacobianFormula(h4$x, h4$delta, h4$wgth, opt = 4)
+smacofMatrixPrint(Re(eigen(jacob4f)$values))
+```
+
+```{r eval5n, echo = FALSE, eval = FALSE}
+jacob4n<- smacofRelaxJacobianNumerical(h4$x, h4$delta, h4$wgth, opt = 4)
+smacofMatrixPrint(Re(eigen(jacob4n)$values))
+```
+
+# Doubling
+
+## Modification
 
 The analysis in the previous section suggest the update function $\Psi^2$, i.e.
 $$
-X^{(k+1)}=\Psi(\Psi(X^{(k)})).
+\Xi(X)=\Psi(\Psi(X)).
 $$
-The asymptotic convergence rate is 
-$$
-\max_s (2\lambda_s-1)^2=\max\{ (2\lambda_\text{max}-1)^2, (2\lambda_\text{min}-1)^2\}
-$$.
 
-With $\Psi^2$ the algorithm is everywhere strictly monotonic and
-converges to a fixed point. But not all problems have disappeared.
+## Function Values
+
+The algorithm generates the same sequence of function values 
+and configurations as the relaxed algoroithm $\Psi$. The only difference is that we
+test for convergence, and compute CHNG and EARC, every other
+iteration.
+
+With $\Psi^2$ the algorithm is everywhere strictly monotonic and does
+converge to a fixed point. But not all problems associated with $\Psi$ 
+have disappeared.
 If $X$ is a stationary point of $\sigma$, and thus a fixed 
 point of $\Phi$, $\Psi$, and $\Psi^2$, then $\tau X$ is a 
 fixed point of $\Psi^2$ for all $\tau>0$. Thus we cannot
@@ -577,30 +863,116 @@ exclude the possibility that the sequence converges to
 a fixed point proportional to $X$, but not equal to $X$.
 
 Here are the results for the Ekman data if we use $\Psi^2$.
-```{r compute5, echo = FALSE, cache = TRUE}
-h5 <- smacofAccelerate(ekman, opt = 5, halt = 0, epsf = 1e-15, verbose = 1)
+```{r compute6, echo = FALSE, cache = TRUE}
+h6 <- smacofAccelerate(ekman, opt = 6, halt = 0, epsf = 1e-15, verbose = 0)
+```
+In iteration `r h6$itel`, the final iteration, stress is `r prettyNum(h6$s, digits = 15, format = "f")`. The CHNG is `r prettyNum(h6$chng, digits = 15, format = "f")` and the EARC is `r prettyNum(h6$labd, digits = 15, format = "f")`. 
+
+Again we need some adjustment. A final update using $\Phi$ will do the trick.
+After this adjustment stress is `r prettyNum(h6$s, digits = 15, format = "f")`
+
+
+## Asymptotic Rate of Convergence
+
+$$
+\mathcal{D}\Psi^2_X(H)=\mathcal{D}\Psi_{\Psi(X)}(\mathcal{D}\Psi_X(H))
+$$
+
+The asymptotic convergence rate is 
+$$
+\max_s (2\lambda_s-1)^2=\max\{ (2\lambda_\text{max}-1)^2, (2\lambda_\text{min}-1)^2\}
+$$.
+
+
+```{r eval6, echo = FALSE, eval = FALSE}
+jacob5 <- numHess(h6$x, h5$delta, h5$wgth, opt = 4)
+smacofMatrixPrint(Re(eigen(jacob5)$values))
 ```
 
-```{r eval5, echo = FALSE}
-jacob5 <- numHess(h5$x, h5$delta, h5$wgth, opt = 4)
-mPrint(Re(eigen(jacob5)$values))
+# Dilation
+
+## Modification
+
+@deleeuw_R_06b discusses some other ways to fix the relaxed update problem. 
+The first one, borrowed from @groenen_glunt_hayden_96, defines
+Defines
+$$
+\Pi(X):=\frac{\rho(X)}{\eta^2(X)}X
+$$
+and 
+$$
+\Xi(X):=\Pi(\Psi(X))
+$$
+## Function Values
+
+Here are the results for the Ekman data if we use dilation.
+```{r compute7, echo = FALSE, cache = TRUE}
+h7 <- smacofAccelerate(ekman, opt = 7, halt = 0, epsf = 1e-15, verbose = 0)
 ```
+In iteration `r h7$itel`, the final iteration, stress is `r prettyNum(h7$s, digits = 15, format = "f")`. The CHNG is `r prettyNum(h7$chng, digits = 15, format = "f")` and the EARC is `r prettyNum(h7$labd, digits = 15, format = "f")`. 
 
-stress is `r prettyNum(h5$s, digits = 15, format = "f")`
 
-## Scaling
+## Asymptotic Rate of Convergence
 
-@deleeuw_R_06b discusses some other ways to fix of the relaxed update problem.  
+First, differentiate $\Pi$ of ... Using the product and quotient rules for differentiation we find
+$$
+\mathcal{D}\Pi_X(H)=\frac{\rho(X)}{\eta^2(X)}H+\frac{\eta^2(X)\mathcal{D}\rho_X(H)-\rho(X)\mathcal{D}\eta^2_X(H)}{\eta^4(X)}X
+$$
+Using
+$$
+\mathcal{D}\rho_X(H)=\text{tr}\ H'B(X)X
+$$
+$$
+\mathcal{D}\eta^2_X(H)=2\text{tr}\ H'VX
+$$
+this becomes
+$$
+\mathcal{D}\Pi_X(H)=\frac{\rho(X)}{\eta^2(X)}H+\text{tr}\ H'\left\{\frac{\eta^2(X) B(X)X-2\rho(X)VX}{\eta^4(X)}\right\}X
+$$
 
-## Switching
+
+The chain rule says
+$$
+\mathcal{D}\Xi_X(H)=\mathcal{D}\Psi_X(H)-\frac{\text{tr}\ X'V\mathcal{D}\Psi_X(H)}{\text{tr}\ X'VX}X
+$$
+Since $\mathcal{D}\Psi_X(X)=-X$ we have
+$$
+\mathcal{D}\Xi_X(X)=-X+\frac{\text{tr}\ X'VX}{\text{tr}\ X'VX}X=0
+$$
+Thus the offending eigenvector $X$ of $\mathcal{D}\Psi$ is eliminated.
+
+More generally, if $\mathcal{D}\Psi_X(H)=\lambda H$ with $H\not= X$ then
+$\mathcal{D}\Xi_X(H-X)=\lambda (H-X),$
+and thus $\mathcal{D}\Xi$ has the same eigenvalues as $\mathcal{D}\Psi$.
+
+
+# Stabilizing
+
+## Modification
+
+Another strategy 
 
 \begin{equation}
-\Phi(\Psi(X))
+\Xi(X):=\Phi(\Psi(X))
 \end{equation}
+
+$$
+\mathcal{D}\Xi_X(H)=\mathcal{D}\Phi_{\Psi(X)}(\mathcal{D}\Psi_X(H))=2\mathcal{D}\Phi_{\Psi(X)}(\mathcal{D}\Phi_X(H))-\mathcal{D}\Phi_{\Psi(X)}(H)
+$$
 
 \begin{equation}
 \max_s|\lambda_s(2\lambda_s-1)|
 \end{equation}
+
+## Function Values
+
+Here are the results for the Ekman data if we use stabilization.
+```{r compute8, echo = FALSE, cache = TRUE}
+h8 <- smacofAccelerate(ekman, opt = 8, halt = 0, epsf = 1e-15, verbose = 0)
+```
+In iteration `r h8$itel`, the final iteration, stress is `r prettyNum(h8$s, digits = 15, format = "f")`. The CHNG is `r prettyNum(h8$chng, digits = 15, format = "f")` and the EARC is `r prettyNum(h8$labd, digits = 15, format = "f")`. 
+
+## Asymptotic Rate of Convergence
 
 # Benchmarking
 
@@ -620,6 +992,8 @@ smacofCompare(gruijter)
 smacofCompare(morse)
 ```
 
+# (APPENDIX) Appendices {-} 
+
 # Code
 
 ## smacofAccelerate.R
@@ -627,19 +1001,29 @@ smacofCompare(morse)
 ```{r code1, code = readLines("smacofAccelerate.R"), eval = FALSE}
 ```
 
-## smacofHessian.R
+## smacofDerivatives.R
 
-```{r code2, code = readLines("smacofHessian.R"), eval = FALSE}
+```{r code2, code = readLines("smacofDerivatives.R"), eval = FALSE}
+```
+
+## smacofPCADerivative.R
+
+```{r code3, code = readLines("smacofPCADerivative.R"), eval = FALSE}
+```
+
+## smacofQRDerivative.R
+
+```{r code4, code = readLines("smacofQRDerivative.R"), eval = FALSE}
 ```
 
 ## smacofCompare.R
 
-```{r code3, code = readLines("smacofCompare.R"), eval = FALSE}
+```{r code5, code = readLines("smacofCompare.R"), eval = FALSE}
 ```
 
 ## smacofUtils.R
 
-```{r code4, code = readLines("smacofUtils.R"), eval = FALSE}
+```{r code6, code = readLines("smacofUtils.R"), eval = FALSE}
 ```
 
 # References

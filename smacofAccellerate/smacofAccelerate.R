@@ -3,10 +3,11 @@ library(microbenchmark)
 library(numDeriv)
 
 source("smacofUtils.R")
+source("smacofDerivatives.R")
 
 smacofAccelerate <- function(delta,
-                             ndim = 2,
                              wgth = 1 - diag(nrow(delta)),
+                             ndim = 2,
                              xold = smacofTorgerson(delta, ndim),
                              opt = 1,
                              halt = 0,
@@ -15,48 +16,53 @@ smacofAccelerate <- function(delta,
                              itmax = 1000,
                              epsx = 1e-10,
                              epsf = 1e-15,
-                             verbose = 1) {
+                             verbose = 2) {
+  nobj <- nrow(delta)
   vmat <- -wgth
   diag(vmat) <- -rowSums(vmat)
-  vinv <- ginv(vmat)
-  nobj <- nrow(xold)
-  xold <- xold %*% qr.Q(qr(t(xold[1:ndim, ])))
-  bs <- smacofMakeBasis(nobj, ndim, wgth)
+  vinv <- solve(vmat + (1 / nobj)) - (1 / nobj)
+  if (opt == 4) {
+    bs <- smacofMakeBasis(nobj, ndim, vmat)
+  }
+  xold <- smacofCenter(xold)
+  if ((opt == 2) || (opt == 4)) {
+    xrot <- qr.Q(qr(xold[1:ndim, ]))
+    xold <- xold %*% xrot
+  }
+  if (opt == 3) {
+    xrot <- svd(xold)$v
+    xold <- xold %*% xrot
+  }
+  dold <- as.matrix(dist(xold))
+  sold <- sum(wgth * (delta - dold) ^ 2)
   cold <- Inf
   itel <- 1
   repeat {
-    xold <- apply(xold, 2, function(x)
-      x - mean(x))
-    dold <- as.matrix(dist(xold))
-    sold <- sum(wgth * (delta - dold) ^ 2)
-    bold <- -wgth * delta / (dold + diag(nobj))
-    diag(bold) <- -rowSums(bold)
-    xbar <- vinv %*% bold %*% xold
     if (opt == 1) {
-      h <- smacofOptionOne(xold, xbar, delta, wgth, vmat)
+      h <- smacofOptionOne(xold, delta, wgth, vmat, vinv)
     }
     if (opt == 2) {
-      h <- smacofOptionTwo(xold, xbar, delta, wgth, vmat)
+      h <- smacofOptionTwo(xold, delta, wgth, vmat, vinv)
     }
     if (opt == 3) {
-      h <- smacofOptionThree(xold, xbar, delta, wgth, vmat)
+      h <- smacofOptionThree(xold, delta, wgth, vmat, vinv)
     }
     if (opt == 4) {
-      h <- smacofOptionFour(xold, xbar, delta, wgth, vmat, bs)
+      h <- smacofOptionFour(xold, delta, wgth, vmat, vinv, bs)
     }
     if (opt == 5) {
-      h <- smacofOptionFive(xold, xbar, delta, wgth, vmat)
+      h <- smacofOptionFive(xold, delta, wgth, vmat, vinv)
     }
     if (opt == 6) {
-      h <- smacofOptionSix(xold, xbar, delta, wgth, vmat, vinv)
+      h <- smacofOptionSix(xold, delta, wgth, vmat, vinv)
     }
     if (opt == 7) {
-      h <- smacofOptionSeven(xold, xbar, delta, wgth, vmat)
+      h <- smacofOptionSeven(xold, delta, wgth, vmat, vinv)
     }
     if (opt == 8) {
-      h <- smacofOptionEight(xold, xbar, delta, wgth, vmat, vinv)
+      h <- smacofOptionEight(xold, delta, wgth, vmat, vinv)
     }
-    labd <- sqrt(h$cnew / cold)
+    labd <- sqrt((h$cnew) / cold)
     if (verbose == 2) {
       smacofLinePrint(itel, sold, h$snew, h$cnew, labd, wd = wd, dg = dg)
     }
@@ -72,23 +78,23 @@ smacofAccelerate <- function(delta,
     sold <- h$snew
     xold <- h$xnew
     cold <- h$cnew
-  }
+    dold <- h$dnew
+  } # end of repeat loop
   if (verbose == 1) {
     smacofLinePrint(itel, sold, h$snew, h$cnew, labd, wd = wd, dg = dg)
   }
+  adjust <- list(xnew = NULL, dnew = NULL, snew = NULL)
   if (opt == 5) {
-    h$xnew <- (h$xnew + xold) / 2
-    h$dnew <- as.matrix(dist(h$xnew))
-    h$snew <- sum(wgth * (delta - h$dnew) ^ 2)
-    smacofLinePrint(itel, sold, h$snew, h$cnew, labd, wd = wd, dg = dg)
+    adjust$xnew <- (h$xnew + xold) / 2
+    adjust$dnew <- as.matrix(dist(adjust$xnew))
+    adjust$snew <- sum(wgth * (delta - adjust$dnew) ^ 2)
   }
   if (opt == 6) {
     bold <- -wgth * delta / (h$dnew + diag(nobj))
     diag(bold) <- -rowSums(bold)
-    h$xnew <- vinv %*% bold %*% h$xnew
-    h$dnew <- as.matrix(dist(h$xnew))
-    h$snew <- sum(wgth * (delta - h$dnew) ^ 2)
-    smacofLinePrint(itel, sold, h$snew, h$cnew, labd, wd = wd, dg = dg)
+    adjust$xnew <- vinv %*% bold %*% h$xnew
+    adjust$dnew <- as.matrix(dist(adjust$xnew))
+    adjust$snew <- sum(wgth * (delta - adjust$dnew) ^ 2)
   }
   return(
     list(
@@ -99,13 +105,14 @@ smacofAccelerate <- function(delta,
       chng = h$cnew,
       labd = labd,
       wgth = wgth,
-      delta = delta
+      delta = delta,
+      adjust = adjust
     )
   )
 }
 
-smacofOptionOne <- function(xold, xbar, delta, wgth, vmat) {
-  xnew <- xbar
+smacofOptionOne <- function(xold, delta, wgth, vmat, vinv) {
+  xnew <- smacofCenter(smacofGuttman(xold, delta, wgth, vinv))
   dnew <- as.matrix(dist(xnew))
   snew <- sum(wgth * (delta - dnew) ^ 2)
   cnew <- sum((xold - xnew) * (vmat %*% (xold - xnew)))
@@ -117,9 +124,12 @@ smacofOptionOne <- function(xold, xbar, delta, wgth, vmat) {
   ))
 }
 
-smacofOptionTwo <- function(xold, xbar, delta, wgth, vmat) {
+smacofOptionTwo <- function(xold, delta, wgth, vmat, vinv) {
   ndim <- ncol(xold)
-  xnew <- xbar %*% qr.Q(qr(t(xbar[1:ndim, ])))
+  xbar <- smacofCenter(smacofGuttman(xold, delta, wgth, vinv))
+  xrot <- smacofSignEigenVectors(qr.Q(qr(t(xbar[1:ndim, ]))))
+  #xrot <- qr.Q(qr(t(xbar[1:ndim, ])))
+  xnew <- xbar %*% xrot
   dnew <- as.matrix(dist(xnew))
   snew <- sum(wgth * (delta - dnew) ^ 2)
   cnew <- sum((xold - xnew) * (vmat %*% (xold - xnew)))
@@ -131,8 +141,10 @@ smacofOptionTwo <- function(xold, xbar, delta, wgth, vmat) {
   ))
 }
 
-smacofOptionThree <- function(xold, xbar, delta, wgth, vmat) {
-  xnew <- xbar %*% svd(xbar)$v
+smacofOptionThree <- function(xold, delta, wgth, vmat, vinv) {
+  xbar <- smacofCenter(smacofGuttman(xold, delta, wgth, vinv))
+  xrot <- smacofSignEigenVectors(svd(xbar)$v)
+  xnew <- xbar %*% xrot
   dnew <- as.matrix(dist(xnew))
   snew <- sum(wgth * (delta - dnew) ^ 2)
   cnew <- sum((xold - xnew) * (vmat %*% (xold - xnew)))
@@ -144,10 +156,11 @@ smacofOptionThree <- function(xold, xbar, delta, wgth, vmat) {
   ))
 }
 
-smacofOptionFour <- function(xold, xbar, delta, wgth, vmat, bs) {
+smacofOptionFour <- function(xold, delta, wgth, vmat, vinv, bs) {
   ndim <- ncol(xold)
   nobj <- nrow(xold)
   xnew <- matrix(0, nobj, ndim)
+  xbar <- smacofCenter(smacofGuttman(xold, delta, wgth, vinv))
   for (s in 1:ndim) {
     aux <- crossprod(bs[[s]], vmat %*% xbar[, s])
     xnew[, s] <- bs[[s]] %*% aux
@@ -163,7 +176,9 @@ smacofOptionFour <- function(xold, xbar, delta, wgth, vmat, bs) {
   ))
 }
 
-smacofOptionFive <- function(xold, xbar, delta, wgth, vmat) {
+
+smacofOptionFive <- function(xold, delta, wgth, vmat, vinv) {
+  xbar <- smacofCenter(smacofGuttman(xold, delta, wgth, vinv))
   xnew <- 2 * xbar - xold
   dnew <- as.matrix(dist(xnew))
   snew <- sum(wgth * (delta - dnew) ^ 2)
@@ -176,8 +191,9 @@ smacofOptionFive <- function(xold, xbar, delta, wgth, vmat) {
   ))
 }
 
-smacofOptionSix <- function(xold, xbar, delta, wgth, vmat, vinv) {
+smacofOptionSix <- function(xold, delta, wgth, vmat, vinv) {
   nobj <- nrow(xold)
+  xbar <- smacofCenter(smacofGuttman(xold, delta, wgth, vinv))
   xaux <- 2 * xbar - xold
   daux <- as.matrix(dist(xaux))
   baux <- -wgth * delta / (daux + diag(nobj))
@@ -195,7 +211,8 @@ smacofOptionSix <- function(xold, xbar, delta, wgth, vmat, vinv) {
   ))
 }
 
-smacofOptionSeven <- function(xold, xbar, delta, wgth, vmat) {
+smacofOptionSeven <- function(xold, delta, wgth, vmat, vinv) {
+  xbar <- smacofCenter(smacofGuttman(xold, delta, wgth, vinv))
   xaux <- 2 * xbar - xold
   daux <- as.matrix(dist(xaux))
   alpa <- sum(wgth * daux * delta) / sum(wgth * daux ^ 2)
@@ -211,8 +228,9 @@ smacofOptionSeven <- function(xold, xbar, delta, wgth, vmat) {
   ))
 }
 
-smacofOptionEight <- function(xold, xbar, delta, wgth, vmat, vinv) {
+smacofOptionEight <- function(xold, delta, wgth, vmat, vinv) {
   nobj <- nrow(xold)
+  xbar <- smacofCenter(smacofGuttman(xold, delta, wgth, vinv))
   xaux <- 2 * xbar - xold
   daux <- as.matrix(dist(xaux))
   baux <- -wgth * delta / (daux + diag(nobj))

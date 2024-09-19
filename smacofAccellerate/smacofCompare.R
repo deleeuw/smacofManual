@@ -6,6 +6,7 @@ smacofCompare <- function(delta, ndim = 2) {
     microbenchmark(
       smacofAccelerate(
         delta,
+        xold = xold,
         ndim = 2,
         opt = 1,
         halt = 2,
@@ -13,6 +14,7 @@ smacofCompare <- function(delta, ndim = 2) {
       ),
       smacofAccelerate(
         delta,
+        xold = xold,
         ndim = 2,
         opt = 2,
         halt = 2,
@@ -20,6 +22,7 @@ smacofCompare <- function(delta, ndim = 2) {
       ),
       smacofAccelerate(
         delta,
+        xold = xold,
         ndim = 2,
         opt = 3,
         halt = 2,
@@ -27,6 +30,7 @@ smacofCompare <- function(delta, ndim = 2) {
       ),
       smacofAccelerate(
         delta,
+        xold = xold,
         ndim = 2,
         opt = 4,
         halt = 2,
@@ -41,6 +45,7 @@ smacofCompare <- function(delta, ndim = 2) {
       ),
       smacofAccelerate(
         delta,
+        xold = xold,
         ndim = 2,
         opt = 6,
         halt = 2,
@@ -49,6 +54,7 @@ smacofCompare <- function(delta, ndim = 2) {
       smacofAccelerate(
         delta,
         ndim = 2,
+        xold = xold,
         opt = 7,
         halt = 2,
         verbose = FALSE
@@ -56,6 +62,7 @@ smacofCompare <- function(delta, ndim = 2) {
       smacofAccelerate(
         delta,
         ndim = 2,
+        xold = xold,
         opt = 8,
         halt = 2,
         verbose = FALSE

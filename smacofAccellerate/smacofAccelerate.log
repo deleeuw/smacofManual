@@ -1,9 +1,9 @@
-This is LuaHBTeX, Version 1.18.0 (TeX Live 2024)  (format=lualatex 2024.8.8)  11 AUG 2024 10:46
+This is LuaHBTeX, Version 1.18.0 (TeX Live 2024)  (format=lualatex 2024.9.5)  6 SEP 2024 13:33
  restricted system commands enabled.
 **smacofAccelerate.tex
 (./smacofAccelerate.tex
 LaTeX2e <2024-06-01> patch level 2
-L3 programming layer <2024-07-20>
+L3 programming layer <2024-08-16>
 Lua module: luaotfload 2024-02-14 3.28 Lua based OpenType font support
 Lua module: lualibs 2023-07-13 2.76 ConTeXt Lua standard libraries.
 Lua module: lualibs-extended 2023-07-13 2.76 ConTeXt Lua libraries -- extended collection.
@@ -125,7 +125,7 @@ LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 )) (/Users/deleeuw/Library/TinyTeX/texmf-dist/tex/generic/iftex/iftex.sty
 Package: iftex 2022/02/03 v1.0f TeX engine tests
 ) (/Users/deleeuw/Library/TinyTeX/texmf-dist/tex/latex/unicode-math/unicode-math.sty (/Users/deleeuw/Library/TinyTeX/texmf-dist/tex/latex/l3kernel/expl3.sty
-Package: expl3 2024-07-20 L3 programming layer (loader) 
+Package: expl3 2024-08-16 L3 programming layer (loader) 
 (/Users/deleeuw/Library/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-luatex.def
 File: l3backend-luatex.def 2024-05-08 L3 backend support: PDF output (LuaTeX)
 \l__color_backend_stack_int=\count278
@@ -136,9 +136,9 @@ Package: unicode-math 2023/08/13 v0.8r Unicode maths in XeLaTeX and LuaLaTeX
 (/Users/deleeuw/Library/TinyTeX/texmf-dist/tex/latex/unicode-math/unicode-math-luatex.sty
 Package: unicode-math-luatex 2023/08/13 v0.8r Unicode maths in XeLaTeX and LuaLaTeX
 (/Users/deleeuw/Library/TinyTeX/texmf-dist/tex/latex/l3packages/xparse/xparse.sty
-Package: xparse 2024-05-08 L3 Experimental document command parser
+Package: xparse 2024-08-16 L3 Experimental document command parser
 ) (/Users/deleeuw/Library/TinyTeX/texmf-dist/tex/latex/l3packages/l3keys2e/l3keys2e.sty
-Package: l3keys2e 2024-05-08 LaTeX2e option processing using LaTeX3 keys
+Package: l3keys2e 2024-08-16 LaTeX2e option processing using LaTeX3 keys
 ) (/Users/deleeuw/Library/TinyTeX/texmf-dist/tex/latex/fontspec/fontspec.sty
 Package: fontspec 2024/05/11 v2.9e Font selection for XeLaTeX and LuaLaTeX
 Lua module: fontspec 2024/05/11 2.9e Font selection for XeLaTeX and LuaLaTeX (/Users/deleeuw/Library/TinyTeX/texmf-dist/tex/latex/fontspec/fontspec-luatex.sty
@@ -865,38 +865,38 @@ File: bkm-pdftex.def 2023-12-10 v1.31 bookmark driver for pdfTeX and luaTeX (HO)
 )) (./smacofAccelerate.aux)
 \openout1 = smacofAccelerate.aux
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 199.
-LaTeX Font Info:    ... okay on input line 199.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 199.
-LaTeX Font Info:    ... okay on input line 199.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 199.
-LaTeX Font Info:    ... okay on input line 199.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 199.
-LaTeX Font Info:    ... okay on input line 199.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 199.
-LaTeX Font Info:    ... okay on input line 199.
-LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 199.
-LaTeX Font Info:    ... okay on input line 199.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 199.
-LaTeX Font Info:    ... okay on input line 199.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 199.
-LaTeX Font Info:    ... okay on input line 199.
-LaTeX Font Info:    Checking defaults for LY/yfrak/m/n on input line 199.
-LaTeX Font Info:    ... okay on input line 199.
-LaTeX Font Info:    Checking defaults for LYG/ygoth/m/n on input line 199.
-LaTeX Font Info:    ... okay on input line 199.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 199.
-LaTeX Font Info:    ... okay on input line 199.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 199.
-LaTeX Font Info:    ... okay on input line 199.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for LY/yfrak/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for LYG/ygoth/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/lmss/m/n --> TU/lmss/m/n on input line 199.
+(Font)                  OT1/lmss/m/n --> TU/lmss/m/n on input line 201.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/lmss/bx/n --> TU/lmss/b/n on input line 199.
+(Font)                  OT1/lmss/bx/n --> TU/lmss/b/n on input line 201.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
-(Font)                  OT1/lmtt/m/n --> TU/lmtt/m/n on input line 199.
+(Font)                  OT1/lmtt/m/n --> TU/lmtt/m/n on input line 201.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/lmtt/m/n --> TU/lmtt/b/n on input line 199.
+(Font)                  OT1/lmtt/m/n --> TU/lmtt/b/n on input line 201.
 
 Package fontspec Info: 
 (fontspec)             latinmodern-math scale = 1.037736795366909.
@@ -924,7 +924,7 @@ Package fontspec Info:
 (fontspec)             <->s*[1.037736795366909]"[latinmodern-math.otf]:mode=base;script=math;language=dflt;mathfontdimen=xetex;"
 
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(0)/m/n' will be
-(Font)              scaled to size 12.45282pt on input line 199.
+(Font)              scaled to size 12.45282pt on input line 201.
 
 Package fontspec Info: 
 (fontspec)             latinmodern-math scale = 1.037736795366909.
@@ -960,15 +960,15 @@ Package fontspec Info:
 (fontspec)             <->s*[1.037736795366909]"[latinmodern-math.otf]:mode=base;script=math;language=dflt;mathfontdimen=xetex;"
 
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 12.45282pt on input line 199.
+(Font)              scaled to size 12.45282pt on input line 201.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `normal' on input line 199.
+(Font)              `operators' in the math version `normal' on input line 201.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
-(Font)                  OT1/lmr/m/n --> TU/latinmodern-math.otf(1)/m/n on input line 199.
+(Font)                  OT1/lmr/m/n --> TU/latinmodern-math.otf(1)/m/n on input line 201.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `bold' on input line 199.
+(Font)              `operators' in the math version `bold' on input line 201.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
-(Font)                  OT1/lmr/bx/n --> TU/latinmodern-math.otf(1)/b/n on input line 199.
+(Font)                  OT1/lmr/bx/n --> TU/latinmodern-math.otf(1)/b/n on input line 201.
 
 Package fontspec Info: 
 (fontspec)             latinmodern-math scale = 1.037736795366909.
@@ -1004,13 +1004,13 @@ Package fontspec Info:
 (fontspec)             <->s*[1.037736795366909]"[latinmodern-math.otf]:mode=base;script=math;language=dflt;mathfontdimen=xetex;mathfontdimen=tex2;"
 
 LaTeX Font Info:    Encoding `OMS' has changed to `TU' for symbol font
-(Font)              `symbols' in the math version `normal' on input line 199.
+(Font)              `symbols' in the math version `normal' on input line 201.
 LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
-(Font)                  OMS/lmsy/m/n --> TU/latinmodern-math.otf(2)/m/n on input line 199.
+(Font)                  OMS/lmsy/m/n --> TU/latinmodern-math.otf(2)/m/n on input line 201.
 LaTeX Font Info:    Encoding `OMS' has changed to `TU' for symbol font
-(Font)              `symbols' in the math version `bold' on input line 199.
+(Font)              `symbols' in the math version `bold' on input line 201.
 LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
-(Font)                  OMS/lmsy/b/n --> TU/latinmodern-math.otf(2)/b/n on input line 199.
+(Font)                  OMS/lmsy/b/n --> TU/latinmodern-math.otf(2)/b/n on input line 201.
 
 Package fontspec Info: 
 (fontspec)             latinmodern-math scale = 1.037736795366909.
@@ -1046,62 +1046,62 @@ Package fontspec Info:
 (fontspec)             <->s*[1.037736795366909]"[latinmodern-math.otf]:mode=base;script=math;language=dflt;mathfontdimen=xetex;mathfontdimen=tex3;"
 
 LaTeX Font Info:    Encoding `OMX' has changed to `TU' for symbol font
-(Font)              `largesymbols' in the math version `normal' on input line 199.
+(Font)              `largesymbols' in the math version `normal' on input line 201.
 LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
-(Font)                  OMX/lmex/m/n --> TU/latinmodern-math.otf(3)/m/n on input line 199.
+(Font)                  OMX/lmex/m/n --> TU/latinmodern-math.otf(3)/m/n on input line 201.
 LaTeX Font Info:    Encoding `OMX' has changed to `TU' for symbol font
-(Font)              `largesymbols' in the math version `bold' on input line 199.
+(Font)              `largesymbols' in the math version `bold' on input line 201.
 LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
-(Font)                  OMX/lmex/m/n --> TU/latinmodern-math.otf(3)/b/n on input line 199.
+(Font)                  OMX/lmex/m/n --> TU/latinmodern-math.otf(3)/b/n on input line 201.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 8.71696pt on input line 199.
+(Font)              scaled to size 8.71696pt on input line 201.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 6.22641pt on input line 199.
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 199.
+(Font)              scaled to size 6.22641pt on input line 201.
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 201.
 (/Users/deleeuw/Library/TinyTeX/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 12.45282pt on input line 199.
+(Font)              scaled to size 12.45282pt on input line 201.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 8.71696pt on input line 199.
+(Font)              scaled to size 8.71696pt on input line 201.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 6.22641pt on input line 199.
+(Font)              scaled to size 6.22641pt on input line 201.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 12.45282pt on input line 199.
+(Font)              scaled to size 12.45282pt on input line 201.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 8.71696pt on input line 199.
+(Font)              scaled to size 8.71696pt on input line 201.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 6.22641pt on input line 199.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 199.
+(Font)              scaled to size 6.22641pt on input line 201.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 201.
 (/Users/deleeuw/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 199.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 201.
 (/Users/deleeuw/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 199.
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 201.
 (/Users/deleeuw/Library/TinyTeX/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 199.
+LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 201.
 (/Users/deleeuw/Library/TinyTeX/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Info: Redefining \microtypecontext on input line 199.
-Package microtype Info: Applying patch `item' on input line 199.
-Package microtype Info: Applying patch `toc' on input line 199.
-Package microtype Info: Applying patch `eqnum' on input line 199.
-Package microtype Info: Applying patch `footnote' on input line 199.
-Package microtype Info: Applying patch `verbatim' on input line 199.
+LaTeX Info: Redefining \microtypecontext on input line 201.
+Package microtype Info: Applying patch `item' on input line 201.
+Package microtype Info: Applying patch `toc' on input line 201.
+Package microtype Info: Applying patch `eqnum' on input line 201.
+Package microtype Info: Applying patch `footnote' on input line 201.
+Package microtype Info: Applying patch `verbatim' on input line 201.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using protrusion set `basicmath'.
 Package microtype Info: Automatic font expansion enabled (level 2),
 (microtype)             stretch: 20, shrink: 20, step: 1, non-selected.
 Package microtype Info: Using default expansion set `alltext-nott'.
-LaTeX Info: Redefining \showhyphens on input line 199.
+LaTeX Info: Redefining \showhyphens on input line 201.
 Package microtype Info: No adjustment of tracking.
 Package microtype Info: No adjustment of spacing.
 Package microtype Info: No adjustment of kerning.
@@ -1149,29 +1149,29 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-Package hyperref Info: Link coloring OFF on input line 199.
+Package hyperref Info: Link coloring OFF on input line 201.
 LaTeX Font Info:    Font shape `TU/TimesNewRoman(0)/m/n' will be
-(Font)              scaled to size 20.74pt on input line 201.
+(Font)              scaled to size 20.74pt on input line 203.
 LaTeX Font Info:    Font shape `TU/TimesNewRoman(0)/m/n' will be
-(Font)              scaled to size 14.4pt on input line 201.
+(Font)              scaled to size 14.4pt on input line 203.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 14.94337pt on input line 201.
+(Font)              scaled to size 14.94337pt on input line 203.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 10.37735pt on input line 201.
+(Font)              scaled to size 10.37735pt on input line 203.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 7.26414pt on input line 201.
+(Font)              scaled to size 7.26414pt on input line 203.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 14.94337pt on input line 201.
+(Font)              scaled to size 14.94337pt on input line 203.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 10.37735pt on input line 201.
+(Font)              scaled to size 10.37735pt on input line 203.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 7.26414pt on input line 201.
+(Font)              scaled to size 7.26414pt on input line 203.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 14.94337pt on input line 201.
+(Font)              scaled to size 14.94337pt on input line 203.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 10.37735pt on input line 201.
+(Font)              scaled to size 10.37735pt on input line 203.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 7.26414pt on input line 201.
+(Font)              scaled to size 7.26414pt on input line 203.
 (/Users/deleeuw/Library/TinyTeX/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 ) (/Users/deleeuw/Library/TinyTeX/texmf-dist/tex/latex/microtype/mt-msb.cfg
@@ -1180,45 +1180,41 @@ File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 File: mt-LatinModernRoman.cfg 2021/02/21 v1.1 microtype config. file: Latin Modern Roman (RS)
 )
 LaTeX Font Info:    Font shape `TU/TimesNewRoman(0)/m/n' will be
-(Font)              scaled to size 10.95pt on input line 201.
+(Font)              scaled to size 10.95pt on input line 203.
 LaTeX Font Info:    Font shape `TU/TimesNewRoman(0)/b/n' will be
-(Font)              scaled to size 10.95pt on input line 201.
+(Font)              scaled to size 10.95pt on input line 203.
 
 
 [1
 
 {/Users/deleeuw/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 LaTeX Font Info:    Font shape `TU/TimesNewRoman(0)/m/n' will be
-(Font)              scaled to size 17.28pt on input line 207.
+(Font)              scaled to size 17.28pt on input line 209.
 LaTeX Font Info:    Font shape `TU/TimesNewRoman(0)/b/n' will be
-(Font)              scaled to size 17.28pt on input line 207.
+(Font)              scaled to size 17.28pt on input line 209.
 (./smacofAccelerate.toc
 LaTeX Font Info:    Font shape `TU/TimesNewRoman(0)/b/n' will be
 (Font)              scaled to size 12.0pt on input line 1.
-)
+
+
+[2])
 \tf@toc=\write5
 
 \openout5 = smacofAccelerate.toc
 
 
-[2]
-LaTeX Font Info:    Font shape `TU/TimesNewRoman(0)/m/it' will be
-(Font)              scaled to size 12.0pt on input line 223.
-LaTeX Font Info:    Font shape `TU/TimesNewRoman(0)/b/n' will be
-(Font)              scaled to size 14.4pt on input line 234.
-LaTeX Font Info:    Font shape `TU/TimesNewRoman(0)/m/n' will be
-(Font)              scaled to size 8.4pt on input line 245.
-LaTeX Font Info:    Font shape `TU/TimesNewRoman(0)/m/n' will be
-(Font)              scaled to size 6.0pt on input line 245.
-
-
 [3]
+LaTeX Font Info:    Font shape `TU/TimesNewRoman(0)/m/it' will be
+(Font)              scaled to size 12.0pt on input line 225.
+LaTeX Font Info:    Font shape `TU/TimesNewRoman(0)/b/n' will be
+(Font)              scaled to size 14.4pt on input line 236.
+LaTeX Font Info:    Font shape `TU/TimesNewRoman(0)/m/n' will be
+(Font)              scaled to size 8.4pt on input line 247.
+LaTeX Font Info:    Font shape `TU/TimesNewRoman(0)/m/n' will be
+(Font)              scaled to size 6.0pt on input line 247.
+
 
 [4]
-
-LaTeX Warning: Reference `eq:rhioneq' on page 5 undefined on input line 383.
-
-
 
 [5]
 
@@ -1227,184 +1223,291 @@ LaTeX Warning: Reference `eq:rhioneq' on page 5 undefined on input line 383.
 [7]
 
 [8]
-Overfull \hbox (43.10042pt too wide) in paragraph at lines 535--535
-[]\TU/lmtt/m/n/12 ## itel  56 sold 2.1114112739 snew 2.1114112739 chng 0.0000000000 labd 0.7669784529 
- []
-
-
 
 [9]
-Overfull \hbox (43.10042pt too wide) in paragraph at lines 625--625
-[]\TU/lmtt/m/n/12 ## itel  56 sold 2.1114112739 snew 2.1114112739 chng 0.0000000000 labd 0.7669940352 
- []
-
-
 
 [10]
-Overfull \hbox (55.49638pt too wide) in paragraph at lines 653--653
-[]\TU/lmtt/m/n/12 ## itel  57 sold 2.1114112739 snew 2.1114112739 chng 108.2873334994 labd 1.0000000000 
- []
-
-
 
 [11]
-LaTeX Font Info:    Font shape `TU/TimesNewRoman(1)/m/n' will be
-(Font)              scaled to size 12.0pt on input line 703.
-LaTeX Font Info:    Font shape `TU/TimesNewRoman(1)/m/n' will be
-(Font)              scaled to size 8.4pt on input line 703.
-LaTeX Font Info:    Font shape `TU/TimesNewRoman(1)/m/n' will be
-(Font)              scaled to size 6.0pt on input line 703.
-
-Overfull \hbox (43.11241pt too wide) in paragraph at lines 720--720
-[]\TU/lmtt/m/n/12 ## itel 418 sold 2.1114112739 snew 2.1114112739 chng 0.0000000000 labd 0.9622371695 
- []
-
-
 
 [12]
-Overfull \hbox (43.01646pt too wide) in paragraph at lines 779--779
-[]\TU/lmtt/m/n/12 ## itel  23 sold 3.9946270666 snew 3.9946270666 chng 3.7664315853 labd 1.0000000000 
- []
-
-
 
 [13]
 
-[14]
-Overfull \hbox (30.82439pt too wide) in paragraph at lines 813--813
-[]\TU/lmtt/m/n/12 ## Warning in microbenchmark(smacofAccelerate(delta, ndim = 2, opt = 1, halt = 2, 
- []
-
-
-Overfull \hbox (37.00438pt too wide) in paragraph at lines 843--843
-[]\TU/lmtt/m/n/12 ##                                                                   expr      min[] 
- []
-
-
-Overfull \hbox (36.9684pt too wide) in paragraph at lines 844--844
-[]\TU/lmtt/m/n/12 ##  smacofAccelerate(delta, ndim = 2, opt = 1, halt = 2, verbose = FALSE) 43.66922[] 
- []
-
-
-Overfull \hbox (36.9804pt too wide) in paragraph at lines 845--845
-[]\TU/lmtt/m/n/12 ##  smacofAccelerate(delta, ndim = 2, opt = 2, halt = 2, verbose = FALSE) 60.01346[] 
- []
-
-
-Overfull \hbox (36.99239pt too wide) in paragraph at lines 846--846
-[]\TU/lmtt/m/n/12 ##  smacofAccelerate(delta, ndim = 2, opt = 3, halt = 2, verbose = FALSE) 54.61708[] 
- []
-
-
-Overfull \hbox (36.9804pt too wide) in paragraph at lines 847--847
-[]\TU/lmtt/m/n/12 ##  smacofAccelerate(delta, ndim = 2, opt = 4, halt = 2, verbose = FALSE) 53.96703[] 
- []
-
-
-Overfull \hbox (36.9804pt too wide) in paragraph at lines 848--848
-[]\TU/lmtt/m/n/12 ##  smacofAccelerate(delta, ndim = 2, opt = 5, halt = 2, verbose = FALSE) 20.64793[] 
- []
-
-
-Overfull \hbox (36.9804pt too wide) in paragraph at lines 849--849
-[]\TU/lmtt/m/n/12 ##  smacofAccelerate(delta, ndim = 2, opt = 6, halt = 2, verbose = FALSE) 14.30634[] 
- []
-
-
-Overfull \hbox (36.99239pt too wide) in paragraph at lines 850--850
-[]\TU/lmtt/m/n/12 ##  smacofAccelerate(delta, ndim = 2, opt = 7, halt = 2, verbose = FALSE) 23.41904[] 
- []
-
-
-Overfull \hbox (36.9804pt too wide) in paragraph at lines 851--851
-[]\TU/lmtt/m/n/12 ##  smacofAccelerate(delta, ndim = 2, opt = 8, halt = 2, verbose = FALSE) 20.66552[] 
- []
-
-
+[14
+Missing character: There is no 𝛬 (U+1D6EC) in font "name:Times New Roman:mode=node;script=latn;language=dflt;+tlig;"!
+Missing character: There is no 𝛬 (U+1D6EC) in font "name:Times New Roman:mode=node;script=latn;language=dflt;+tlig;"!
+Missing character: There is no 𝜆 (U+1D706) in font "name:Times New Roman:mode=node;script=latn;language=dflt;+tlig;"!
+Missing character: There is no 𝜆 (U+1D706) in font "name:Times New Roman:mode=node;script=latn;language=dflt;+tlig;"!
+]
 
 [15]
 
+LaTeX Warning: Reference `(' on page 16 undefined on input line 847.
+
+
+
 [16]
-LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <12> not available
-(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 891.
-
-Underfull \vbox (badness 2293) detected at line 1122
- []
-
-
 
 [17]
-Underfull \vbox (badness 10000) detected at line 1122
- []
-
-
-Underfull \vbox (badness 10000) detected at line 1122
+Overfull \hbox (3.75352pt too wide) in paragraph at lines 908--911
+[]\TU/TimesNewRoman(0)/m/n/12 Al-though the fi-nal stress is the cor-rect 2.11141127390763, and the fi-nal CHNG is 5.95185745918126e-
  []
 
 
 
 [18]
-Underfull \vbox (badness 10000) detected at line 1122
- []
-
-
-Underfull \vbox (badness 10000) detected at line 1122
- []
-
-
 
 [19]
-Underfull \vbox (badness 10000) detected at line 1122
- []
+LaTeX Font Info:    Font shape `TU/TimesNewRoman(1)/m/n' will be
+(Font)              scaled to size 12.0pt on input line 956.
+LaTeX Font Info:    Font shape `TU/TimesNewRoman(1)/m/n' will be
+(Font)              scaled to size 8.4pt on input line 956.
+LaTeX Font Info:    Font shape `TU/TimesNewRoman(1)/m/n' will be
+(Font)              scaled to size 6.0pt on input line 956.
 
-
-Underfull \vbox (badness 10000) detected at line 1122
+Overfull \hbox (172.76033pt too wide) in paragraph at lines 975--975
+[]\TU/lmtt/m/n/12 ## itel   25 sold 3.994627066568261 snew 3.994627066568263 chng 3.766431585321326 labd 1.000000000000000 
  []
 
 
 
 [20]
-Underfull \vbox (badness 10000) detected at line 1122
- []
-
-
-Underfull \vbox (badness 10000) detected at line 1122
- []
-
-
 
 [21]
+Overfull \hbox (172.8203pt too wide) in paragraph at lines 1038--1038
+[]\TU/lmtt/m/n/12 ## itel   13 sold 3.994627066568262 snew 2.111411273907599 chng 0.000000000000000 labd 0.273802752120992 
+ []
+
+
 
 [22]
-Underfull \vbox (badness 10000) detected at line 1218
- []
-
-
-Underfull \vbox (badness 10000) detected at line 1218
- []
-
-
 
 [23]
+Overfull \hbox (30.82439pt too wide) in paragraph at lines 1140--1140
+[]\TU/lmtt/m/n/12 ## Warning in microbenchmark(smacofAccelerate(delta, ndim = 2, opt = 1, halt = 2, 
+ []
+
+
 
 [24]
+Overfull \hbox (37.00438pt too wide) in paragraph at lines 1170--1170
+[]\TU/lmtt/m/n/12 ##                                                                   expr      min[] 
+ []
+
+
+Overfull \hbox (36.9684pt too wide) in paragraph at lines 1171--1171
+[]\TU/lmtt/m/n/12 ##  smacofAccelerate(delta, ndim = 2, opt = 1, halt = 2, verbose = FALSE) 43.66922[] 
+ []
+
+
+Overfull \hbox (36.9804pt too wide) in paragraph at lines 1172--1172
+[]\TU/lmtt/m/n/12 ##  smacofAccelerate(delta, ndim = 2, opt = 2, halt = 2, verbose = FALSE) 60.01346[] 
+ []
+
+
+Overfull \hbox (36.99239pt too wide) in paragraph at lines 1173--1173
+[]\TU/lmtt/m/n/12 ##  smacofAccelerate(delta, ndim = 2, opt = 3, halt = 2, verbose = FALSE) 54.61708[] 
+ []
+
+
+Overfull \hbox (36.9804pt too wide) in paragraph at lines 1174--1174
+[]\TU/lmtt/m/n/12 ##  smacofAccelerate(delta, ndim = 2, opt = 4, halt = 2, verbose = FALSE) 53.96703[] 
+ []
+
+
+Overfull \hbox (36.9804pt too wide) in paragraph at lines 1175--1175
+[]\TU/lmtt/m/n/12 ##  smacofAccelerate(delta, ndim = 2, opt = 5, halt = 2, verbose = FALSE) 20.64793[] 
+ []
+
+
+Overfull \hbox (36.9804pt too wide) in paragraph at lines 1176--1176
+[]\TU/lmtt/m/n/12 ##  smacofAccelerate(delta, ndim = 2, opt = 6, halt = 2, verbose = FALSE) 14.30634[] 
+ []
+
+
+Overfull \hbox (36.99239pt too wide) in paragraph at lines 1177--1177
+[]\TU/lmtt/m/n/12 ##  smacofAccelerate(delta, ndim = 2, opt = 7, halt = 2, verbose = FALSE) 23.41904[] 
+ []
+
+
+Overfull \hbox (36.9804pt too wide) in paragraph at lines 1178--1178
+[]\TU/lmtt/m/n/12 ##  smacofAccelerate(delta, ndim = 2, opt = 8, halt = 2, verbose = FALSE) 20.66552[] 
+ []
+
+
 
 [25]
-Underfull \vbox (badness 10000) detected at line 1353
+LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <12> not available
+(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 1221.
+
+Underfull \vbox (badness 2293) detected at line 1470
  []
 
 
 
 [26]
+Underfull \vbox (badness 10000) detected at line 1470
+ []
+
+
+Underfull \vbox (badness 10000) detected at line 1470
+ []
+
+
 
 [27]
+Underfull \vbox (badness 10000) detected at line 1470
+ []
+
+
+Underfull \vbox (badness 10000) detected at line 1470
+ []
+
+
 
 [28]
+Underfull \vbox (badness 10000) detected at line 1470
+ []
 
-[29] (./smacofAccelerate.aux)
+
+Underfull \vbox (badness 10000) detected at line 1470
+ []
+
+
+
+[29]
+Underfull \vbox (badness 10000) detected at line 1470
+ []
+
+
+Underfull \vbox (badness 10000) detected at line 1470
+ []
+
+
+
+[30]
+
+[31]
+Underfull \vbox (badness 10000) detected at line 1879
+ []
+
+
+Underfull \vbox (badness 10000) detected at line 1879
+ []
+
+
+
+[32]
+Underfull \vbox (badness 10000) detected at line 1879
+ []
+
+
+Underfull \vbox (badness 10000) detected at line 1879
+ []
+
+
+
+[33]
+Underfull \vbox (badness 10000) detected at line 1879
+ []
+
+
+Underfull \vbox (badness 10000) detected at line 1879
+ []
+
+
+
+[34]
+Underfull \vbox (badness 10000) detected at line 1879
+ []
+
+
+Underfull \vbox (badness 10000) detected at line 1879
+ []
+
+
+
+[35]
+Underfull \vbox (badness 10000) detected at line 1879
+ []
+
+
+Underfull \vbox (badness 10000) detected at line 1879
+ []
+
+
+
+[36]
+Underfull \vbox (badness 10000) detected at line 1879
+ []
+
+
+Underfull \vbox (badness 10000) detected at line 1879
+ []
+
+
+
+[37]
+Underfull \vbox (badness 10000) detected at line 1879
+ []
+
+
+Underfull \vbox (badness 10000) detected at line 1879
+ []
+
+
+
+[38]
+Underfull \vbox (badness 10000) detected at line 1879
+ []
+
+
+Underfull \vbox (badness 10000) detected at line 1879
+ []
+
+
+
+[39]
+
+[40]
+Underfull \vbox (badness 10000) detected at line 1950
+ []
+
+
+
+[41]
+
+[42]
+
+[43]
+Underfull \vbox (badness 10000) detected at line 2096
+ []
+
+
+
+[44]
+
+[45]
+Underfull \vbox (badness 10000) detected at line 2194
+ []
+
+
+Underfull \vbox (badness 10000) detected at line 2194
+ []
+
+
+
+[46]
+
+[47]
+
+[48]
+
+[49] (./smacofAccelerate.aux)
  ***********
 LaTeX2e <2024-06-01> patch level 2
-L3 programming layer <2024-07-20>
+L3 programming layer <2024-08-16>
  ***********
 
 LaTeX Warning: There were undefined references.
@@ -1412,19 +1515,19 @@ LaTeX Warning: There were undefined references.
 )
 
 Here is how much of LuaTeX's memory you used:
- 32975 strings out of 475910
- 125086,1977958 words of node,token memory allocated
- 1004 words of node memory still in use:
-   7 hlist, 2 vlist, 2 rule, 1 local_par, 4 glue, 4 kern, 1 penalty, 3 glyph, 96 attribute, 67 glue_spec, 96 attribute_list, 2 write, 6 pdf_action nodes
-   avail lists: 1:4,2:5103,3:1501,4:1274,5:1030,6:95,7:8019,8:89,9:612,10:11,11:539
- 54794 multiletter control sequences out of 65536+600000
- 110 fonts using 37731355 bytes
- 98i,10n,125p,1204b,529s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</Users/deleeuw/Library/TinyTeX/texmf-dist/fonts/opentype/public/lm/lmmonolt10-bold.otf></System/Library/Fonts/Supplemental/Times New Roman.ttf></Users/deleeuw/Library/TinyTeX/texmf-dist/fonts/opentype/public/lm/lmmono12-regular.otf></System/Library/Fonts/Supplemental/Times New Roman Italic.ttf></Users/deleeuw/Library/TinyTeX/texmf-dist/fonts/opentype/public/lm-math/latinmodern-math.otf></Users/deleeuw/Library/TinyTeX/texmf-dist/fonts/opentype/public/lm-math/latinmodern-math.otf></System/Library/Fonts/Supplemental/Times New Roman Bold.ttf></System/Library/Fonts/Supplemental/Times New Roman.ttf>
-Output written on smacofAccelerate.pdf (29 pages, 216881 bytes).
+ 33106 strings out of 475910
+ 156364,1977958 words of node,token memory allocated
+ 1220 words of node memory still in use:
+   7 hlist, 2 vlist, 2 rule, 1 local_par, 4 glue, 4 kern, 1 penalty, 3 glyph, 147 attribute, 67 glue_spec, 147 attribute_list, 2 write, 8 pdf_action nodes
+   avail lists: 1:10,2:8959,3:1593,4:2040,5:1786,6:105,7:12718,8:73,9:1024,10:13,11:548
+ 54861 multiletter control sequences out of 65536+600000
+ 111 fonts using 37857215 bytes
+ 98i,10n,125p,1204b,523s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</Users/deleeuw/Library/TinyTeX/texmf-dist/fonts/opentype/public/lm/lmmono10-italic.otf></Users/deleeuw/Library/TinyTeX/texmf-dist/fonts/opentype/public/lm/lmmonolt10-bold.otf></System/Library/Fonts/Supplemental/Times New Roman.ttf></Users/deleeuw/Library/TinyTeX/texmf-dist/fonts/opentype/public/lm-math/latinmodern-math.otf></Users/deleeuw/Library/TinyTeX/texmf-dist/fonts/opentype/public/lm/lmmono12-regular.otf></System/Library/Fonts/Supplemental/Times New Roman Italic.ttf></Users/deleeuw/Library/TinyTeX/texmf-dist/fonts/opentype/public/lm-math/latinmodern-math.otf></Users/deleeuw/Library/TinyTeX/texmf-dist/fonts/opentype/public/lm-math/latinmodern-math.otf></System/Library/Fonts/Supplemental/Times New Roman Bold.ttf></System/Library/Fonts/Supplemental/Times New Roman.ttf>
+Output written on smacofAccelerate.pdf (49 pages, 280249 bytes).
 
-PDF statistics: 399 PDF objects out of 1000 (max. 8388607)
- 340 compressed objects within 4 object streams
- 114 named destinations out of 1000 (max. 131072)
- 192 words of extra memory for PDF output out of 10000 (max. 100000000)
+PDF statistics: 652 PDF objects out of 1000 (max. 8388607)
+ 565 compressed objects within 6 object streams
+ 178 named destinations out of 1000 (max. 131072)
+ 360 words of extra memory for PDF output out of 10000 (max. 100000000)
 
