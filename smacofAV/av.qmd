@@ -1,0 +1,50 @@
+---
+title: "Absolute Value Loss"
+author: "Jan de Leeuw"
+format: pdf
+editor: source
+---
+
+$$
+\sigma_1(X)=\sum w_k|\delta_k-d_k(X)|
+$$
+
+AM/GM
+
+$$
+|\delta_k-d_k(X)|\leq\frac12\frac{1}{|\delta_k-d_k(Y)|}\{(\delta_k-d_k(X))^2+(\delta_k-d_k(Y))^2\}
+$$
+$$
+\sigma_1(X)\leq\frac12\sum \frac{w_k}{|\delta_k-d_k(Y)|}(\delta_k-d_k(X))^2+\frac12\sigma_1(Y)
+$$
+$$
+d_k(X+\epsilon Y)=
+\begin{cases}
+d_k(X)+\epsilon\frac{1}{d_k(X)}A_{ij}X&if\\
+\epsilon d_k(Y)&if
+\end{cases}
+$$
+$$
+|\delta_k-d_k(X)|=\max_{-1\leq s_k\leq +1}s_k(\delta_k-d_k(X))
+$$
+$$
+\sigma_1(X)=\max_{-1\leq s\leq +1}\sum w_ks_k(d_k(X)-\delta_k)
+$$
+$$
+d\sigma_1(X;Y)=\max_{s(X)}\sum \{w_ks_k(X)\frac{1}{d_k(X)}\text{tr}\ X'A_kY\mid d_k(X)>0\}+
+\sum\{w_ks_k(X)d_k(Y)\mid d_k(X)=0\}
+$$
+$$
+\sum\{w_k\frac{1}{d_k(X)}\text{tr}\ X'A_kY\mid \delta_k-d_k(X)>0\}-
+\sum\{w_k\frac{1}{d_k(X)}\text{tr}\ X'A_kY\mid \delta_k-d_k(X)<0\}+
+\sum\{w_k\frac{1}{d_k(X)}|\text{tr}\ X'A_kY|\mid \delta_k-d_k(X)=0\}
+$$
+$$
+\sigma_\epsilon(X)=\sum w_k\sqrt{(\delta_k-d_k(X))^2 + \epsilon^2}
+$$
+$$
+\mathcal{D}\sigma_\epsilon(X)=\sum \frac{w_k(\delta_k-d_k(X))}{d_k(X)\sqrt{(\delta_k-d_k(X))^2 + \epsilon^2}}A_kX
+$$
+
+$$
+_
