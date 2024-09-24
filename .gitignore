@@ -2,11 +2,12 @@
 .Rhistory
 .RData
 .Ruserdata
-.pdf
-.tex
-.log
+*.pdf
+*.tex
+*.log
 !preamble.tex
-.md
+*.md
 !README.md
 .Rproj
+*/literature/
 
