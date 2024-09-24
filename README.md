@@ -6,6 +6,7 @@ The manual for "Smacof at 50" consists of chapters about
 each of the programs in the project.
 
 * smacofAC - Metric with bounds and/or additive constant
+* smacofAV - Robust MDS
 * smacofBS - Non-linear with B-splines
 * smacofCR - Non-metric, Conditional Rank Orders
 * smacofEL - Constrained, spheres and ellipsoids
