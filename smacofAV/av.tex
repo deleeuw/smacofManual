@@ -1,0 +1,938 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  12pt,
+  letterpaper,
+  DIV=11,
+  numbers=noendperiod]{scrartcl}
+
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else  
+    % xetex/luatex font selection
+    \setmainfont[]{Times New Roman}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\setcounter{secnumdepth}{5}
+% Make \paragraph and \subparagraph free-standing
+\makeatletter
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}{
+    \@ifstar
+      \xxxParagraphStar
+      \xxxParagraphNoStar
+  }
+  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
+  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}{
+    \@ifstar
+      \xxxSubParagraphStar
+      \xxxSubParagraphNoStar
+  }
+  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
+  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+\makeatother
+
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{241,243,245}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.40,0.45,0.13}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\ExtensionTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.28,0.35,0.67}{#1}}
+\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.46,0.62}{#1}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.07,0.07,0.07}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+\KOMAoption{captions}{tableheading}
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Table of contents}
+\else
+  \newcommand\contentsname{Table of contents}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{List of Figures}
+\else
+  \newcommand\listfigurename{List of Figures}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{List of Tables}
+\else
+  \newcommand\listtablename{List of Tables}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figure}
+\else
+  \newcommand\figurename{Figure}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Table}
+\else
+  \newcommand\tablename{Table}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Robust Least Squares Multidimensional Scaling},
+  pdfauthor={Jan de Leeuw},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+
+\title{Robust Least Squares Multidimensional Scaling}
+\author{Jan de Leeuw}
+\date{September 23, 2024}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+We use an iteratively reweighted version of the smacof algorithm to
+minimize various robust multidimensional scaling loss functions. Our
+results depend strongly on a general theorem on sharp quadratic
+majorization of De Leeuw and Lange
+(\citeproc{ref-deleeuw_lange_A_09}{2009}).
+\end{abstract}
+
+
+\newcommand{\sectionbreak}{\pagebreak}
+\pagebreak
+
+\section{Introduction}\label{introduction}
+
+The title of this chapter seems something paradoxical. Least squares
+estimation is typically not robust, it is sensitive to outliers and pays
+a lot of attention to fitting the larger observations. What we mean by
+robust least squares MDS, however, is using the smacof machinery
+designed to minimize loss of the form \begin{equation}
+\sigma_2(X):=\sum w_k(\delta_k-d_k(X))^2\label{eq:stressdef},
+\end{equation} to minimize robust loss functions. The prototypical
+robust loss function is \begin{equation}
+\sigma_1(X):=\sum w_k|\delta_k-d_k(X)|\label{eq:stradddef},
+\end{equation} which we will call \emph{strife}, because stress,
+sstress, and strain are already taken.
+
+Strife is not differentiable at configurations \(X\) for which there is
+at least one \(k\) for which either \(d_k(X)=\delta_k\) or \(d_k(X)=0\)
+(or both). This lack of differentiability complicates the minimization
+problem. Moreover experience with one-dimensional and city block MDS
+suggests that having many points where the loss function is not
+differentiable leads to (many) additional local minima.
+
+In this chapter we will discuss (and implement) various variations of
+\(\sigma_1\) from \eqref{eq:stradddef}. They can be interpreted in two
+different ways. On the one hand we use smoothers of the absolute value
+function, and consequently of strife. This is not unlike the distance
+smoothing used by Pliner (\citeproc{ref-pliner_96}{1996}) and Groenen,
+Heiser, and Meulman (\citeproc{ref-groenen_heiser_meulman_99}{1999}) in
+the global minimization of \(\sigma_2\) from \eqref{eq:stressdef}. On
+the other hand our modified loss function can be interpreted as more
+robust versions of the least squares loss function, and consequently of
+stress.
+
+Our robust or smoother loss functions are all of the form
+\begin{equation}
+\sigma(X):=\sum w_k\ f(\delta_k-d_k(X))\label{eq:strifedef},
+\end{equation} for a suitable choice of the real valued function \(f\).
+We will define what we mean by ``suitable'' later on. For now, note that
+loss \eqref{eq:stressdef} is the special case with \(f(x)=x^2\) and loss
+\eqref{eq:stradddiff} is the special case with \(f(x)=|x|\).
+
+\section{Majorizing Strife}\label{majorizing-strife}
+
+The pioneering work in strife minimization using smacof is Heiser
+(\citeproc{ref-heiser_88}{1988}), building on earlier work in Heiser
+(\citeproc{ref-heiser_87}{1987}). It is based on a creative use of the
+Arithmetic Mean-Geometric Mean (AM/GM) inequality to find a majorizer of
+the absolute value function. For the general theory of majorization
+algorithms (now more commonly known as MM algorithms) we refer to their
+original introduction in De Leeuw (\citeproc{ref-deleeuw_C_94c}{1994})
+and to the excellent book by Lange (\citeproc{ref-lange_16}{2016}).
+
+The AM/GM inequality says that for all non-negative \(x\) and \(y\) we
+have \begin{equation}
+|x||y|=\sqrt{x^2y^2}\leq\frac12(x^2+y^2),\label{eq:amgm}
+\end{equation} with equality if and only if \(x=y\). If \(y>0\) we can
+write \eqref{eq:amgm} as \begin{equation}
+|x|\leq\frac12\frac{1}{|y|}(x^2+y^2),\label{eq:amgmmaj}
+\end{equation} and this provides a quadratic majorization of \(|x|\) at
+\(y\). There is no quadratic majorization of \(|x|\) at \(y=0\), which
+is a nuisance we must deal with.
+
+Using the majorization \eqref{eq:amgmmaj}, and assuming
+\(\delta_k\not= d_k(Y)\) for all \(k\), we define \begin{equation}
+\omega_1(X):=\frac12\sum w_k\frac{1}{|\delta_k-d_k(Y)|}((\delta_k-d_k(Y))^2+(\delta_k-d_k(X))^2).\label{eq:omegadef}
+\end{equation} Now \(\sigma_1(X)\leq\omega_1(X)\) for all \(X\) and
+\(\sigma_1(Y)=\omega_1(Y)\). Thus \(\omega_1\) majorizes \(\sigma_1\) at
+\(Y\).
+
+But what if for some \(k\) we have \(d_k(Y)=\delta_k\) ? Define
+\begin{equation}
+\begin{subequations}
+s_k(Y)=\begin{cases}
+w_k\frac{1}{|\delta_k-d_k(Y)|}&\text{ if }d_k(Y)\not =\delta_k,\\
+2\ \max_k w_k&\text{ otherwise}.\label{eq:sdef}
+\end{cases}
+\end{subequations}
+\end{equation} Redefine \(\omega_1\) as \begin{equation}
+\omega_1(X):=\frac12\sum s_k(Y)\{(\delta_k-d_k(Y))^2+(\delta_k-d_k(X))^2\}.\label{eq:ommaj}
+\end{equation} This modified \(\omega_1\) majorizes \(\sigma_1\) at
+\(Y\), even in the case that \(\delta_k=d_k(Y)\) for all \(k\).
+
+Reweighted smacof to minimize strife computes \(X^{(k+1)}\) by
+decreasing \begin{equation}
+\sum s_k(X^{(k)})(\delta_k-d_k(X^{(k)}))^2,\label{eq:sstrf}
+\end{equation} using a standard smacof step. It then computes the new
+weights \(s_k(X^{(k+1)})\) and uses them in the next smacof step to
+update \(X^{(k+1)}\). And so on, until convergence.
+
+To illustrate the problems with differentability we compute the
+directional derivatives of strife.
+
+Let \(s_k(X):=w_k|d_k(X)-\delta_k|\).
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  If \(\delta_k=0\) and \(d_k(X)=0\) then \(ds_k(X;Y)=w_kd_k(Y)\).
+\item
+  If \(\delta_k>0\) and \(d_k(X)=0\) then \(ds(X;Y)=-w_kd_k(Y)\).
+\item
+  If \(d_k(X)>0\) and \(d_k(X)-\delta_k>0\) then
+  \(ds_k(X;Y)=w_k\frac{1}{d_k(X)}\text{tr}\ X'A_kY\).
+\item
+  If \(d_k(X)>0\) and \(d_k(X)-\delta_k<0\) then
+  \(ds_k(X;Y)=-w_k\frac{1}{d_k(X)}\text{tr}\ X'A_kY\).
+\item
+  If \(d_k(X)>0\) and \(d_k(X)-\delta_k=0\) then
+  \(ds_k(X;Y)=w_k\frac{1}{d_k(X)}|\text{tr}\ X'A_kY|\).
+\end{enumerate}
+
+The directional derivative of \(\sigma_1\) is consequently the sum of
+five terms, corresponding with each of these five cases.
+
+In the case of \(\sigma_2\) the directional derivatives could be used to
+prove that if \(w_k\delta_k>0\) for all \(k\) stress then is
+differentiable at each local minimum (De Leeuw
+(\citeproc{ref-deleeuw_A_84f}{1984})). For strife to be differentiable
+we would have to prove that at a local minimum both \(d_k(X)>0\) and
+\((d_k(X)-\delta_k)\not= 0\). So far I have no proof and no counter
+example, but it's early in the game.
+
+\section{Generalizing Strife}\label{generalizing-strife}
+
+The AM/GM inequality was used in the previous section to construct a
+quadratic majorization of strife. To fix the terminology we say that a
+function \(g\) \emph{majorizes} a function \(f\) at \(y\) if
+\(g(x)\geq f(x)\) for all \(x\) and \(g(y)=f(y)\). Majorization is
+\emph{strict} if \(g(x)>f(x)\) for all \(x\not= y\). If \(\mathfrak{H}\)
+is a family of functions that all majorize \(f\) at \(y\) then
+\(h\in\mathfrak{H}\) is \emph{sharp} if \(h(x)\leq g(x)\) for all
+\(g\in\mathfrak{H}\).
+
+We are specifically interested in this chapter in sharp quadratic
+majorization, in which \(\mathfrak{H}\) is the set of all convex
+quadratics that majorize \(f\) at \(y\). This case has been studied in
+detail (in the case of real-valued functions on the line) by De Leeuw
+and Lange (\citeproc{ref-deleeuw_lange_A_09}{2009}). Their Theorem 4.5
+on page 2478 says
+
+\begin{quote}
+Theorem: Suppose \(f(x)\) is an even, differentiable function on
+\(\mathbb{R}\) such that the ratio \(f'(x)/x\) is non-increasing on
+\((0,\infty)\). Then the even quadratic \begin{equation}
+g(x)=\frac{f'(y)}{2y}(x^2-y^2)+f(y)\label{eq:sharp}
+\end{equation} is a sharp quadratic majorizer of \(f\) at the point
+\(y\).
+\end{quote}
+
+We now apply this theorem to functions of the form \begin{equation}
+\sigma_f(X):=\sum w_k\ f(\delta_k-d_k(X)),\label{eq:fstressdef}
+\end{equation} where \(f\) satisfies the conditions in the theorem. If
+\begin{equation}
+\omega_f(X):=\sum w_k\frac{f'(\delta_k-d_k(Y))}{2(\delta_k-d_k(Y))}\{(\delta_k-d_k(X))^2-(\delta_k-d_k(Y))^2\}+f(\delta_k-d_k(Y)),\label{eq:fstressmaj}
+\end{equation} then \(\omega_f\) is a sharp quadratic majorization at
+\(Y\).
+
+Although the absolute value is not differentiable at the origin the
+theorem can still be applied. It just does not give a majorizer at
+\(y=0\). If \(f(x)=|x|\) then \begin{equation}
+g(x)=\frac{1}{2|y|}(x^2-y^2)+|y|=\frac{1}{2|y|}(x^2+y^2),label{eq:abssharp}
+\end{equation} which is the same as \eqref{eq:amgmmaj}. Thus the AM/GM
+method gives the sharp quadratic majorization.
+
+In iteration \(k\) the robust smacof algorithm does a smacof step
+towards minimization of \(\omega_f\) over \(X\). We can ignore the parts
+of \eqref{eq:fstressmaj} that only depend on \(Y\), and minimize
+\begin{equation}
+\sum w_k(X^{(k)})(\delta_k-d_k(X))^2,\label{eq:fstressaux}
+\end{equation} with \begin{equation}
+w_k(X^{(k)}):=w_k\frac{f'(\delta_k-d_k(X^{(k)}))}{2(\delta_k-d_k(Y))}.\label{eq:wkdef}
+\end{equation} It then recomputes the weights \(w_k(X^{(k+1)})\) and
+goes to the smacof step again. This can be thought of as iterativey
+reweighted least squares, and also as majorization within majorization,
+with the smacof majorization within the sharp quadratic majorization of
+the loss function.
+
+A straightforward variation of the algorithm does a number of smacof
+steps before upgrading the weights. This still leads to a monotone, and
+thus convergent, algorithm. How many smacof steps we have to take in the
+inner iterations is something that needs further study. It is likely to
+depend on the fit of the data, on the shape of the function near the
+local minimum, and on how far the iterations are from the local minimum.
+
+\section{Pseudo-Huber Loss, Charbonnier
+loss}\label{pseudo-huber-loss-charbonnier-loss}
+
+De Leeuw (\citeproc{ref-deleeuw_E_18f}{2018})
+
+\[
+f(x)=\sqrt{x^2 + c^2}
+\] \[
+f(x)=c\ \sqrt{1+(\frac{x}{c})^2}
+\] \[
+f'(x)=\frac{1}{\sqrt{x^2+c^2}}x
+\]
+
+\[
+\frac{f'(x)}{x}=\frac{1}{\sqrt{x^2+c^2}}
+\] which is decreasing. \[
+\sigma_\epsilon(X):=\sum w_k\sqrt{(\delta_k-d_k(X))^2+\epsilon^2}
+\] Now majorization using \[
+\sqrt{(\delta_k-d_k(X))^2+\epsilon^2}\leq\frac12\frac{1}{\sqrt{(\delta_k-d_k(Y))^2+\epsilon^2}}\{(\delta_k-d_k(X))^2+(\delta_k-d_k(Y))^2+2\epsilon^2\}
+\] Alt:
+
+\[
+\sigma_\epsilon(X)=\epsilon^2\left\{\sqrt{1+\frac{x^2}{\epsilon^2}}-1\right\}
+\]
+
+\section{Robustifying - Huber Loss}\label{robustifying---huber-loss}
+
+The Huber function (Huber (\citeproc{ref-huber_64}{1964})) is \[
+f(x)=\begin{cases}
+\frac12x^2&\text{ if }|x|<c,\\
+c|x|-\frac12 c^2&\text{ otherwise}.
+\end{cases}
+\]
+
+The Huber function is differentiable, although not twice diffentiable.
+Its derivative is \[
+f'(x)=\begin{cases}
+c&\text{ if }x\geq c,\\
+x&\text{ if }|x|\leq c,\\
+-c&\text{ if }x\leq -c.
+\end{cases}
+\]
+
+The Huber function is even and differentiable. Moreover \(f'(x)/x\)
+decreases from. Thus the theorem applies and the sharp quadratic
+majorizer at \(y\) is \[
+g(x)=\begin{cases}
+\end{cases}
+\]
+
+\[
+\sigma_k(X)=\begin{cases}
+\frac12(\delta_k-d_k(X))^2&\text{ if }|\delta_k-d_k(X)|<c,\\
+c|\delta_k-d_k(X)|-\frac12 c^2&\text{ if }|\delta_k-d_k(X)|\geq c.
+\end{cases}
+\]
+
+\[
+\omega_k(x,y)=\begin{cases}
+\frac12\frac{c}{|y|}(x^2-y^2)-cy-\frac12c^2&\text{ if }y\leq -c,\\
+\frac12x^2&\text{ if }|y|<c,\\
+\frac12\frac{c}{|y|}(x^2-y^2)+cy-\frac12c^2&\text{ if }y\geq +c.
+\end{cases}
+\] Now \(x=\delta_k-d_k(X)\) and \(y=\delta_k-d_k(Y)\)
+
+\[
+\omega_k(X;Y)=\begin{cases}
+\frac12\frac{c}{|\delta_k-d_k(Y)|}\{(\delta_k-d_k(X))^2+(d_k(Y)-\delta_k)^2\}-c(\delta_k-d_k(Y))-\frac12c^2&\text{ if }\delta_k-d_k(Y)\leq -c,\\
+\frac12(\delta_k-d_k(X))^2&\text{ if }|\delta_k-d_k(Y)|<c,\\
+\frac12\frac{c}{|\delta_k-d_k(Y)|}\{(\delta_k-d_k(X))^2+(d_k(Y)-\delta_k)^2\}+c(\delta_k-d_k(Y))-\frac12c^2&\text{ if }\delta_k-d_k(Y)\geq +c.
+\end{cases}
+\] Thus the MDS majorization algorithm for the Huber loss is to update
+\(Y\) by minimizing (or by performing one smacof step to decrease) \[
+\sum w_k(Y)(\delta_k-d_k(X))^2
+\] where \[
+w_k(Y)=\begin{cases}
+w_k&\text{ if }|\delta_k-d_k(Y)|<c,\\
+\frac{cw_k}{|\delta_k-d_k(Y)|}&\text{ otherwise}.
+\end{cases}
+\]
+
+\section{Tukey biweight}\label{tukey-biweight}
+
+\[
+f(x)=\begin{cases}
+\frac{c^2}{6}\left(1-\left[1-(\frac{x}{c})^2\right]^3\right)&\text{ if }|x|\leq c,\\
+\frac{c^2}{6}&\text{ otherwise }.
+\end{cases}
+\] \[
+f'(x)=\begin{cases}
+x\left[1-(\frac{x}{c})^2\right]^2&\text{ if }|x|\leq c,\\
+0&\text{ otherwise }.
+\end{cases}
+\] It is easy to see that \(f'(x)/x\) is non-increasing on
+\((0,+\infty)\). \[
+w_k(Y)=\begin{cases}
+\frac12w_k\left[1-(\frac{\delta_k-d_k(Y)}{c})^2\right]^2&\text{ if }|\delta_k-d_k(Y)|<c,\\
+0&\text{ otherwise}.
+\end{cases}
+\]
+
+\section{Convolution}\label{convolution}
+
+In De Leeuw (\citeproc{ref-deleeuw_E_18f}{2018}) we also study the
+convolution smoother proposed by Voronin, Ozkaya, and Yoshida
+(\citeproc{ref-voronin_ozkaya_yoshida_15}{n.d.}). The idea is to use the
+convolution of the absolute value function and a \emph{mollifier} as the
+smoothed function.
+
+\begin{quote}
+A smooth function \(\psi:\mathbb{R}\rightarrow\mathbb{R}\) is said to be
+a pdf if it is non-negative, and has area \(\int\psi(x)dx=1\). For any
+pdf \(\psi\) and any \(c>0\), deﬁne the parametric function
+\(\psi_c:\mathbb{R}\rightarrow\mathbb{R}\) by:
+\(\psi_c(x):= \frac{1}{c}\psi (\frac{1}{c})\), for all
+\(x\in\mathbb{R}\). Then \(\{\psi_c:c>0\}\) is a family of pdf's, whose
+support decreases as \(c\rightarrow 0\), but the volume under the graph
+always remains equal to one.
+\end{quote}
+
+choose a Gaussian pdf. \[
+f(x)=\frac{1}{c\sqrt{2\pi}}\int_{-\infty}^{+\infty}|x-y|\exp\left\{-\frac12(\frac{y}{c})^2\right\}dy
+\]
+
+Carrying out the integration gives
+
+\[
+f(x)=x\{2\Phi(x/c)-1\}+2c\phi(x/c).
+\] The derivative is \[
+f'(x)=2\Phi(x/c)-1
+\] It may not be immediately obvious in this case that \(f'(x)/x\) is
+decreasing. We prove that its derivative is negative on \((0,+\infty)\).
+The derivative of \(f'(x)/x\) has the sign of \(xf''(x)-f'(x)\), which
+is \(z\phi(z)-\Phi(z)+1/2\), with \(z=x/c\). It remains to show that
+\(\Phi(z)-z\phi(z)\geq\frac12\), or equivalently that
+\(\int_0^z\phi(x)dx-z\phi(z)\geq 0\). Now if \(0\leq x\leq z\) then
+\(\phi(x)\geq\phi(z)\) and thus
+\(\int_0^z\phi(x)dx\geq\phi(z)\int_0^zdx=z\phi(z)\), which completes the
+proof.
+
+\[
+w_k(Y)=
+\frac{\Phi((\delta_k-d_k(Y))/c)-\frac12}{\delta_k-d_k(Y)}\\
+\]
+
+\section{Barron Loss}\label{barron-loss}
+
+Not surprisingly there are a large number of generalizations of
+Huber-like losses in the engineering community, and in their maze of
+conference publications. Without having any confidence of selecting a
+representative sample from the literature, we mention Barron
+(\citeproc{ref-barron_17}{2017}), Barron
+(\citeproc{ref-barron_19}{2019}), Gokcesu and Gokcesu
+(\citeproc{ref-gokcesu_gokcesu_21}{2021}), Gokcesu and Gokcesu
+(\citeproc{ref-gokcesu_gokcesu_22}{2022}). These papers also give a
+large number of possibly useful references.
+
+It is also clear that we can use any location-scale family of
+probability densities to define convolution smoothers. There is an
+infinite number of possible choices, with finite or infinite support,
+smooth or nonsmooth, using splines or wavelets, and so on.
+
+\section{Example}\label{example}
+
+\section{Discussion}\label{discussion}
+
+\subsection{Fixed weights}\label{fixed-weights}
+
+\section{Code}\label{code}
+
+We wrote separate programs in R (R Core Team
+(\citeproc{ref-r_core_team_24}{2024})) for pseudo-Huber, Huber, Tukey,
+and the convulution smoother. Each programs is about 50 lines of code,
+and they differ in less tha 10 of the 50 lines. That leads to a lot of
+duplicate code, obviously, and it would make sense to merge the four
+programs into a single one.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{smacofRobustPseudoHuber }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(delta,}
+                                    \AttributeTok{weights =} \DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{diag}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(delta)),}
+                                    \AttributeTok{ndim =} \DecValTok{2}\NormalTok{,}
+                                    \AttributeTok{cons =} \DecValTok{0}\NormalTok{,}
+                                    \AttributeTok{itmax =} \DecValTok{1000}\NormalTok{,}
+                                    \AttributeTok{eps =} \FloatTok{1e{-}15}\NormalTok{,}
+                                    \AttributeTok{verbose =} \ConstantTok{TRUE}\NormalTok{) \{}
+\NormalTok{  nobj }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(delta)}
+\NormalTok{  wmax }\OtherTok{\textless{}{-}} \FunctionTok{max}\NormalTok{(weights)}
+\NormalTok{  xold }\OtherTok{\textless{}{-}} \FunctionTok{smacofTorgerson}\NormalTok{(delta, ndim)}
+\NormalTok{  dold }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xold))}
+\NormalTok{  rold }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{((delta }\SpecialCharTok{{-}}\NormalTok{ dold) }\SpecialCharTok{\^{}} \DecValTok{2} \SpecialCharTok{+}\NormalTok{ cons)}
+\NormalTok{  sold }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(weights }\SpecialCharTok{*}\NormalTok{ rold)}
+\NormalTok{  wold }\OtherTok{\textless{}{-}}\NormalTok{ weights }\SpecialCharTok{/}\NormalTok{ (rold }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}
+\NormalTok{  itel }\OtherTok{\textless{}{-}} \DecValTok{1}
+  \ControlFlowTok{repeat}\NormalTok{ \{}
+\NormalTok{    vmat }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wold}
+    \FunctionTok{diag}\NormalTok{(vmat) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(vmat)}
+\NormalTok{    vinv }\OtherTok{\textless{}{-}} \FunctionTok{solve}\NormalTok{(vmat }\SpecialCharTok{+}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{/}\NormalTok{ nobj)) }\SpecialCharTok{{-}}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{/}\NormalTok{ nobj)}
+\NormalTok{    bmat }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wold }\SpecialCharTok{*}\NormalTok{ delta }\SpecialCharTok{/}\NormalTok{ (dold }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}
+    \FunctionTok{diag}\NormalTok{(bmat) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(bmat)}
+\NormalTok{    xnew }\OtherTok{\textless{}{-}}\NormalTok{ vinv }\SpecialCharTok{\%*\%}\NormalTok{ (bmat }\SpecialCharTok{\%*\%}\NormalTok{ xold)}
+\NormalTok{    dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
+\NormalTok{    rnew }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{((delta }\SpecialCharTok{{-}}\NormalTok{ dnew) }\SpecialCharTok{\^{}} \DecValTok{2} \SpecialCharTok{+}\NormalTok{ cons)}
+\NormalTok{    wnew }\OtherTok{\textless{}{-}}\NormalTok{ weights }\SpecialCharTok{/}\NormalTok{ (rnew }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}
+\NormalTok{    snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(weights }\SpecialCharTok{*}\NormalTok{ rnew)}
+    \ControlFlowTok{if}\NormalTok{ (verbose) \{}
+      \FunctionTok{cat}\NormalTok{(}
+        \StringTok{"itel "}\NormalTok{,}
+        \FunctionTok{formatC}\NormalTok{(itel, }\AttributeTok{width =} \DecValTok{4}\NormalTok{, }\AttributeTok{format =} \StringTok{"d"}\NormalTok{),}
+        \StringTok{"sold "}\NormalTok{,}
+        \FunctionTok{formatC}\NormalTok{(sold, }\AttributeTok{digits =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
+        \StringTok{"snew "}\NormalTok{,}
+        \FunctionTok{formatC}\NormalTok{(snew, }\AttributeTok{digits =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
+        \StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}
+\NormalTok{      )}
+\NormalTok{    \}}
+    \ControlFlowTok{if}\NormalTok{ ((itel }\SpecialCharTok{==}\NormalTok{ itmax) }\SpecialCharTok{||}\NormalTok{ ((sold }\SpecialCharTok{{-}}\NormalTok{ snew) }\SpecialCharTok{\textless{}}\NormalTok{ eps)) \{}
+      \ControlFlowTok{break}
+\NormalTok{    \}}
+\NormalTok{    xold }\OtherTok{\textless{}{-}}\NormalTok{ xnew}
+\NormalTok{    dold }\OtherTok{\textless{}{-}}\NormalTok{ dnew}
+\NormalTok{    sold }\OtherTok{\textless{}{-}}\NormalTok{ snew}
+\NormalTok{    wold }\OtherTok{\textless{}{-}}\NormalTok{ wnew}
+\NormalTok{    rold }\OtherTok{\textless{}{-}}\NormalTok{ rnew}
+\NormalTok{    itel }\OtherTok{\textless{}{-}}\NormalTok{ itel }\SpecialCharTok{+} \DecValTok{1}
+\NormalTok{  \}}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{x =}\NormalTok{ xnew,}
+    \AttributeTok{s =}\NormalTok{ snew,}
+    \AttributeTok{d =}\NormalTok{ dnew,}
+    \AttributeTok{r =}\NormalTok{ rnew,}
+    \AttributeTok{itel =}\NormalTok{ itel}
+\NormalTok{  ))}
+\NormalTok{\}}
+
+\NormalTok{smacofRobustHuber }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(delta,}
+                              \AttributeTok{weights =} \DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{diag}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(delta)),}
+                              \AttributeTok{ndim =} \DecValTok{2}\NormalTok{,}
+                              \AttributeTok{cons =} \DecValTok{0}\NormalTok{,}
+                              \AttributeTok{itmax =} \DecValTok{1000}\NormalTok{,}
+                              \AttributeTok{eps =} \FloatTok{1e{-}10}\NormalTok{,}
+                              \AttributeTok{verbose =} \ConstantTok{TRUE}\NormalTok{) \{}
+\NormalTok{  nobj }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(delta)}
+\NormalTok{  wmax }\OtherTok{\textless{}{-}} \FunctionTok{max}\NormalTok{(weights)}
+\NormalTok{  xold }\OtherTok{\textless{}{-}} \FunctionTok{smacofTorgerson}\NormalTok{(delta, ndim)}
+\NormalTok{  dold }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xold))}
+\NormalTok{  fold }\OtherTok{\textless{}{-}} \FunctionTok{abs}\NormalTok{(delta }\SpecialCharTok{{-}}\NormalTok{ dold)}
+\NormalTok{  rold }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(fold }\SpecialCharTok{\textless{}}\NormalTok{ cons, (fold }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{2}\NormalTok{, cons }\SpecialCharTok{*}\NormalTok{ fold }\SpecialCharTok{{-}}\NormalTok{ (cons }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{2}\NormalTok{)}
+\NormalTok{  sold }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(weights }\SpecialCharTok{*}\NormalTok{ rold)}
+\NormalTok{  wold }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(fold }\SpecialCharTok{\textless{}}\NormalTok{ cons, weights, cons }\SpecialCharTok{*}\NormalTok{ weights }\SpecialCharTok{/}\NormalTok{ (fold }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj)))}
+\NormalTok{  itel }\OtherTok{\textless{}{-}} \DecValTok{1}
+  \ControlFlowTok{repeat}\NormalTok{ \{}
+\NormalTok{    vmat }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wold}
+    \FunctionTok{diag}\NormalTok{(vmat) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(vmat)}
+\NormalTok{    vinv }\OtherTok{\textless{}{-}} \FunctionTok{solve}\NormalTok{(vmat }\SpecialCharTok{+}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{/}\NormalTok{ nobj)) }\SpecialCharTok{{-}}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{/}\NormalTok{ nobj)}
+\NormalTok{    bmat }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wold }\SpecialCharTok{*}\NormalTok{ delta }\SpecialCharTok{/}\NormalTok{ (dold }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}
+    \FunctionTok{diag}\NormalTok{(bmat) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(bmat)}
+\NormalTok{    xnew }\OtherTok{\textless{}{-}}\NormalTok{ vinv }\SpecialCharTok{\%*\%}\NormalTok{ (bmat }\SpecialCharTok{\%*\%}\NormalTok{ xold)}
+\NormalTok{    dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
+\NormalTok{    fnew }\OtherTok{\textless{}{-}} \FunctionTok{abs}\NormalTok{(delta }\SpecialCharTok{{-}}\NormalTok{ dnew)}
+\NormalTok{    rnew }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(fnew }\SpecialCharTok{\textless{}}\NormalTok{ cons, (fnew }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{2}\NormalTok{, cons }\SpecialCharTok{*}\NormalTok{ fnew }\SpecialCharTok{{-}}\NormalTok{ (cons }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{2}\NormalTok{)}
+\NormalTok{    snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(weights }\SpecialCharTok{*}\NormalTok{ rnew)}
+\NormalTok{    wnew }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(fnew }\SpecialCharTok{\textless{}}\NormalTok{ cons, weights, cons }\SpecialCharTok{*}\NormalTok{ weights }\SpecialCharTok{/}\NormalTok{ (fnew }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj)))}
+    \ControlFlowTok{if}\NormalTok{ (verbose) \{}
+      \FunctionTok{cat}\NormalTok{(}
+        \StringTok{"itel "}\NormalTok{,}
+        \FunctionTok{formatC}\NormalTok{(itel, }\AttributeTok{width =} \DecValTok{4}\NormalTok{, }\AttributeTok{format =} \StringTok{"d"}\NormalTok{),}
+        \StringTok{"sold "}\NormalTok{,}
+        \FunctionTok{formatC}\NormalTok{(sold, }\AttributeTok{digits =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
+        \StringTok{"snew "}\NormalTok{,}
+        \FunctionTok{formatC}\NormalTok{(snew, }\AttributeTok{digits =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
+        \StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}
+\NormalTok{      )}
+\NormalTok{    \}}
+    \ControlFlowTok{if}\NormalTok{ ((itel }\SpecialCharTok{==}\NormalTok{ itmax) }\SpecialCharTok{||}\NormalTok{ ((sold }\SpecialCharTok{{-}}\NormalTok{ snew) }\SpecialCharTok{\textless{}}\NormalTok{ eps)) \{}
+      \ControlFlowTok{break}
+\NormalTok{    \}}
+\NormalTok{    xold }\OtherTok{\textless{}{-}}\NormalTok{ xnew}
+\NormalTok{    dold }\OtherTok{\textless{}{-}}\NormalTok{ dnew}
+\NormalTok{    sold }\OtherTok{\textless{}{-}}\NormalTok{ snew}
+\NormalTok{    wold }\OtherTok{\textless{}{-}}\NormalTok{ wnew}
+\NormalTok{    rold }\OtherTok{\textless{}{-}}\NormalTok{ rnew}
+\NormalTok{    itel }\OtherTok{\textless{}{-}}\NormalTok{ itel }\SpecialCharTok{+} \DecValTok{1}
+\NormalTok{  \}}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{x =}\NormalTok{ xnew,}
+    \AttributeTok{s =}\NormalTok{ snew,}
+    \AttributeTok{d =}\NormalTok{ dnew,}
+    \AttributeTok{r =}\NormalTok{ rnew,}
+    \AttributeTok{itel =}\NormalTok{ itel}
+\NormalTok{  ))}
+\NormalTok{\}}
+
+\NormalTok{smacofRobustTukey }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(delta,}
+                              \AttributeTok{weights =} \DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{diag}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(delta)),}
+                              \AttributeTok{ndim =} \DecValTok{2}\NormalTok{,}
+                              \AttributeTok{cons =} \DecValTok{0}\NormalTok{,}
+                              \AttributeTok{itmax =} \DecValTok{1000}\NormalTok{,}
+                              \AttributeTok{eps =} \FloatTok{1e{-}10}\NormalTok{,}
+                              \AttributeTok{verbose =} \ConstantTok{TRUE}\NormalTok{) \{}
+\NormalTok{  nobj }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(delta)}
+\NormalTok{  wmax }\OtherTok{\textless{}{-}} \FunctionTok{max}\NormalTok{(weights)}
+\NormalTok{  xold }\OtherTok{\textless{}{-}} \FunctionTok{smacofTorgerson}\NormalTok{(delta, ndim)}
+\NormalTok{  dold }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xold))}
+\NormalTok{  fold }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{{-}}\NormalTok{ dold}
+\NormalTok{  rold }\OtherTok{\textless{}{-}}\NormalTok{ ((cons }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{6}\NormalTok{) }\SpecialCharTok{*} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(fold) }\SpecialCharTok{\textless{}}\NormalTok{ cons, (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ (fold }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{\^{}} \DecValTok{3}\NormalTok{), }\DecValTok{1}\NormalTok{)}
+\NormalTok{  sold }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(weights }\SpecialCharTok{*}\NormalTok{ rold)}
+\NormalTok{  wold }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(fold) }\SpecialCharTok{\textless{}}\NormalTok{ cons, weights }\SpecialCharTok{*}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ (fold }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{, }\DecValTok{0}\NormalTok{) }\SpecialCharTok{/} \DecValTok{2}
+\NormalTok{  itel }\OtherTok{\textless{}{-}} \DecValTok{1}
+  \ControlFlowTok{repeat}\NormalTok{ \{}
+\NormalTok{    vmat }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wold}
+    \FunctionTok{diag}\NormalTok{(vmat) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(vmat)}
+\NormalTok{    vinv }\OtherTok{\textless{}{-}} \FunctionTok{solve}\NormalTok{(vmat }\SpecialCharTok{+}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{/}\NormalTok{ nobj)) }\SpecialCharTok{{-}}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{/}\NormalTok{ nobj)}
+\NormalTok{    bmat }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wold }\SpecialCharTok{*}\NormalTok{ delta }\SpecialCharTok{/}\NormalTok{ (dold }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}
+    \FunctionTok{diag}\NormalTok{(bmat) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(bmat)}
+\NormalTok{    xnew }\OtherTok{\textless{}{-}}\NormalTok{ vinv }\SpecialCharTok{\%*\%}\NormalTok{ (bmat }\SpecialCharTok{\%*\%}\NormalTok{ xold)}
+\NormalTok{    dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
+\NormalTok{    fnew }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{{-}}\NormalTok{ dnew}
+\NormalTok{    rnew }\OtherTok{\textless{}{-}}\NormalTok{ ((cons }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{6}\NormalTok{) }\SpecialCharTok{*} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(fnew) }\SpecialCharTok{\textless{}}\NormalTok{ cons, (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ (fnew }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{\^{}} \DecValTok{3}\NormalTok{), }\DecValTok{1}\NormalTok{)}
+\NormalTok{    snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(weights }\SpecialCharTok{*}\NormalTok{ rnew)}
+\NormalTok{    wnew }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(fnew) }\SpecialCharTok{\textless{}}\NormalTok{ cons, weights }\SpecialCharTok{*}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ (fnew }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{, }\DecValTok{0}\NormalTok{) }\SpecialCharTok{/} \DecValTok{2}
+    \ControlFlowTok{if}\NormalTok{ (verbose) \{}
+      \FunctionTok{cat}\NormalTok{(}
+        \StringTok{"itel "}\NormalTok{,}
+        \FunctionTok{formatC}\NormalTok{(itel, }\AttributeTok{width =} \DecValTok{4}\NormalTok{, }\AttributeTok{format =} \StringTok{"d"}\NormalTok{),}
+        \StringTok{"sold "}\NormalTok{,}
+        \FunctionTok{formatC}\NormalTok{(sold, }\AttributeTok{digits =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
+        \StringTok{"snew "}\NormalTok{,}
+        \FunctionTok{formatC}\NormalTok{(snew, }\AttributeTok{digits =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
+        \StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}
+\NormalTok{      )}
+\NormalTok{    \}}
+    \ControlFlowTok{if}\NormalTok{ ((itel }\SpecialCharTok{==}\NormalTok{ itmax) }\SpecialCharTok{||}\NormalTok{ ((sold }\SpecialCharTok{{-}}\NormalTok{ snew) }\SpecialCharTok{\textless{}}\NormalTok{ eps)) \{}
+      \ControlFlowTok{break}
+\NormalTok{    \}}
+\NormalTok{    xold }\OtherTok{\textless{}{-}}\NormalTok{ xnew}
+\NormalTok{    dold }\OtherTok{\textless{}{-}}\NormalTok{ dnew}
+\NormalTok{    sold }\OtherTok{\textless{}{-}}\NormalTok{ snew}
+\NormalTok{    wold }\OtherTok{\textless{}{-}}\NormalTok{ wnew}
+\NormalTok{    rold }\OtherTok{\textless{}{-}}\NormalTok{ rnew}
+\NormalTok{    itel }\OtherTok{\textless{}{-}}\NormalTok{ itel }\SpecialCharTok{+} \DecValTok{1}
+\NormalTok{  \}}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{x =}\NormalTok{ xnew,}
+    \AttributeTok{s =}\NormalTok{ snew,}
+    \AttributeTok{d =}\NormalTok{ dnew,}
+    \AttributeTok{r =}\NormalTok{ rnew,}
+    \AttributeTok{itel =}\NormalTok{ itel}
+\NormalTok{  ))}
+\NormalTok{\}}
+
+\NormalTok{smacofRobustConvolution }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(delta,}
+                              \AttributeTok{weights =} \DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{diag}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(delta)),}
+                              \AttributeTok{ndim =} \DecValTok{2}\NormalTok{,}
+                              \AttributeTok{cons =} \DecValTok{0}\NormalTok{,}
+                              \AttributeTok{itmax =} \DecValTok{1000}\NormalTok{,}
+                              \AttributeTok{eps =} \FloatTok{1e{-}10}\NormalTok{,}
+                              \AttributeTok{verbose =} \ConstantTok{TRUE}\NormalTok{) \{}
+\NormalTok{  nobj }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(delta)}
+\NormalTok{  wmax }\OtherTok{\textless{}{-}} \FunctionTok{max}\NormalTok{(weights)}
+\NormalTok{  xold }\OtherTok{\textless{}{-}} \FunctionTok{smacofTorgerson}\NormalTok{(delta, ndim)}
+\NormalTok{  dold }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xold))}
+\NormalTok{  fold }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{{-}}\NormalTok{ dold}
+\NormalTok{  rold }\OtherTok{\textless{}{-}}\NormalTok{ fold }\SpecialCharTok{*}\NormalTok{ (}\DecValTok{2} \SpecialCharTok{*} \FunctionTok{pnorm}\NormalTok{(fold }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+} \DecValTok{2} \SpecialCharTok{*}\NormalTok{ cons }\SpecialCharTok{*} \FunctionTok{dnorm}\NormalTok{(fold }\SpecialCharTok{/}\NormalTok{ cons)}
+\NormalTok{  sold }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(weights }\SpecialCharTok{*}\NormalTok{ rold)}
+\NormalTok{  wold }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{pnorm}\NormalTok{(fold }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{{-}} \FloatTok{0.5}\NormalTok{) }\SpecialCharTok{/}\NormalTok{ (fold }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}
+\NormalTok{  itel }\OtherTok{\textless{}{-}} \DecValTok{1}
+  \ControlFlowTok{repeat}\NormalTok{ \{}
+\NormalTok{    vmat }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wold}
+    \FunctionTok{diag}\NormalTok{(vmat) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(vmat)}
+\NormalTok{    vinv }\OtherTok{\textless{}{-}} \FunctionTok{solve}\NormalTok{(vmat }\SpecialCharTok{+}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{/}\NormalTok{ nobj)) }\SpecialCharTok{{-}}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{/}\NormalTok{ nobj)}
+\NormalTok{    bmat }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wold }\SpecialCharTok{*}\NormalTok{ delta }\SpecialCharTok{/}\NormalTok{ (dold }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}
+    \FunctionTok{diag}\NormalTok{(bmat) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(bmat)}
+\NormalTok{    xnew }\OtherTok{\textless{}{-}}\NormalTok{ vinv }\SpecialCharTok{\%*\%}\NormalTok{ (bmat }\SpecialCharTok{\%*\%}\NormalTok{ xold)}
+\NormalTok{    dnew }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xnew))}
+\NormalTok{    fnew }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{{-}}\NormalTok{ dnew}
+\NormalTok{    rnew }\OtherTok{\textless{}{-}}\NormalTok{ fnew }\SpecialCharTok{*}\NormalTok{ (}\DecValTok{2} \SpecialCharTok{*} \FunctionTok{pnorm}\NormalTok{(fnew }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+} \DecValTok{2} \SpecialCharTok{*}\NormalTok{ cons }\SpecialCharTok{*} \FunctionTok{dnorm}\NormalTok{(fnew }\SpecialCharTok{/}\NormalTok{ cons)}
+\NormalTok{    snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(weights }\SpecialCharTok{*}\NormalTok{ rnew)}
+\NormalTok{    wnew }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{pnorm}\NormalTok{(fnew }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{{-}} \FloatTok{0.5}\NormalTok{) }\SpecialCharTok{/}\NormalTok{ (fnew }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}
+    \ControlFlowTok{if}\NormalTok{ (verbose) \{}
+      \FunctionTok{cat}\NormalTok{(}
+        \StringTok{"itel "}\NormalTok{,}
+        \FunctionTok{formatC}\NormalTok{(itel, }\AttributeTok{width =} \DecValTok{4}\NormalTok{, }\AttributeTok{format =} \StringTok{"d"}\NormalTok{),}
+        \StringTok{"sold "}\NormalTok{,}
+        \FunctionTok{formatC}\NormalTok{(sold, }\AttributeTok{digits =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
+        \StringTok{"snew "}\NormalTok{,}
+        \FunctionTok{formatC}\NormalTok{(snew, }\AttributeTok{digits =} \DecValTok{10}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
+        \StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}
+\NormalTok{      )}
+\NormalTok{    \}}
+    \ControlFlowTok{if}\NormalTok{ ((itel }\SpecialCharTok{==}\NormalTok{ itmax) }\SpecialCharTok{||}\NormalTok{ ((sold }\SpecialCharTok{{-}}\NormalTok{ snew) }\SpecialCharTok{\textless{}}\NormalTok{ eps)) \{}
+      \ControlFlowTok{break}
+\NormalTok{    \}}
+\NormalTok{    xold }\OtherTok{\textless{}{-}}\NormalTok{ xnew}
+\NormalTok{    dold }\OtherTok{\textless{}{-}}\NormalTok{ dnew}
+\NormalTok{    sold }\OtherTok{\textless{}{-}}\NormalTok{ snew}
+\NormalTok{    wold }\OtherTok{\textless{}{-}}\NormalTok{ wnew}
+\NormalTok{    rold }\OtherTok{\textless{}{-}}\NormalTok{ rnew}
+\NormalTok{    itel }\OtherTok{\textless{}{-}}\NormalTok{ itel }\SpecialCharTok{+} \DecValTok{1}
+\NormalTok{  \}}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{x =}\NormalTok{ xnew,}
+    \AttributeTok{s =}\NormalTok{ snew,}
+    \AttributeTok{d =}\NormalTok{ dnew,}
+    \AttributeTok{r =}\NormalTok{ rnew,}
+    \AttributeTok{itel =}\NormalTok{ itel}
+\NormalTok{  ))}
+\NormalTok{\}}
+
+\NormalTok{smacofTorgerson }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(delta, ndim) \{}
+\NormalTok{  dd }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{\^{}} \DecValTok{2}
+\NormalTok{  rd }\OtherTok{\textless{}{-}} \FunctionTok{apply}\NormalTok{(dd, }\DecValTok{1}\NormalTok{, mean)}
+\NormalTok{  md }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(dd)}
+\NormalTok{  sd }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{.}\DecValTok{5} \SpecialCharTok{*}\NormalTok{ (dd }\SpecialCharTok{{-}} \FunctionTok{outer}\NormalTok{(rd, rd, }\StringTok{"+"}\NormalTok{) }\SpecialCharTok{+}\NormalTok{ md)}
+\NormalTok{  ed }\OtherTok{\textless{}{-}} \FunctionTok{eigen}\NormalTok{(sd)}
+  \FunctionTok{return}\NormalTok{(ed}\SpecialCharTok{$}\NormalTok{vectors[, }\DecValTok{1}\SpecialCharTok{:}\NormalTok{ndim] }\SpecialCharTok{\%*\%} \FunctionTok{diag}\NormalTok{(}\FunctionTok{sqrt}\NormalTok{(ed}\SpecialCharTok{$}\NormalTok{values[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{ndim])))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\section*{References}\label{references}
+\addcontentsline{toc}{section}{References}
+
+\phantomsection\label{refs}
+\begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-barron_17}
+Barron, J. T. 2017. {``A More General Robust Loss Function.''}
+\url{https://arxiv.org/pdf/1701.03077v1}.
+
+\bibitem[\citeproctext]{ref-barron_19}
+---------. 2019. {``A General and Adaptive Robust Loss Function.''} In
+\emph{Proceedings 2019 IEEE/CVF Conferehce on Computer Vision and
+Pattern Recognition}, 4331--39.
+\url{https://openaccess.thecvf.com/content_CVPR_2019/papers/Barron_A_General_and_Adaptive_Robust_Loss_Function_CVPR_2019_paper.pdf}.
+
+\bibitem[\citeproctext]{ref-deleeuw_A_84f}
+De Leeuw, J. 1984. {``{Differentiability of Kruskal's Stress at a Local
+Minimum}.''} \emph{Psychometrika} 49: 111--13.
+
+\bibitem[\citeproctext]{ref-deleeuw_C_94c}
+---------. 1994. {``{Block Relaxation Algorithms in Statistics}.''} In
+\emph{Information Systems and Data Analysis}, edited by H. H. Bock, W.
+Lenski, and M. M. Richter, 308--24. Berlin: Springer Verlag.
+\url{https://jansweb.netlify.app/publication/deleeuw-c-94-c/deleeuw-c-94-c.pdf}.
+
+\bibitem[\citeproctext]{ref-deleeuw_E_18f}
+---------. 2018. {``{MM Algorithms for Smoothed Absolute Values}.''}
+2018.
+
+\bibitem[\citeproctext]{ref-deleeuw_lange_A_09}
+De Leeuw, J., and K. Lange. 2009. {``Sharp Quadratic Majorization in One
+Dimension.''} \emph{Computational Statistics and Data Analysis} 53:
+2471--84.
+
+\bibitem[\citeproctext]{ref-gokcesu_gokcesu_21}
+Gokcesu, K., and H. Gokcesu. 2021. {``Generalized Huber Loss for Robust
+Learning and Its Efficient Minimization for a Robust Statistics.''}
+\url{https://arxiv.org/abs/2108.12627}.
+
+\bibitem[\citeproctext]{ref-gokcesu_gokcesu_22}
+---------. 2022. {``Nonconvex Extension of Generalized Huber Loss for
+Robust Learning and Pseudo-Mode Statistics.''} arXiv:2202.11141v1
+{[}stat.ML{]}. \url{https://arxiv.org/abs/2202.11141}.
+
+\bibitem[\citeproctext]{ref-groenen_heiser_meulman_99}
+Groenen, P. J. F., W. J. Heiser, and J. J. Meulman. 1999. {``{Global
+Optimization in Least-Squares Multidimensional Scaling by Distance
+Smoothing}.''} \emph{Journal of Classification} 16: 225--54.
+
+\bibitem[\citeproctext]{ref-heiser_87}
+Heiser, W. J. 1987. {``{Correspondence Analysis with Least Absolute
+Residuals}.''} \emph{Computational Statistica and Data Analysis} 5:
+337--56.
+
+\bibitem[\citeproctext]{ref-heiser_88}
+---------. 1988. {``{Multidimensional Scaling with Least Absolute
+Residuals}.''} In \emph{Classification and Related Methods of Data
+Analysis}, edited by H. H. Bock, 455--62. North-Holland Publishing Co.
+
+\bibitem[\citeproctext]{ref-huber_64}
+Huber, P. J. 1964. {``Robust Estimation of a Location Parameter.''}
+\emph{Annals of Mathematical Statistics} 35 (1): 73--101.
+
+\bibitem[\citeproctext]{ref-lange_16}
+Lange, K. 2016. \emph{MM Optimization Algorithms}. SIAM.
+
+\bibitem[\citeproctext]{ref-pliner_96}
+Pliner, V. 1996. {``{Metric Unidimensional Scaling and Global
+Optimization}.''} \emph{Journal of Classification} 13: 3--18.
+
+\bibitem[\citeproctext]{ref-r_core_team_24}
+R Core Team. 2024. \emph{R: A Language and Environment for Statistical
+Computing}. {Vienna, Austria}: R Foundation for Statistical Computing.
+\url{https://www.R-project.org/}.
+
+\bibitem[\citeproctext]{ref-voronin_ozkaya_yoshida_15}
+Voronin, S., G. Ozkaya, and Y. Yoshida. n.d. {``{Convolution Based
+Smooth Approximations to the Absolute Value Function with Application to
+Non-smooth Regularization}.''}
+
+\end{CSLReferences}
+
+
+
+
+\end{document}

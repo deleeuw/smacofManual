@@ -1,50 +1,670 @@
 ---
-title: "Absolute Value Loss"
-author: "Jan de Leeuw"
-format: pdf
+title: "Robust Least Squares Multidimensional Scaling"
+author: 
+    - name: Jan de Leeuw
+      orcid: 0000-0003-1420-1797
+      email: jan@deleeuwpdx.net
+      affiliation: 
+        - name: University of California Los Angeles
+          city: Los Angeles
+          state: CA
+          url: www.ucla.edu
+      license: "CC0"
+date: last-modified
+date-format: long
+bibliography: [mypubs.bib, total.bib]
+number-sections: true
+pdf-engine: lualatex
+keep-tex: true
+format:
+   pdf:
+    fontsize: 12pt
 editor: source
+graphics: true
+link-citations: true
+mainfont: Times New Roman
+abstract: We use an iteratively reweighted version of the smacof
+  algorithm to minimize various robust multidimensional scaling 
+  loss functions. Our results depend strongly on a general theorem on sharp quadratic majorization of @deleeuw_lange_A_09.
 ---
 
+\newcommand{\sectionbreak}{\pagebreak}
+\sectionbreak
+
+```{r gruijter, echo = FALSE}
+gruijter <-
+  structure(
+    c(
+      5.63,
+      5.27,
+      4.6,
+      4.8,
+      7.54,
+      6.73,
+      7.18,
+      6.17,
+      6.72,
+      5.64,
+      6.22,
+      5.12,
+      4.59,
+      7.22,
+      5.47,
+      5.46,
+      4.97,
+      8.13,
+      7.55,
+      6.9,
+      4.67,
+      3.2,
+      7.84,
+      6.73,
+      7.28,
+      6.13,
+      7.8,
+      7.08,
+      6.96,
+      6.04,
+      4.08,
+      6.34,
+      7.42,
+      6.88,
+      6.36,
+      7.36
+    ),
+    Labels = c("KVP", "PvdA", "VVD",
+               "ARP", "CHU", "CPN", "PSP", "BP", "D66"),
+    Size = 9L,
+    call = quote(as.dist.default(m = polpar)),
+    class = "dist",
+    Diag = FALSE,
+    Upper = FALSE
+  )
+
+gruijter <- as.matrix(gruijter)
+labels <- row.names(gruijter)
+```
+
+
+# Introduction
+
+The title of this chapter seems something paradoxical. Least squares estimation
+is typically not robust, it is sensitive to outliers and pays a lot of attention to fitting the larger observations. What we mean by robust least squares MDS, however, is using the smacof machinery designed to minimize loss of the form
+\begin{equation}
+\sigma_2(X):=\sum w_k(\delta_k-d_k(X))^2\label{eq:stressdef},
+\end{equation}
+to minimize robust loss functions. The prototypical robust loss function is 
+\begin{equation}
+\sigma_1(X):=\sum w_k|\delta_k-d_k(X)|\label{eq:stradddef},
+\end{equation}
+which we will call
+*strife*, because stress, sstress, and strain are already taken.
+
+Strife is not differentiable at configurations $X$ for which there is at least one $k$ for which either $d_k(X)=\delta_k$ or $d_k(X)=0$ (or both). This lack of differentiability complicates the minimization problem. Moreover experience
+with one-dimensional and city block MDS suggests that having many points
+where the loss function is not differentiable leads to (many) additional local minima.
+
+In this chapter we will discuss (and implement) various variations of 
+$\sigma_1$ from \eqref{eq:stradddef}. They can be interpreted in two different
+ways. On the one hand we use smoothers of the absolute value
+function, and consequently of strife. This is not unlike the distance
+smoothing used by @pliner_96 and @groenen_heiser_meulman_99 in 
+the global minimization of $\sigma_2$ from \eqref{eq:stressdef}.
+On the other hand our modified loss function can be interpreted
+as more robust versions of the least squares loss function, and
+consequently of stress.
+
+Our robust or smoother loss functions are all of the form
+\begin{equation}
+\sigma(X):=\sum w_k\ f(\delta_k-d_k(X))\label{eq:strifedef},
+\end{equation}
+for a suitable choice of the real valued function $f$. We will
+define what we mean by "suitable" later on. For now, note that loss
+\eqref{eq:stressdef} is the special case with $f(x)=x^2$ and loss \eqref{eq:stradddiff} 
+is the special case with $f(x)=|x|$. 
+
+# Majorizing Strife
+
+The pioneering work in strife minimization using smacof is @heiser_88, building on earlier work in @heiser_87. It is based on a creative use of the Arithmetic Mean-Geometric Mean (AM/GM) inequality to find a majorizer of the absolute
+value function. For the general theory of majorization algorithms (now more commonly known as MM algorithms) we refer to their original introduction in @deleeuw_C_94c and to the excellent book by @lange_16.
+
+The AM/GM inequality says that for all non-negative $x$ and $y$ we have 
+\begin{equation}
+|x||y|=\sqrt{x^2y^2}\leq\frac12(x^2+y^2),\label{eq:amgm}
+\end{equation}
+with equality if and only if $x=y$. If $y>0$ we can write \eqref{eq:amgm} as
+\begin{equation}
+|x|\leq\frac12\frac{1}{|y|}(x^2+y^2),\label{eq:amgmmaj}
+\end{equation}
+and this provides a quadratic majorization of $|x|$ at $y$. There is no quadratic
+majorization of $|x|$ at $y=0$, which is a nuisance we must deal with.
+
+Using the majorization \eqref{eq:amgmmaj}, and assuming $\delta_k\not= d_k(Y)$ for all $k$, we define
+\begin{equation}
+\omega_1(X):=\frac12\sum w_k\frac{1}{|\delta_k-d_k(Y)|}((\delta_k-d_k(Y))^2+(\delta_k-d_k(X))^2).\label{eq:omegadef}
+\end{equation}
+Now $\sigma_1(X)\leq\omega_1(X)$ for all $X$ and $\sigma_1(Y)=\omega_1(Y)$. Thus
+$\omega_1$ majorizes $\sigma_1$ at $Y$.
+
+But what if for some $k$ we have $d_k(Y)=\delta_k$ ? Define
+\begin{equation}
+\begin{subequations}
+s_k(Y)=\begin{cases}
+w_k\frac{1}{|\delta_k-d_k(Y)|}&\text{ if }d_k(Y)\not =\delta_k,\\
+2\ \max_k w_k&\text{ otherwise}.\label{eq:sdef}
+\end{cases}
+\end{subequations}
+\end{equation}
+Redefine $\omega_1$ as
+\begin{equation}
+\omega_1(X):=\frac12\sum s_k(Y)\{(\delta_k-d_k(Y))^2+(\delta_k-d_k(X))^2\}.\label{eq:ommaj}
+\end{equation}
+This modified $\omega_1$ majorizes $\sigma_1$ at $Y$, even in the case that $\delta_k=d_k(Y)$ for all $k$.
+
+Reweighted smacof to minimize strife computes $X^{(k+1)}$ by decreasing
+\begin{equation}
+\sum s_k(X^{(k)})(\delta_k-d_k(X^{(k)}))^2,\label{eq:sstrf}
+\end{equation}
+using a standard smacof step. It then computes the new weights $s_k(X^{(k+1)})$
+and uses them in the next smacof step to update $X^{(k+1)}$. And so on, until convergence.
+
+To illustrate the problems with differentability we compute the directional derivatives of strife. 
+
+Let $s_k(X):=w_k|d_k(X)-\delta_k|$.
+
+1. If $\delta_k=0$ and $d_k(X)=0$ then $ds_k(X;Y)=w_kd_k(Y)$.
+2. If $\delta_k>0$ and $d_k(X)=0$ then $ds(X;Y)=-w_kd_k(Y)$.
+3. If $d_k(X)>0$ and $d_k(X)-\delta_k>0$ then 
+$ds_k(X;Y)=w_k\frac{1}{d_k(X)}\text{tr}\ X'A_kY$.
+4. If $d_k(X)>0$ and $d_k(X)-\delta_k<0$ then $ds_k(X;Y)=-w_k\frac{1}{d_k(X)}\text{tr}\ X'A_kY$.
+5. If $d_k(X)>0$ and $d_k(X)-\delta_k=0$ then $ds_k(X;Y)=w_k\frac{1}{d_k(X)}|\text{tr}\ X'A_kY|$.
+
+The directional derivative of $\sigma_1$ is consequently the sum of
+five terms, corresponding with each of these five cases.
+
+In the case of $\sigma_2$ the directional derivatives could be used to prove
+that if $w_k\delta_k>0$ for all $k$ stress then is differentiable at each local minimum (@deleeuw_A_84f). For strife to be differentiable we would have to prove that at a local minimum both $d_k(X)>0$ and $(d_k(X)-\delta_k)\not= 0$. So far I have no proof and no
+counter example, but it's early in the game.
+
+# Generalizing Strife
+
+The AM/GM inequality was used in the previous section to construct a quadratic majorization of strife. To fix the terminology we say that a function $g$
+*majorizes* a function $f$ at $y$ if $g(x)\geq f(x)$ for all $x$ and $g(y)=f(y)$.
+Majorization is *strict* if $g(x)>f(x)$ for all $x\not= y$. If $\mathfrak{H}$ is a family of functions that all majorize $f$ at $y$ then $h\in\mathfrak{H}$ is *sharp* if
+$h(x)\leq g(x)$ for all $g\in\mathfrak{H}$. 
+
+We are specifically interested in this chapter in sharp quadratic majorization, in
+which $\mathfrak{H}$ is the set of all convex quadratics that majorize $f$ at $y$.
+This case has been studied in detail (in the case of real-valued functions on the line)
+by @deleeuw_lange_A_09. Their Theorem 4.5 on page 2478 says
+
+>Theorem: Suppose $f(x)$ is an even, differentiable function on $\mathbb{R}$ such that the ratio 
+$f'(x)/x$ is non-increasing on $(0,\infty)$. Then the even quadratic
+\begin{equation}
+g(x)=\frac{f'(y)}{2y}(x^2-y^2)+f(y)\label{eq:sharp}
+\end{equation}
+is a sharp quadratic majorizer of $f$ at the point $y$.
+
+We now apply this theorem to functions of the form
+\begin{equation}
+\sigma_f(X):=\sum w_k\ f(\delta_k-d_k(X)),\label{eq:fstressdef}
+\end{equation}
+where $f$ satisfies the conditions in the theorem. If
+\begin{equation}
+\omega_f(X):=\sum w_k\frac{f'(\delta_k-d_k(Y))}{2(\delta_k-d_k(Y))}\{(\delta_k-d_k(X))^2-(\delta_k-d_k(Y))^2\}+f(\delta_k-d_k(Y)),\label{eq:fstressmaj}
+\end{equation}
+then $\omega_f$ is a sharp quadratic majorization at $Y$.
+
+Although the absolute value is not differentiable at the origin the theorem can still
+be applied. It just does not give a majorizer at $y=0$. If $f(x)=|x|$ then
+\begin{equation}
+g(x)=\frac{1}{2|y|}(x^2-y^2)+|y|=\frac{1}{2|y|}(x^2+y^2),label{eq:abssharp}
+\end{equation}
+which is the same as \eqref{eq:amgmmaj}. Thus the AM/GM method gives the sharp
+quadratic majorization.
+
+In iteration $k$ the robust smacof algorithm does a smacof step towards minimization of
+ $\omega_f$ over $X$. We can ignore the parts of \eqref{eq:fstressmaj} that only depend on $Y$, and 
+minimize
+\begin{equation}
+\sum w_k(X^{(k)})(\delta_k-d_k(X))^2,\label{eq:fstressaux}
+\end{equation}
+with 
+\begin{equation}
+w_k(X^{(k)}):=w_k\frac{f'(\delta_k-d_k(X^{(k)}))}{2(\delta_k-d_k(Y))}.\label{eq:wkdef}
+\end{equation}
+It then recomputes the weights $w_k(X^{(k+1)})$ and goes to the smacof step again.
+This can be thought of as iterativey reweighted least squares, and also as 
+majorization within majorization, with the smacof majorization within the sharp
+quadratic majorization of the loss function.
+
+A straightforward variation of the algorithm does a number of smacof steps before
+upgrading the weights. This still leads to a monotone, and thus convergent, algorithm.
+How many smacof steps we have to take in the inner iterations is something that
+needs further study. It is likely to depend on the fit of the data, on the shape of the function near the local minimum, and on how far the iterations are from the local
+minimum.
+
+# Pseudo-Huber Loss, Charbonnier loss
+
+@deleeuw_E_18f
+
 $$
-\sigma_1(X)=\sum w_k|\delta_k-d_k(X)|
+f(x)=\sqrt{x^2 + c^2}
+$$
+$$
+f(x)=c\ \sqrt{1+(\frac{x}{c})^2}
+$$
+$$
+f'(x)=\frac{1}{\sqrt{x^2+c^2}}x
 $$
 
-AM/GM
+$$
+\frac{f'(x)}{x}=\frac{1}{\sqrt{x^2+c^2}}
+$$
+which is decreasing.
+$$
+\sigma_\epsilon(X):=\sum w_k\sqrt{(\delta_k-d_k(X))^2+\epsilon^2}
+$$
+Now majorization using
+$$
+\sqrt{(\delta_k-d_k(X))^2+\epsilon^2}\leq\frac12\frac{1}{\sqrt{(\delta_k-d_k(Y))^2+\epsilon^2}}\{(\delta_k-d_k(X))^2+(\delta_k-d_k(Y))^2+2\epsilon^2\}
+$$
+Alt: 
 
 $$
-|\delta_k-d_k(X)|\leq\frac12\frac{1}{|\delta_k-d_k(Y)|}\{(\delta_k-d_k(X))^2+(\delta_k-d_k(Y))^2\}
+\sigma_\epsilon(X)=\epsilon^2\left\{\sqrt{1+\frac{x^2}{\epsilon^2}}-1\right\}
 $$
+
+# Robustifying - Huber Loss
+
+The Huber function (@huber_64) is 
 $$
-\sigma_1(X)\leq\frac12\sum \frac{w_k}{|\delta_k-d_k(Y)|}(\delta_k-d_k(X))^2+\frac12\sigma_1(Y)
+f(x)=\begin{cases}
+\frac12x^2&\text{ if }|x|<c,\\
+c|x|-\frac12 c^2&\text{ otherwise}.
+\end{cases}
 $$
+
+The Huber function is differentiable, although not twice diffentiable. Its derivative is
 $$
-d_k(X+\epsilon Y)=
-\begin{cases}
-d_k(X)+\epsilon\frac{1}{d_k(X)}A_{ij}X&if\\
-\epsilon d_k(Y)&if
+f'(x)=\begin{cases}
+c&\text{ if }x\geq c,\\
+x&\text{ if }|x|\leq c,\\
+-c&\text{ if }x\leq -c.
+\end{cases}
+$$
+
+The Huber function is even and differentiable. Moreover
+$f'(x)/x$ decreases from. Thus the theorem applies and
+the sharp quadratic majorizer at $y$ is
+$$
+g(x)=\begin{cases}
+\end{cases}
+$$
+
+$$
+\sigma_k(X)=\begin{cases}
+\frac12(\delta_k-d_k(X))^2&\text{ if }|\delta_k-d_k(X)|<c,\\
+c|\delta_k-d_k(X)|-\frac12 c^2&\text{ if }|\delta_k-d_k(X)|\geq c.
+\end{cases}
+$$
+
+$$
+\omega_k(x,y)=\begin{cases}
+\frac12\frac{c}{|y|}(x^2-y^2)-cy-\frac12c^2&\text{ if }y\leq -c,\\
+\frac12x^2&\text{ if }|y|<c,\\
+\frac12\frac{c}{|y|}(x^2-y^2)+cy-\frac12c^2&\text{ if }y\geq +c.
+\end{cases}
+$$
+Now $x=\delta_k-d_k(X)$ and $y=\delta_k-d_k(Y)$
+
+$$
+\omega_k(X;Y)=\begin{cases}
+\frac12\frac{c}{|\delta_k-d_k(Y)|}\{(\delta_k-d_k(X))^2+(d_k(Y)-\delta_k)^2\}-c(\delta_k-d_k(Y))-\frac12c^2&\text{ if }\delta_k-d_k(Y)\leq -c,\\
+\frac12(\delta_k-d_k(X))^2&\text{ if }|\delta_k-d_k(Y)|<c,\\
+\frac12\frac{c}{|\delta_k-d_k(Y)|}\{(\delta_k-d_k(X))^2+(d_k(Y)-\delta_k)^2\}+c(\delta_k-d_k(Y))-\frac12c^2&\text{ if }\delta_k-d_k(Y)\geq +c.
+\end{cases}
+$$
+Thus the MDS majorization algorithm for the Huber loss is to update $Y$ by 
+minimizing (or by performing one smacof step to decrease)
+$$
+\sum w_k(Y)(\delta_k-d_k(X))^2
+$$
+where
+$$
+w_k(Y)=\begin{cases}
+w_k&\text{ if }|\delta_k-d_k(Y)|<c,\\
+\frac{cw_k}{|\delta_k-d_k(Y)|}&\text{ otherwise}.
+\end{cases}
+$$
+
+# Tukey biweight
+
+$$
+f(x)=\begin{cases}
+\frac{c^2}{6}\left(1-\left[1-(\frac{x}{c})^2\right]^3\right)&\text{ if }|x|\leq c,\\
+\frac{c^2}{6}&\text{ otherwise }.
 \end{cases}
 $$
 $$
-|\delta_k-d_k(X)|=\max_{-1\leq s_k\leq +1}s_k(\delta_k-d_k(X))
+f'(x)=\begin{cases}
+x\left[1-(\frac{x}{c})^2\right]^2&\text{ if }|x|\leq c,\\
+0&\text{ otherwise }.
+\end{cases}
 $$
+It is easy to see that $f'(x)/x$ is non-increasing on $(0,+\infty)$.
 $$
-\sigma_1(X)=\max_{-1\leq s\leq +1}\sum w_ks_k(d_k(X)-\delta_k)
-$$
-$$
-d\sigma_1(X;Y)=\max_{s(X)}\sum \{w_ks_k(X)\frac{1}{d_k(X)}\text{tr}\ X'A_kY\mid d_k(X)>0\}+
-\sum\{w_ks_k(X)d_k(Y)\mid d_k(X)=0\}
-$$
-$$
-\sum\{w_k\frac{1}{d_k(X)}\text{tr}\ X'A_kY\mid \delta_k-d_k(X)>0\}-
-\sum\{w_k\frac{1}{d_k(X)}\text{tr}\ X'A_kY\mid \delta_k-d_k(X)<0\}+
-\sum\{w_k\frac{1}{d_k(X)}|\text{tr}\ X'A_kY|\mid \delta_k-d_k(X)=0\}
-$$
-$$
-\sigma_\epsilon(X)=\sum w_k\sqrt{(\delta_k-d_k(X))^2 + \epsilon^2}
-$$
-$$
-\mathcal{D}\sigma_\epsilon(X)=\sum \frac{w_k(\delta_k-d_k(X))}{d_k(X)\sqrt{(\delta_k-d_k(X))^2 + \epsilon^2}}A_kX
+w_k(Y)=\begin{cases}
+\frac12w_k\left[1-(\frac{\delta_k-d_k(Y)}{c})^2\right]^2&\text{ if }|\delta_k-d_k(Y)|<c,\\
+0&\text{ otherwise}.
+\end{cases}
 $$
 
+
+# Convolution
+
+In @deleeuw_E_18f we also study the
+convolution smoother proposed by @voronin_ozkaya_yoshida_15. The idea is
+to use the convolution of the absolute value
+function and a *mollifier* as the smoothed
+function. 
+
+> A smooth function $\psi:\mathbb{R}\rightarrow\mathbb{R}$ is said to be a pdf if it is non-negative, and has area 
+$\int\psi(x)dx=1$. For any pdf $\psi$ and any $c>0$, deﬁne the parametric function $\psi_c:\mathbb{R}\rightarrow\mathbb{R}$ by: $\psi_c(x):= \frac{1}{c}\psi (\frac{1}{c})$, for all $x\in\mathbb{R}$. Then $\{\psi_c:c>0\}$ is a family of pdf's, whose support decreases as $c\rightarrow 0$, but the volume under the graph always remains equal to one.
+
+choose a Gaussian pdf.
 $$
-_
+f(x)=\frac{1}{c\sqrt{2\pi}}\int_{-\infty}^{+\infty}|x-y|\exp\left\{-\frac12(\frac{y}{c})^2\right\}dy
+$$
+
+Carrying out the integration gives
+
+$$
+f(x)=x\{2\Phi(x/c)-1\}+2c\phi(x/c).
+$$
+The derivative is
+$$
+f'(x)=2\Phi(x/c)-1
+$$
+It may not be immediately obvious in this case that $f'(x)/x$ is decreasing. We prove that its
+derivative is negative on $(0,+\infty)$. 
+The derivative of $f'(x)/x$ has the sign of $xf''(x)-f'(x)$, which is
+$z\phi(z)-\Phi(z)+1/2$, with $z=x/c$. It remains to show that $\Phi(z)-z\phi(z)\geq\frac12$,
+or equivalently that $\int_0^z\phi(x)dx-z\phi(z)\geq 0$.
+Now if $0\leq x\leq z$ then $\phi(x)\geq\phi(z)$ and thus $\int_0^z\phi(x)dx\geq\phi(z)\int_0^zdx=z\phi(z)$, which completes the proof.
+
+
+$$
+w_k(Y)=
+\frac{\Phi((\delta_k-d_k(Y))/c)-\frac12}{\delta_k-d_k(Y)}\\
+$$
+
+# Barron Loss
+
+Not surprisingly there are a large number of generalizations
+of Huber-like losses in the engineering community, and in their
+maze of conference publications. Without having any confidence
+of selecting a representative sample from the literature, we mention
+@barron_17, @barron_19, @gokcesu_gokcesu_21, @gokcesu_gokcesu_22.
+These papers also give a large number of possibly useful 
+references. 
+
+It is also clear that we can use any location-scale family of
+probability densities to define convolution smoothers. There is an infinite number of possible choices, with finite or infinite support, smooth or nonsmooth, using splines or wavelets, and so on.
+
+# Example
+
+# Discussion
+
+## Fixed weights
+
+# Code
+
+We wrote separate programs in R (@r_core_team_24) for pseudo-Huber, Huber, Tukey, and the convulution smoother. Each programs is about
+50 lines of code, and they differ in less
+tha 10 of the 50 lines.
+That leads to a lot of duplicate code, obviously, and it would make sense to merge 
+the four programs into a single one.
+
+```{r code, eval = FALSE}
+smacofRobustPseudoHuber <- function(delta,
+                                    weights = 1 - diag(nrow(delta)),
+                                    ndim = 2,
+                                    cons = 0,
+                                    itmax = 1000,
+                                    eps = 1e-15,
+                                    verbose = TRUE) {
+  nobj <- nrow(delta)
+  wmax <- max(weights)
+  xold <- smacofTorgerson(delta, ndim)
+  dold <- as.matrix(dist(xold))
+  rold <- sqrt((delta - dold) ^ 2 + cons)
+  sold <- sum(weights * rold)
+  wold <- weights / (rold + diag(nobj))
+  itel <- 1
+  repeat {
+    vmat <- -wold
+    diag(vmat) <- -rowSums(vmat)
+    vinv <- solve(vmat + (1 / nobj)) - (1 / nobj)
+    bmat <- -wold * delta / (dold + diag(nobj))
+    diag(bmat) <- -rowSums(bmat)
+    xnew <- vinv %*% (bmat %*% xold)
+    dnew <- as.matrix(dist(xnew))
+    rnew <- sqrt((delta - dnew) ^ 2 + cons)
+    wnew <- weights / (rnew + diag(nobj))
+    snew <- sum(weights * rnew)
+    if (verbose) {
+      cat(
+        "itel ",
+        formatC(itel, width = 4, format = "d"),
+        "sold ",
+        formatC(sold, digits = 10, format = "f"),
+        "snew ",
+        formatC(snew, digits = 10, format = "f"),
+        "\n"
+      )
+    }
+    if ((itel == itmax) || ((sold - snew) < eps)) {
+      break
+    }
+    xold <- xnew
+    dold <- dnew
+    sold <- snew
+    wold <- wnew
+    rold <- rnew
+    itel <- itel + 1
+  }
+  return(list(
+    x = xnew,
+    s = snew,
+    d = dnew,
+    r = rnew,
+    itel = itel
+  ))
+}
+
+smacofRobustHuber <- function(delta,
+                              weights = 1 - diag(nrow(delta)),
+                              ndim = 2,
+                              cons = 0,
+                              itmax = 1000,
+                              eps = 1e-10,
+                              verbose = TRUE) {
+  nobj <- nrow(delta)
+  wmax <- max(weights)
+  xold <- smacofTorgerson(delta, ndim)
+  dold <- as.matrix(dist(xold))
+  fold <- abs(delta - dold)
+  rold <- ifelse(fold < cons, (fold ^ 2) / 2, cons * fold - (cons ^ 2) / 2)
+  sold <- sum(weights * rold)
+  wold <- ifelse(fold < cons, weights, cons * weights / (fold + diag(nobj)))
+  itel <- 1
+  repeat {
+    vmat <- -wold
+    diag(vmat) <- -rowSums(vmat)
+    vinv <- solve(vmat + (1 / nobj)) - (1 / nobj)
+    bmat <- -wold * delta / (dold + diag(nobj))
+    diag(bmat) <- -rowSums(bmat)
+    xnew <- vinv %*% (bmat %*% xold)
+    dnew <- as.matrix(dist(xnew))
+    fnew <- abs(delta - dnew)
+    rnew <- ifelse(fnew < cons, (fnew ^ 2) / 2, cons * fnew - (cons ^ 2) / 2)
+    snew <- sum(weights * rnew)
+    wnew <- ifelse(fnew < cons, weights, cons * weights / (fnew + diag(nobj)))
+    if (verbose) {
+      cat(
+        "itel ",
+        formatC(itel, width = 4, format = "d"),
+        "sold ",
+        formatC(sold, digits = 10, format = "f"),
+        "snew ",
+        formatC(snew, digits = 10, format = "f"),
+        "\n"
+      )
+    }
+    if ((itel == itmax) || ((sold - snew) < eps)) {
+      break
+    }
+    xold <- xnew
+    dold <- dnew
+    sold <- snew
+    wold <- wnew
+    rold <- rnew
+    itel <- itel + 1
+  }
+  return(list(
+    x = xnew,
+    s = snew,
+    d = dnew,
+    r = rnew,
+    itel = itel
+  ))
+}
+
+smacofRobustTukey <- function(delta,
+                              weights = 1 - diag(nrow(delta)),
+                              ndim = 2,
+                              cons = 0,
+                              itmax = 1000,
+                              eps = 1e-10,
+                              verbose = TRUE) {
+  nobj <- nrow(delta)
+  wmax <- max(weights)
+  xold <- smacofTorgerson(delta, ndim)
+  dold <- as.matrix(dist(xold))
+  fold <- delta - dold
+  rold <- ((cons ^ 2) / 6) * ifelse(abs(fold) < cons, (1 - (1 - (fold / cons) ^ 2) ^ 3), 1)
+  sold <- sum(weights * rold)
+  wold <- ifelse(abs(fold) < cons, weights * (1 - (fold / cons) ^ 2) ^ 2, 0) / 2
+  itel <- 1
+  repeat {
+    vmat <- -wold
+    diag(vmat) <- -rowSums(vmat)
+    vinv <- solve(vmat + (1 / nobj)) - (1 / nobj)
+    bmat <- -wold * delta / (dold + diag(nobj))
+    diag(bmat) <- -rowSums(bmat)
+    xnew <- vinv %*% (bmat %*% xold)
+    dnew <- as.matrix(dist(xnew))
+    fnew <- delta - dnew
+    rnew <- ((cons ^ 2) / 6) * ifelse(abs(fnew) < cons, (1 - (1 - (fnew / cons) ^ 2) ^ 3), 1)
+    snew <- sum(weights * rnew)
+    wnew <- ifelse(abs(fnew) < cons, weights * (1 - (fnew / cons) ^ 2) ^ 2, 0) / 2
+    if (verbose) {
+      cat(
+        "itel ",
+        formatC(itel, width = 4, format = "d"),
+        "sold ",
+        formatC(sold, digits = 10, format = "f"),
+        "snew ",
+        formatC(snew, digits = 10, format = "f"),
+        "\n"
+      )
+    }
+    if ((itel == itmax) || ((sold - snew) < eps)) {
+      break
+    }
+    xold <- xnew
+    dold <- dnew
+    sold <- snew
+    wold <- wnew
+    rold <- rnew
+    itel <- itel + 1
+  }
+  return(list(
+    x = xnew,
+    s = snew,
+    d = dnew,
+    r = rnew,
+    itel = itel
+  ))
+}
+
+smacofRobustConvolution <- function(delta,
+                              weights = 1 - diag(nrow(delta)),
+                              ndim = 2,
+                              cons = 0,
+                              itmax = 1000,
+                              eps = 1e-10,
+                              verbose = TRUE) {
+  nobj <- nrow(delta)
+  wmax <- max(weights)
+  xold <- smacofTorgerson(delta, ndim)
+  dold <- as.matrix(dist(xold))
+  fold <- delta - dold
+  rold <- fold * (2 * pnorm(fold / cons) - 1) + 2 * cons * dnorm(fold / cons)
+  sold <- sum(weights * rold)
+  wold <- (pnorm(fold / cons) - 0.5) / (fold + diag(nobj))
+  itel <- 1
+  repeat {
+    vmat <- -wold
+    diag(vmat) <- -rowSums(vmat)
+    vinv <- solve(vmat + (1 / nobj)) - (1 / nobj)
+    bmat <- -wold * delta / (dold + diag(nobj))
+    diag(bmat) <- -rowSums(bmat)
+    xnew <- vinv %*% (bmat %*% xold)
+    dnew <- as.matrix(dist(xnew))
+    fnew <- delta - dnew
+    rnew <- fnew * (2 * pnorm(fnew / cons) - 1) + 2 * cons * dnorm(fnew / cons)
+    snew <- sum(weights * rnew)
+    wnew <- (pnorm(fnew / cons) - 0.5) / (fnew + diag(nobj))
+    if (verbose) {
+      cat(
+        "itel ",
+        formatC(itel, width = 4, format = "d"),
+        "sold ",
+        formatC(sold, digits = 10, format = "f"),
+        "snew ",
+        formatC(snew, digits = 10, format = "f"),
+        "\n"
+      )
+    }
+    if ((itel == itmax) || ((sold - snew) < eps)) {
+      break
+    }
+    xold <- xnew
+    dold <- dnew
+    sold <- snew
+    wold <- wnew
+    rold <- rnew
+    itel <- itel + 1
+  }
+  return(list(
+    x = xnew,
+    s = snew,
+    d = dnew,
+    r = rnew,
+    itel = itel
+  ))
+}
+
+smacofTorgerson <- function(delta, ndim) {
+  dd <- delta ^ 2
+  rd <- apply(dd, 1, mean)
+  md <- mean(dd)
+  sd <- -.5 * (dd - outer(rd, rd, "+") + md)
+  ed <- eigen(sd)
+  return(ed$vectors[, 1:ndim] %*% diag(sqrt(ed$values[1:ndim])))
+}
+
+```
+# References
