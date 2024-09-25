@@ -19,16 +19,25 @@ keep-tex: true
 format:
    pdf:
     fontsize: 12pt
+    include-in-header: 
+     - preamble.tex
+    keep-te: true
+    link-citations: true
+    documentclass: scrartcl
+    number-sections: true
 editor: source
+papersize: letter
 graphics: true
 link-citations: true
 mainfont: Times New Roman
 abstract: We use an iteratively reweighted version of the smacof
   algorithm to minimize various robust multidimensional scaling 
-  loss functions. Our results depend strongly on a general theorem on sharp quadratic majorization of @deleeuw_lange_A_09.
+  loss functions. Our results use a general theorem on sharp 
+  quadratic majorization of @deleeuw_lange_A_09. We relate this
+  theorem to earlier results in robust statistics, localization
+  theory, and sparse recovery. Code in R is included. 
 ---
 
-\newcommand{\sectionbreak}{\pagebreak}
 \sectionbreak
 
 ```{r gruijter, echo = FALSE}
@@ -81,7 +90,7 @@ gruijter <-
     Upper = FALSE
   )
 
-gruijter <- as.matrix(gruijter)
+delta <- as.matrix(gruijter)
 labels <- row.names(gruijter)
 ```
 
@@ -107,21 +116,31 @@ where the loss function is not differentiable leads to (many) additional local m
 In this chapter we will discuss (and implement) various variations of 
 $\sigma_1$ from \eqref{eq:stradddef}. They can be interpreted in two different
 ways. On the one hand we use smoothers of the absolute value
-function, and consequently of strife. This is not unlike the distance
+function, and consequently of strife. We want to eliminate the
+problems with differentiability, at least the ones caused by
+$\delta_k=d_k(X)$. If this is our main goal, then we want to choose
+the smoother in such a way that it is as close to the absolute value
+function as possible. This is not unlike the distance
 smoothing used by @pliner_96 and @groenen_heiser_meulman_99 in 
 the global minimization of $\sigma_2$ from \eqref{eq:stressdef}.
+
 On the other hand our modified loss function can be interpreted
 as more robust versions of the least squares loss function, and
-consequently of stress.
+consequently of stress. Our goal here is to combines the robustness of the
+absolute value function with the efficiency and computational ease 
+of least squares. If that is our goal then there is no reason to
+stay as close to the absolute value function as possible.
 
-Our robust or smoother loss functions are all of the form
+Our robust or smooth loss functions are all of the form
 \begin{equation}
 \sigma(X):=\sum w_k\ f(\delta_k-d_k(X))\label{eq:strifedef},
 \end{equation}
 for a suitable choice of the real valued function $f$. We will
 define what we mean by "suitable" later on. For now, note that loss
-\eqref{eq:stressdef} is the special case with $f(x)=x^2$ and loss \eqref{eq:stradddiff} 
+\eqref{eq:stressdef} is the special case with $f(x)=x^2$ and loss \eqref{eq:stradddef} 
 is the special case with $f(x)=|x|$. 
+
+\sectionbreak
 
 # Majorizing Strife
 
@@ -186,6 +205,8 @@ In the case of $\sigma_2$ the directional derivatives could be used to prove
 that if $w_k\delta_k>0$ for all $k$ stress then is differentiable at each local minimum (@deleeuw_A_84f). For strife to be differentiable we would have to prove that at a local minimum both $d_k(X)>0$ and $(d_k(X)-\delta_k)\not= 0$. So far I have no proof and no
 counter example, but it's early in the game.
 
+\sectionbreak
+
 # Generalizing Strife
 
 The AM/GM inequality was used in the previous section to construct a quadratic majorization of strife. To fix the terminology we say that a function $g$
@@ -244,6 +265,8 @@ How many smacof steps we have to take in the inner iterations is something that
 needs further study. It is likely to depend on the fit of the data, on the shape of the function near the local minimum, and on how far the iterations are from the local
 minimum.
 
+\sectionbreak
+
 # Pseudo-Huber Loss, Charbonnier loss
 
 @deleeuw_E_18f
@@ -274,6 +297,7 @@ Alt:
 $$
 \sigma_\epsilon(X)=\epsilon^2\left\{\sqrt{1+\frac{x^2}{\epsilon^2}}-1\right\}
 $$
+\sectionbreak
 
 # Robustifying - Huber Loss
 
@@ -337,6 +361,7 @@ w_k&\text{ if }|\delta_k-d_k(Y)|<c,\\
 \frac{cw_k}{|\delta_k-d_k(Y)|}&\text{ otherwise}.
 \end{cases}
 $$
+\sectionbreak
 
 # Tukey biweight
 
@@ -359,7 +384,7 @@ w_k(Y)=\begin{cases}
 0&\text{ otherwise}.
 \end{cases}
 $$
-
+\sectionbreak
 
 # Convolution
 
@@ -398,6 +423,7 @@ $$
 w_k(Y)=
 \frac{\Phi((\delta_k-d_k(Y))/c)-\frac12}{\delta_k-d_k(Y)}\\
 $$
+\sectionbreak
 
 # Barron Loss
 
@@ -416,31 +442,33 @@ probability densities to define convolution smoothers. There is an infinite numb
 
 # Discussion
 
-## Fixed weights
+Fixed weights
 
 # Code
 
-We wrote separate programs in R (@r_core_team_24) for pseudo-Huber, Huber, Tukey, and the convulution smoother. Each programs is about
-50 lines of code, and they differ in less
-tha 10 of the 50 lines.
-That leads to a lot of duplicate code, obviously, and it would make sense to merge 
-the four programs into a single one.
+The function smacofRobust has a parameter "engine", which can be equal
+to smacofAV, smacofHuber, smacofTukey, or smacofConvolution. These
+four small modules compute the respective loss function values and
+weights for the IRLS procedure. This makes it easy to add additional robust
+loss functions.
 
 ```{r code, eval = FALSE}
-smacofRobustPseudoHuber <- function(delta,
-                                    weights = 1 - diag(nrow(delta)),
-                                    ndim = 2,
-                                    cons = 0,
-                                    itmax = 1000,
-                                    eps = 1e-15,
-                                    verbose = TRUE) {
+smacofRobust <- function(delta,
+                         weights = 1 - diag(nrow(delta)),
+                         engine = smacofAV,
+                         ndim = 2,
+                         cons = 0,
+                         itmax = 1000,
+                         eps = 1e-15,
+                         verbose = TRUE) {
   nobj <- nrow(delta)
   wmax <- max(weights)
   xold <- smacofTorgerson(delta, ndim)
   dold <- as.matrix(dist(xold))
-  rold <- sqrt((delta - dold) ^ 2 + cons)
+  h <- engine(nobj, weights, delta, dold, cons)
+  rold <- h$resi
   sold <- sum(weights * rold)
-  wold <- weights / (rold + diag(nobj))
+  wold <- h$wght
   itel <- 1
   repeat {
     vmat <- -wold
@@ -450,183 +478,10 @@ smacofRobustPseudoHuber <- function(delta,
     diag(bmat) <- -rowSums(bmat)
     xnew <- vinv %*% (bmat %*% xold)
     dnew <- as.matrix(dist(xnew))
-    rnew <- sqrt((delta - dnew) ^ 2 + cons)
-    wnew <- weights / (rnew + diag(nobj))
+    h <- engine(nobj, weights, delta, dnew, cons)
+    rnew <- h$resi
+    wnew <- h$wght
     snew <- sum(weights * rnew)
-    if (verbose) {
-      cat(
-        "itel ",
-        formatC(itel, width = 4, format = "d"),
-        "sold ",
-        formatC(sold, digits = 10, format = "f"),
-        "snew ",
-        formatC(snew, digits = 10, format = "f"),
-        "\n"
-      )
-    }
-    if ((itel == itmax) || ((sold - snew) < eps)) {
-      break
-    }
-    xold <- xnew
-    dold <- dnew
-    sold <- snew
-    wold <- wnew
-    rold <- rnew
-    itel <- itel + 1
-  }
-  return(list(
-    x = xnew,
-    s = snew,
-    d = dnew,
-    r = rnew,
-    itel = itel
-  ))
-}
-
-smacofRobustHuber <- function(delta,
-                              weights = 1 - diag(nrow(delta)),
-                              ndim = 2,
-                              cons = 0,
-                              itmax = 1000,
-                              eps = 1e-10,
-                              verbose = TRUE) {
-  nobj <- nrow(delta)
-  wmax <- max(weights)
-  xold <- smacofTorgerson(delta, ndim)
-  dold <- as.matrix(dist(xold))
-  fold <- abs(delta - dold)
-  rold <- ifelse(fold < cons, (fold ^ 2) / 2, cons * fold - (cons ^ 2) / 2)
-  sold <- sum(weights * rold)
-  wold <- ifelse(fold < cons, weights, cons * weights / (fold + diag(nobj)))
-  itel <- 1
-  repeat {
-    vmat <- -wold
-    diag(vmat) <- -rowSums(vmat)
-    vinv <- solve(vmat + (1 / nobj)) - (1 / nobj)
-    bmat <- -wold * delta / (dold + diag(nobj))
-    diag(bmat) <- -rowSums(bmat)
-    xnew <- vinv %*% (bmat %*% xold)
-    dnew <- as.matrix(dist(xnew))
-    fnew <- abs(delta - dnew)
-    rnew <- ifelse(fnew < cons, (fnew ^ 2) / 2, cons * fnew - (cons ^ 2) / 2)
-    snew <- sum(weights * rnew)
-    wnew <- ifelse(fnew < cons, weights, cons * weights / (fnew + diag(nobj)))
-    if (verbose) {
-      cat(
-        "itel ",
-        formatC(itel, width = 4, format = "d"),
-        "sold ",
-        formatC(sold, digits = 10, format = "f"),
-        "snew ",
-        formatC(snew, digits = 10, format = "f"),
-        "\n"
-      )
-    }
-    if ((itel == itmax) || ((sold - snew) < eps)) {
-      break
-    }
-    xold <- xnew
-    dold <- dnew
-    sold <- snew
-    wold <- wnew
-    rold <- rnew
-    itel <- itel + 1
-  }
-  return(list(
-    x = xnew,
-    s = snew,
-    d = dnew,
-    r = rnew,
-    itel = itel
-  ))
-}
-
-smacofRobustTukey <- function(delta,
-                              weights = 1 - diag(nrow(delta)),
-                              ndim = 2,
-                              cons = 0,
-                              itmax = 1000,
-                              eps = 1e-10,
-                              verbose = TRUE) {
-  nobj <- nrow(delta)
-  wmax <- max(weights)
-  xold <- smacofTorgerson(delta, ndim)
-  dold <- as.matrix(dist(xold))
-  fold <- delta - dold
-  rold <- ((cons ^ 2) / 6) * ifelse(abs(fold) < cons, (1 - (1 - (fold / cons) ^ 2) ^ 3), 1)
-  sold <- sum(weights * rold)
-  wold <- ifelse(abs(fold) < cons, weights * (1 - (fold / cons) ^ 2) ^ 2, 0) / 2
-  itel <- 1
-  repeat {
-    vmat <- -wold
-    diag(vmat) <- -rowSums(vmat)
-    vinv <- solve(vmat + (1 / nobj)) - (1 / nobj)
-    bmat <- -wold * delta / (dold + diag(nobj))
-    diag(bmat) <- -rowSums(bmat)
-    xnew <- vinv %*% (bmat %*% xold)
-    dnew <- as.matrix(dist(xnew))
-    fnew <- delta - dnew
-    rnew <- ((cons ^ 2) / 6) * ifelse(abs(fnew) < cons, (1 - (1 - (fnew / cons) ^ 2) ^ 3), 1)
-    snew <- sum(weights * rnew)
-    wnew <- ifelse(abs(fnew) < cons, weights * (1 - (fnew / cons) ^ 2) ^ 2, 0) / 2
-    if (verbose) {
-      cat(
-        "itel ",
-        formatC(itel, width = 4, format = "d"),
-        "sold ",
-        formatC(sold, digits = 10, format = "f"),
-        "snew ",
-        formatC(snew, digits = 10, format = "f"),
-        "\n"
-      )
-    }
-    if ((itel == itmax) || ((sold - snew) < eps)) {
-      break
-    }
-    xold <- xnew
-    dold <- dnew
-    sold <- snew
-    wold <- wnew
-    rold <- rnew
-    itel <- itel + 1
-  }
-  return(list(
-    x = xnew,
-    s = snew,
-    d = dnew,
-    r = rnew,
-    itel = itel
-  ))
-}
-
-smacofRobustConvolution <- function(delta,
-                              weights = 1 - diag(nrow(delta)),
-                              ndim = 2,
-                              cons = 0,
-                              itmax = 1000,
-                              eps = 1e-10,
-                              verbose = TRUE) {
-  nobj <- nrow(delta)
-  wmax <- max(weights)
-  xold <- smacofTorgerson(delta, ndim)
-  dold <- as.matrix(dist(xold))
-  fold <- delta - dold
-  rold <- fold * (2 * pnorm(fold / cons) - 1) + 2 * cons * dnorm(fold / cons)
-  sold <- sum(weights * rold)
-  wold <- (pnorm(fold / cons) - 0.5) / (fold + diag(nobj))
-  itel <- 1
-  repeat {
-    vmat <- -wold
-    diag(vmat) <- -rowSums(vmat)
-    vinv <- solve(vmat + (1 / nobj)) - (1 / nobj)
-    bmat <- -wold * delta / (dold + diag(nobj))
-    diag(bmat) <- -rowSums(bmat)
-    xnew <- vinv %*% (bmat %*% xold)
-    dnew <- as.matrix(dist(xnew))
-    fnew <- delta - dnew
-    rnew <- fnew * (2 * pnorm(fnew / cons) - 1) + 2 * cons * dnorm(fnew / cons)
-    snew <- sum(weights * rnew)
-    wnew <- (pnorm(fnew / cons) - 0.5) / (fnew + diag(nobj))
     if (verbose) {
       cat(
         "itel ",
@@ -666,5 +521,32 @@ smacofTorgerson <- function(delta, ndim) {
   return(ed$vectors[, 1:ndim] %*% diag(sqrt(ed$values[1:ndim])))
 }
 
+smacofAV <- function(nobj, wmat, delta, dmat, cons) {
+  resi <- sqrt((delta - dmat) ^ 2 + cons)
+  wght <- wmat / (resi + diag(nobj))
+  return(list(resi = resi, wght = wght))
+}
+
+smacofConvolution <- function(nobj, wmat, delta, dmat, cons) {
+  difi <- delta - dmat
+  resi <- difi * (2 * pnorm(difi / cons) - 1) + 2 * cons * dnorm(difi / cons)
+  wght <- wmat * (pnorm(difi / cons) - 0.5) / (difi + diag(nobj))
+  return(list(resi = resi, wght = wght))
+}
+
+smacofTukey <- function(nobj, wmat, delta, dmat, cons) {
+  difi <- delta - dmat
+  resi <- ((cons ^ 2) / 6) * ifelse(abs(difi) < cons, (1 - (1 - (difi / cons) ^ 2) ^ 3), 1)
+  wght <- ifelse(abs(difi) < cons, wmat * (1 - (difi / cons) ^ 2) ^ 2, 0) / 2
+  return(list(resi = resi, wght = wght))
+}
+
+smacofHuber <- function(nobj, wmat, delta, dmat, cons) {
+  difi <- delta - dmat
+  resi <- ifelse(abs(difi) < cons, (difi ^ 2) / 2, cons * abs(difi) - ((cons ^ 2) / 2))
+  wght <- ifelse(abs(difi) < cons, wmat,
+                 wmat * sign(difi - cons) * cons / (difi + diag(nobj)))
+  return(list(resi = resi, wght = wght))
+}
 ```
 # References
