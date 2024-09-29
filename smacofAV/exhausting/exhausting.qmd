@@ -1,0 +1,772 @@
+---
+title: "Notes on Multidimensional Scaling of Three Points"
+author: "Jan de Leeuw"
+date: last-modified
+date-format: long
+bibliography: [mypubs.bib, total.bib]
+number-sections: true
+pdf-engine: lualatex
+keep-tex: true
+editor: source
+abstract: We apply various metric multidimensional scaling methods to the dissimilarities between three points. This smallest non-trivial case is used to illustrate some general properties of MDS, and some specific properties for $n=3$.
+format:
+   pdf:
+    fontsize: 12pt
+    keep-tex: true
+    link-citations: true
+    documentclass: scrartcl
+    number-sections: true
+---
+
+# Introduction
+
+Studying MDS for $n=3$ seems somewhat esoteric. Practical MDS problems
+have a larger, and often much larger, number of points. Nevertheless,
+I think $n=3$ is interesting. Note that a configuration of three
+points in one dimension has only two parameters because of the
+translational invariance of the distance function. In two dimensions
+the effective number of parameters is five, because of both translational
+and rotational invariance. This implies that at least in one dimension
+we can make contour and perspective plots of the MDS loss functions, and
+study their stationary points graphically (see @deleeuw_E_16l).
+
+In two dimensions we deal with functions of five variables, and plotting
+loss functions in a convincing way is no longer possible. But is important to emphasize from the start that $n=3$ is special. The converse of the triangle inequality says that if we have three non-negative numbers $x,y,z$ then we can construct a triangle with sides $x,y,z$ if and only if $x\leq y+z$, $y\leq x+z$, and $z\leq x+y$. Or, to put it differently, every three-point
+metric space in isometrically embeddable in the Euclidean plane. This implies
+that the set of Euclidean distance matrices of order $3$ is a pointed convex polyhedral cone in the linear space of symmetric and hollow matrices or order
+three. If we fit a two-dimensional configuration we parametrize loss as
+a function of the distances. It is necessary and sufficient that the
+three distances between the three points satisfy six linear inequalities:
+three for non=negativity and three for the triangle inequalities. This means
+that for convex loss functions the MDS problem with three poinst in two dimensions is convex, and has no local  minima.
+
+There is another way to arrive at an even more special result for $n=3$ in the case of least squares loss on the distances, i.e. if using Kruskal's raw stress
+(@kruskal_64a). The theory of full-dimensional scaling (@deleeuw_groenen_mair_E_16e, see also @deleeuw_groenen_A_97, especially Corollary 6.3) tells us if we minimize stress for a distance matrix of order three then there are only two possibilities. Either the distance matrix is Euclidean, in which case minimum stress is zero, or the solution minimizing stress is one-dimensional, in which case there are no non-global local minima. In fact the minimum of stress over all configurations of rank two does not exist if 
+the distance matris is not Euclidean. The infimum exists, and is attained 
+at a matrix of rank one.
+
+# Example
+
+Suppose we have the dissimilarity matrix 
+$$
+\begin{bmatrix}
+0&1&4\\
+1&0&2\\
+4&2&0
+\end{bmatrix}
+$$
+This violates the triangle inequality and consequently cannot be represented in
+any metric space. MDS algorithms will always find a solution with non-zero 
+loss.
+
+For our one dimensional solutions we write 
+$$
+x=\begin{bmatrix}
+0&0\\
+0&1\\
+1&1
+\end{bmatrix}
+\begin{bmatrix}
+\alpha\\
+\beta
+\end{bmatrix}
+=
+\begin{bmatrix}
+0\\
+\beta\\
+\alpha+\beta
+\end{bmatrix},
+$$, 
+with distances
+$$
+d(x)=\begin{bmatrix}
+0&|\beta|&|\alpha+\beta|\\
+|\beta|&0&|\alpha|\\
+|\alpha+\beta|&|\alpha|&0
+\end{bmatrix}
+$$
+Thus the residuals are
+\begin{align}
+r_{12}(x)&=1-|\beta|,\\
+r_{13}(x)&=4-|\alpha+\beta|,\\
+r_{23}(x)&=2-|\alpha|.
+\end{align}
+}
+# Least Squares Euclidean MDS
+
+## Unidimensional
+
+In least squares unidimensional scaling we 
+partition the space $\mathbb{R}^3$ using closed convex polyhedral cones of vectors with the same weak ordering. In each of the cones $K$ we define an anti-symmetric sign matrix $S_K$ indicating if $i$ preceeds $j$ or $j$
+preceeds $i$ in the order.
+
+Define
+$$
+t_K=\frac{1}{n}(\Delta\times S_K)e
+$$
+Thus vector $t$ are the row averages of the Hadamard (elementwise) product of the sign matrix and the dissimilarity matrix. If $t$ is in the interior of $K$ then it is a local minimum. If it is on the boundary of its cone, or even outside it, then it is not (@deleeuw_C_05h)
+
+### Example 
+
+For $1<2<3$
+
+$$
+\frac13\begin{bmatrix}
+\hfill 0&-1&-4\\
++1&\hfill 0&-2\\
++4&+2&\hfill 0
+\end{bmatrix}
+\begin{bmatrix}
+1\\
+1\\
+1
+\end{bmatrix}=
+\frac13\begin{bmatrix}
+-5\\
+-1\\
++6
+\end{bmatrix}
+$$
+This is in the correct order, thus it defines a local minimum. Loss is
+$\frac13$. This is the global minimum.
+
+For $1<3<2$
+$$
+\frac13\begin{bmatrix}
+\hfill 0&-1&-4\\
++1&\hfill 0&+2\\
++4&-2&\hfill 0
+\end{bmatrix}
+\begin{bmatrix}
+1\\
+1\\
+1
+\end{bmatrix}=
+\frac13\begin{bmatrix}
+-5\\
++3\\
++2
+\end{bmatrix}
+$$
+This $t$ is also in its cone, and is consequently another local minimum,
+with loss value $25/3$.
+
+For $2<1<3$
+$$
+\frac13\begin{bmatrix}
+\hfill 0&+1&-4\\
+-1&\hfill 0&-2\\
++4&+2&\hfill 0
+\end{bmatrix}
+\begin{bmatrix}
+1\\
+1\\
+1
+\end{bmatrix}=
+\frac13\begin{bmatrix}
+-3\\
+-3\\
++6
+\end{bmatrix}
+$$
+This is not a local minimum, because the first two coordinates are
+equal. The vector $t$ is on the boundary of its cone. Loss is
+equal to one.
+
+The remaining three permutations are the reverse of permutations
+we have already handled, which means that their $S$ matrix,
+and consequently their vector $t$, is the negative of the 
+$t$ of the reverse permutation. That gives two additional
+local minima, with the same loss as the solution for the
+reverse permutation.
+
+## Two-dimensional MDS
+
+Torgerson -- there is no optimal solution with $p = 2$
+
+FDS -- same
+
+
+
+The set of square, non-negative, symmetric, and hollow matrices of order three that are Euclidean distance matrices is a pointed convex cone with apex at the origin. This follows directly from the converse of the triangle inequality, which says that if we have three non-negative numbers $x,y,z$ then we can construct a triangle with sides $x,y,z$ if and only if $x\leq y+z$, $y\leq x+z$, and
+$z\leq x+y$. Thus finding the best fitting Euclidean matrix to a set of
+three dissimilarities is equivalent to projecting on a convex cone. This 
+can be transformed to a problem with non-negativity constraints by using
+a frame for the cone, i.e. the set of its extreme rays.
+
+$$
+\begin{bmatrix}
+d_{12}\\
+d_{13}\\
+d_{23}
+\end{bmatrix}=
+\begin{bmatrix}
+0&1&1\\
+1&0&1\\
+1&1&0
+\end{bmatrix}
+\begin{bmatrix}
+\alpha\\
+\beta\\
+\gamma
+\end{bmatrix}
+$$
+for some non-negative $\alpha$, $\beta$, and $\gamma$.
+
+In the least squares case a result of @deleeuw_groenen_A_97 applies to our tiny
+example. 
+
+
+# Least Absolute Value MDS
+
+## Unidimensional
+
+Suppose we have the dissimilarities 
+\begin{align*}
+\delta_{12}&=1,\\
+\delta_{13}&=4,\\
+\delta_{23}&=2
+\end{align*}
+and we want to fit a one-dimensional MDS solution using least absolute
+value loss
+\begin{equation*}
+\sigma(x)=\mathop{\sum\sum}_{1\leq i<j\leq 3} |\delta_{ij}-|x_i-x_j||
+\end{equation*}
+In this case $\sigma$ is continuous on $\mathbb{R}^3$ and piecewise linear, and it fails to be differentiable at quite a number of points. The dissimilarities
+are chosen in such a way that they violate the triangle inequality and
+consequently they cannot be imbedded perfectly in any metric space.
+
+One way to attack this minimization problem is to partition the space
+into the $3!=6$ cones defining the different orders of $x$. In each cone
+the distance function is linear, and consequently we could use linear
+programming to solve the linear least absolute value problem over the
+cone. This gives a minimum for each cone, and the global minimum is
+the smallest of these minima.
+
+In this paper we take this idea one step further. We partition each 
+code into $2^3=8$ polyhedra by requiring each of the three residuals to be non-negative or non-positive. Some of regions these may be empty, and some
+may be unbounded. But the loss function $\sigma$ is a linear function
+in each region, bounded below by zero, and thus attains its minimum 
+in one of the vertices.
+
+Computationally we use the translation invariance of the distance
+function to transform the minimization problem for each of the monotone cones to the non-negative orthant of $\mathbb{R}^2$. The scale values
+$x$ are expressed as a non-negative linear combination of the two
+extreme rays of the cone, where the smallest element of $x$ is
+always set equal to zero. The coefficients of the linear combination
+are $\alpha$ and $\beta$, and their non-negativity defines two
+homogeneous linear inequalities. The polyhedral regions within the cone are
+defined by inequalities of the form $\delta_{ij}-d_{ij}(X)\bowtie 0$,
+where $\bowtie$ can be either $\leq$ or $\geq$.
+
+For each cone we have five linear inequalities in two variables. We can
+easily find the vertices by setting the linear equations corresponding to each pair of inequalities equal to zero (which means finding the intersection of two lines). Some of the two-by-two systems may not be solvable. Thus we find a maximum of $\binom{5}{2}=10$ vertices and we can evaluate the cone-specific
+linear loss function in each of these vertices. This will give us all
+local minima and maxima of the loss function, and thus also the global
+minimum. Since the loss is unbounded above there is no global maximum.
+
+\pagebreak
+
+# Rank order $1<2<3$
+
+## Basis
+
+$$
+x=\begin{bmatrix}
+0&0\\
+0&1\\
+1&1
+\end{bmatrix}
+\begin{bmatrix}
+\alpha\\
+\beta
+\end{bmatrix}=
+\begin{bmatrix}
+0\\
+\beta\\
+\alpha+\beta
+\end{bmatrix}
+$$
+
+## Distances
+
+$$
+\begin{bmatrix}
+d_{12}(x)\\
+d_{13}(x)\\
+d_{23}(x)
+\end{bmatrix}
+=
+\begin{bmatrix}
+\beta\\
+\alpha+\beta\\
+\alpha
+\end{bmatrix}
+$$
+
+## Inequalities
+
+\begin{align}
+\alpha&\geq 0,\\
+\beta&\geq 0,\\
+1-\beta&\bowtie 0,\\
+4-(\alpha+\beta)&\bowtie 0,\\
+2-\alpha&\bowtie 0.
+\end{align}
+
+
+
+## Solutions
+
+$(0,0)\Rightarrow 7\Rightarrow(0,0,0)$\newline
+$(0,1)\Rightarrow 5\Rightarrow(0,1,1)$\newline
+$(0,4)\Rightarrow 5\Rightarrow(0,4,4)$\newline
+$(4,0)\Rightarrow 3\Rightarrow(0,0,4)$\newline
+$(2,0)\Rightarrow 3\Rightarrow(0,0,2)$\newline
+$(3,1)\Rightarrow 1\Rightarrow(0,1,4)$\newline
+$(2,1)\Rightarrow 1\Rightarrow(0,1,3)$\newline
+$(2,2)\Rightarrow 1\Rightarrow(0,2,4)$\newline
+
+```{r p123, fig.align = "center", echo = FALSE}
+par(pty = "s")
+plot(NULL, xlim = c(0,5), ylim = c(0,5), xlab = "alpha", ylab = "beta")
+for (i in 1:5) {
+  abline(v = i, lwd = .5, lty = 2)
+  abline(h = i, lwd = .5, lty = 2)
+}
+abline(v = 0, col = "RED", lwd = 3)
+abline(h = 0, col = "RED", lwd = 3)
+abline(v = 2, col = "RED", lwd = 3)
+abline(h = 1, col = "RED", lwd = 3)
+abline(4, -1, col = "RED", lwd = 3)
+```
+
+\pagebreak
+
+# Rank order $1<3<2$
+
+## Basis
+
+$$
+x=
+\begin{bmatrix}
+0&0\\
+1&1\\
+0&1
+\end{bmatrix}
+\begin{bmatrix}
+\alpha\\
+\beta
+\end{bmatrix}=
+\begin{bmatrix}
+0\\
+\alpha+\beta\\
+\beta
+\end{bmatrix}
+$$
+
+## Distances
+
+$$
+\begin{bmatrix}
+d_{12}(x)\\
+d_{13}(x)\\
+d_{23}(x)
+\end{bmatrix}
+=
+\begin{bmatrix}
+\alpha+\beta\\
+\beta\\
+\alpha
+\end{bmatrix}
+$$
+
+## Inequalities
+
+\begin{align}
+\alpha&\geq 0,\\
+\beta&\geq 0,\\
+1-(\alpha+\beta)&\bowtie 0,\\
+4-\beta&\bowtie 0,\\
+2-\alpha&\bowtie 0.
+\end{align}
+
+## Solutions
+
+$(0,0)\Rightarrow 7\Rightarrow(0,0,0)$\newline
+$(0,1)\Rightarrow 5\Rightarrow(0,1,1)$\newline
+$(0,4)\Rightarrow 5\Rightarrow(0,4,4)$\newline
+$(1,0)\Rightarrow 5\Rightarrow(0,1,0)$\newline
+$(2,0)\Rightarrow 5\Rightarrow(0,2,0)$\newline
+$(2,4)\Rightarrow 5\Rightarrow(0,6,4)$\newline
+
+```{r p132, fig.align = "center", echo = FALSE}
+par(pty = "s")
+plot(NULL, xlim = c(0,5), ylim = c(0,5), xlab = "alpha", ylab = "beta")
+for (i in 1:5) {
+  abline(v = i, lwd = .5, lty = 2)
+  abline(h = i, lwd = .5, lty = 2)
+}
+abline(v = 0, col = "RED", lwd = 3)
+abline(h = 0, col = "RED", lwd = 3)
+abline(v = 2, col = "RED", lwd = 3)
+abline(h = 4, col = "RED", lwd = 3)
+abline(1, -1, col = "RED", lwd = 3)
+```
+
+\pagebreak
+
+# Rank order $2<1<3$
+
+## Basis
+
+$$
+x=\begin{bmatrix}
+0&1\\
+0&0\\
+1&1
+\end{bmatrix}
+\begin{bmatrix}
+\alpha\\
+\beta
+\end{bmatrix}=
+\begin{bmatrix}
+\beta\\
+0\\
+\alpha+\beta
+\end{bmatrix}
+$$
+
+## Distances
+
+$$
+\begin{bmatrix}
+d_{12}(x)\\
+d_{13}(x)\\
+d_{23}(x)
+\end{bmatrix}
+=\begin{bmatrix}
+\beta\\
+\alpha\\
+\alpha+\beta
+\end{bmatrix}
+$$
+
+## Inequalities
+
+\begin{align}
+\alpha&\geq 0,\\
+\beta&\geq 0,\\
+1-\beta&\bowtie 0,\\
+4-\alpha&\bowtie 0,\\
+2-(\alpha+\beta)&\bowtie 0.
+\end{align}
+
+## Solutions
+
+$(0,0)\Rightarrow 7\Rightarrow(0,0,0)$\newline
+$(0,1)\Rightarrow 5\Rightarrow(1,0,1)$\newline
+$(0,2)\Rightarrow 5\Rightarrow(2,0,2)$\newline
+$(4,0)\Rightarrow 3\Rightarrow(0,0,4)$\newline
+$(1,1)\Rightarrow 3\Rightarrow(1,0,2)$\newline
+$(2,0)\Rightarrow 5\Rightarrow(0,2,2)$\newline
+$(4,1)\Rightarrow 3\Rightarrow(1,0,5)$\newline
+
+```{r p213, fig.align = "center", echo = FALSE}
+par(pty = "s")
+plot(NULL, xlim = c(0,5), ylim = c(0,5), xlab = "alpha", ylab = "beta")
+for (i in 1:5) {
+  abline(v = i, lwd = .5, lty = 2)
+  abline(h = i, lwd = .5, lty = 2)
+}
+abline(v = 0, col = "RED", lwd = 3)
+abline(h = 0, col = "RED", lwd = 3)
+abline(v = 4, col = "RED", lwd = 3)
+abline(h = 1, col = "RED", lwd = 3)
+abline(2, -1, col = "RED", lwd = 3)
+```
+
+\pagebreak
+
+# Rank order $2<3<1$
+
+## Basis
+
+$$
+x=\begin{bmatrix}
+1&1\\
+0&0\\
+0&1
+\end{bmatrix}
+\begin{bmatrix}
+\alpha\\
+\beta
+\end{bmatrix}=
+\begin{bmatrix}
+\alpha+\beta\\
+0\\
+\beta
+\end{bmatrix}
+$$
+
+## Distances
+
+$$
+\begin{bmatrix}
+d_{12}(x)\\
+d_{13}(x)\\
+d_{23}(x)
+\end{bmatrix}
+=\begin{bmatrix}
+\alpha+\beta\\
+\alpha\\
+\beta
+\end{bmatrix}
+$$
+
+## Inequalities
+
+\begin{align}
+\alpha&\geq 0,\\
+\beta&\geq 0,\\
+1-(\alpha+\beta)&\bowtie 0,\\
+4-\alpha&\bowtie 0,\\
+2-\beta&\bowtie 0.
+\end{align}
+
+## Solutions
+
+$(0,0)\Rightarrow 7\Rightarrow(0,0,0)$\newline
+$(0,1)\Rightarrow 5\Rightarrow(1,0,1)$\newline
+$(0,2)\Rightarrow 5\Rightarrow(2,0,2)$\newline
+$(1,0)\Rightarrow 5\Rightarrow(1,0,0)$\newline
+$(4,0)\Rightarrow 3\Rightarrow(4,4,0)$\newline
+$(4,2)\Rightarrow 5\Rightarrow(6,0,2)$\newline
+
+```{r p231, fig.align = "center", echo = FALSE}
+par(pty = "s")
+plot(NULL, xlim = c(0,5), ylim = c(0,5), xlab = "alpha", ylab = "beta")
+for (i in 1:5) {
+  abline(v = i, lwd = .5, lty = 2)
+  abline(h = i, lwd = .5, lty = 2)
+}
+abline(v = 0, col = "RED", lwd = 3)
+abline(h = 0, col = "RED", lwd = 3)
+abline(v = 4, col = "RED", lwd = 3)
+abline(h = 2, col = "RED", lwd = 3)
+abline(1, -1, col = "RED", lwd = 3)
+```
+
+\pagebreak
+
+# Rank order $3<1<2$
+
+## Basis
+
+$$
+x=\begin{bmatrix}
+0&1\\
+1&1\\
+0&0
+\end{bmatrix}
+\begin{bmatrix}
+\alpha\\
+\beta
+\end{bmatrix}=
+\begin{bmatrix}
+\beta\\
+\alpha+\beta\\
+0
+\end{bmatrix}
+$$
+
+## Distances
+
+$$
+\begin{bmatrix}
+d_{12}(x)\\
+d_{13}(x)\\
+d_{23}(x)
+\end{bmatrix}
+=\begin{bmatrix}
+\alpha\\\
+\beta\\
+\alpha+\beta
+\end{bmatrix}
+$$
+
+## Inequalities
+
+\begin{align}
+\alpha&\geq 0,\\
+\beta&\geq 0,\\
+1-\alpha&\bowtie 0,\\
+4-\beta&\bowtie 0,\\
+2-(\alpha+\beta)&\bowtie 0.
+\end{align}
+
+## Solutions
+
+$(0,0)\Rightarrow 7\Rightarrow(0,0,0)$\newline
+$(0,4)\Rightarrow 3\Rightarrow(4,4,0)$\newline
+$(0,2)\Rightarrow 5\Rightarrow(2,2,0)$\newline
+$(1,0)\Rightarrow 5\Rightarrow(0,1,0)$\newline
+$(2,0)\Rightarrow 5\Rightarrow(0,2,0)$\newline
+$(1,4)\Rightarrow 3\Rightarrow(4,5,0)$\newline
+$(1,1)\Rightarrow 3\Rightarrow(1,2,0)$\newline
+
+```{r p312, fig.align = "center", echo = FALSE}
+par(pty = "s")
+plot(NULL, xlim = c(0,5), ylim = c(0,5), xlab = "alpha", ylab = "beta")
+for (i in 1:5) {
+  abline(v = i, lwd = .5, lty = 2)
+  abline(h = i, lwd = .5, lty = 2)
+}
+abline(v = 0, col = "RED", lwd = 3)
+abline(h = 0, col = "RED", lwd = 3)
+abline(v = 1, col = "RED", lwd = 3)
+abline(h = 4, col = "RED", lwd = 3)
+abline(2, -1, col = "RED", lwd = 3)
+```
+
+\pagebreak
+
+# Rank order $3<2<1$
+
+## Basis
+
+$$
+x=\begin{bmatrix}
+1&1\\
+0&1\\
+0&0
+\end{bmatrix}
+\begin{bmatrix}
+\alpha\\
+\beta
+\end{bmatrix}=
+\begin{bmatrix}
+\alpha+\beta\\
+\beta\\
+0
+\end{bmatrix}
+$$
+
+## Distances
+
+$$
+\begin{bmatrix}
+d_{12}(x)\\
+d_{13}(x)\\
+d_{23}(x)
+\end{bmatrix}
+=\begin{bmatrix}
+\alpha\\\
+\alpha+\beta\\
+\beta
+\end{bmatrix}
+$$
+
+## Inequalities
+
+\begin{align}
+\alpha&\geq 0,\\
+\beta&\geq 0,\\
+1-\alpha&\bowtie 0,\\
+4-(\alpha+\beta)&\bowtie 0,\\
+2-\beta&\bowtie 0.
+\end{align}
+
+## Solutions
+
+$(0,0)\Rightarrow 7\Rightarrow(0,0,0)$\newline
+$(0,4)\Rightarrow 3\Rightarrow(4,4,0)$\newline
+$(0,2)\Rightarrow 3\Rightarrow(2,2,0)$\newline
+$(1,0)\Rightarrow 5\Rightarrow(1,0,0)$\newline
+$(1,3)\Rightarrow 1\Rightarrow(4,3,0)$\newline
+$(1,2)\Rightarrow 1\Rightarrow(3,2,0)$\newline
+$(2,2)\Rightarrow 1\Rightarrow(4,2,0)$\newline
+
+```{r p321, fig.align = "center", echo = FALSE}
+par(pty = "s")
+plot(NULL, xlim = c(0,5), ylim = c(0,5), xlab = "alpha", ylab = "beta")
+for (i in 1:5) {
+  abline(v = i, lwd = .5, lty = 2)
+  abline(h = i, lwd = .5, lty = 2)
+}
+abline(v = 0, col = "RED", lwd = 3)
+abline(h = 0, col = "RED", lwd = 3)
+abline(v = 1, col = "RED", lwd = 3)
+abline(h = 2, col = "RED", lwd = 3)
+abline(4, -1, col = "RED", lwd = 3)
+```
+
+\pagebreak
+
+# Summary
+
+In the table below we give all 25 vertices we have found, with their
+distance function, and the stress value. The minimum is equal to
+one, and it is attained at six different vertices, although these
+correspond with only three different sets of distances. We could 
+half the number of vertices by we eliminating mirror images such as
+$(0,2,0)$ and $(2,0,2)$ or $(4,3,0)$ and $(0,1,4)$. These pairs give
+the same distances. Note that at the minimum all distances are non-zero
+and that the origin is a local maximum. At the vertices the only values
+of the function are one, three, five, and seven.
+
+```{r summary, echo = FALSE}
+x <- matrix(0, 25, 7)
+x[1, 1:3] <- c(0, 0, 0)
+x[2, 1:3] <- c(0, 0, 2)
+x[3, 1:3] <- c(0, 0, 4)
+x[4, 1:3] <- c(0, 1, 0)
+x[5, 1:3] <- c(0, 1, 1)
+x[6, 1:3] <- c(0, 1, 3)
+x[7, 1:3] <- c(0, 1, 4)
+x[8, 1:3] <- c(0, 2, 0)
+x[9, 1:3] <- c(0, 2, 2)
+x[10, 1:3] <- c(0, 2, 4)
+x[11, 1:3] <- c(0, 4, 4)
+x[12, 1:3] <- c(0, 6, 4)
+x[13, 1:3] <- c(1, 0, 0)
+x[14, 1:3] <- c(1, 0, 1)
+x[15, 1:3] <- c(1, 0, 2)
+x[16, 1:3] <- c(1, 0, 5)
+x[17, 1:3] <- c(1, 2, 0)
+x[18, 1:3] <- c(2, 0, 2)
+x[19, 1:3] <- c(2, 2, 0)
+x[20, 1:3] <- c(3, 2, 0)
+x[21, 1:3] <- c(4, 2, 0)
+x[22, 1:3] <- c(4, 3, 0)
+x[23, 1:3] <- c(4, 4, 0)
+x[24, 1:3] <- c(4, 5, 0)
+x[25, 1:3] <- c(6, 0, 2)
+colnames(x) <- c("x1", "x2", "x3", "d12", "d13", "d23", "stress")
+x[, 4] <- abs(x[,1] - x[, 2])
+x[, 5] <- abs(x[,1] - x[, 3])
+x[, 6] <- abs(x[,2] - x[, 3])
+x[, 7] <- apply(x, 1, function(z) sum(abs(z[4:6] - c(1, 4, 2))))
+print(x)
+```
+
+# Computation
+
+We also run this tiny example with our majorization algoritm
+smacofRobust with least absolute value option, which is a slight variation of the
+algorithm proposed by @heiser_88. In 1000 random starts we find
+the global minimum with loss one 339 times, we find a local minimum with loss
+three 307 times, and a local minimum with loss five 354 times.
+In 235 cases a single smacof iteration is enough for convergence, in 724 cases
+we need two iterations, in 38 cases we need three, and in 3 cases 
+we need four.
+
+
+# Discussion
+
+1. Write a program 
+2. Compare with unidimensional least squares MDS
+3. Extend to higher dimensions
+
+# References
+

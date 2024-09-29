@@ -1,0 +1,116 @@
+---
+title: "Rothkopf's Morse Data"
+author: "Jan de Leeuw"
+date: last-modified
+date-format: long
+bibliography: [mypubs.bib, total.bib]
+number-sections: true
+pdf-engine: lualatex
+keep-tex: true
+editor: source
+format:
+   pdf:
+    fontsize: 12pt
+    keep-tex: true
+    link-citations: true
+    documentclass: scrartcl
+    number-sections: true
+---
+
+Here are some analyses of the Rothkopf Morse data, using a variety
+of loss functions. All analyses are metric and two-dimensional.
+We used the assymetric confusion matrix and defined
+a dissimilarity by the Shepard-Luce like formula
+$$
+\delta_{ij}=-\log\frac{p_{ij}p_{ji}}{p_{ii}p_{jj}}.
+$$
+```{r data, echo = FALSE}
+data(morse2, package = "smacof")
+morse2 <- 1 - morse2
+morse2 <- ifelse(morse2 == 0, .01, morse2)
+dm <- diag(morse2)
+morse <- -log((morse2 * t(morse2)) / (outer(dm, dm)))
+```
+
+The fivenum for these data is
+```{r fivenum, echo = FALSE}
+fivenum(morse)
+```
+Thus data are fairly symmetric, a bit skewed to the left, with a
+median around four and values between zero and ten,
+
+There are four analyses. 
+
+1. Huber with cut-off 25, well outside the range, de facto least
+squares loss.
+2. Huber with cut-off .01, de facto least absolute value loss.
+3. Huber with cut-off 4, around the median. 
+4. Tukey with cut-off 4, around the median.
+
+In the last three analyses, especially in the fourth, the large
+residuals are down-weighted. An inifinite number of other analyses
+are possible. I am taking requests.
+
+```{r ls, echo = FALSE}
+source("smacofRobust.R")
+hls <- smacofRobust(morse, engine = smacofHuber, cons = 25, verbose = FALSE, itmax = 10000)
+```
+```{r pxls, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Configuration Least Squares"}
+par(pty = "s")
+plot(hls$x, type = "n", xlab = "dim1", ylab = "dim2")
+text(hls$x, row.names(morse))
+```
+
+```{r pdls, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Shepard Plot Least Squares"}
+par(pty = "s")
+plot(morse, hls$d, xlab = "delta", ylab = "d", col = "RED")
+abline(0, 1, col = "BLUE")
+```
+
+```{r av, echo = FALSE}
+hav <- smacofRobust(morse, engine = smacofHuber, cons = .01, verbose = FALSE, itmax = 10000)
+```
+
+```{r pxav, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Configuration Least Absolute Value"}
+par(pty = "s")
+plot(hav$x, type = "n", xlab = "dim1", ylab = "dim2")
+text(hav$x, row.names(morse))
+```
+
+```{r pdav, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Shepard Plot Least Absolute Value"}
+par(pty = "s")
+plot(morse, hav$d, xlab = "delta", ylab = "d", col = "RED")
+abline(0, 1, col = "BLUE")
+```
+
+```{r hmed, echo = FALSE}
+hmed <- smacofRobust(morse, engine = smacofHuber, cons = 4, verbose = FALSE, itmax = 10000)
+```
+
+```{r pxhmed, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Configuration Median Huber"}
+par(pty = "s")
+plot(hmed$x, type = "n", xlab = "dim1", ylab = "dim2")
+text(hmed$x, row.names(morse))
+```
+
+```{r pdhmed, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Shepard Plot Median Huber"}
+par(pty = "s")
+plot(morse, hmed$d, xlab = "delta", ylab = "d", col = "RED")
+abline(0, 1, col = "BLUE")
+```
+
+```{r htu, echo = FALSE}
+htu <- smacofRobust(morse, engine = smacofTukey, cons = 4, verbose = FALSE, itmax = 10000)
+```
+
+```{r pxtmed, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Configuration Median Tukey"}
+par(pty = "s")
+plot(htu$x, type = "n", xlab = "dim1", ylab = "dim2")
+text(htu$x, row.names(morse))
+```
+
+```{r pdtmed, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Shepard Plot Median Tukey"}
+par(pty = "s")
+plot(morse, htu$d, xlab = "delta", ylab = "d", col = "RED")
+abline(0, 1, col = "BLUE")
+```

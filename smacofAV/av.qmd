@@ -21,7 +21,7 @@ format:
     fontsize: 12pt
     include-in-header: 
      - preamble.tex
-    keep-te: true
+    keep-tex: true
     link-citations: true
     documentclass: scrartcl
     number-sections: true
@@ -165,29 +165,42 @@ Using the majorization \eqref{eq:amgmmaj}, and assuming $\delta_k\not= d_k(Y)$ f
 Now $\sigma_1(X)\leq\omega_1(X)$ for all $X$ and $\sigma_1(Y)=\omega_1(Y)$. Thus
 $\omega_1$ majorizes $\sigma_1$ at $Y$.
 
-But what if for some $k$ we have $d_k(Y)=\delta_k$ ? Define
+## Algorithm 
+
+Define
 \begin{equation}
-\begin{subequations}
-s_k(Y)=\begin{cases}
+w_k(Y):=w_k\frac{1}{|\delta_k-d_k(Y)|}.\label{eq:wk1def}
+\end{equation}
+Reweighted smacof to minimize strife computes $X^{(k+1)}$ by decreasing
+\begin{equation}
+\sum w_k(X^{(k)})(\delta_k-d_k(X^{(k)}))^2,\label{eq:sstrf}
+\end{equation}
+using a standard smacof step. It then computes the new weights $w_k(X^{(k+1)})$ from \eqref{eq:wk1def}
+and uses them in the next smacof step to update $X^{(k+1)}$. And so on, until convergence.
+
+A straightforward variation of the algorithm does a number of smacof steps before
+upgrading the weights. This still leads to a monotone, and thus convergent, algorithm.
+How many smacof steps we have to take in the inner iterations is something that needs further study. It is likely to depend on the fit of the data, on the shape of the function near the local minimum, and on how far the iterations are from the local minimum.
+
+## Zero Residuals
+
+It may happen that for some $k$ we have $d_k(X^{(k)})=\delta_k$ while iterating. There have been various proposals to deal with this
+unfortunate event, but as far as I can see none of them have been
+entirely satisfactory. 
+
+\begin{equation}
+w_k(Y)=\begin{cases}
 w_k\frac{1}{|\delta_k-d_k(Y)|}&\text{ if }d_k(Y)\not =\delta_k,\\
 2\ \max_k w_k&\text{ otherwise}.\label{eq:sdef}
 \end{cases}
-\end{subequations}
 \end{equation}
 Redefine $\omega_1$ as
 \begin{equation}
-\omega_1(X):=\frac12\sum s_k(Y)\{(\delta_k-d_k(Y))^2+(\delta_k-d_k(X))^2\}.\label{eq:ommaj}
+\omega_1(X):=\frac12\sum w_k(Y)\{(\delta_k-d_k(Y))^2+(\delta_k-d_k(X))^2\}.\label{eq:ommaj}
 \end{equation}
-This modified $\omega_1$ majorizes $\sigma_1$ at $Y$, even in the case that $\delta_k=d_k(Y)$ for all $k$.
+This modified $\omega_1$ majorizes $\sigma_1$ at $Y$, even in the perverse case that $\delta_k=d_k(Y)$ for all $k$.
 
-Reweighted smacof to minimize strife computes $X^{(k+1)}$ by decreasing
-\begin{equation}
-\sum s_k(X^{(k)})(\delta_k-d_k(X^{(k)}))^2,\label{eq:sstrf}
-\end{equation}
-using a standard smacof step. It then computes the new weights $s_k(X^{(k+1)})$
-and uses them in the next smacof step to update $X^{(k+1)}$. And so on, until convergence.
-
-To illustrate the problems with differentability we compute the directional derivatives of strife. 
+To illustrate the problems with differentiability we compute the directional derivatives of strife. 
 
 Let $s_k(X):=w_k|d_k(X)-\delta_k|$.
 
@@ -201,9 +214,31 @@ $ds_k(X;Y)=w_k\frac{1}{d_k(X)}\text{tr}\ X'A_kY$.
 The directional derivative of $\sigma_1$ is consequently the sum of
 five terms, corresponding with each of these five cases.
 
-In the case of $\sigma_2$ the directional derivatives could be used to prove
-that if $w_k\delta_k>0$ for all $k$ stress then is differentiable at each local minimum (@deleeuw_A_84f). For strife to be differentiable we would have to prove that at a local minimum both $d_k(X)>0$ and $(d_k(X)-\delta_k)\not= 0$. So far I have no proof and no
-counter example, but it's early in the game.
+In the case of stress the directional derivatives could be used to prove
+that if $w_k\delta_k>0$ for all $k$ then stress is differentiable at each local minimum (@deleeuw_A_84f). For strife to be differentiable we would have to prove that at a local minimum both $d_k(X)>0$ and $(d_k(X)-\delta_k)\not= 0$. 
+for all $k$ with $w_k>0$.
+
+But this is impossible by the following argument. In the one-dimensional
+case we can partition $\mathbb{R}^n$ into $n!$ polyhedral convex cones
+corresponding with the permutations of $x$. Within each cone the distances
+are a linear function of $x$. Each cone can be partitioned by intersecting it
+with the $2^\binom{n}{2}$ polyhedra defined by the inequalities $\delta_k-d_k(x)\geq 0$ or $\delta_k-d_k(x)\leq 0$. Some of these intersections can and will obviously be empty. Within each of the non-empty polyhedral intersections strife is a linear function of $x$. Thus it attains its minimum at a vertex of the intersection, which is a solution for which some
+distances are zero and some residuals are zero. There can be no  
+minima, local or global, in the interior of a polyhedral intersection.
+Of course the number of regions, which is maximally $n!2^\binom{n}{2}$, 
+is too large to actually compute or draw, except perhaps when $n=3$, in
+which case there are maximally 48 of them. Thus we have shown that in one dimension strife is not differentiable at a local minimum, and that there is presumably a large number of them.
+
+In the multidimensional case linearity goes out the window. The
+set of configurations $d_k(X)=\delta_k$ is an ellipsoid and $d_k(X)=0$ is a hyperplane. Strife is not differentiable at all intersections of these
+ellipsoids and hyperplanes. The partitioning of $\mathbb{R}^n$ by these
+ellipsoids and hyperplanes is not simple to describe. It has convex
+and non-convex cells, and within each cell strife is the difference
+of two weighted sums of distances. Anything can happen.
+
+
+
+
 
 \sectionbreak
 
@@ -219,12 +254,20 @@ which $\mathfrak{H}$ is the set of all convex quadratics that majorize $f$ at $y
 This case has been studied in detail (in the case of real-valued functions on the line)
 by @deleeuw_lange_A_09. Their Theorem 4.5 on page 2478 says
 
->Theorem: Suppose $f(x)$ is an even, differentiable function on $\mathbb{R}$ such that the ratio 
+>Theorem 4.5: Suppose $f(x)$ is an even, differentiable function on $\mathbb{R}$ such that the ratio 
 $f'(x)/x$ is non-increasing on $(0,\infty)$. Then the even quadratic
 \begin{equation}
 g(x)=\frac{f'(y)}{2y}(x^2-y^2)+f(y)\label{eq:sharp}
 \end{equation}
 is a sharp quadratic majorizer of $f$ at the point $y$.
+
+>Theorem 4.6. The ratio $f'(x)/x$ is decreasing on $(0,\infty)$ if and only 
+$f(\sqrt(x))$ is concave. The set of functions satisfying this condition is closed under the formation of (a) positive multiples, (b) convex combinations, (c) limits, and (d) composition with a concave increasing function $g(x)$.
+
+Note that these theorems only give a sufficient condition for quadratic
+majorization (in fact, for sharp quadratic majorization). Also note
+that if $f$ is differentiable, even, and convex then it has its minimum
+at zero.
 
 We now apply this theorem to functions of the form
 \begin{equation}
@@ -236,6 +279,7 @@ where $f$ satisfies the conditions in the theorem. If
 \end{equation}
 then $\omega_f$ is a sharp quadratic majorization at $Y$.
 
+Shift: 
 Although the absolute value is not differentiable at the origin the theorem can still
 be applied. It just does not give a majorizer at $y=0$. If $f(x)=|x|$ then
 \begin{equation}
@@ -259,15 +303,11 @@ This can be thought of as iterativey reweighted least squares, and also as
 majorization within majorization, with the smacof majorization within the sharp
 quadratic majorization of the loss function.
 
-A straightforward variation of the algorithm does a number of smacof steps before
-upgrading the weights. This still leads to a monotone, and thus convergent, algorithm.
-How many smacof steps we have to take in the inner iterations is something that
-needs further study. It is likely to depend on the fit of the data, on the shape of the function near the local minimum, and on how far the iterations are from the local
-minimum.
+A
 
 \sectionbreak
 
-# Pseudo-Huber Loss, Charbonnier loss
+# Charbonnier loss
 
 @deleeuw_E_18f
 
@@ -299,7 +339,7 @@ $$
 $$
 \sectionbreak
 
-# Robustifying - Huber Loss
+# Huber Loss
 
 The Huber function (@huber_64) is 
 $$
@@ -317,7 +357,14 @@ x&\text{ if }|x|\leq c,\\
 -c&\text{ if }x\leq -c.
 \end{cases}
 $$
-
+$$
+w(x)=
+\begin{cases}
+\frac{c}{x}&\text{ if }x\geq c,\\
+1&\text{ if }|x|\leq c,\\
+-\frac{c}{x}&\text{ if }x\leq -c.
+\end{cases}
+$$
 The Huber function is even and differentiable. Moreover
 $f'(x)/x$ decreases from. Thus the theorem applies and
 the sharp quadratic majorizer at $y$ is
@@ -361,30 +408,9 @@ w_k&\text{ if }|\delta_k-d_k(Y)|<c,\\
 \frac{cw_k}{|\delta_k-d_k(Y)|}&\text{ otherwise}.
 \end{cases}
 $$
+
 \sectionbreak
 
-# Tukey biweight
-
-$$
-f(x)=\begin{cases}
-\frac{c^2}{6}\left(1-\left[1-(\frac{x}{c})^2\right]^3\right)&\text{ if }|x|\leq c,\\
-\frac{c^2}{6}&\text{ otherwise }.
-\end{cases}
-$$
-$$
-f'(x)=\begin{cases}
-x\left[1-(\frac{x}{c})^2\right]^2&\text{ if }|x|\leq c,\\
-0&\text{ otherwise }.
-\end{cases}
-$$
-It is easy to see that $f'(x)/x$ is non-increasing on $(0,+\infty)$.
-$$
-w_k(Y)=\begin{cases}
-\frac12w_k\left[1-(\frac{\delta_k-d_k(Y)}{c})^2\right]^2&\text{ if }|\delta_k-d_k(Y)|<c,\\
-0&\text{ otherwise}.
-\end{cases}
-$$
-\sectionbreak
 
 # Convolution
 
@@ -423,6 +449,30 @@ $$
 w_k(Y)=
 \frac{\Phi((\delta_k-d_k(Y))/c)-\frac12}{\delta_k-d_k(Y)}\\
 $$
+
+Convolution with rectangular between c and -c gives the Huber function.
+$$
+f(x)=\frac{1}{2c}\int_{-c}^{+c}|x-y|dy
+$$
+$$
+f(x)=\frac{1}{2c}\int_{-c}^{+c}|x-y|dy=\begin{cases}
+\frac{1}{2c}(x^2+c^2)&\text{ if }|x|\leq c,\\
+|x|&\text{ otherwise}.
+\end{cases}
+$$
+$$
+f'(x)=\begin{cases}
+\frac{1}{c}x&\text{ if }|x|\leq c,\\
+\text{sign}(x)&\text{ otherwise}.
+\end{cases}
+$$
+$$
+w(x)=\begin{cases}
+\frac{1}{c}&\text{ if }|x|\leq c,\\
+\frac{1}{|x|}&\text{ otherwise}.
+\end{cases}
+$$
+
 \sectionbreak
 
 # Barron Loss
@@ -431,11 +481,10 @@ Not surprisingly there are a large number of generalizations
 of Huber-like losses in the engineering community, and in their
 maze of conference publications. Without having any confidence
 of selecting a representative sample from the literature, we mention
-@barron_17, @barron_19, @gokcesu_gokcesu_21, @gokcesu_gokcesu_22.
-These papers also give a large number of possibly useful 
-references. 
+and discuss @barron_17 and @barron_19. These papers also give a 
+large number of possibly useful references. 
 
-It is also clear that we can use any location-scale family of
+It is also clear that we can use any scale family of
 probability densities to define convolution smoothers. There is an infinite number of possible choices, with finite or infinite support, smooth or nonsmooth, using splines or wavelets, and so on.
 
 # Example
@@ -443,6 +492,8 @@ probability densities to define convolution smoothers. There is an infinite numb
 # Discussion
 
 Fixed weights
+
+Tukey loss
 
 # Code
 

@@ -1,19 +1,19 @@
 smacofRobust <- function(delta,
                          weights = 1 - diag(nrow(delta)),
-                         engine = smacofAV,
                          ndim = 2,
+                         xold = smacofTorgerson(delta, ndim),
+                         engine = smacofAV,
                          cons = 0,
                          itmax = 1000,
                          eps = 1e-15,
                          verbose = TRUE) {
   nobj <- nrow(delta)
   wmax <- max(weights)
-  xold <- smacofTorgerson(delta, ndim)
   dold <- as.matrix(dist(xold))
   h <- engine(nobj, weights, delta, dold, cons)
   rold <- h$resi
-  sold <- sum(weights * rold)
   wold <- h$wght
+  sold <- h$strs
   itel <- 1
   repeat {
     vmat <- -wold
@@ -26,7 +26,7 @@ smacofRobust <- function(delta,
     h <- engine(nobj, weights, delta, dnew, cons)
     rnew <- h$resi
     wnew <- h$wght
-    snew <- sum(weights * rnew)
+    snew <- h$strs
     if (verbose) {
       cat(
         "itel ",
@@ -68,22 +68,28 @@ smacofTorgerson <- function(delta, ndim) {
 
 smacofAV <- function(nobj, wmat, delta, dmat, cons) {
   resi <- sqrt((delta - dmat) ^ 2 + cons)
+  resi <- ifelse(resi < 1e-10, 2 * max(wmat), resi)
+  rmin <- sqrt(cons)
   wght <- wmat / (resi + diag(nobj))
-  return(list(resi = resi, wght = wght))
+  strs <- sum(wmat * resi) - rmin * sum(wmat)
+  return(list(resi = resi, wght = wght, strs = strs))
+}
+
+smacofLP <- function(nobj, wmat, delta, dmat, cons) {
+  resi <- ((delta - dmat) ^ 2 + cons[1]) ^ cons[2]
+  rmin <- cons[1] ^ cons[2]
+  wght <- wmat * ((delta - dmat) ^ 2 + cons[1] + diag(nobj)) ^ (cons[2] - 1)
+  strs <- sum(wmat * resi) - rmin * sum(wmat)
+  return(list(resi = resi, wght = wght, strs = strs))
 }
 
 smacofConvolution <- function(nobj, wmat, delta, dmat, cons) {
   difi <- delta - dmat
   resi <- difi * (2 * pnorm(difi / cons) - 1) + 2 * cons * dnorm(difi / cons)
+  rmin <- 2 * cons * dnorm(0)
   wght <- wmat * (pnorm(difi / cons) - 0.5) / (difi + diag(nobj))
-  return(list(resi = resi, wght = wght))
-}
-
-smacofTukey <- function(nobj, wmat, delta, dmat, cons) {
-  difi <- delta - dmat
-  resi <- ((cons ^ 2) / 6) * ifelse(abs(difi) < cons, (1 - (1 - (difi / cons) ^ 2) ^ 3), 1)
-  wght <- ifelse(abs(difi) < cons, wmat * (1 - (difi / cons) ^ 2) ^ 2, 0) / 2
-  return(list(resi = resi, wght = wght))
+  strs <- sum(wmat * resi) - rmin * sum(wmat)
+  return(list(resi = resi, wght = wght, strs = strs))
 }
 
 smacofHuber <- function(nobj, wmat, delta, dmat, cons) {
@@ -91,5 +97,17 @@ smacofHuber <- function(nobj, wmat, delta, dmat, cons) {
   resi <- ifelse(abs(difi) < cons, (difi ^ 2) / 2, cons * abs(difi) - ((cons ^ 2) / 2))
   wght <- ifelse(abs(difi) < cons, wmat,
                  wmat * sign(difi - cons) * cons / (difi + diag(nobj)))
-  return(list(resi = resi, wght = wght))
+  strs <- sum(wmat * resi)
+  return(list(resi = resi, wght = wght, strs = strs))
+}
+
+smacofTukey <- function(nobj, wmat, delta, dmat, cons) {
+  cans <- (cons ^ 2) / 6
+  difi <- delta - dmat
+  resi <- ifelse(abs(difi) < cons,
+                 cans * (1 - (1 - (difi / cons) ^ 2) ^ 3), cans)
+  wght <- wmat * ifelse(abs(difi) < cons,
+                 (1 - (difi / cons) ^ 2) ^ 2, 0)
+  strs <- sum(wmat * resi)
+  return(list(resi = resi, wght = wght, strs = strs))
 }
