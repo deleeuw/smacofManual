@@ -40,7 +40,7 @@ abstract: We use an iteratively reweighted version of the smacof
 
 \sectionbreak
 
-```{r gruijter, echo = FALSE}
+```{r gruijterdata, echo = FALSE}
 gruijter <-
   structure(
     c(
@@ -81,7 +81,7 @@ gruijter <-
       6.36,
       7.36
     ),
-    Labels = c("KVP", "PvdA", "VVD",
+    names = c("KVP", "PvdA", "VVD",
                "ARP", "CHU", "CPN", "PSP", "BP", "D66"),
     Size = 9L,
     call = quote(as.dist.default(m = polpar)),
@@ -89,9 +89,15 @@ gruijter <-
     Diag = FALSE,
     Upper = FALSE
   )
-
 delta <- as.matrix(gruijter)
-labels <- row.names(gruijter)
+names <- c("KVP", "PvdA", "VVD",
+               "ARP", "CHU", "CPN", "PSP", "BP", "D66")
+row.names(delta) <- colnames(delta) <- names
+index <- outer(1:9, 1:9, ">")
+```
+
+```{r loadcode}
+source("smacofRobust.R")
 ```
 
 
@@ -184,10 +190,11 @@ How many smacof steps we have to take in the inner iterations is something that 
 
 ## Zero Residuals
 
-It may happen that for some $k$ we have $d_k(X^{(k)})=\delta_k$ while iterating. There have been various proposals to deal with this
+It may happen that for some $k$ we have $d_k(X^{(k)})=\delta_k$ while iterating. There have been various proposals to deal with such an 
 unfortunate event, but as far as I can see none of them have been
 entirely satisfactory. 
 
+As easy one is
 \begin{equation}
 w_k(Y)=\begin{cases}
 w_k\frac{1}{|\delta_k-d_k(Y)|}&\text{ if }d_k(Y)\not =\delta_k,\\
@@ -198,7 +205,7 @@ Redefine $\omega_1$ as
 \begin{equation}
 \omega_1(X):=\frac12\sum w_k(Y)\{(\delta_k-d_k(Y))^2+(\delta_k-d_k(X))^2\}.\label{eq:ommaj}
 \end{equation}
-This modified $\omega_1$ majorizes $\sigma_1$ at $Y$, even in the perverse case that $\delta_k=d_k(Y)$ for all $k$.
+This modified $\omega_1$ majorizes $\sigma_1$ at $Y$, even in the perverse case that $\delta_k=d_k(Y)$ for all $k$. But ...
 
 To illustrate the problems with differentiability we compute the directional derivatives of strife. 
 
@@ -222,12 +229,11 @@ But this is impossible by the following argument. In the one-dimensional
 case we can partition $\mathbb{R}^n$ into $n!$ polyhedral convex cones
 corresponding with the permutations of $x$. Within each cone the distances
 are a linear function of $x$. Each cone can be partitioned by intersecting it
-with the $2^\binom{n}{2}$ polyhedra defined by the inequalities $\delta_k-d_k(x)\geq 0$ or $\delta_k-d_k(x)\leq 0$. Some of these intersections can and will obviously be empty. Within each of the non-empty polyhedral intersections strife is a linear function of $x$. Thus it attains its minimum at a vertex of the intersection, which is a solution for which some
+with the $2^\binom{n}{2}$ polyhedra defined by the inequalities $\delta_k-d_k(x)\geq 0$ or $\delta_k-d_k(x)\leq 0$. Some of these intersections can and will obviously be empty. Within each of these non-empty polyhedral regions strife is a linear function of $x$. Thus it attains its minimum at a vertex of the region, which is a solution for which some
 distances are zero and some residuals are zero. There can be no  
-minima, local or global, in the interior of a polyhedral intersection.
-Of course the number of regions, which is maximally $n!2^\binom{n}{2}$, 
-is too large to actually compute or draw, except perhaps when $n=3$, in
-which case there are maximally 48 of them. Thus we have shown that in one dimension strife is not differentiable at a local minimum, and that there is presumably a large number of them.
+minima, local or global, in the interior of one of the polyhedral regions.
+We have shown that in one dimension strife is not differentiable at a local minimum, and that there is presumably a large number of them. Of course even for moderate $n$ the number of regions, which is maximally $n!2^\binom{n}{2}$, 
+is too large to actually compute or draw. 
 
 In the multidimensional case linearity goes out the window. The
 set of configurations $d_k(X)=\delta_k$ is an ellipsoid and $d_k(X)=0$ is a hyperplane. Strife is not differentiable at all intersections of these
@@ -244,10 +250,11 @@ of two weighted sums of distances. Anything can happen.
 
 # Generalizing Strife
 
-The AM/GM inequality was used in the previous section to construct a quadratic majorization of strife. To fix the terminology we say that a function $g$
+To fix the terminology we say that a function $g$
 *majorizes* a function $f$ at $y$ if $g(x)\geq f(x)$ for all $x$ and $g(y)=f(y)$.
 Majorization is *strict* if $g(x)>f(x)$ for all $x\not= y$. If $\mathfrak{H}$ is a family of functions that all majorize $f$ at $y$ then $h\in\mathfrak{H}$ is *sharp* if
 $h(x)\leq g(x)$ for all $g\in\mathfrak{H}$. 
+The AM/GM inequality was used in the previous section to construct a quadratic majorization of strife. 
 
 We are specifically interested in this chapter in sharp quadratic majorization, in
 which $\mathfrak{H}$ is the set of all convex quadratics that majorize $f$ at $y$.
@@ -279,13 +286,11 @@ where $f$ satisfies the conditions in the theorem. If
 \end{equation}
 then $\omega_f$ is a sharp quadratic majorization at $Y$.
 
-Shift: 
-Although the absolute value is not differentiable at the origin the theorem can still
-be applied. It just does not give a majorizer at $y=0$. If $f(x)=|x|$ then
+Although the absolute value is not differentiable at the origin the theorem can still be applied. It just does not give a majorizer at $y=0$. If $f(x)=|x|$ then
 \begin{equation}
-g(x)=\frac{1}{2|y|}(x^2-y^2)+|y|=\frac{1}{2|y|}(x^2+y^2),label{eq:abssharp}
+g(x)=\frac{1}{2|y|}(x^2-y^2)+|y|=\frac{1}{2|y|}(x^2+y^2),\label{eq:abssharp}
 \end{equation}
-which is the same as \eqref{eq:amgmmaj}. Thus the AM/GM method gives the sharp
+which is the same as \eqref{eq:amgmmaj}. Thus the AM/GM method gives a sharp
 quadratic majorization.
 
 In iteration $k$ the robust smacof algorithm does a smacof step towards minimization of
@@ -298,18 +303,17 @@ with
 \begin{equation}
 w_k(X^{(k)}):=w_k\frac{f'(\delta_k-d_k(X^{(k)}))}{2(\delta_k-d_k(Y))}.\label{eq:wkdef}
 \end{equation}
-It then recomputes the weights $w_k(X^{(k+1)})$ and goes to the smacof step again.
-This can be thought of as iterativey reweighted least squares, and also as 
-majorization within majorization, with the smacof majorization within the sharp
-quadratic majorization of the loss function.
+It then recomputes the weights $w_k(X^{(k+1)})$ and goes to the smacof step again. This can be thought of as iteratively reweighted least squares, and also as majorization within majorization, with the smacof majorization within the sharp quadratic majorization of the loss function.
 
-A
+\sectionbreak
+
+# On IRLS
 
 \sectionbreak
 
 # Charbonnier loss
 
-@deleeuw_E_18f
+@deleeuw_E_18f, @ramirez_sanchez_kreinovich_argaez_14
 
 $$
 f(x)=\sqrt{x^2 + c^2}
@@ -337,6 +341,25 @@ Alt:
 $$
 \sigma_\epsilon(X)=\epsilon^2\left\{\sqrt{1+\frac{x^2}{\epsilon^2}}-1\right\}
 $$
+
+\sectionbreak
+
+# Generalized Charbonnier Loss
+
+$$
+f(x):=(x^2+c^2)^q
+$$
+$$
+f'(x)=2qx(x^2+c^2)^{q-1}
+$$
+$$
+w(x)=2q(x^2+c^2)^{q-1}
+$$
+which is non-increasing for $q\leq 1$.
+
+
+Barron Loss
+
 \sectionbreak
 
 # Huber Loss
@@ -475,19 +498,109 @@ $$
 
 \sectionbreak
 
+# Tukey Loss
+
+# Welsch Loss
+
+$$
+f(x)=1-\exp(-\{\frac{x}{c}\}^2)
+$$
+# Cauchy Loss
+
+$$
+f(x)=\log(\{\frac{x}{c}\}^2+1)
+$$
+
+$$
+f'(x)=\frac{1}{c^2}x\frac{1}{\{\frac{x}{c}\}^2+1}
+$$
+$$
+w(x)=\frac{1}{c^2}\frac{1}{\{\frac{x}{c}\}^2+1}
+$$
+which is non-increasing on $\mathbb{R}^+$.
+
 # Barron Loss
 
 Not surprisingly there are a large number of generalizations
 of Huber-like losses in the engineering community, and in their
 maze of conference publications. Without having any confidence
 of selecting a representative sample from the literature, we mention
-and discuss @barron_17 and @barron_19. These papers also give a 
-large number of possibly useful references. 
+and discuss @barron_17 and @barron_19. These papers also give a number of  useful references. 
 
 It is also clear that we can use any scale family of
 probability densities to define convolution smoothers. There is an infinite number of possible choices, with finite or infinite support, smooth or nonsmooth, using splines or wavelets, and so on.
 
 # Example
+
+The example we use are dissimilarities between nine Dutch political parties,
+collected by @degruijter_67.
+
+```{r gruijter}
+delta
+```
+
+```{r ls, echo = FALSE}
+hls <- smacofRobust(delta, engine = smacofHuber, cons = 10, verbose = FALSE, itmax = 10000)
+```
+```{r pxls, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Configuration Least Squares"}
+par(pty = "s")
+plot(hls$x, type = "n", xlab = "dim1", ylab = "dim2")
+text(hls$x, names)
+```
+
+```{r pdls, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Shepard Plot Least Squares"}
+par(pty = "s")
+plot(delta[index], hls$d[index], xlab = "delta", ylab = "d", col = "RED")
+abline(0, 1, col = "BLUE")
+```
+
+```{r av, echo = FALSE}
+hav <- smacofRobust(delta, engine = smacofHuber, cons = .01, verbose = FALSE, itmax = 10000)
+```
+
+```{r pxav, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Configuration Least Absolute Value"}
+par(pty = "s")
+plot(hav$x, type = "n", xlab = "dim1", ylab = "dim2")
+text(hav$x, names)
+```
+
+```{r pdav, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Shepard Plot Least Absolute Value"}
+par(pty = "s")
+plot(delta[index], hav$d[index], xlab = "delta", ylab = "d", col = "RED")
+abline(0, 1, col = "BLUE")
+```
+
+```{r hmed, echo = FALSE}
+hmed <- smacofRobust(delta, engine = smacofHuber, cons = 6, verbose = FALSE, itmax = 10000)
+```
+
+```{r pxhmed, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Configuration Median Huber"}
+par(pty = "s")
+plot(hmed$x, type = "n", xlab = "dim1", ylab = "dim2")
+text(hmed$x, names)
+```
+
+```{r pdhmed, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Shepard Plot Median Huber"}
+par(pty = "s")
+plot(delta[index], hmed$d[index], xlab = "delta", ylab = "d", col = "RED")
+abline(0, 1, col = "BLUE")
+```
+
+```{r htu, echo = FALSE}
+htu <- smacofRobust(delta, engine = smacofTukey, cons = 6, verbose = FALSE, itmax = 10000)
+```
+
+```{r pxtmed, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Configuration Median Tukey"}
+par(pty = "s")
+plot(htu$x, type = "n", xlab = "dim1", ylab = "dim2")
+text(htu$x, names)
+```
+
+```{r pdtmed, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Shepard Plot Median Tukey"}
+par(pty = "s")
+plot(delta[index], htu$d[index], xlab = "delta", ylab = "d", col = "RED")
+abline(0, 1, col = "BLUE")
+```
 
 # Discussion
 
@@ -600,4 +713,5 @@ smacofHuber <- function(nobj, wmat, delta, dmat, cons) {
   return(list(resi = resi, wght = wght))
 }
 ```
+
 # References

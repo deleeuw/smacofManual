@@ -273,7 +273,7 @@
 
 \title{Robust Least Squares Multidimensional Scaling}
 \author{Jan de Leeuw}
-\date{September 25, 2024}
+\date{September 29, 2024}
 
 \begin{document}
 \maketitle
@@ -288,6 +288,12 @@ theory, and sparse recovery. Code in R is included.
 
 
 \sectionbreak
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{source}\NormalTok{(}\StringTok{"smacofRobust.R"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
 \section{Introduction}\label{introduction}
 
@@ -387,11 +393,11 @@ local minimum, and on how far the iterations are from the local minimum.
 \subsection{Zero Residuals}\label{zero-residuals}
 
 It may happen that for some \(k\) we have \(d_k(X^{(k)})=\delta_k\)
-while iterating. There have been various proposals to deal with this
+while iterating. There have been various proposals to deal with such an
 unfortunate event, but as far as I can see none of them have been
 entirely satisfactory.
 
-\begin{equation}
+As easy one is \begin{equation}
 w_k(Y)=\begin{cases}
 w_k\frac{1}{|\delta_k-d_k(Y)|}&\text{ if }d_k(Y)\not =\delta_k,\\
 2\ \max_k w_k&\text{ otherwise}.\label{eq:sdef}
@@ -400,6 +406,7 @@ w_k\frac{1}{|\delta_k-d_k(Y)|}&\text{ if }d_k(Y)\not =\delta_k,\\
 \omega_1(X):=\frac12\sum w_k(Y)\{(\delta_k-d_k(Y))^2+(\delta_k-d_k(X))^2\}.\label{eq:ommaj}
 \end{equation} This modified \(\omega_1\) majorizes \(\sigma_1\) at
 \(Y\), even in the perverse case that \(\delta_k=d_k(Y)\) for all \(k\).
+But \ldots{}
 
 To illustrate the problems with differentiability we compute the
 directional derivatives of strife.
@@ -441,16 +448,16 @@ distances are a linear function of \(x\). Each cone can be partitioned
 by intersecting it with the \(2^\binom{n}{2}\) polyhedra defined by the
 inequalities \(\delta_k-d_k(x)\geq 0\) or \(\delta_k-d_k(x)\leq 0\).
 Some of these intersections can and will obviously be empty. Within each
-of the non-empty polyhedral intersections strife is a linear function of
-\(x\). Thus it attains its minimum at a vertex of the intersection,
-which is a solution for which some distances are zero and some residuals
-are zero. There can be no\\
-minima, local or global, in the interior of a polyhedral intersection.
-Of course the number of regions, which is maximally
-\(n!2^\binom{n}{2}\), is too large to actually compute or draw, except
-perhaps when \(n=3\), in which case there are maximally 48 of them. Thus
-we have shown that in one dimension strife is not differentiable at a
-local minimum, and that there is presumably a large number of them.
+of these non-empty polyhedral regions strife is a linear function of
+\(x\). Thus it attains its minimum at a vertex of the region, which is a
+solution for which some distances are zero and some residuals are zero.
+There can be no\\
+minima, local or global, in the interior of one of the polyhedral
+regions. We have shown that in one dimension strife is not
+differentiable at a local minimum, and that there is presumably a large
+number of them. Of course even for moderate \(n\) the number of regions,
+which is maximally \(n!2^\binom{n}{2}\), is too large to actually
+compute or draw.
 
 In the multidimensional case linearity goes out the window. The set of
 configurations \(d_k(X)=\delta_k\) is an ellipsoid and \(d_k(X)=0\) is a
@@ -464,14 +471,14 @@ difference of two weighted sums of distances. Anything can happen.
 
 \section{Generalizing Strife}\label{generalizing-strife}
 
-The AM/GM inequality was used in the previous section to construct a
-quadratic majorization of strife. To fix the terminology we say that a
-function \(g\) \emph{majorizes} a function \(f\) at \(y\) if
-\(g(x)\geq f(x)\) for all \(x\) and \(g(y)=f(y)\). Majorization is
-\emph{strict} if \(g(x)>f(x)\) for all \(x\not= y\). If \(\mathfrak{H}\)
-is a family of functions that all majorize \(f\) at \(y\) then
-\(h\in\mathfrak{H}\) is \emph{sharp} if \(h(x)\leq g(x)\) for all
-\(g\in\mathfrak{H}\).
+To fix the terminology we say that a function \(g\) \emph{majorizes} a
+function \(f\) at \(y\) if \(g(x)\geq f(x)\) for all \(x\) and
+\(g(y)=f(y)\). Majorization is \emph{strict} if \(g(x)>f(x)\) for all
+\(x\not= y\). If \(\mathfrak{H}\) is a family of functions that all
+majorize \(f\) at \(y\) then \(h\in\mathfrak{H}\) is \emph{sharp} if
+\(h(x)\leq g(x)\) for all \(g\in\mathfrak{H}\). The AM/GM inequality was
+used in the previous section to construct a quadratic majorization of
+strife.
 
 We are specifically interested in this chapter in sharp quadratic
 majorization, in which \(\mathfrak{H}\) is the set of all convex
@@ -510,12 +517,12 @@ We now apply this theorem to functions of the form \begin{equation}
 \end{equation} then \(\omega_f\) is a sharp quadratic majorization at
 \(Y\).
 
-Shift: Although the absolute value is not differentiable at the origin
-the theorem can still be applied. It just does not give a majorizer at
+Although the absolute value is not differentiable at the origin the
+theorem can still be applied. It just does not give a majorizer at
 \(y=0\). If \(f(x)=|x|\) then \begin{equation}
-g(x)=\frac{1}{2|y|}(x^2-y^2)+|y|=\frac{1}{2|y|}(x^2+y^2),label{eq:abssharp}
+g(x)=\frac{1}{2|y|}(x^2-y^2)+|y|=\frac{1}{2|y|}(x^2+y^2),\label{eq:abssharp}
 \end{equation} which is the same as \eqref{eq:amgmmaj}. Thus the AM/GM
-method gives the sharp quadratic majorization.
+method gives a sharp quadratic majorization.
 
 In iteration \(k\) the robust smacof algorithm does a smacof step
 towards minimization of \(\omega_f\) over \(X\). We can ignore the parts
@@ -525,18 +532,21 @@ of \eqref{eq:fstressmaj} that only depend on \(Y\), and minimize
 \end{equation} with \begin{equation}
 w_k(X^{(k)}):=w_k\frac{f'(\delta_k-d_k(X^{(k)}))}{2(\delta_k-d_k(Y))}.\label{eq:wkdef}
 \end{equation} It then recomputes the weights \(w_k(X^{(k+1)})\) and
-goes to the smacof step again. This can be thought of as iterativey
+goes to the smacof step again. This can be thought of as iteratively
 reweighted least squares, and also as majorization within majorization,
 with the smacof majorization within the sharp quadratic majorization of
 the loss function.
 
-A
+\sectionbreak
+
+\section{On IRLS}\label{on-irls}
 
 \sectionbreak
 
 \section{Charbonnier loss}\label{charbonnier-loss}
 
-De Leeuw (\citeproc{ref-deleeuw_E_18f}{2018})
+De Leeuw (\citeproc{ref-deleeuw_E_18f}{2018}), Ramirez et al.
+(\citeproc{ref-ramirez_sanchez_kreinovich_argaez_14}{2014})
 
 \[
 f(x)=\sqrt{x^2 + c^2}
@@ -556,7 +566,24 @@ f'(x)=\frac{1}{\sqrt{x^2+c^2}}x
 
 \[
 \sigma_\epsilon(X)=\epsilon^2\left\{\sqrt{1+\frac{x^2}{\epsilon^2}}-1\right\}
-\] \sectionbreak
+\]
+
+\sectionbreak
+
+\section{Generalized Charbonnier
+Loss}\label{generalized-charbonnier-loss}
+
+\[
+f(x):=(x^2+c^2)^q
+\] \[
+f'(x)=2qx(x^2+c^2)^{q-1}
+\] \[
+w(x)=2q(x^2+c^2)^{q-1}
+\] which is non-increasing for \(q\leq 1\).
+
+Barron Loss
+
+\sectionbreak
 
 \section{Huber Loss}\label{huber-loss}
 
@@ -687,6 +714,24 @@ w(x)=\begin{cases}
 
 \sectionbreak
 
+\section{Tukey Loss}\label{tukey-loss}
+
+\section{Welsch Loss}\label{welsch-loss}
+
+\[
+f(x)=1-\exp(-\{\frac{x}{c}\}^2)
+\] \# Cauchy Loss
+
+\[
+f(x)=\log(\{\frac{x}{c}\}^2+1)
+\]
+
+\[
+f'(x)=\frac{1}{c^2}x\frac{1}{\{\frac{x}{c}\}^2+1}
+\] \[
+w(x)=\frac{1}{c^2}\frac{1}{\{\frac{x}{c}\}^2+1}
+\] which is non-increasing on \(\mathbb{R}^+\).
+
 \section{Barron Loss}\label{barron-loss}
 
 Not surprisingly there are a large number of generalizations of
@@ -694,8 +739,8 @@ Huber-like losses in the engineering community, and in their maze of
 conference publications. Without having any confidence of selecting a
 representative sample from the literature, we mention and discuss Barron
 (\citeproc{ref-barron_17}{2017}) and Barron
-(\citeproc{ref-barron_19}{2019}). These papers also give a large number
-of possibly useful references.
+(\citeproc{ref-barron_19}{2019}). These papers also give a number of
+useful references.
 
 It is also clear that we can use any scale family of probability
 densities to define convolution smoothers. There is an infinite number
@@ -703,6 +748,108 @@ of possible choices, with finite or infinite support, smooth or
 nonsmooth, using splines or wavelets, and so on.
 
 \section{Example}\label{example}
+
+The example we use are dissimilarities between nine Dutch political
+parties, collected by De Gruijter (\citeproc{ref-degruijter_67}{1967}).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{delta}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+      KVP PvdA  VVD  ARP  CHU  CPN  PSP   BP  D66
+KVP  0.00 5.63 5.27 4.60 4.80 7.54 6.73 7.18 6.17
+PvdA 5.63 0.00 6.72 5.64 6.22 5.12 4.59 7.22 5.47
+VVD  5.27 6.72 0.00 5.46 4.97 8.13 7.55 6.90 4.67
+ARP  4.60 5.64 5.46 0.00 3.20 7.84 6.73 7.28 6.13
+CHU  4.80 6.22 4.97 3.20 0.00 7.80 7.08 6.96 6.04
+CPN  7.54 5.12 8.13 7.84 7.80 0.00 4.08 6.34 7.42
+PSP  6.73 4.59 7.55 6.73 7.08 4.08 0.00 6.88 6.36
+BP   7.18 7.22 6.90 7.28 6.96 6.34 6.88 0.00 7.36
+D66  6.17 5.47 4.67 6.13 6.04 7.42 6.36 7.36 0.00
+\end{verbatim}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/pxls-1.pdf}
+
+}
+
+\caption{Configuration Least Squares}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/pdls-1.pdf}
+
+}
+
+\caption{Shepard Plot Least Squares}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/pxav-1.pdf}
+
+}
+
+\caption{Configuration Least Absolute Value}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/pdav-1.pdf}
+
+}
+
+\caption{Shepard Plot Least Absolute Value}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/pxhmed-1.pdf}
+
+}
+
+\caption{Configuration Median Huber}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/pdhmed-1.pdf}
+
+}
+
+\caption{Shepard Plot Median Huber}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/pxtmed-1.pdf}
+
+}
+
+\caption{Configuration Median Tukey}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/pdtmed-1.pdf}
+
+}
+
+\caption{Shepard Plot Median Tukey}
+
+\end{figure}%
 
 \section{Discussion}\label{discussion}
 
@@ -833,6 +980,11 @@ Barron, J. T. 2017. {``A More General Robust Loss Function.''}
 Pattern Recognition}, 4331--39.
 \url{https://openaccess.thecvf.com/content_CVPR_2019/papers/Barron_A_General_and_Adaptive_Robust_Loss_Function_CVPR_2019_paper.pdf}.
 
+\bibitem[\citeproctext]{ref-degruijter_67}
+De Gruijter, D. N. M. 1967. {``{The Cognitive Structure of Dutch
+Political Parties in 1966}.''} Report E019-67. Psychological Institute,
+University of Leiden.
+
 \bibitem[\citeproctext]{ref-deleeuw_A_84f}
 De Leeuw, J. 1984. {``{Differentiability of Kruskal's Stress at a Local
 Minimum}.''} \emph{Psychometrika} 49: 111--13.
@@ -846,6 +998,7 @@ Lenski, and M. M. Richter, 308--24. Berlin: Springer Verlag.
 \bibitem[\citeproctext]{ref-deleeuw_E_18f}
 ---------. 2018. {``{MM Algorithms for Smoothed Absolute Values}.''}
 2018.
+\url{https://jansweb.netlify.app/publication/deleeuw-e-18-f/deleeuw-e-18-f.pdf}.
 
 \bibitem[\citeproctext]{ref-deleeuw_lange_A_09}
 De Leeuw, J., and K. Lange. 2009. {``Sharp Quadratic Majorization in One
@@ -877,6 +1030,12 @@ Lange, K. 2016. \emph{MM Optimization Algorithms}. SIAM.
 \bibitem[\citeproctext]{ref-pliner_96}
 Pliner, V. 1996. {``{Metric Unidimensional Scaling and Global
 Optimization}.''} \emph{Journal of Classification} 13: 3--18.
+
+\bibitem[\citeproctext]{ref-ramirez_sanchez_kreinovich_argaez_14}
+Ramirez, C., R. Sanchez, V. Kreinovich, and M. Argaez. 2014.
+{``{\(\sqrt{x^2+\mu}\) is the Most Computationally Efficient Smooth
+Approximation to \vert{}x\vert{}}.''} \emph{Journal of Uncertain
+Systems} 8: 205--10.
 
 \bibitem[\citeproctext]{ref-voronin_ozkaya_yoshida_15}
 Voronin, S., G. Ozkaya, and Y. Yoshida. n.d. {``{Convolution Based

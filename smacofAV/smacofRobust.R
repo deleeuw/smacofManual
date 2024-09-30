@@ -111,3 +111,19 @@ smacofTukey <- function(nobj, wmat, delta, dmat, cons) {
   strs <- sum(wmat * resi)
   return(list(resi = resi, wght = wght, strs = strs))
 }
+
+smacofCauchy <- function(nobj, wmat, delta, dmat, cons) {
+  difi <- delta - dmat
+  resi <- log((difi / cons) ^ 2 + 1)
+  wght <- wmat * (1 / ((difi / cons) ^ 2 + 1))
+  strs <- sum(wmat * resi)
+  return(list(resi = resi, wght = wght, strs = strs))
+}
+
+smacofWelsch <- function(nobj, wmat, delta, dmat, cons) {
+  difi <- delta - dmat
+  resi <- 1 - exp(-(difi / cons) ^ 2)
+  wght <- wmat * exp(-(difi / cons) ^ 2)
+  strs <- sum(wmat * resi)
+  return(list(resi = resi, wght = wght, strs = strs))
+}
