@@ -236,10 +236,7 @@ of two weighted sums of distances. Anything can happen.
 
 # Generalizing Strife
 
-A function $g$
-*majorizes* a function $f$ at $y$ if $g(x)\geq f(x)$ for all $x$ and $g(y)=f(y)$.
-Majorization is *strict* if $g(x)>f(x)$ for all $x\not= y$. If $\mathfrak{H}$ is a family of functions that all majorize $f$ at $y$ then $h\in\mathfrak{H}$ is a *sharp majorization* if $h(x)\leq g(x)$ for all $g\in\mathfrak{H}$. 
-The AM/GM inequality was used in the previous section to construct a quadratic majorization of strife. 
+A function $g$ *majorizes* a function $f$ at $y$ if $g(x)\geq f(x)$ for all $x$ and $g(y)=f(y)$. Majorization is *strict* if $g(x)>f(x)$ for all $x\not= y$. If $\mathfrak{H}$ is a family of functions that all majorize $f$ at $y$ then $h\in\mathfrak{H}$ is a *sharp majorization* if $h(x)\leq g(x)$ for all $g\in\mathfrak{H}$. The AM/GM inequality was used in the previous section to construct a quadratic majorization of strife. 
 
 We are specifically interested in this chapter in sharp quadratic majorization, in
 which $\mathfrak{H}$ is the set of all convex quadratics that majorize $f$ at $y$.
@@ -256,8 +253,12 @@ is a sharp quadratic majorizer of $f$ at the point $y$.
 >Theorem 4.6. The ratio $f'(x)/x$ is decreasing on $(0,\infty)$ if and only 
 $f(\sqrt(x))$ is concave. The set of functions satisfying this condition is closed under the formation of (a) positive multiples, (b) convex combinations, (c) limits, and (d) composition with a concave increasing function $g(x)$.
 
-Note that these theorems only give a sufficient condition for quadratic
-majorization (in fact, for sharp quadratic majorization). 
+Note that these theorems give a sufficient condition for quadratic
+majorization (in fact, for sharp quadratic majorization) and not a necessary one.
+Quadratic majorization may be possible if the conditions in the theorem
+are violated.
+
+-- some history
 
 We now apply this theorem to functions of the form
 \begin{equation}
@@ -373,33 +374,27 @@ $$
 
 # Generalized Charbonnier Loss
 
+The loss function $(x^2+c^2)^\frac12$ smoothes $|x|$. IN the same generalized 
+Charbonnier loss smoothes $\ell_p$ loss $|x|^q$.
+$$
+f_{c,q}(x):=(x^2+c^2)^{\frac12q}
+$$
+$$
+w_{c,q}(x)=q(x^2+c^2)^{\frac12q-1}
+$$
+which is non-increasing for $q\leq 2$. Note that we do not assume that
+$q>0$, and consequently ... provides us with much more flexibility than
+Charbonnier loss ...
 
 
-$$
-f(x):=(x^2+c^2)^q
-$$
-$$
-f'(x)=2qx(x^2+c^2)^{q-1}
-$$
-$$
-w(x)=2q(x^2+c^2)^{q-1}
-$$
-which is non-increasing for $q\leq 1$.
-
-
-Not surprisingly there are a large number of generalizations
-of Huber-like losses in the engineering community, and in their
-maze of conference publications. Without having any confidence
-of selecting a representative sample from the literature, we mention
-and discuss @barron_17 and @barron_19. These papers also give a number of  useful references. 
+There are a large number of generalizations
+of these types of loss functions in the engineering community, and in their
+maze of conference publications. We will discuss the nice generalization in @barron_19. 
 
 $$
 f_{\alpha,c}(x)=\frac{|\alpha-2|}{\alpha}\left(\left(\frac{(x/c)^2}{|\alpha-2|}+1\right)^{\alpha/2}-1\right)
 $$
 
-\sectionbreak
-
-# Huber Loss
 
 
 
@@ -549,7 +544,7 @@ probability densities to define convolution smoothers. There is an infinite numb
 
 \sectionbreak
 
-## Downweighters
+# Downweighters
 
 
 ## Tukey Loss
@@ -653,8 +648,6 @@ abline(0, 1, col = "BLUE")
 # Discussion
 
 Fixed weights
-
-Tukey loss
 
 Minimize
 $$
