@@ -273,7 +273,7 @@
 
 \title{Robust Least Squares Multidimensional Scaling}
 \author{Jan de Leeuw}
-\date{October 1, 2024}
+\date{October 2, 2024}
 
 \begin{document}
 \maketitle
@@ -495,8 +495,13 @@ this condition is closed under the formation of (a) positive multiples,
 increasing function \(g(x)\).
 \end{quote}
 
-Note that these theorems only give a sufficient condition for quadratic
-majorization (in fact, for sharp quadratic majorization).
+Note that these theorems give a sufficient condition for quadratic
+majorization (in fact, for sharp quadratic majorization) and not a
+necessary one. Quadratic majorization may still be possible if the
+conditions in the theorem are violated.
+
+Although De Leeuw and Lange (\citeproc{ref-deleeuw_lange_A_09}{2009})
+give no references
 
 We now apply this theorem to functions of the form \begin{equation}
 \sigma_f(X):=\sum w_k\ f(\delta_k-d_k(X)),\label{eq:fstressdef}
@@ -605,21 +610,19 @@ w_c(x)=\frac{1}{\sqrt{x^2+c^2}}
 \section{Generalized Charbonnier
 Loss}\label{generalized-charbonnier-loss}
 
-\[
-f(x):=(x^2+c^2)^q
+The loss function \((x^2+c^2)^\frac12\) smoothes \(|x|\). IN the same
+generalized Charbonnier loss smoothes \(\ell_p\) loss \(|x|^q\). \[
+f_{c,q}(x):=(x^2+c^2)^{\frac12q}
 \] \[
-f'(x)=2qx(x^2+c^2)^{q-1}
-\] \[
-w(x)=2q(x^2+c^2)^{q-1}
-\] which is non-increasing for \(q\leq 1\).
+w_{c,q}(x)=q(x^2+c^2)^{\frac12q-1}
+\] which is non-increasing for \(q\leq 2\). Note that we do not assume
+that \(q>0\), and consequently \ldots{} provides us with much more
+flexibility than Charbonnier loss \ldots{}
 
-Not surprisingly there are a large number of generalizations of
-Huber-like losses in the engineering community, and in their maze of
-conference publications. Without having any confidence of selecting a
-representative sample from the literature, we mention and discuss Barron
-(\citeproc{ref-barron_17}{2017}) and Barron
-(\citeproc{ref-barron_19}{2019}). These papers also give a number of
-useful references.
+There are a large number of generalizations of these types of loss
+functions in the engineering community, and in their maze of conference
+publications. We will discuss the nice generalization in Barron
+(\citeproc{ref-barron_19}{2019}).
 
 \[
 f_{\alpha,c}(x)=\frac{|\alpha-2|}{\alpha}\left(\left(\frac{(x/c)^2}{|\alpha-2|}+1\right)^{\alpha/2}-1\right)
@@ -627,15 +630,11 @@ f_{\alpha,c}(x)=\frac{|\alpha-2|}{\alpha}\left(\left(\frac{(x/c)^2}{|\alpha-2|}+
 
 \sectionbreak
 
-\section{Huber Loss}\label{huber-loss}
-
-\sectionbreak
-
 \section{Convolution Smoothers}\label{convolution-smoothers}
 
 General
 
-\subsection{Huber Loss}\label{huber-loss-1}
+\subsection{Huber Loss}\label{huber-loss}
 
 The Huber function (Huber (\citeproc{ref-huber_64}{1964})) is \[
 f(x)=\begin{cases}
@@ -769,7 +768,7 @@ nonsmooth, using splines or wavelets, and so on.
 
 \sectionbreak
 
-\subsection{Downweighters}\label{downweighters}
+\section{Downweighters}\label{downweighters}
 
 \subsection{Tukey Loss}\label{tukey-loss}
 
@@ -903,8 +902,6 @@ D66  6.17 5.47 4.67 6.13 6.04 7.42 6.36 7.36 0.00
 
 Fixed weights
 
-Tukey loss
-
 Minimize \[
 \sum w_k\ f(\delta_k-d_k(X))
 \] if \(f''(x)\leq K\).
@@ -927,20 +924,20 @@ functions.
 \begin{Highlighting}[]
 \NormalTok{smacofRobust }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(delta,}
                          \AttributeTok{weights =} \DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{diag}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(delta)),}
-                         \AttributeTok{engine =}\NormalTok{ smacofAV,}
                          \AttributeTok{ndim =} \DecValTok{2}\NormalTok{,}
+                         \AttributeTok{xold =} \FunctionTok{smacofTorgerson}\NormalTok{(delta, ndim),}
+                         \AttributeTok{engine =}\NormalTok{ smacofAV,}
                          \AttributeTok{cons =} \DecValTok{0}\NormalTok{,}
                          \AttributeTok{itmax =} \DecValTok{1000}\NormalTok{,}
                          \AttributeTok{eps =} \FloatTok{1e{-}15}\NormalTok{,}
                          \AttributeTok{verbose =} \ConstantTok{TRUE}\NormalTok{) \{}
 \NormalTok{  nobj }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(delta)}
 \NormalTok{  wmax }\OtherTok{\textless{}{-}} \FunctionTok{max}\NormalTok{(weights)}
-\NormalTok{  xold }\OtherTok{\textless{}{-}} \FunctionTok{smacofTorgerson}\NormalTok{(delta, ndim)}
 \NormalTok{  dold }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{dist}\NormalTok{(xold))}
 \NormalTok{  h }\OtherTok{\textless{}{-}} \FunctionTok{engine}\NormalTok{(nobj, weights, delta, dold, cons)}
 \NormalTok{  rold }\OtherTok{\textless{}{-}}\NormalTok{ h}\SpecialCharTok{$}\NormalTok{resi}
-\NormalTok{  sold }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(weights }\SpecialCharTok{*}\NormalTok{ rold)}
 \NormalTok{  wold }\OtherTok{\textless{}{-}}\NormalTok{ h}\SpecialCharTok{$}\NormalTok{wght}
+\NormalTok{  sold }\OtherTok{\textless{}{-}}\NormalTok{ h}\SpecialCharTok{$}\NormalTok{strs}
 \NormalTok{  itel }\OtherTok{\textless{}{-}} \DecValTok{1}
   \ControlFlowTok{repeat}\NormalTok{ \{}
 \NormalTok{    vmat }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{wold}
@@ -953,7 +950,7 @@ functions.
 \NormalTok{    h }\OtherTok{\textless{}{-}} \FunctionTok{engine}\NormalTok{(nobj, weights, delta, dnew, cons)}
 \NormalTok{    rnew }\OtherTok{\textless{}{-}}\NormalTok{ h}\SpecialCharTok{$}\NormalTok{resi}
 \NormalTok{    wnew }\OtherTok{\textless{}{-}}\NormalTok{ h}\SpecialCharTok{$}\NormalTok{wght}
-\NormalTok{    snew }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(weights }\SpecialCharTok{*}\NormalTok{ rnew)}
+\NormalTok{    snew }\OtherTok{\textless{}{-}}\NormalTok{ h}\SpecialCharTok{$}\NormalTok{strs}
     \ControlFlowTok{if}\NormalTok{ (verbose) \{}
       \FunctionTok{cat}\NormalTok{(}
         \StringTok{"itel "}\NormalTok{,}
@@ -995,22 +992,28 @@ functions.
 
 \NormalTok{smacofAV }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
 \NormalTok{  resi }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{((delta }\SpecialCharTok{{-}}\NormalTok{ dmat) }\SpecialCharTok{\^{}} \DecValTok{2} \SpecialCharTok{+}\NormalTok{ cons)}
+\NormalTok{  resi }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(resi }\SpecialCharTok{\textless{}} \FloatTok{1e{-}10}\NormalTok{, }\DecValTok{2} \SpecialCharTok{*} \FunctionTok{max}\NormalTok{(wmat), resi)}
+\NormalTok{  rmin }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{(cons)}
 \NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{/}\NormalTok{ (resi }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}
-  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{resi =}\NormalTok{ resi, }\AttributeTok{wght =}\NormalTok{ wght))}
+\NormalTok{  strs }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wmat }\SpecialCharTok{*}\NormalTok{ resi) }\SpecialCharTok{{-}}\NormalTok{ rmin }\SpecialCharTok{*} \FunctionTok{sum}\NormalTok{(wmat)}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{resi =}\NormalTok{ resi, }\AttributeTok{wght =}\NormalTok{ wght, }\AttributeTok{strs =}\NormalTok{ strs))}
+\NormalTok{\}}
+
+\NormalTok{smacofLP }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
+\NormalTok{  resi }\OtherTok{\textless{}{-}}\NormalTok{ ((delta }\SpecialCharTok{{-}}\NormalTok{ dmat) }\SpecialCharTok{\^{}} \DecValTok{2} \SpecialCharTok{+}\NormalTok{ cons[}\DecValTok{1}\NormalTok{]) }\SpecialCharTok{\^{}}\NormalTok{ cons[}\DecValTok{2}\NormalTok{]}
+\NormalTok{  rmin }\OtherTok{\textless{}{-}}\NormalTok{ cons[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\^{}}\NormalTok{ cons[}\DecValTok{2}\NormalTok{]}
+\NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{*}\NormalTok{ ((delta }\SpecialCharTok{{-}}\NormalTok{ dmat) }\SpecialCharTok{\^{}} \DecValTok{2} \SpecialCharTok{+}\NormalTok{ cons[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj)) }\SpecialCharTok{\^{}}\NormalTok{ (cons[}\DecValTok{2}\NormalTok{] }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)}
+\NormalTok{  strs }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wmat }\SpecialCharTok{*}\NormalTok{ resi) }\SpecialCharTok{{-}}\NormalTok{ rmin }\SpecialCharTok{*} \FunctionTok{sum}\NormalTok{(wmat)}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{resi =}\NormalTok{ resi, }\AttributeTok{wght =}\NormalTok{ wght, }\AttributeTok{strs =}\NormalTok{ strs))}
 \NormalTok{\}}
 
 \NormalTok{smacofConvolution }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
 \NormalTok{  difi }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{{-}}\NormalTok{ dmat}
 \NormalTok{  resi }\OtherTok{\textless{}{-}}\NormalTok{ difi }\SpecialCharTok{*}\NormalTok{ (}\DecValTok{2} \SpecialCharTok{*} \FunctionTok{pnorm}\NormalTok{(difi }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{) }\SpecialCharTok{+} \DecValTok{2} \SpecialCharTok{*}\NormalTok{ cons }\SpecialCharTok{*} \FunctionTok{dnorm}\NormalTok{(difi }\SpecialCharTok{/}\NormalTok{ cons)}
+\NormalTok{  rmin }\OtherTok{\textless{}{-}} \DecValTok{2} \SpecialCharTok{*}\NormalTok{ cons }\SpecialCharTok{*} \FunctionTok{dnorm}\NormalTok{(}\DecValTok{0}\NormalTok{)}
 \NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{*}\NormalTok{ (}\FunctionTok{pnorm}\NormalTok{(difi }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{{-}} \FloatTok{0.5}\NormalTok{) }\SpecialCharTok{/}\NormalTok{ (difi }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}
-  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{resi =}\NormalTok{ resi, }\AttributeTok{wght =}\NormalTok{ wght))}
-\NormalTok{\}}
-
-\NormalTok{smacofTukey }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
-\NormalTok{  difi }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{{-}}\NormalTok{ dmat}
-\NormalTok{  resi }\OtherTok{\textless{}{-}}\NormalTok{ ((cons }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{6}\NormalTok{) }\SpecialCharTok{*} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{\textless{}}\NormalTok{ cons, (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ (difi }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{\^{}} \DecValTok{3}\NormalTok{), }\DecValTok{1}\NormalTok{)}
-\NormalTok{  wght }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{\textless{}}\NormalTok{ cons, wmat }\SpecialCharTok{*}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ (difi }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{, }\DecValTok{0}\NormalTok{) }\SpecialCharTok{/} \DecValTok{2}
-  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{resi =}\NormalTok{ resi, }\AttributeTok{wght =}\NormalTok{ wght))}
+\NormalTok{  strs }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wmat }\SpecialCharTok{*}\NormalTok{ resi) }\SpecialCharTok{{-}}\NormalTok{ rmin }\SpecialCharTok{*} \FunctionTok{sum}\NormalTok{(wmat)}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{resi =}\NormalTok{ resi, }\AttributeTok{wght =}\NormalTok{ wght, }\AttributeTok{strs =}\NormalTok{ strs))}
 \NormalTok{\}}
 
 \NormalTok{smacofHuber }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
@@ -1018,7 +1021,35 @@ functions.
 \NormalTok{  resi }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{\textless{}}\NormalTok{ cons, (difi }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{2}\NormalTok{, cons }\SpecialCharTok{*} \FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{{-}}\NormalTok{ ((cons }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{2}\NormalTok{))}
 \NormalTok{  wght }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{\textless{}}\NormalTok{ cons, wmat,}
 \NormalTok{                 wmat }\SpecialCharTok{*} \FunctionTok{sign}\NormalTok{(difi }\SpecialCharTok{{-}}\NormalTok{ cons) }\SpecialCharTok{*}\NormalTok{ cons }\SpecialCharTok{/}\NormalTok{ (difi }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj)))}
-  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{resi =}\NormalTok{ resi, }\AttributeTok{wght =}\NormalTok{ wght))}
+\NormalTok{  strs }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wmat }\SpecialCharTok{*}\NormalTok{ resi)}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{resi =}\NormalTok{ resi, }\AttributeTok{wght =}\NormalTok{ wght, }\AttributeTok{strs =}\NormalTok{ strs))}
+\NormalTok{\}}
+
+\NormalTok{smacofTukey }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
+\NormalTok{  cans }\OtherTok{\textless{}{-}}\NormalTok{ (cons }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{6}
+\NormalTok{  difi }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{{-}}\NormalTok{ dmat}
+\NormalTok{  resi }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{\textless{}}\NormalTok{ cons,}
+\NormalTok{                 cans }\SpecialCharTok{*}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ (difi }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{\^{}} \DecValTok{3}\NormalTok{), cans)}
+\NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{*} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{\textless{}}\NormalTok{ cons,}
+\NormalTok{                 (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ (difi }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+\NormalTok{  strs }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wmat }\SpecialCharTok{*}\NormalTok{ resi)}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{resi =}\NormalTok{ resi, }\AttributeTok{wght =}\NormalTok{ wght, }\AttributeTok{strs =}\NormalTok{ strs))}
+\NormalTok{\}}
+
+\NormalTok{smacofCauchy }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
+\NormalTok{  difi }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{{-}}\NormalTok{ dmat}
+\NormalTok{  resi }\OtherTok{\textless{}{-}} \FunctionTok{log}\NormalTok{((difi }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2} \SpecialCharTok{+} \DecValTok{1}\NormalTok{)}
+\NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{*}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{/}\NormalTok{ ((difi }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2} \SpecialCharTok{+} \DecValTok{1}\NormalTok{))}
+\NormalTok{  strs }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wmat }\SpecialCharTok{*}\NormalTok{ resi)}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{resi =}\NormalTok{ resi, }\AttributeTok{wght =}\NormalTok{ wght, }\AttributeTok{strs =}\NormalTok{ strs))}
+\NormalTok{\}}
+
+\NormalTok{smacofWelsch }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
+\NormalTok{  difi }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{{-}}\NormalTok{ dmat}
+\NormalTok{  resi }\OtherTok{\textless{}{-}} \DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{exp}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{(difi }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
+\NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{*} \FunctionTok{exp}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{(difi }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
+\NormalTok{  strs }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wmat }\SpecialCharTok{*}\NormalTok{ resi)}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{resi =}\NormalTok{ resi, }\AttributeTok{wght =}\NormalTok{ wght, }\AttributeTok{strs =}\NormalTok{ strs))}
 \NormalTok{\}}
 \end{Highlighting}
 \end{Shaded}
@@ -1028,13 +1059,9 @@ functions.
 
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
-\bibitem[\citeproctext]{ref-barron_17}
-Barron, J. T. 2017. {``A More General Robust Loss Function.''}
-\url{https://arxiv.org/pdf/1701.03077v1}.
-
 \bibitem[\citeproctext]{ref-barron_19}
----------. 2019. {``A General and Adaptive Robust Loss Function.''} In
-\emph{Proceedings 2019 IEEE/CVF Conferehce on Computer Vision and
+Barron, J. T. 2019. {``A General and Adaptive Robust Loss Function.''}
+In \emph{Proceedings 2019 IEEE/CVF Conferehce on Computer Vision and
 Pattern Recognition}, 4331--39.
 \url{https://openaccess.thecvf.com/content_CVPR_2019/papers/Barron_A_General_and_Adaptive_Robust_Loss_Function_CVPR_2019_paper.pdf}.
 
