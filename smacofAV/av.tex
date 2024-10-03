@@ -273,7 +273,7 @@
 
 \title{Robust Least Squares Multidimensional Scaling}
 \author{Jan de Leeuw}
-\date{October 2, 2024}
+\date{October 3, 2024}
 
 \begin{document}
 \maketitle
@@ -400,6 +400,40 @@ value loss usually satisfies \(d_k(X)=\delta_k\) for quite a few
 elements, which means that near convergence the algorithm will become
 unstable because the weights from \eqref{eq:wk1def} become very large.
 
+A large number of somewhat ad-hoc solutions have been proposed to deal
+with the problem of zero residuals, both in the location analysis and in
+the statistical literature. Schlossmacher
+(\citeproc{ref-schlossmacher_73}{1973}) is the first discussion of the
+majorization method in the statistical literature (for LAC+V linear
+regression). His proposal is to simply set a weight equal to zero if the
+corresponding residual is less than some small positive value
+\(\epsilon\). A similar approach, also used in location analysis, is to
+cap the weights at some large positive value. In Heiser
+(\citeproc{ref-heiser_88}{1988}) all residuals smaller than this epsilon
+get a weight equal to the weighted average of all small residuals.
+Phillips (\citeproc{ref-phillips_02}{2002}) assume double-exponential
+errors in LAV regression and then concludes that the EM algorithm gives
+the majorization method we have discussed. He uses \eqref{eq:wk1def}
+throughout if all residuals are larger than \(\epsilon\). If one of more
+residuals are smaller than epsilon then the weight for those residuals
+is set equal to one, while for the remaining residuals it is set to
+epsilon divided by the absolute value of the residual. Often we get the
+assurance that the problem is not really important in practice, because
+it is very rare. But both in location analysis and in LAV regression the
+loss function is convex while this is certainly not the case in robust
+MDS.
+
+We tend to agree with Aftab and Hartley
+(\citeproc{ref-aftab_hartley_15}{n.d.}).
+
+\begin{quote}
+.. attempts to analyze this difficulty {[}caused by infinite weights of
+IRLS for the \(\ell_p\)-loss{]} have a long history of proofs and
+counterexamples to incorrect claims.
+\end{quote}
+
+In this paper we follow a more systematic approach
+
 To illustrate the problems with differentiability we compute the
 directional derivatives of strife.
 
@@ -463,6 +497,10 @@ difference of two weighted sums of distances. Anything can happen.
 
 \section{Generalizing Strife}\label{generalizing-strife}
 
+Heiser (\citeproc{ref-heiser_88}{1988}) applied majorization to minimize
+strife. We now generalize this approach so that it can easily deal with
+other robust loss functions.
+
 A function \(g\) \emph{majorizes} a function \(f\) at \(y\) if
 \(g(x)\geq f(x)\) for all \(x\) and \(g(y)=f(y)\). Majorization is
 \emph{strict} if \(g(x)>f(x)\) for all \(x\not= y\). If \(\mathfrak{H}\)
@@ -501,7 +539,7 @@ necessary one. Quadratic majorization may still be possible if the
 conditions in the theorem are violated.
 
 Although De Leeuw and Lange (\citeproc{ref-deleeuw_lange_A_09}{2009})
-give no references
+give no references -- not true
 
 We now apply this theorem to functions of the form \begin{equation}
 \sigma_f(X):=\sum w_k\ f(\delta_k-d_k(X)),\label{eq:fstressdef}
@@ -533,17 +571,9 @@ loss function.
 
 \sectionbreak
 
-\section{On IRLS}\label{on-irls}
+\section{Power Smoothers}\label{power-smoothers}
 
-The history of iterative reweighted least squares (IRLS), as applied to
-fitting functions to data, is rather complicated. It is mostly used in
-fitting linear models, and in minimizing \(\ell_p\) power loss.
-
-Weiszfeld
-
-\sectionbreak
-
-\section{Charbonnier loss}\label{charbonnier-loss}
+\subsection{Charbonnier loss}\label{charbonnier-loss}
 
 The first, and perhaps most obvious, choice for smoothing the absolute
 value function is \begin{equation}
@@ -605,9 +635,7 @@ w_c(x)=\frac{1}{\sqrt{x^2+c^2}}
 \omega(X,X^{(k)}):=\sum w_kw_c(\delta_k-d_k(X^{(k)})(\delta_k-d_k(X))^2
 \]
 
-\sectionbreak
-
-\section{Generalized Charbonnier
+\subsection{Generalized Charbonnier
 Loss}\label{generalized-charbonnier-loss}
 
 The loss function \((x^2+c^2)^\frac12\) smoothes \(|x|\). IN the same
@@ -619,6 +647,8 @@ w_{c,q}(x)=q(x^2+c^2)^{\frac12q-1}
 that \(q>0\), and consequently \ldots{} provides us with much more
 flexibility than Charbonnier loss \ldots{}
 
+\subsection{Barron Loss}\label{barron-loss}
+
 There are a large number of generalizations of these types of loss
 functions in the engineering community, and in their maze of conference
 publications. We will discuss the nice generalization in Barron
@@ -626,18 +656,39 @@ publications. We will discuss the nice generalization in Barron
 
 \[
 f_{\alpha,c}(x)=\frac{|\alpha-2|}{\alpha}\left(\left(\frac{(x/c)^2}{|\alpha-2|}+1\right)^{\alpha/2}-1\right)
-\]
+\] There are a number of interesting special cases of \ldots{} for
+various values of the parameters.
 
 \sectionbreak
 
 \section{Convolution Smoothers}\label{convolution-smoothers}
 
-General
+Suppose \(\pi\) is an even probability density, with finite or infinite
+support, expectation zero, and variance one. Define the convolution \[
+f_c(x):=\frac{1}{c}\int_{-\infty}^{+\infty}|x-y|\ \pi(\frac{y}{c})dy.
+\] Now \(c^{-1}\pi(y/c)\) is still a probability density integrating to
+one, with expectation zero, but it now has variance \(c^2\). Thus if
+\(c\rightarrow 0\) it becomes more and more like the Dirac delta
+function and \(f_c(x)\) converges to the absolute value function.
 
 \subsection{Huber Loss}\label{huber-loss}
 
+Take \[
+\pi(x)=\begin{cases}\frac12 &\text{ if }|x|\leq 1,\\0&\text{ otherwise.}\end{cases}
+\] Then \[
+f_c(x)=\frac{1}{2c}\int_{-c}^{+c}|x-y|dy=\begin{cases}
+\frac{1}{2c}(x^2+c^2)&\text{ if }|x|\leq c,\\
+|x|&\text{ otherwise}.
+\end{cases}
+\] \[
+f_c(x)=\frac{1}{2c}\int_{-c}^{+c}|x-y|dy=\begin{cases}
+\frac{1}{2c}(x^2+c^2)&\text{ if }|x|\leq c,\\
+|x|&\text{ otherwise}.
+\end{cases}
+\]
+
 The Huber function (Huber (\citeproc{ref-huber_64}{1964})) is \[
-f(x)=\begin{cases}
+f_c(x)=\begin{cases}
 \frac12x^2&\text{ if }|x|<c,\\
 c|x|-\frac12 c^2&\text{ otherwise}.
 \end{cases}
@@ -793,6 +844,8 @@ f'(x)=\frac{1}{c^2}x\frac{1}{\{\frac{x}{c}\}^2+1}
 \] \[
 w(x)=\frac{1}{c^2}\frac{1}{\{\frac{x}{c}\}^2+1}
 \] which is non-increasing on \(\mathbb{R}^+\).
+
+\sectionbreak
 
 \section{Example}\label{example}
 
@@ -1059,6 +1112,12 @@ functions.
 
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-aftab_hartley_15}
+Aftab, K., and R. Hartley. n.d. {``Convergence of Iteratively
+Re-Weighted Least Squares to Robust m-Estimators.''} In \emph{2015 IEEE
+Winter Conference on Applications of Computer Vision,} 480--87.
+\url{https://doi.org/10.1109/WACV.2015.70}.
+
 \bibitem[\citeproctext]{ref-barron_19}
 Barron, J. T. 2019. {``A General and Adaptive Robust Loss Function.''}
 In \emph{Proceedings 2019 IEEE/CVF Conferehce on Computer Vision and
@@ -1123,6 +1182,10 @@ Huber, P. J. 1964. {``Robust Estimation of a Location Parameter.''}
 \bibitem[\citeproctext]{ref-lange_16}
 Lange, K. 2016. \emph{MM Optimization Algorithms}. SIAM.
 
+\bibitem[\citeproctext]{ref-phillips_02}
+Phillips, R. F. 2002. {``Least Absolute Deviations Estimation via the EM
+Algorithm.''} \emph{Statistics and Computing} 12: 281--85.
+
 \bibitem[\citeproctext]{ref-pliner_96}
 Pliner, V. 1996. {``{Metric Unidimensional Scaling and Global
 Optimization}.''} \emph{Journal of Classification} 13: 3--18.
@@ -1132,6 +1195,11 @@ Ramirez, C., R. Sanchez, V. Kreinovich, and M. Argaez. 2014.
 {``{\(\sqrt{x^2+\mu}\) is the Most Computationally Efficient Smooth
 Approximation to \vert{}x\vert{}}.''} \emph{Journal of Uncertain
 Systems} 8: 205--10.
+
+\bibitem[\citeproctext]{ref-schlossmacher_73}
+Schlossmacher, E. J. 1973. {``An Iterative Technique for Absolute
+Deviations Curve Ftting.''} \emph{Journal of the American Statistical
+Association} 68: 857--59.
 
 \bibitem[\citeproctext]{ref-voronin_ozkaya_yoshida_15}
 Voronin, S., G. Ozkaya, and Y. Yoshida. n.d. {``{Convolution Based

@@ -197,6 +197,22 @@ loss usually satisfies $d_k(X)=\delta_k$ for quite a few elements,
 which means that near convergence the algorithm will become unstable
 because the weights from \eqref{eq:wk1def} become very large. 
 
+A large number of somewhat ad-hoc solutions have been proposed to deal with the problem of zero residuals, both in the location analysis and in the statistical literature. @schlossmacher_73 is the first discussion of the majorization method in the statistical literature (for LAC+V linear regression). His proposal is to simply set a weight equal to zero if the corresponding residual is
+less than some small positive value $\epsilon$. A similar approach, also used in location analysis, is to cap the weights at some large positive value.
+In @heiser_88 all residuals smaller than this epsilon get a weight equal to the weighted average of all small residuals. @phillips_02 assume double-exponential
+errors in LAV regression and then concludes that the EM algorithm gives the 
+majorization method we have discussed. He uses \eqref{eq:wk1def} throughout if all residuals are larger than $\epsilon$. If one of more residuals are smaller than epsilon then the weight for those residuals is set equal to one, while for the remaining residuals it is set to epsilon divided by the absolute value of the
+residual. Often we get the assurance that the problem is not really important in practice, because it is very rare. But both in location analysis and in 
+LAV regression the loss function is convex while this is certainly not the case in
+robust MDS. 
+
+We tend to agree with @aftab_hartley_15.
+
+> .. attempts to analyze this difficulty [caused by infinite weights of IRLS for the $\ell_p$-loss] have a long history of proofs and counterexamples to incorrect claims.
+
+In this paper we follow a more systematic approach 
+
+
 To illustrate the problems with differentiability we compute the directional derivatives of strife. 
 
 Let $s_k(X):=w_k|d_k(X)-\delta_k|$.
@@ -236,6 +252,8 @@ of two weighted sums of distances. Anything can happen.
 
 # Generalizing Strife
 
+@heiser_88 applied majorization to minimize strife. We now generalize this approach so that it can easily deal with other robust loss functions.
+
 A function $g$ *majorizes* a function $f$ at $y$ if $g(x)\geq f(x)$ for all $x$ and $g(y)=f(y)$. Majorization is *strict* if $g(x)>f(x)$ for all $x\not= y$. If $\mathfrak{H}$ is a family of functions that all majorize $f$ at $y$ then $h\in\mathfrak{H}$ is a *sharp majorization* if $h(x)\leq g(x)$ for all $g\in\mathfrak{H}$. The AM/GM inequality was used in the previous section to construct a quadratic majorization of strife. 
 
 We are specifically interested in this chapter in sharp quadratic majorization, in
@@ -258,7 +276,7 @@ majorization (in fact, for sharp quadratic majorization) and not a necessary one
 Quadratic majorization may still be possible if the conditions in the theorem
 are violated.
 
-Although @deleeuw_lange_A_09 give no references
+Although @deleeuw_lange_A_09 give no references -- not true
 
 We now apply this theorem to functions of the form
 \begin{equation}
@@ -291,17 +309,9 @@ It then recomputes the weights $w_k(X^{(k+1)})$ and goes to the smacof step agai
 
 \sectionbreak
 
-# On IRLS
+# Power Smoothers
 
-The history of iterative reweighted least squares (IRLS), as applied to
-fitting functions to data, is rather complicated. It is mostly used in
-fitting linear models, and in minimizing $\ell_p$ power loss. 
-
-Weiszfeld
-
-\sectionbreak
-
-# Charbonnier loss
+## Charbonnier loss
 
 
 The first, and perhaps most obvious, choice for smoothing the absolute
@@ -369,10 +379,7 @@ $$
 \omega(X,X^{(k)}):=\sum w_kw_c(\delta_k-d_k(X^{(k)})(\delta_k-d_k(X))^2
 $$
 
-
-\sectionbreak
-
-# Generalized Charbonnier Loss
+## Generalized Charbonnier Loss
 
 The loss function $(x^2+c^2)^\frac12$ smoothes $|x|$. IN the same generalized 
 Charbonnier loss smoothes $\ell_p$ loss $|x|^q$.
@@ -386,6 +393,7 @@ which is non-increasing for $q\leq 2$. Note that we do not assume that
 $q>0$, and consequently ... provides us with much more flexibility than
 Charbonnier loss ...
 
+## Barron Loss
 
 There are a large number of generalizations
 of these types of loss functions in the engineering community, and in their
@@ -394,7 +402,8 @@ maze of conference publications. We will discuss the nice generalization in @bar
 $$
 f_{\alpha,c}(x)=\frac{|\alpha-2|}{\alpha}\left(\left(\frac{(x/c)^2}{|\alpha-2|}+1\right)^{\alpha/2}-1\right)
 $$
-
+There are a number of interesting special cases of ... for various values of the
+parameters.
 
 
 
@@ -403,17 +412,44 @@ $$
 
 # Convolution Smoothers
 
-General
+Suppose $\pi$ is an even probability density, with finite or infinite support,
+expectation zero, and variance one. Define the convolution
+$$
+f_c(x):=\frac{1}{c}\int_{-\infty}^{+\infty}|x-y|\ \pi(\frac{y}{c})dy.
+$$
+Now $c^{-1}\pi(y/c)$ is still a probability density integrating to one, with
+expectation zero, but it now has variance $c^2$. Thus if $c\rightarrow 0$ it becomes more and more like the Dirac delta function and $f_c(x)$ converges to 
+the absolute value function.
 
 ## Huber Loss
 
+Take
+$$
+\pi(x)=\begin{cases}\frac12 &\text{ if }|x|\leq 1,\\0&\text{ otherwise.}\end{cases}
+$$
+Then
+$$
+f_c(x)=\frac{1}{2c}\int_{-c}^{+c}|x-y|dy=\begin{cases}
+\frac{1}{2c}(x^2+c^2)&\text{ if }|x|\leq c,\\
+|x|&\text{ otherwise}.
+\end{cases}
+$$
+$$
+f_c(x)=\frac{1}{2c}\int_{-c}^{+c}|x-y|dy=\begin{cases}
+\frac{1}{2c}(x^2+c^2)&\text{ if }|x|\leq c,\\
+|x|&\text{ otherwise}.
+\end{cases}
+$$
+
+
 The Huber function (@huber_64) is 
 $$
-f(x)=\begin{cases}
+f_c(x)=\begin{cases}
 \frac12x^2&\text{ if }|x|<c,\\
 c|x|-\frac12 c^2&\text{ otherwise}.
 \end{cases}
 $$
+
 
 Because ... Chardonnier loss is also known
 as Pseudo-Huber loss.
@@ -572,6 +608,8 @@ $$
 w(x)=\frac{1}{c^2}\frac{1}{\{\frac{x}{c}\}^2+1}
 $$
 which is non-increasing on $\mathbb{R}^+$.
+
+\sectionbreak
 
 # Example
 
