@@ -254,33 +254,47 @@ of two weighted sums of distances. Anything can happen.
 
 # Generalizing Strife
 
-@heiser_88 applied majorization to minimize strife. We now generalize this approach so that it can easily deal with other robust loss functions.
+We have seen that @heiser_88 applied majorization to minimize strife, using the AM/GM inequality. We now generalize this approach so that it can easily deal with other robust loss functions. A great number of loss functions will appear
+below. The intention is not to confuse the reader by requiring them to choose
+from impossibly large number of alternatives with rather limited information. We show all these loss functions as examples of the general principle of algorithm construction and as examples of loss functions that have been used in
+statistics, location analysis, image analysis and engineering over the years.
+They are all implemented in our software smacofRobust.R.
 
-A function $g$ *majorizes* a function $f$ at $y$ if $g(x)\geq f(x)$ for all $x$ and $g(y)=f(y)$. Majorization is *strict* if $g(x)>f(x)$ for all $x\not= y$. If $\mathfrak{H}$ is a family of functions that all majorize $f$ at $y$ then $h\in\mathfrak{H}$ is a *sharp majorization* if $h(x)\leq g(x)$ for all $g\in\mathfrak{H}$. The AM/GM inequality was used in the previous section to construct a quadratic majorization of strife. 
 
-We are specifically interested in this chapter in sharp quadratic majorization, in
+First some definitions. A function $g$ *majorizes* a function $f$ at $y$ if $g(x)\geq f(x)$ for all $x$ and $g(y)=f(y)$. The AM/GM inequality was used in the previous section to construct a quadratic majorization of strife. Majorization is *strict* if $g(x)>f(x)$ for all $x\not= y$. If $\mathfrak{H}$ is a family of functions that all majorize $f$ at $y$ then $h\in\mathfrak{H}$ is a *sharp majorization* if $h(x)\leq g(x)$ for all $g\in\mathfrak{H}$. The sharp majorization is by definition unique.
+
+We are specifically interested in this paper in sharp quadratic majorization, in
 which $\mathfrak{H}$ is the set of all convex quadratics that majorize $f$ at $y$.
-This case has been studied in detail (in the case of real-valued functions on the line)
-by @deleeuw_lange_A_09. Their Theorem 4.5 on page 2478 says
+This case has been studied in detail (in the case of real-valued functions on the line) by @vanruitenburg_05 and @deleeuw_lange_A_09. Their Theorem 4.5 on page 2478 says
 
->Theorem 4.5: Suppose $f(x)$ is an even, differentiable function on $\mathbb{R}$ such that the ratio 
+::: {#thm-wght}
+Suppose $f(x)$ is an even, differentiable function on $\mathbb{R}$ such that the ratio 
 $f'(x)/x$ is non-increasing on $(0,\infty)$. Then the even quadratic
 \begin{equation}
 g(x)=\frac{f'(y)}{2y}(x^2-y^2)+f(y)\label{eq:sharp}
 \end{equation}
 is a sharp quadratic majorizer of $f$ at the point $y$.
+:::
 
->Theorem 4.6. The ratio $f'(x)/x$ is decreasing on $(0,\infty)$ if and only 
+::: {#thm-sqrt} 
+The ratio $f'(x)/x$ is decreasing on $(0,\infty)$ if and only 
 $f(\sqrt(x))$ is concave. The set of functions satisfying this condition is closed under the formation of (a) positive multiples, (b) convex combinations, (c) limits, and (d) composition with a concave increasing function $g(x)$.
+:::
 
 Note that these theorems give a sufficient condition for quadratic
 majorization (in fact, for sharp quadratic majorization) and not a necessary one.
 Quadratic majorization may still be possible if the conditions in the theorem
-are violated.
+are violated (see discussion).
 
-Although @deleeuw_lange_A_09 give no references -- not true
+@deleeuw_lange_A_09 give some references to previous work on results like  @thm-wght, notably @groenen_giaquinto_kiers_03, @jaakola_jordan_00, and @hunter_li_05. In these earlier papers we do not find @thm-wght in its full
+generality, mostly because the authors have specific applications in mind,
+which they then embed in a likelihood, Bayesian, or EM framework. There are
+similar appearances of results very much like @thm-wght and @thm-sqrt in location analysis,
+image restoration @geman_reynolds_92. In robust statistics it has been known
+that iterative weighted least squares with weights $f'(x)/x$ gives a quadratic
+majorization algorithm.
 
-We now apply this theorem to functions of the form
+We now apply theorem ... to functions of the form
 \begin{equation}
 \sigma_f(X):=\sum w_k\ f(\delta_k-d_k(X)),\label{eq:fstressdef}
 \end{equation}
@@ -290,11 +304,12 @@ where $f$ satisfies the conditions in the theorem. If
 \end{equation}
 then $\omega_f$ is a sharp quadratic majorization at $Y$.
 
-Although the absolute value is not differentiable at the origin the theorem can still be applied. It just does not give a majorizer at $y=0$. If $f(x)=|x|$ then
+Although the absolute value is not differentiable at the origin the theorem can still be applied (@vanruitenburg_05). It just does not give a majorizer at $y=0$. (@vanruitenburg_05)
+If $f(x)=|x|$ then
 \begin{equation}
 g(x)=\frac{1}{2|y|}(x^2-y^2)+|y|=\frac{1}{2|y|}(x^2+y^2),\label{eq:abssharp}
 \end{equation}
-which is the same as \eqref{eq:amgmmaj}. Thus the AM/GM method gives a sharp
+which is the same as \eqref{eq:amgmmaj}. Thus the AM/GM method gives the sharp
 quadratic majorization.
 
 In iteration $k$ the robust smacof algorithm does a smacof step towards minimization of
@@ -396,17 +411,11 @@ curve((x^2 + 1) ^ (-.1), from = -3, to = 3, add = TRUE, col = "GREEN", ylab = "f
 
 In figure \ref{fig:gcharfig} we have plotted \eqref{eq:gcharf} for
 $c=1$ and $\alpha$  equal to $-5$ (black), $-1$ (red), $-.5$ (blue),
-and $-.1$ (green)
+and $-.1$ (green). If 
 
-Plots, $\ell_0$ loss
 
-$$
-f_c''(x)=(x^2 + c^2)^{-\frac12}-x^2(x^2 + c^2)^{-\frac32}\leq(x^2 + c^2)^{-\frac12}\leq c^{-1}.
-$$
-Thus
-$$
-f(x)\leq f(y)+f'(y)(x-y)+\frac{1}{2c}(x-y)^2=f(y)+\frac{1}{2c}(x-(y-cf'(y)))^2
-$$
+
+
 
 ## Barron Loss
 
@@ -726,7 +735,9 @@ abline(0, 1, col = "BLUE")
 
 # Discussion
 
-Fixed weights
+## Fixed weights
+
+## Bounding the Second Derivative
 
 Minimize
 $$

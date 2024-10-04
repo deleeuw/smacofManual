@@ -245,6 +245,15 @@
 \@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
 \floatname{codelisting}{Listing}
 \newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\usepackage{amsthm}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\theoremstyle{remark}
+\AtBeginDocument{\renewcommand*{\proofname}{Proof}}
+\newtheorem*{remark}{Remark}
+\newtheorem*{solution}{Solution}
+\newtheorem{refremark}{Remark}[section]
+\newtheorem{refsolution}{Solution}[section]
 \makeatother
 \makeatletter
 \makeatother
@@ -503,51 +512,77 @@ difference of two weighted sums of distances. Anything can happen.
 
 \section{Generalizing Strife}\label{generalizing-strife}
 
-Heiser (\citeproc{ref-heiser_88}{1988}) applied majorization to minimize
-strife. We now generalize this approach so that it can easily deal with
-other robust loss functions.
+We have seen that Heiser (\citeproc{ref-heiser_88}{1988}) applied
+majorization to minimize strife, using the AM/GM inequality. We now
+generalize this approach so that it can easily deal with other robust
+loss functions. A great number of loss functions will appear below. The
+intention is not to confuse the reader by requiring them to choose from
+impossibly large number of alternatives with rather limited information.
+We show all these loss functions as examples of the general principle of
+algorithm construction and as examples of loss functions that have been
+used in statistics, location analysis, image analysis and engineering
+over the years. They are all implemented in our software smacofRobust.R.
 
-A function \(g\) \emph{majorizes} a function \(f\) at \(y\) if
-\(g(x)\geq f(x)\) for all \(x\) and \(g(y)=f(y)\). Majorization is
-\emph{strict} if \(g(x)>f(x)\) for all \(x\not= y\). If \(\mathfrak{H}\)
-is a family of functions that all majorize \(f\) at \(y\) then
-\(h\in\mathfrak{H}\) is a \emph{sharp majorization} if \(h(x)\leq g(x)\)
-for all \(g\in\mathfrak{H}\). The AM/GM inequality was used in the
-previous section to construct a quadratic majorization of strife.
+First some definitions. A function \(g\) \emph{majorizes} a function
+\(f\) at \(y\) if \(g(x)\geq f(x)\) for all \(x\) and \(g(y)=f(y)\). The
+AM/GM inequality was used in the previous section to construct a
+quadratic majorization of strife. Majorization is \emph{strict} if
+\(g(x)>f(x)\) for all \(x\not= y\). If \(\mathfrak{H}\) is a family of
+functions that all majorize \(f\) at \(y\) then \(h\in\mathfrak{H}\) is
+a \emph{sharp majorization} if \(h(x)\leq g(x)\) for all
+\(g\in\mathfrak{H}\). The sharp majorization is by definition unique.
 
-We are specifically interested in this chapter in sharp quadratic
+We are specifically interested in this paper in sharp quadratic
 majorization, in which \(\mathfrak{H}\) is the set of all convex
 quadratics that majorize \(f\) at \(y\). This case has been studied in
-detail (in the case of real-valued functions on the line) by De Leeuw
-and Lange (\citeproc{ref-deleeuw_lange_A_09}{2009}). Their Theorem 4.5
-on page 2478 says
+detail (in the case of real-valued functions on the line) by Van
+Ruitenburg (\citeproc{ref-vanruitenburg_05}{2005}) and De Leeuw and
+Lange (\citeproc{ref-deleeuw_lange_A_09}{2009}). Their Theorem 4.5 on
+page 2478 says
 
-\begin{quote}
-Theorem 4.5: Suppose \(f(x)\) is an even, differentiable function on
-\(\mathbb{R}\) such that the ratio \(f'(x)/x\) is non-increasing on
-\((0,\infty)\). Then the even quadratic \begin{equation}
+\begin{theorem}[]\protect\hypertarget{thm-wght}{}\label{thm-wght}
+
+Suppose \(f(x)\) is an even, differentiable function on \(\mathbb{R}\)
+such that the ratio \(f'(x)/x\) is non-increasing on \((0,\infty)\).
+Then the even quadratic \begin{equation}
 g(x)=\frac{f'(y)}{2y}(x^2-y^2)+f(y)\label{eq:sharp}
 \end{equation} is a sharp quadratic majorizer of \(f\) at the point
 \(y\).
-\end{quote}
 
-\begin{quote}
-Theorem 4.6. The ratio \(f'(x)/x\) is decreasing on \((0,\infty)\) if
-and only \(f(\sqrt(x))\) is concave. The set of functions satisfying
-this condition is closed under the formation of (a) positive multiples,
-(b) convex combinations, (c) limits, and (d) composition with a concave
+\end{theorem}
+
+\begin{theorem}[]\protect\hypertarget{thm-sqrt}{}\label{thm-sqrt}
+
+The ratio \(f'(x)/x\) is decreasing on \((0,\infty)\) if and only
+\(f(\sqrt(x))\) is concave. The set of functions satisfying this
+condition is closed under the formation of (a) positive multiples, (b)
+convex combinations, (c) limits, and (d) composition with a concave
 increasing function \(g(x)\).
-\end{quote}
+
+\end{theorem}
 
 Note that these theorems give a sufficient condition for quadratic
 majorization (in fact, for sharp quadratic majorization) and not a
 necessary one. Quadratic majorization may still be possible if the
-conditions in the theorem are violated.
+conditions in the theorem are violated (see discussion).
 
-Although De Leeuw and Lange (\citeproc{ref-deleeuw_lange_A_09}{2009})
-give no references -- not true
+De Leeuw and Lange (\citeproc{ref-deleeuw_lange_A_09}{2009}) give some
+references to previous work on results like Theorem~\ref{thm-wght},
+notably Groenen, Giaquinto, and Kiers
+(\citeproc{ref-groenen_giaquinto_kiers_03}{2003}),
+(\citeproc{ref-jaakola_jordan_00}{\textbf{jaakola\_jordan\_00?}}), and
+Hunter and Li (\citeproc{ref-hunter_li_05}{2005}). In these earlier
+papers we do not find Theorem~\ref{thm-wght} in its full generality,
+mostly because the authors have specific applications in mind, which
+they then embed in a likelihood, Bayesian, or EM framework. There are
+similar appearances of results very much like Theorem~\ref{thm-wght} and
+Theorem~\ref{thm-sqrt} in location analysis, image restoration
+(\citeproc{ref-geman_reynolds_92}{\textbf{geman\_reynolds\_92?}}). In
+robust statistics it has been known that iterative weighted least
+squares with weights \(f'(x)/x\) gives a quadratic majorization
+algorithm.
 
-We now apply this theorem to functions of the form \begin{equation}
+We now apply theorem \ldots{} to functions of the form \begin{equation}
 \sigma_f(X):=\sum w_k\ f(\delta_k-d_k(X)),\label{eq:fstressdef}
 \end{equation} where \(f\) satisfies the conditions in the theorem. If
 \begin{equation}
@@ -556,11 +591,14 @@ We now apply this theorem to functions of the form \begin{equation}
 \(Y\).
 
 Although the absolute value is not differentiable at the origin the
-theorem can still be applied. It just does not give a majorizer at
-\(y=0\). If \(f(x)=|x|\) then \begin{equation}
+theorem can still be applied (Van Ruitenburg
+(\citeproc{ref-vanruitenburg_05}{2005})). It just does not give a
+majorizer at \(y=0\). (Van Ruitenburg
+(\citeproc{ref-vanruitenburg_05}{2005})) If \(f(x)=|x|\) then
+\begin{equation}
 g(x)=\frac{1}{2|y|}(x^2-y^2)+|y|=\frac{1}{2|y|}(x^2+y^2),\label{eq:abssharp}
 \end{equation} which is the same as \eqref{eq:amgmmaj}. Thus the AM/GM
-method gives a sharp quadratic majorization.
+method gives the sharp quadratic majorization.
 
 In iteration \(k\) the robust smacof algorithm does a smacof step
 towards minimization of \(\omega_f\) over \(X\). We can ignore the parts
@@ -660,15 +698,7 @@ with much more flexibility than Charbonnier loss \eqref{eq:charf}.
 
 In figure \ref{fig:gcharfig} we have plotted \eqref{eq:gcharf} for
 \(c=1\) and \(\alpha\) equal to \(-5\) (black), \(-1\) (red), \(-.5\)
-(blue), and \(-.1\) (green)
-
-Plots, \(\ell_0\) loss
-
-\[
-f_c''(x)=(x^2 + c^2)^{-\frac12}-x^2(x^2 + c^2)^{-\frac32}\leq(x^2 + c^2)^{-\frac12}\leq c^{-1}.
-\] Thus \[
-f(x)\leq f(y)+f'(y)(x-y)+\frac{1}{2c}(x-y)^2=f(y)+\frac{1}{2c}(x-(y-cf'(y)))^2
-\]
+(blue), and \(-.1\) (green). If
 
 \subsection{Barron Loss}\label{barron-loss}
 
@@ -1012,7 +1042,10 @@ D66  6.17 5.47 4.67 6.13 6.04 7.42 6.36 7.36 0.00
 
 \section{Discussion}\label{discussion}
 
-Fixed weights
+\subsection{Fixed weights}\label{fixed-weights}
+
+\subsection{Bounding the Second
+Derivative}\label{bounding-the-second-derivative}
 
 Minimize \[
 \sum w_k\ f(\delta_k-d_k(X))
@@ -1225,6 +1258,13 @@ De Leeuw, J., and K. Lange. 2009. {``Sharp Quadratic Majorization in One
 Dimension.''} \emph{Computational Statistics and Data Analysis} 53:
 2471--84.
 
+\bibitem[\citeproctext]{ref-groenen_giaquinto_kiers_03}
+Groenen, P. J. F., P. Giaquinto, and H. A. L Kiers. 2003. {``{Weighted
+Majorization Algorithms for Weighted Least Squares Decomposition
+Models}.''} Econometric Institute Report EI 2003-09. Econometric
+Institute, Erasmus University Rotterdam.
+\url{https://repub.eur.nl/pub/1700}.
+
 \bibitem[\citeproctext]{ref-groenen_heiser_meulman_99}
 Groenen, P. J. F., W. J. Heiser, and J. J. Meulman. 1999. {``{Global
 Optimization in Least-Squares Multidimensional Scaling by Distance
@@ -1243,6 +1283,10 @@ Analysis}, edited by H. H. Bock, 455--62. North-Holland Publishing Co.
 \bibitem[\citeproctext]{ref-huber_64}
 Huber, P. J. 1964. {``Robust Estimation of a Location Parameter.''}
 \emph{Annals of Mathematical Statistics} 35 (1): 73--101.
+
+\bibitem[\citeproctext]{ref-hunter_li_05}
+Hunter, D. R., and R. Li. 2005. {``{Variable Selection Using MM
+Algorithms}.''} \emph{The Annals of Statistics} 33: 1617--42.
 
 \bibitem[\citeproctext]{ref-lange_16}
 Lange, K. 2016. \emph{MM Optimization Algorithms}. SIAM.
@@ -1265,6 +1309,12 @@ Systems} 8: 205--10.
 Schlossmacher, E. J. 1973. {``An Iterative Technique for Absolute
 Deviations Curve Ftting.''} \emph{Journal of the American Statistical
 Association} 68: 857--59.
+
+\bibitem[\citeproctext]{ref-vanruitenburg_05}
+Van Ruitenburg, J. 2005. {``{Algorithms for Parameter Estimation in the
+Rasch Model}.''} Measurement and Research Department Reports 2005-04.
+Arnhem, Netherlands: CITO.
+\url{https://www.researchgate.net/publication/355568984_Algorithms_for_parameter_estimation_in_the_Rasch_model_Measurement_and_Research_Report_05-04\#fullTextFileContent}.
 
 \bibitem[\citeproctext]{ref-voronin_ozkaya_yoshida_15}
 Voronin, S., G. Ozkaya, and Y. Yoshida. n.d. {``{Convolution Based
