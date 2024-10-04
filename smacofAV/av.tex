@@ -282,10 +282,16 @@ We use an iteratively reweighted version of the smacof algorithm to
 minimize various robust multidimensional scaling loss functions. Our
 results use a general theorem on sharp quadratic majorization of De
 Leeuw and Lange (\citeproc{ref-deleeuw_lange_A_09}{2009}). We relate
-this theorem to earlier results in robust statistics, localization
-theory, and sparse recovery. Code in R is included.
+this theorem to earlier results in robust statistics, location theory,
+and sparse recovery. Code in R is included.
 \end{abstract}
 
+\renewcommand*\contentsname{Table of contents}
+{
+\hypersetup{linkcolor=}
+\setcounter{tocdepth}{3}
+\tableofcontents
+}
 
 \sectionbreak
 
@@ -401,8 +407,8 @@ elements, which means that near convergence the algorithm will become
 unstable because the weights from \eqref{eq:wk1def} become very large.
 
 A large number of somewhat ad-hoc solutions have been proposed to deal
-with the problem of zero residuals, both in the location analysis and in
-the statistical literature. Schlossmacher
+with the problem of zero residuals, both in location analysis and in the
+statistical literature. Schlossmacher
 (\citeproc{ref-schlossmacher_73}{1973}) is the first discussion of the
 majorization method in the statistical literature (for LAC+V linear
 regression). His proposal is to simply set a weight equal to zero if the
@@ -577,7 +583,7 @@ loss function.
 
 The first, and perhaps most obvious, choice for smoothing the absolute
 value function is \begin{equation}
-f_c(x)=\sqrt{x^2 + c^2}.\label{eq:chardonnier}
+f_c(x)=\sqrt{x^2 + c^2}.\label{eq:charbonnier}
 \end{equation} This smoother was previously used by De Leeuw
 (\citeproc{ref-deleeuw_E_18f}{2018}) in least absolute value regression
 and in De Leeuw (\citeproc{ref-deleeuw_E_20b}{2020}) in what was called
@@ -592,7 +598,7 @@ In the figure below we show the loss function for \(c=1\) (black),
 
 }
 
-\caption{Chardonnier Loss}
+\caption{Charbonnier Loss}
 
 \end{figure}%
 
@@ -601,12 +607,12 @@ For \(c>0\) we have \(f_c(x)>|x|\). If \(c\rightarrow 0\) then
 \(\min_x|f_c(x)-|x||=c\) attained at \(x=0\), which implies uniform
 convergence of \(f_c\) to \(|x|\).
 
-In the engineering literature \eqref{eq:chardonnier} is known as
+In the engineering literature \eqref{eq:charbonnier} is known as
 Charbonnier loss, after Charbonnier et al.
 (\citeproc{ref-charbonnier_blanc-feraud_aubert_barlaud_94}{1994}), who
 were possibly the first engineers to use it. x Ramirez et al.
 (\citeproc{ref-ramirez_sanchez_kreinovich_argaez_14}{2014}) argue
-\eqref{eq:chardonnier} is also the ``most computationally efficient
+\eqref{eq:charbonnier} is also the ``most computationally efficient
 smooth approximation to \(|x|\)''.
 
 By l'Hôpital \[
@@ -619,13 +625,11 @@ By l'Hôpital \[
 quadratic in \(x\), and if \(x\) is much larger than \(c\) then loss is
 approximately the absolute value.
 
-Loss function \eqref{eq:chardonnier} is infinitely many times
+Loss function \eqref{eq:charbonnier} is infinitely many times
 differentiable. Its first derivative is \[
 f'_c(x)=\frac{1}{\sqrt{x^2+c^2}}x,
 \] which converges, again in the sup-norm and uniformly, to the sign
-function if \(c\rightarrow 0\). The IRLS weights are
-
-\[
+function if \(c\rightarrow 0\). The IRLS weights are \[
 w_c(x)=\frac{1}{\sqrt{x^2+c^2}}
 \] which is clearly a decreasing function of \(x\) on \(\mathbb{R}^+\).
 
@@ -647,7 +651,13 @@ w_{c,q}(x)=q(x^2+c^2)^{\frac12q-1}
 that \(q>0\), and consequently \ldots{} provides us with much more
 flexibility than Charbonnier loss \ldots{}
 
-\subsection{Barron Loss}\label{barron-loss}
+Plots, \(\ell_0\) loss
+
+\[
+f_c''(x)=(x^2 + c^2)^{-\frac12}-x^2(x^2 + c^2)^{-\frac32}\leq(x^2 + c^2)^{-\frac12}\leq c^{-1}.
+\] Thus \[
+f(x)\leq f(y)+f'(y)(x-y)+\frac{1}{2c}(x-y)^2=f(y)+\frac{1}{2c}(x-(y-cf'(y)))^2
+\] \#\# Barron Loss
 
 There are a large number of generalizations of these types of loss
 functions in the engineering community, and in their maze of conference
@@ -694,7 +704,7 @@ c|x|-\frac12 c^2&\text{ otherwise}.
 \end{cases}
 \]
 
-Because \ldots{} Chardonnier loss is also known as Pseudo-Huber loss.
+Because \ldots{} Charbonnier loss is also known as Pseudo-Huber loss.
 
 The Huber function is differentiable, although not twice diffentiable.
 Its derivative is \[
@@ -962,8 +972,14 @@ Minimize \[
 \[
 f(\delta_k-d_k(X))\leq f(\delta_k-d_k(Y))+f'(\delta_k-d_k(Y))(d_k(Y)-d_k(X))+\frac12K(d_k(Y)-d_k(X))^2
 \] Minimize \[
-\left[d_k(X)-\{d_k(Y))-K^{-1}f'(\delta_k-d_k(Y))\}\right]^2
+\sum w_k\left[d_k(X)-\{d_k(X^{(k)})-K^{-1}f'(\delta_k-d_k(X^{(k)}))\}\right]^2
+\] \[
+f_c''(x)=(x^2 + c^2)^{-\frac12}-x^2(x^2 + c^2)^{-\frac32}\leq(x^2 + c^2)^{-\frac12}\leq c^{-1}.
+\] Thus \[
+f(x)\leq f(y)+f'(y)(x-y)+\frac{1}{2c}(x-y)^2=f(y)+\frac{1}{2c}(x-(y-cf'(y)))^2
 \]
+
+maybe log (ramsay)
 
 \section{Code}\label{code}
 
