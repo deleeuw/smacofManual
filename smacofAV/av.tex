@@ -282,7 +282,7 @@
 
 \title{Robust Least Squares Multidimensional Scaling}
 \author{Jan de Leeuw}
-\date{October 4, 2024}
+\date{October 6, 2024}
 
 \begin{document}
 \maketitle
@@ -304,15 +304,13 @@ and sparse recovery. Code in R is included.
 
 \sectionbreak
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{source}\NormalTok{(}\StringTok{"smacofRobust.R"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
+\listoffigures
+
+\sectionbreak
 
 \section{Introduction}\label{introduction}
 
-The title of this chapter seems something paradoxical. Least squares
+The title of this paper seems something paradoxical. Least squares
 estimation is typically not robust, it is sensitive to outliers and pays
 a lot of attention to fitting the larger observations. What we mean by
 robust least squares MDS, however, is using the smacof machinery
@@ -331,7 +329,7 @@ problem. Moreover experience with one-dimensional and city block MDS
 suggests that having many points where the loss function is not
 differentiable leads to (many) additional local minima.
 
-In this chapter we will discuss (and implement) various variations of
+In this paper we will discuss (and implement) various variations of
 \(\sigma_1\) from \eqref{eq:stradddef}. They can be interpreted in two
 different ways. On the one hand we use smoothers of the absolute value
 function, and consequently of strife. We want to eliminate the problems
@@ -417,28 +415,7 @@ unstable because the weights from \eqref{eq:wk1def} become very large.
 
 A large number of somewhat ad-hoc solutions have been proposed to deal
 with the problem of zero residuals, both in location analysis and in the
-statistical literature. Schlossmacher
-(\citeproc{ref-schlossmacher_73}{1973}) is the first discussion of the
-majorization method in the statistical literature (for LAC+V linear
-regression). His proposal is to simply set a weight equal to zero if the
-corresponding residual is less than some small positive value
-\(\epsilon\). A similar approach, also used in location analysis, is to
-cap the weights at some large positive value. In Heiser
-(\citeproc{ref-heiser_88}{1988}) all residuals smaller than this epsilon
-get a weight equal to the weighted average of all small residuals.
-Phillips (\citeproc{ref-phillips_02}{2002}) assume double-exponential
-errors in LAV regression and then concludes that the EM algorithm gives
-the majorization method we have discussed. He uses \eqref{eq:wk1def}
-throughout if all residuals are larger than \(\epsilon\). If one of more
-residuals are smaller than epsilon then the weight for those residuals
-is set equal to one, while for the remaining residuals it is set to
-epsilon divided by the absolute value of the residual. Often we get the
-assurance that the problem is not really important in practice, because
-it is very rare. But both in location analysis and in LAV regression the
-loss function is convex while this is certainly not the case in robust
-MDS.
-
-We tend to agree with Aftab and Hartley
+statistical literature. We tend to agree with Aftab and Hartley
 (\citeproc{ref-aftab_hartley_15}{2015}).
 
 \begin{quote}
@@ -447,7 +424,27 @@ IRLS for the \(\ell_p\)-loss{]} have a long history of proofs and
 counterexamples to incorrect claims.
 \end{quote}
 
-In this paper we follow a more systematic approach
+Schlossmacher (\citeproc{ref-schlossmacher_73}{1973}) is the first
+discussion of the majorization method in the statistical literature (for
+LAV linear regression). His proposal is to simply set a weight equal to
+zero if the corresponding residual is less than some small positive
+value \(\epsilon\). A similar approach, also used in location analysis,
+is to cap the weights at some large positive value. In Heiser
+(\citeproc{ref-heiser_88}{1988}) all residuals smaller than this epsilon
+get a weight equal to the weighted average of all these small residuals.
+Phillips (\citeproc{ref-phillips_02}{2002}) assumes double-exponential
+errors in LAV regression and then concludes that the EM algorithm gives
+the majorization method we have discussed. He uses \eqref{eq:wk1def}
+throughout if all residuals are larger than \(\epsilon\). If one of more
+residuals are smaller than epsilon then the weight for those residuals
+is set equal to one, while for the remaining residuals the weight is set
+to epsilon divided by the absolute value of the residual. Often we get
+the assurance that the problem is not really important in practice,
+because it is very rare, and by just wiggling we will get to the unique
+solution anyway. But both in location analysis and in LAV regression the
+loss function is convex, while this is certainly not the case in robust
+MDS. In this paper we try to follow a more systematic approach that uses
+smooth approximations to the absolute value function.
 
 To illustrate the problems with differentiability we compute the
 directional derivatives of strife.
@@ -508,6 +505,26 @@ these ellipsoids and hyperplanes is not simple to describe. It has
 convex and non-convex cells, and within each cell strife is the
 difference of two weighted sums of distances. Anything can happen.
 
+\subsection{\texorpdfstring{\(\ell_0\)
+loss}{\textbackslash ell\_0 loss}}\label{ell_0-loss}
+
+A somewhat extreme special case of Equation \eqref{eq:strifedef} has \[
+f(x)=\begin{cases}
+0&\text{ if }x = 0,\\
+1&\text{ otherwise}.
+\end{cases}
+\] This is \(\ell_0\) loss. Minimizing \(\ell_0\) loss means maximizing
+the number of cases with perfect fit, i.e.~with \(\delta_k=d_k(X)\). The
+reason we mention it here is that the work of Donoho and Elad
+(\citeproc{ref-donoho_elad_03}{2003}) and Candes and Tao
+(\citeproc{ref-candes_tao_05}{2005}) suggests that the minimizer of
+\(\ell_1\) loss, i.e.~absolute value loss, gives a good approximation to
+the minimizer of \(\ell_0\) loss, at least in a number of special cases.
+In MDS we do not have linearity or convexity, but nevertheless the
+reulsr are suggestive. By computing the directional derivatives we have
+seen that at least in the one-dimensional MDS case a number of residuals
+will indeed be zero at the optimum LAV solution.
+
 \sectionbreak
 
 \section{Generalizing Strife}\label{generalizing-strife}
@@ -523,6 +540,8 @@ algorithm construction and as examples of loss functions that have been
 used in statistics, location analysis, image analysis and engineering
 over the years. They are all implemented in our software smacofRobust.R.
 
+\subsection{Majorization}\label{majorization}
+
 First some definitions. A function \(g\) \emph{majorizes} a function
 \(f\) at \(y\) if \(g(x)\geq f(x)\) for all \(x\) and \(g(y)=f(y)\). The
 AM/GM inequality was used in the previous section to construct a
@@ -535,10 +554,9 @@ a \emph{sharp majorization} if \(h(x)\leq g(x)\) for all
 We are specifically interested in this paper in sharp quadratic
 majorization, in which \(\mathfrak{H}\) is the set of all convex
 quadratics that majorize \(f\) at \(y\). This case has been studied in
-detail (in the case of real-valued functions on the line) by Van
-Ruitenburg (\citeproc{ref-vanruitenburg_05}{2005}) and De Leeuw and
-Lange (\citeproc{ref-deleeuw_lange_A_09}{2009}). Their Theorem 4.5 on
-page 2478 says
+detail (in the case of real-valued functions on the line) by De Leeuw
+and Lange (\citeproc{ref-deleeuw_lange_A_09}{2009}). Their Theorems 4.5
+and 4.6 on pages 2478-2479 says
 
 \begin{theorem}[]\protect\hypertarget{thm-wght}{}\label{thm-wght}
 
@@ -566,23 +584,8 @@ majorization (in fact, for sharp quadratic majorization) and not a
 necessary one. Quadratic majorization may still be possible if the
 conditions in the theorem are violated (see discussion).
 
-De Leeuw and Lange (\citeproc{ref-deleeuw_lange_A_09}{2009}) give some
-references to previous work on results like Theorem~\ref{thm-wght},
-notably Groenen, Giaquinto, and Kiers
-(\citeproc{ref-groenen_giaquinto_kiers_03}{2003}),
-(\citeproc{ref-jaakola_jordan_00}{\textbf{jaakola\_jordan\_00?}}), and
-Hunter and Li (\citeproc{ref-hunter_li_05}{2005}). In these earlier
-papers we do not find Theorem~\ref{thm-wght} in its full generality,
-mostly because the authors have specific applications in mind, which
-they then embed in a likelihood, Bayesian, or EM framework. There are
-similar appearances of results very much like Theorem~\ref{thm-wght} and
-Theorem~\ref{thm-sqrt} in location analysis, image restoration
-(\citeproc{ref-geman_reynolds_92}{\textbf{geman\_reynolds\_92?}}). In
-robust statistics it has been known that iterative weighted least
-squares with weights \(f'(x)/x\) gives a quadratic majorization
-algorithm.
-
-We now apply theorem \ldots{} to functions of the form \begin{equation}
+We now apply Theorem~\ref{thm-wght} to functions of the form
+\begin{equation}
 \sigma_f(X):=\sum w_k\ f(\delta_k-d_k(X)),\label{eq:fstressdef}
 \end{equation} where \(f\) satisfies the conditions in the theorem. If
 \begin{equation}
@@ -593,9 +596,7 @@ We now apply theorem \ldots{} to functions of the form \begin{equation}
 Although the absolute value is not differentiable at the origin the
 theorem can still be applied (Van Ruitenburg
 (\citeproc{ref-vanruitenburg_05}{2005})). It just does not give a
-majorizer at \(y=0\). (Van Ruitenburg
-(\citeproc{ref-vanruitenburg_05}{2005})) If \(f(x)=|x|\) then
-\begin{equation}
+majorizer at \(y=0\). If \(f(x)=|x|\) then \begin{equation}
 g(x)=\frac{1}{2|y|}(x^2-y^2)+|y|=\frac{1}{2|y|}(x^2+y^2),\label{eq:abssharp}
 \end{equation} which is the same as \eqref{eq:amgmmaj}. Thus the AM/GM
 method gives the sharp quadratic majorization.
@@ -610,12 +611,61 @@ w_k(X^{(k)}):=w_k\frac{f'(\delta_k-d_k(X^{(k)}))}{2(\delta_k-d_k(Y))}.\label{eq:
 \end{equation} It then recomputes the weights \(w_k(X^{(k+1)})\) and
 goes to the smacof step again. This can be thought of as iteratively
 reweighted least squares (IRLS), and also as nested majorization, with
-the smacof majorization within the sharp quadratic majorization of the
-loss function.
+the smacof majorization based on the Cauchy-Schwartz inequality within
+the sharp quadratic majorization of the loss function based on the AM/GM
+inequality.
+
+\subsection{Literature}\label{literature}
+
+The literature on results like Theorem~\ref{thm-wght} and
+Theorem~\ref{thm-sqrt} is an absolute shambles. There are various
+reasons for that. Relevant results have been published in robust
+statistics, comptational statistics, optimization, location theory,
+image restortation, sparse recovery. There are not many references
+between fields, almost everything is within. Moreover much of it is
+hidden in the usual caves of engineering conference proceedings. Also,
+in most cases, the authors have specific applications in mind, which
+they then embed in a likelihood, Bayesian, linear regression, facility
+location, or EM framework and language.
+
+De Leeuw and Lange (\citeproc{ref-deleeuw_lange_A_09}{2009}) give some
+references to previous work on results like Theorem~\ref{thm-wght},
+notably Groenen, Giaquinto, and Kiers
+(\citeproc{ref-groenen_giaquinto_kiers_03}{2003}), Jaakkola and Jordan
+(\citeproc{ref-jaakkola_jordan_00}{2000}), and Hunter and Li
+(\citeproc{ref-hunter_li_05}{2005}). In these earlier papers we do not
+find Theorem~\ref{thm-wght} in its full generality. In Groenen,
+Giaquinto, and Kiers (\citeproc{ref-groenen_giaquinto_kiers_03}{2003})
+majorization of the log logistic function is considered. Besides
+requiring equality of the function and the majorizing quadratic at the
+support point \(y\) they also require equality at \(-y\) and then check
+that the resulting quadratic is indeed a majorizer. In Jaakkola and
+Jordan (\citeproc{ref-jaakkola_jordan_00}{2000}) also consider a
+symmetrized version of the log logistic function. They note that the
+resulting function is a convex funcion of \(x^2\), and use a linear
+majorizer at \(x^2\) to obtain a quadratic majorization. Hunter and Li
+(\citeproc{ref-hunter_li_05}{2005}) come closest to
+Theorem~\ref{thm-wght}. In their proposition 3.1 they approximate the
+general penalty function used in varable selection at \(y\) by a
+quadratic with coefficient \(f'(y)/2y\), and then show that it provides
+a quadratic majorization. In neither of the three papers there is a
+notion of sharp quadratic majorization.
+
+Van Ruitenburg (\citeproc{ref-vanruitenburg_05}{2005})
+
+In robust statistics it has been known for a long time that iterative
+reweighted least squares with weights \(f'(x)/x\) gives a quadratic
+majorization algorithm.
 
 \sectionbreak
 
 \section{Power Smoothers}\label{power-smoothers}
+
+We first discuss a class of smoothers of the absolute value function
+that maintain most of its structure. They have a shift parameter \(c\)
+that takes care of the non-differentiability. And some of them also have
+a power parameter \(q\) that determines the shape of the loss function
+bowl.
 
 \subsection{Charbonnier loss}\label{charbonnier-loss}
 
@@ -627,16 +677,18 @@ f_c(x)=\sqrt{x^2 + c^2}.\label{eq:charf}
 and in De Leeuw (\citeproc{ref-deleeuw_E_20b}{2020}) in what was called
 least squares absolute value regression.
 
-In the figure below we show the loss function for \(c=1\) (black),
-\(c=0.1\) (red), \(c=0.01\) (blue), and \(c=0.001\) (green).
+In Figure~\ref{fig-charfig} we show the loss function for \(c=1\)
+(black), \(c=0.1\) (red), \(c=0.01\) (blue), and \(c=0.001\) (green).
 
-\begin{figure}[H]
+\begin{figure}
 
-{\centering \includegraphics{av_files/figure-pdf/charfig-1.pdf}
+\centering{
+
+\includegraphics{av_files/figure-pdf/fig-charfig-1.pdf}
 
 }
 
-\caption{Charbonnier Loss}
+\caption{\label{fig-charfig}Charbonnier Loss}
 
 \end{figure}%
 
@@ -648,20 +700,28 @@ convergence of \(f_c\) to \(|x|\).
 In the engineering literature \eqref{eq:charf} is known as Charbonnier
 loss, after Charbonnier et al.
 (\citeproc{ref-charbonnier_blanc-feraud_aubert_barlaud_94}{1994}), who
-were possibly the first engineers to use it. x Ramirez et al.
-(\citeproc{ref-ramirez_sanchez_kreinovich_argaez_14}{2014}) argue
-\eqref{eq:charf} is also the ``most computationally efficient smooth
-approximation to \(|x|\)''.
+were possibly the first researchers to use it in image restauration.
+Ramirez et al.
+(\citeproc{ref-ramirez_sanchez_kreinovich_argaez_14}{2014}) count the
+number of elementary computer operations and argue \eqref{eq:charf} is
+also the ``most computationally efficient smooth approximation to
+\(|x|\)''.
 
-By l'Hôpital \[
+By l'Hôpital \begin{subequations}
+\begin{equation}
 \lim_{x\rightarrow 0}\frac{\sqrt{x^2+c^2}-c}{\frac12x^2}=1.
-\] Of course also \[
+\end{equation}
+Of course also
+\begin{equation}
 \lim_{x\rightarrow\infty}\frac{\sqrt{x^2+c^2}}{|x|}=1
-\] and \[
+\end{equation}
+and
+\begin{equation}
 \lim_{x\rightarrow\pm\infty}\sqrt{x^2+c^2}-|x|=0
-\] Thus if \(x\) is much smaller than \(c\) loss is approximately a
-quadratic in \(x\), and if \(x\) is much larger than \(c\) then loss is
-approximately the absolute value.
+\end{equation}
+\end{subequations} Thus if \(x\) is much smaller than \(c\) then loss is
+approximately a quadratic in \(x\), and if \(x\) is much larger than
+\(c\) then loss is approximately the absolute value.
 
 Loss function \eqref{eq:charf} is infinitely many times differentiable.
 Its first derivative is \begin{equation}
@@ -686,19 +746,24 @@ w_{c,q}(x)=q(x^2+c^2)^{\frac12 q-1}\label{eq:gcharw}
 not assume that \(q>0\), and consequently \eqref{eq:gcharf} provides us
 with much more flexibility than Charbonnier loss \eqref{eq:charf}.
 
-\begin{figure}[H]
+In figure Figure~\ref{fig-gcharfig} we have plotted \eqref{eq:gcharf}
+for \(c=1\) and \(\alpha\) equal to \(-5\) (black), \(-1\) (red),
+\(-.5\) (blue), and \(-.1\) (green).
 
-{\centering \includegraphics{av_files/figure-pdf/gcharfig-1.pdf}
+\begin{figure}
+
+\centering{
+
+\includegraphics{av_files/figure-pdf/fig-gcharfig-1.pdf}
 
 }
 
-\caption{Generalized Charbonnier Loss}
+\caption{\label{fig-gcharfig}Generalized Charbonnier Loss}
 
 \end{figure}%
 
-In figure \ref{fig:gcharfig} we have plotted \eqref{eq:gcharf} for
-\(c=1\) and \(\alpha\) equal to \(-5\) (black), \(-1\) (red), \(-.5\)
-(blue), and \(-.1\) (green). If
+We see that for \(\alpha\rightarrow-\infty\) generalized Charbonnier
+loss aproximates \(\ell_0\) loss.
 
 \subsection{Barron Loss}\label{barron-loss}
 
@@ -728,24 +793,26 @@ Charbonnier loss, and for \(\alpha=-2\) it is Geman-McLure loss. For
 
 \section{Convolution Smoothers}\label{convolution-smoothers}
 
-Suppose \(\pi\) is an even probability density, with finite or infinite
-support, expectation zero, and variance one. Define the convolution \[
+Suppose \(\pi\) is a probability density, symmetric around zero, with
+finite or infinite support, expectation zero, and variance one. Define
+the convolution \[
 f_c(x):=\frac{1}{c}\int_{-\infty}^{+\infty}|x-y|\ \pi(\frac{y}{c})dy.
-\] Now \(c^{-1}\pi(y/c)\) is still a probability density integrating to
-one, with expectation zero, but it now has variance \(c^2\). Thus if
-\(c\rightarrow 0\) it becomes more and more like the Dirac delta
-function and \(f_c(x)\) converges to the absolute value function.
+\] Now \(c^{-1}\pi(y/c)\) is still a symmetric probability density
+integrating to one, with expectation zero, but it now has variance
+\(c^2\). Thus if \(c\rightarrow 0\) it becomes more and more like the
+Dirac delta function and \(f_c(x)\) converges to the absolute value
+function.
+
+It is clear that we can use any scale family of probability densities to
+define convolution smoothers. There is an infinite number of possible
+choices, with finite or infinite support, smooth or nonsmooth, using
+splines or wavelets, and so on. We give two quite different examples.
 
 \subsection{Huber Loss}\label{huber-loss}
 
 Take \[
 \pi(x)=\begin{cases}\frac12 &\text{ if }|x|\leq 1,\\0&\text{ otherwise.}\end{cases}
 \] Then \[
-f_c(x)=\frac{1}{2c}\int_{-c}^{+c}|x-y|dy=\begin{cases}
-\frac{1}{2c}(x^2+c^2)&\text{ if }|x|\leq c,\\
-|x|&\text{ otherwise}.
-\end{cases}
-\] \[
 f_c(x)=\frac{1}{2c}\int_{-c}^{+c}|x-y|dy=\begin{cases}
 \frac{1}{2c}(x^2+c^2)&\text{ if }|x|\leq c,\\
 |x|&\text{ otherwise}.
@@ -759,7 +826,9 @@ c|x|-\frac12 c^2&\text{ otherwise}.
 \end{cases}
 \]
 
-Because \ldots{} Charbonnier loss is also known as Pseudo-Huber loss.
+Because Charbonnier loss behaves like absolute value loss for large
+\(x\) and as squared loss for small \(x\) is also known as Pseudo-Huber
+loss.
 
 The Huber function is differentiable, although not twice diffentiable.
 Its derivative is \[
@@ -771,40 +840,14 @@ x&\text{ if }|x|\leq c,\\
 \] \[
 w(x)=
 \begin{cases}
-\frac{c}{x}&\text{ if }x\geq c,\\
-1&\text{ if }|x|\leq c,\\
+\hfill\frac{c}{x}&\text{ if }x\geq c,\\\hfill1&\text{ if }|x|\leq c,\\
 -\frac{c}{x}&\text{ if }x\leq -c.
 \end{cases}
 \] The Huber function is even and differentiable. Moreover \(f'(x)/x\)
-decreases from. Thus the theorem applies and the sharp quadratic
-majorizer at \(y\) is \[
-g(x)=\begin{cases}
-\end{cases}
-\]
+decreases from. Thus Theorem~\ref{thm-wght} applies.
 
-\[
-\sigma_k(X)=\begin{cases}
-\frac12(\delta_k-d_k(X))^2&\text{ if }|\delta_k-d_k(X)|<c,\\
-c|\delta_k-d_k(X)|-\frac12 c^2&\text{ if }|\delta_k-d_k(X)|\geq c.
-\end{cases}
-\]
-
-\[
-\omega_k(x,y)=\begin{cases}
-\frac12\frac{c}{|y|}(x^2-y^2)-cy-\frac12c^2&\text{ if }y\leq -c,\\
-\frac12x^2&\text{ if }|y|<c,\\
-\frac12\frac{c}{|y|}(x^2-y^2)+cy-\frac12c^2&\text{ if }y\geq +c.
-\end{cases}
-\] Now \(x=\delta_k-d_k(X)\) and \(y=\delta_k-d_k(Y)\)
-
-\[
-\omega_k(X;Y)=\begin{cases}
-\frac12\frac{c}{|\delta_k-d_k(Y)|}\{(\delta_k-d_k(X))^2+(d_k(Y)-\delta_k)^2\}-c(\delta_k-d_k(Y))-\frac12c^2&\text{ if }\delta_k-d_k(Y)\leq -c,\\
-\frac12(\delta_k-d_k(X))^2&\text{ if }|\delta_k-d_k(Y)|<c,\\
-\frac12\frac{c}{|\delta_k-d_k(Y)|}\{(\delta_k-d_k(X))^2+(d_k(Y)-\delta_k)^2\}+c(\delta_k-d_k(Y))-\frac12c^2&\text{ if }\delta_k-d_k(Y)\geq +c.
-\end{cases}
-\] Thus the MDS majorization algorithm for the Huber loss is to update
-\(Y\) by minimizing (or by performing one smacof step to decrease) \[
+The MDS majorization algorithm for the Huber loss is to update \(Y\) by
+minimizing (or by performing one smacof step to decrease) \[
 \sum w_k(Y)(\delta_k-d_k(X))^2
 \] where \[
 w_k(Y)=\begin{cases}
@@ -815,37 +858,24 @@ w_k&\text{ if }|\delta_k-d_k(Y)|<c,\\
 
 \subsection{Gaussian Convolution}\label{gaussian-convolution}
 
-In De Leeuw (\citeproc{ref-deleeuw_E_18f}{2018}) we also used the
+In De Leeuw (\citeproc{ref-deleeuw_E_18f}{2018}) we also discussed the
 convolution smoother proposed by Voronin, Ozkaya, and Yoshida
 (\citeproc{ref-voronin_ozkaya_yoshida_15}{n.d.}). The idea is to use the
-convolution of the absolute value function and a \emph{mollifier} as the
-smoothed function.
-
-\begin{quote}
-A smooth function \(\psi:\mathbb{R}\rightarrow\mathbb{R}\) is said to be
-a pdf if it is non-negative, and has area \(\int\psi(x)dx=1\). For any
-pdf \(\psi\) and any \(c>0\), deﬁne the parametric function
-\(\psi_c:\mathbb{R}\rightarrow\mathbb{R}\) by:
-\(\psi_c(x):= \frac{1}{c}\psi (\frac{1}{c})\), for all
-\(x\in\mathbb{R}\). Then \(\{\psi_c:c>0\}\) is a family of pdf's, whose
-support decreases as \(c\rightarrow 0\), but the volume under the graph
-always remains equal to one.
-\end{quote}
-
-choose a Gaussian pdf. \[
+convolution of the absolute value function and a Gaussian pdf. \[
 f(x)=\frac{1}{c\sqrt{2\pi}}\int_{-\infty}^{+\infty}|x-y|\exp\left\{-\frac12(\frac{y}{c})^2\right\}dy
 \]
 
 Carrying out the integration gives
 
 \[
-f(x)=x\{2\Phi(x/c)-1\}+2c\phi(x/c).
+f_c(x)=x\{2\Phi(x/c)-1\}+2c\phi(x/c).
 \] The derivative is \[
-f'(x)=2\Phi(x/c)-1
-\] It may not be immediately obvious in this case that \(f'(x)/x\) is
-decreasing. We prove that its derivative is negative on \((0,+\infty)\).
-The derivative of \(f'(x)/x\) has the sign of \(xf''(x)-f'(x)\), which
-is \(z\phi(z)-\Phi(z)+1/2\), with \(z=x/c\). It remains to show that
+f'_c(x)=2\Phi(x/c)-1
+\] It may not be immediately obvious in this case that the weight
+function \(f'(x)/x\) is non-increasing on \(\mathbb{R}^+\). We prove
+that its derivative is negative on \((0,+\infty)\). The derivative of
+\(f'(x)/x\) has the sign of \(xf''(x)-f'(x)\), which is
+\(z\phi(z)-\Phi(z)+1/2\), with \(z=x/c\). It remains to show that
 \(\Phi(z)-z\phi(z)\geq\frac12\), or equivalently that
 \(\int_0^z\phi(x)dx-z\phi(z)\geq 0\). Now if \(0\leq x\leq z\) then
 \(\phi(x)\geq\phi(z)\) and thus
@@ -857,54 +887,95 @@ w_k(Y)=
 \frac{\Phi((\delta_k-d_k(Y))/c)-\frac12}{\delta_k-d_k(Y)}\\
 \]
 
-Convolution with rectangular between c and -c gives the Huber function.
-\[
-f(x)=\frac{1}{2c}\int_{-c}^{+c}|x-y|dy
-\] \[
-f(x)=\frac{1}{2c}\int_{-c}^{+c}|x-y|dy=\begin{cases}
-\frac{1}{2c}(x^2+c^2)&\text{ if }|x|\leq c,\\
-|x|&\text{ otherwise}.
-\end{cases}
-\] \[
-f'(x)=\begin{cases}
-\frac{1}{c}x&\text{ if }|x|\leq c,\\
-\text{sign}(x)&\text{ otherwise}.
-\end{cases}
-\] \[
-w(x)=\begin{cases}
-\frac{1}{c}&\text{ if }|x|\leq c,\\
-\frac{1}{|x|}&\text{ otherwise}.
-\end{cases}
-\]
-
-It is also clear that we can use any scale family of probability
-densities to define convolution smoothers. There is an infinite number
-of possible choices, with finite or infinite support, smooth or
-nonsmooth, using splines or wavelets, and so on.
-
 \sectionbreak
 
-\section{Downweighters}\label{downweighters}
+\section{A Bouquet of Loss Functions}\label{a-bouquet-of-loss-functions}
 
-redescending
+In the early seventies, after the pioneering mostly theoretical work in
+robust statistics of Huber, Hampel, and Tukey, the mainframe computer
+allowed statisticians to make large-scale comparisons of many robust
+loss functions. The most impressive of such comparisons was the
+Princeton Robustness Study (Andrews et al.
+(\citeproc{ref-andrews_bickel_hampel_huber_rogers_tukey_72}{1972})).
 
-\subsection{Tukey Loss}\label{tukey-loss}
+In Holland and Welsch (\citeproc{ref-holland_welsch_77}{1977}) the
+computer package ROSEPACK was introduced that made it relatively easy to
+compute robust estimators using several different loss functions. Eight
+different weight functions were implemented as options. Somewhat later
+Coleman et al.
+(\citeproc{ref-coleman_holland_kaden_klema_peters_80}{1980}) made an
+more modern computer implementation available, using the same eight
+weight functions, which was not limited to mainframes.
 
-\[
-f(x)=\begin{cases}\frac{c^2}{6}\left(1-\left(1-(x/c)^2\right)^2\right)&\text{ if } |x|\leq c,\\
-\frac{c^2}{6}&\text{ otherwise}.
+We have implemented the same eight weight functions in smacofRobust,
+plus some additional ones that came out of our discussion of the power
+and convolution families. Below we give formulas for the loss function,
+the influence function, and the weight function. We also graph the loss
+function for selected values of the parameters.
+
+\subsection{Andrews}\label{andrews}
+
+\begin{align}
+f(x)&=\begin{cases}
+c^2(1-\cos(x/c))&\text{ if }|x|\leq\pi c,\\
+2c^2&\text{ otherwise.}
+\end{cases}\\
+f'(x)&=\begin{cases}
+c\sin(x/c)&\text{ if }|x|\leq\pi c,\\
+0&\text{ otherwise.}
+\end{cases}\\
+w(x)&=\begin{cases}
+(x/c)^{-1}\sin(x/c)&\text{ if }|x|\leq\pi c,\\
+0&\text{ otherwise.}
 \end{cases}
-\]
+\end{align}
 
-\subsection{Welsch Loss}\label{welsch-loss}
+\subsection{Tukey}\label{tukey}
 
-\[
-f(x)=1-\exp(-\{\frac{x}{c}\}^2)
-\]
+\begin{align}
+f(x)&=\begin{cases}
+\frac{c^2}{6}\left(1-\left(1-(x/c)^2\right)^3\right)&\text{ if } |x|\leq c,\\
+\frac{c^2}{6}&\text{ otherwise}.
+\end{cases}\\
+f'(x)&=\begin{cases}
+x\left(1-\left(1-(x/c)^2\right)^2\right)&\text{ if } |x|\leq c,\\
+0&\text{ otherwise}.
+\end{cases}\\
+w(x)&=\begin{cases}
+\left(1-\left(1-(x/c)^2\right)^2\right)&\text{ if } |x|\leq c,\\
+0&\text{ otherwise}.
+\end{cases}
+\end{align}
+
+\subsection{Hinich}\label{hinich}
+
+\subsection{Cauchy}\label{cauchy}
+
+\begin{align}
+f(x)&=\log(\{\frac{x}{c}\}^2+1),\\
+f'(x)&=\frac{1}{c^2}x\frac{1}{\{\frac{x}{c}\}^2+1},\\
+w(x)&=\frac{1}{c^2}\frac{1}{\{\frac{x}{c}\}^2+1}
+\end{align}
+
+\subsection{Fair}\label{fair}
+
+\subsection{Huber}\label{huber}
+
+\subsection{Logistic}\label{logistic}
+
+\subsection{Talwar}\label{talwar}
+
+\subsection{Welsch}\label{welsch}
+
+\begin{align}
+f(x)&=1-\exp(-\{\frac{x}{c}\}^2),\\
+f'(x)&=\\
+w(x)&=\frac{2}{c^2}\exp(-\{\frac{x}{c}\}^2)
+\end{align}
 
 \begin{figure}[H]
 
-{\centering \includegraphics{av_files/figure-pdf/welshfig-1.pdf}
+{\centering \includegraphics{av_files/figure-pdf/welschfig-1.pdf}
 
 }
 
@@ -912,21 +983,7 @@ f(x)=1-\exp(-\{\frac{x}{c}\}^2)
 
 \end{figure}%
 
-\[
-w(x)=\frac{2}{c^2}\exp(-\{\frac{x}{c}\}^2).
-\]
-
-\subsection{Cauchy Loss}\label{cauchy-loss}
-
-\[
-f(x)=\log(\{\frac{x}{c}\}^2+1)
-\]
-
-\[
-f'(x)=\frac{1}{c^2}x\frac{1}{\{\frac{x}{c}\}^2+1}
-\] \[
-w(x)=\frac{1}{c^2}\frac{1}{\{\frac{x}{c}\}^2+1}
-\] which is non-increasing on \(\mathbb{R}^+\).
+\$\$ which is non-increasing on \(\mathbb{R}^+\).
 
 \subsection{Geman-McLure Loss}\label{geman-mclure-loss}
 
@@ -936,16 +993,43 @@ f_c(x)=\frac{2(x/c)^2}{(x/c)^2+4}.
 
 \sectionbreak
 
-\section{Example}\label{example}
+\section{Examples}\label{examples}
+
+\subsection{Gruijter}\label{gruijter}
 
 The example we use are dissimilarities between nine Dutch political
 parties, collected by De Gruijter (\citeproc{ref-degruijter_67}{1967}).
+They are averages over a politically heterogenous group of 100
+introductory psychology students, and consequently they regress to the
+mean. Any reasonable MDS analysis of these data would at least allow for
+an additive constant.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{delta}
-\end{Highlighting}
-\end{Shaded}
+Some background on Dutch politics around that time may be useful.
+
+\begin{itemize}
+\tightlist
+\item
+  CPN - Communists.
+\item
+  PSP - Pacifists, left-wing.
+\item
+  PvdA - Labour, Democratic Socialists.
+\item
+  D'66 - Pragmatists, nether left-wing fish nor right-wing flesh, brand
+  new in 1967.
+\item
+  KVP - Christian Democrats, catholic.
+\item
+  ARP - Christian Democrats, protestant.
+\item
+  CHU - Christian Democrats, protestants, different flavor.
+\item
+  VVD - Liberals, European flavour, right-wing.
+\item
+  BP - Farmers, protest party, right-wing.
+\end{itemize}
+
+The dissimilarities are in the table below.
 
 \begin{verbatim}
       KVP PvdA  VVD  ARP  CHU  CPN  PSP   BP  D66
@@ -959,6 +1043,25 @@ PSP  6.73 4.59 7.55 6.73 7.08 4.08 0.00 6.88 6.36
 BP   7.18 7.22 6.90 7.28 6.96 6.34 6.88 0.00 7.36
 D66  6.17 5.47 4.67 6.13 6.04 7.42 6.36 7.36 0.00
 \end{verbatim}
+
+The reason we have chosen this example is partly because CPN and BP are
+outliers, and we can expect the robust loss functions to handle outlying
+dissimilarities differently from the bulk of the data.
+
+Unless otherwise indicated we run smacofRobust() with a maximum of
+10,000 iterations, and we decide that we have comvergence if the
+difference between consecutive stress values is less than
+\ensuremath{10^{-15}}. We perform a single smacof iteration between the
+updates of the weights. For each analysis we show the configuration plot
+and the Shepard plot. In the Shepard plot points corresponding to the
+eight CPN-dissimilarities arelabeled ``C'', while BP-dissimilarities are
+``B''.
+
+\subsubsection{Least Squares}\label{least-squares}
+
+We start with a least squares analysis, actually with Huber loss with
+\(c=10\), which for these data is equivalent to least squares. The
+process converges in 859 iterations.
 
 \begin{figure}[H]
 
@@ -980,6 +1083,24 @@ D66  6.17 5.47 4.67 6.13 6.04 7.42 6.36 7.36 0.00
 
 \end{figure}%
 
+The Shepard plot clearly shows why an additive constant would be very
+beneficial in this case.
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/phlsh-1.pdf}
+
+}
+
+\caption{Histogram Least Squares Residuals}
+
+\end{figure}%
+
+\subsubsection{Least Absolute Value}\label{least-absolute-value}
+
+For our least absolute value smacof we use engine smacofAV with
+\(c=.001\). We have convergence in 637 iterations.
+
 \begin{figure}[H]
 
 {\centering \includegraphics{av_files/figure-pdf/pxav-1.pdf}
@@ -1000,25 +1121,66 @@ D66  6.17 5.47 4.67 6.13 6.04 7.42 6.36 7.36 0.00
 
 \end{figure}%
 
+In the Shepard plot we see that there are a number of dissimilarities
+which are fitted exactly. If we count them there are about 15. Note that
+configurations have \((n-1)+(n-2)=2n-3\) degrees of freedom, which is 15
+in this case. Thus if we take the 15 dissimilarities which are fitted
+exactly, give them weight one, give all other 21 dissimilarities weight
+zero, and do a smacof analysis using these weights, then we will have
+perfect fit in two dimensions, and the solution will be the least
+absolute value solution. All this is easier said than done, because it
+presumes Charbonnier loss with \(c=0\) and the ability to decide what
+exact equality is. It also shows the possibility of a huge number of
+local minima in the least absolute value case, because there are so many
+ways to pick 15 out of 36 dissimilarities.
+
 \begin{figure}[H]
 
-{\centering \includegraphics{av_files/figure-pdf/pxhmed-1.pdf}
+{\centering \includegraphics{av_files/figure-pdf/phavh-1.pdf}
 
 }
 
-\caption{Configuration Median Huber}
+\caption{Histogram Least Absolute Value Residuals}
+
+\end{figure}%
+
+\subsubsection{Huber}\label{huber-1}
+
+smacofHuber with \(c=1\) converges in 165 iterations.
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/pxhme-1.pdf}
+
+}
+
+\caption{Configuration Huber c = 1}
 
 \end{figure}%
 
 \begin{figure}[H]
 
-{\centering \includegraphics{av_files/figure-pdf/pdhmed-1.pdf}
+{\centering \includegraphics{av_files/figure-pdf/pdhme-1.pdf}
 
 }
 
-\caption{Shepard Plot Median Huber}
+\caption{Shepard Plot Huber c = 1}
 
 \end{figure}%
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/phmeh-1.pdf}
+
+}
+
+\caption{Histogram Huber Residuals}
+
+\end{figure}%
+
+\subsubsection{Tukey}\label{tukey-1}
+
+Converges in 180 iterations.
 
 \begin{figure}[H]
 
@@ -1026,7 +1188,7 @@ D66  6.17 5.47 4.67 6.13 6.04 7.42 6.36 7.36 0.00
 
 }
 
-\caption{Configuration Median Tukey}
+\caption{Configuration Tukey c = 2}
 
 \end{figure}%
 
@@ -1036,9 +1198,178 @@ D66  6.17 5.47 4.67 6.13 6.04 7.42 6.36 7.36 0.00
 
 }
 
+\caption{Shepard Plot Tukey c = 2}
+
+\end{figure}%
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{hist}\NormalTok{(}\FunctionTok{abs}\NormalTok{(delta[iall] }\SpecialCharTok{{-}}\NormalTok{ htu}\SpecialCharTok{$}\NormalTok{d[iall]), }\AttributeTok{main =} \StringTok{""}\NormalTok{, }\AttributeTok{xlab =} \StringTok{"absolute residual"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/phtuh-1.pdf}
+
+}
+
+\caption{Histogram Tukey Residuals}
+
+\end{figure}%
+
+\subsection{Rothkopf}\label{rothkopf}
+
+Our seond example are the Rothkopf Morse data (Rothkopf
+(\citeproc{ref-rothkopf_57}{1957})), which are better behaved as the
+Gruijter data. We used the asymetric confusion matrix and defined a
+dissimilarity by the Shepard-Luce like formula \[
+\delta_{ij}=-\log\frac{p_{ij}p_{ji}}{p_{ii}p_{jj}}.
+\] The fivenum for these data is 0.2220619, 2.5633455, 4.027474,
+5.3988089, 8.3503118.
+
+\subsubsection{Least Squares}\label{least-squares-1}
+
+For least squares we use the smacofHuber engine with \(c=25\), well
+outside the range of the residuals. We have convergence in 213
+iterations.
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/mpxls-1.pdf}
+
+}
+
+\caption{Configuration Least Squares}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/mkpdls-1.pdf}
+
+}
+
+\caption{Shepard Plot Least Squares}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/mphlsh-1.pdf}
+
+}
+
+\caption{Histogram Least Squares Residuals}
+
+\end{figure}%
+
+\subsubsection{Least Absolute Value}\label{least-absolute-value-1}
+
+Chardonnier with \(c=.001\), de facto least absolute value loss.
+
+For least absolute value we use Chardonnier loss with \(c=.001\). We
+have convergence in 2291 iterations.
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/mpxav-1.pdf}
+
+}
+
+\caption{Configuration Least Absolute Value}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/mpdav-1.pdf}
+
+}
+
+\caption{Shepard Plot Least Absolute Value}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/mphlavh-1.pdf}
+
+}
+
+\caption{Histogram Least Absolute Value Residuals}
+
+\end{figure}%
+
+\subsubsection{Huber}\label{huber-2}
+
+Huber with \(c=1\)
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/mpxhme-1.pdf}
+
+}
+
+\caption{Configuration Huber}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/mpdhme-1.pdf}
+
+}
+
+\caption{Shepard Plot Huber}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/mphmeh-1.pdf}
+
+}
+
+\caption{Histogram Huber Residuals}
+
+\end{figure}%
+
+\subsubsection{Tukey}\label{tukey-2}
+
+Tukey with \(c=1\).
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/mpxtu-1.pdf}
+
+}
+
+\caption{Configuration Median Tukey}
+
+\end{figure}%
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/pdttu-1.pdf}
+
+}
+
 \caption{Shepard Plot Median Tukey}
 
 \end{figure}%
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/mphtuh-1.pdf}
+
+}
+
+\caption{Histogram Tukey Residuals}
+
+\end{figure}%
+
+\sectionbreak
 
 \section{Discussion}\label{discussion}
 
@@ -1061,7 +1392,28 @@ f_c''(x)=(x^2 + c^2)^{-\frac12}-x^2(x^2 + c^2)^{-\frac32}\leq(x^2 + c^2)^{-\frac
 f(x)\leq f(y)+f'(y)(x-y)+\frac{1}{2c}(x-y)^2=f(y)+\frac{1}{2c}(x-(y-cf'(y)))^2
 \]
 
-maybe log (ramsay)
+\subsection{Residual Choice}\label{residual-choice}
+
+In our examples and in our code we use the residuals \(\delta_k-d_k(X)\)
+are arguments of our loss functions. From the statistical point of view
+we have to remember, however, that most of these loss functions were
+designed for the robust estimation of a location parameter or a linear
+regression function. The error distributions were explicitly or
+implicitly assumed to be symmetric around zero, and defined on the whole
+real line, which was reflected in the fact that loss functions were even
+and had infinite support. In MDS, however, distances and dissimilarities
+are non-negative and reasonable error functions are not symmetric. One
+could follow the example of Ramsay (\citeproc{ref-ramsay_77}{1977}) and
+measure residuals as \(\log\delta_{ij}-\log d_{ij}(X)\). This does not
+have any effect on the majorization of the loss functions, but it means
+that in the smacof step to find \(X^{(k+1)}\) we have to minimize \[
+\sigma(X)=\sum w_k(X^{(k)})(\log\delta_{ij}-\log d_{ij}(X))^2,
+\] which is considerably more complicated (De Leeuw, Groenen, and Mair
+(\citeproc{ref-deleeuw_groenen_mair_E_16a}{2016})).
+
+\subsection{Robust Nonmetric MDS}\label{robust-nonmetric-mds}
+
+\sectionbreak
 
 \section{Code}\label{code}
 
@@ -1216,11 +1568,20 @@ Re-Weighted Least Squares to Robust m-Estimators.''} In \emph{2015 IEEE
 Winter Conference on Applications of Computer Vision,} 480--87.
 \url{https://doi.org/10.1109/WACV.2015.70}.
 
+\bibitem[\citeproctext]{ref-andrews_bickel_hampel_huber_rogers_tukey_72}
+Andrews, D. F., P. J. Bickel, F. R. Hampel, P. J. Huber, W. H. Rogers,
+and J. W. Tukey. 1972. \emph{Robust Estimators of Location: Survey and
+Advances}. Princeton University Press.
+
 \bibitem[\citeproctext]{ref-barron_19}
 Barron, J. T. 2019. {``A General and Adaptive Robust Loss Function.''}
 In \emph{Proceedings 2019 IEEE/CVF Conferehce on Computer Vision and
 Pattern Recognition}, 4331--39.
 \url{https://openaccess.thecvf.com/content_CVPR_2019/papers/Barron_A_General_and_Adaptive_Robust_Loss_Function_CVPR_2019_paper.pdf}.
+
+\bibitem[\citeproctext]{ref-candes_tao_05}
+Candes, E. J., and T. Tao. 2005. {``Decoding by Linear Programming.''}
+\emph{IEEE Transactions on Information Theory} 51 (12): 4203--15.
 
 \bibitem[\citeproctext]{ref-charbonnier_blanc-feraud_aubert_barlaud_94}
 Charbonnier, P., L. Blanc-Feraud, G. Aubert, and M. Barlaud. 1994.
@@ -1228,6 +1589,12 @@ Charbonnier, P., L. Blanc-Feraud, G. Aubert, and M. Barlaud. 1994.
 computed imaging}.''} \emph{Proceedings of 1st International Conference
 on Image Processing} 2: 168--72.
 \url{https://doi.org/10.1109/icip.1994.413553}.
+
+\bibitem[\citeproctext]{ref-coleman_holland_kaden_klema_peters_80}
+Coleman, D., P. Holland, N. Kaden, V. Klema, and S. C. Peters. 1980.
+{``A System of Subroutines for Iteratively Reweighted Least Squares
+Computations.''} \emph{ACM Transactions on Mathematical Software} 6 (3):
+327--36.
 
 \bibitem[\citeproctext]{ref-degruijter_67}
 De Gruijter, D. N. M. 1967. {``{The Cognitive Structure of Dutch
@@ -1253,10 +1620,21 @@ Lenski, and M. M. Richter, 308--24. Berlin: Springer Verlag.
 ---------. 2020. {``{Least Squares Absolute Value Regression}.''} 2020.
 \url{https://jansweb.netlify.app/publication/deleeuw-e-20-b/deleeuw-e-20-b.pdf}.
 
+\bibitem[\citeproctext]{ref-deleeuw_groenen_mair_E_16a}
+De Leeuw, J., P. Groenen, and P. Mair. 2016. {``{Minimizing rStress
+Using Majorization}.''} 2016.
+\url{https://jansweb.netlify.app/publication/deleeuw-groenen-mair-e-16-a/deleeuw-groenen-mair-e-16-a.pdf}.
+
 \bibitem[\citeproctext]{ref-deleeuw_lange_A_09}
 De Leeuw, J., and K. Lange. 2009. {``Sharp Quadratic Majorization in One
 Dimension.''} \emph{Computational Statistics and Data Analysis} 53:
 2471--84.
+
+\bibitem[\citeproctext]{ref-donoho_elad_03}
+Donoho, D. L., and M. Elad. 2003. {``Optimally Sparse Representation in
+General (Nonorthogonal) Dictionaries via ℓ\_1 Minimization.''}
+\emph{Proceedings of the National Academy of Sciences} 100 (5):
+2197--2202.
 
 \bibitem[\citeproctext]{ref-groenen_giaquinto_kiers_03}
 Groenen, P. J. F., P. Giaquinto, and H. A. L Kiers. 2003. {``{Weighted
@@ -1280,6 +1658,12 @@ Residuals}.''} \emph{Computational Statistics and Data Analysis} 5:
 Residuals}.''} In \emph{Classification and Related Methods of Data
 Analysis}, edited by H. H. Bock, 455--62. North-Holland Publishing Co.
 
+\bibitem[\citeproctext]{ref-holland_welsch_77}
+Holland, P. W., and R. E. Welsch. 1977. {``Robust Regression Using
+Iteratively Reweighted Least-Squares.''} \emph{Communications in
+Statistics - Theory and Methods} 6 (9): 813--27.
+\url{https://doi.org/10.1080/03610927708827533}.
+
 \bibitem[\citeproctext]{ref-huber_64}
 Huber, P. J. 1964. {``Robust Estimation of a Location Parameter.''}
 \emph{Annals of Mathematical Statistics} 35 (1): 73--101.
@@ -1287,6 +1671,11 @@ Huber, P. J. 1964. {``Robust Estimation of a Location Parameter.''}
 \bibitem[\citeproctext]{ref-hunter_li_05}
 Hunter, D. R., and R. Li. 2005. {``{Variable Selection Using MM
 Algorithms}.''} \emph{The Annals of Statistics} 33: 1617--42.
+
+\bibitem[\citeproctext]{ref-jaakkola_jordan_00}
+Jaakkola, T. S., and M. I. Jordan. 2000. {``{Bayesian Parameter
+Estimation via Variational Methods}.''} \emph{Statistics and Computing}
+10: 25--37.
 
 \bibitem[\citeproctext]{ref-lange_16}
 Lange, K. 2016. \emph{MM Optimization Algorithms}. SIAM.
@@ -1304,6 +1693,15 @@ Ramirez, C., R. Sanchez, V. Kreinovich, and M. Argaez. 2014.
 {``{\(\sqrt{x^2+\mu}\) is the Most Computationally Efficient Smooth
 Approximation to \vert{}x\vert{}}.''} \emph{Journal of Uncertain
 Systems} 8: 205--10.
+
+\bibitem[\citeproctext]{ref-ramsay_77}
+Ramsay, J. O. 1977. {``{Maximum Likelihood Estimation in
+Multidimensional Scaling}.''} \emph{Psychometrika} 42: 241--66.
+
+\bibitem[\citeproctext]{ref-rothkopf_57}
+Rothkopf, E. Z. 1957. {``{A Measure of Stimulus Similarity and Errors in
+some Paired-associate Learning}.''} \emph{Journal of Experimental
+Psychology} 53: 94--101.
 
 \bibitem[\citeproctext]{ref-schlossmacher_73}
 Schlossmacher, E. J. 1973. {``An Iterative Technique for Absolute
