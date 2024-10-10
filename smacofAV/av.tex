@@ -247,7 +247,13 @@
 \newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
 \usepackage{amsthm}
 \theoremstyle{plain}
+\newtheorem{corollary}{Corollary}[section]
+\theoremstyle{plain}
 \newtheorem{theorem}{Theorem}[section]
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\theoremstyle{plain}
+\newtheorem{lemma}{Lemma}[section]
 \theoremstyle{remark}
 \AtBeginDocument{\renewcommand*{\proofname}{Proof}}
 \newtheorem*{remark}{Remark}
@@ -282,7 +288,7 @@
 
 \title{Robust Least Squares Multidimensional Scaling}
 \author{Jan de Leeuw}
-\date{October 6, 2024}
+\date{October 9, 2024}
 
 \begin{document}
 \maketitle
@@ -310,14 +316,15 @@ and sparse recovery. Code in R is included.
 
 \section{Introduction}\label{introduction}
 
-The title of this paper seems something paradoxical. Least squares
+The title of this paper is something paradoxical. Least squares
 estimation is typically not robust, it is sensitive to outliers and pays
 a lot of attention to fitting the larger observations. What we mean by
 robust least squares MDS, however, is using the smacof machinery
-designed to minimize loss of the form \begin{equation}
+designed to minimize least squares loss functions of the form
+\begin{equation}
 \sigma_2(X):=\sum w_k(\delta_k-d_k(X))^2\label{eq:stressdef},
 \end{equation} to minimize robust loss functions. The prototypical
-robust loss function is \begin{equation}
+robust loss function is least absolute value loss \begin{equation}
 \sigma_1(X):=\sum w_k|\delta_k-d_k(X)|\label{eq:stradddef},
 \end{equation} which we will call \emph{strife}, because stress,
 sstress, and strain are already taken.
@@ -349,17 +356,27 @@ squares. If that is our goal then there is no reason to stay as close to
 the absolute value function as possible.
 
 Our robust or smooth loss functions are all of the form \begin{equation}
-\sigma(X):=\sum w_k\ f(\delta_k-d_k(X))\label{eq:strifedef},
+\sigma(X):=\sum w_k\ f_c(\delta_k-d_k(X))\label{eq:strifedef},
 \end{equation} for a suitable choice of the real valued function \(f\).
-We will define what we mean by ``suitable'' later on. For now, note that
-loss \eqref{eq:stressdef} is the special case with \(f(x)=x^2\) and loss
-\eqref{eq:stradddef} is the special case with \(f(x)=|x|\).
+We will define what we mean by ``suitable'' later on. The subscript
+\(c\) of \(f_c\) is meant to indicate that the loss function may depend
+on one or more real-valued tuning parameters \(c\) that regulate the
+degree of smoothness and/or robustness. For now, note that loss
+\eqref{eq:stressdef} is the special case with \(f_c(x)=x^2\) and loss
+\eqref{eq:stradddef}is the special case with \(f_c(x)=|x|\). There is no
+tuning in both these cases.
 
 \sectionbreak
 
-\section{Majorizing Strife}\label{majorizing-strife}
+\section{Majorizing Strife}\label{sec-majorization}
 
-The pioneering work in strife minimization using smacof is Heiser
+The idea of minimizing a least absolute value (LAV) to obtain parameter
+estimates dates back to the work of Boskovitch in the middle of the
+eighteenth century. Until recently it has been applied mainly to fit
+linear models, so that we can actually use standard linear programming
+algorithms to obtain optimal solutions.
+
+The pioneering work in strife minimization in MDS using smacof is Heiser
 (\citeproc{ref-heiser_88}{1988}), building on earlier work in Heiser
 (\citeproc{ref-heiser_87}{1987}). It is based on a creative use of the
 Arithmetic Mean-Geometric Mean (AM/GM) inequality to find a majorizer of
@@ -371,19 +388,19 @@ and to the excellent book by Lange (\citeproc{ref-lange_16}{2016}).
 The AM/GM inequality says that for all non-negative \(x\) and \(y\) we
 have \begin{equation}
 |x||y|=\sqrt{x^2y^2}\leq\frac12(x^2+y^2),\label{eq:amgm}
-\end{equation} with equality if and only if \(x=y\). If \(y>0\) we can
-write \eqref{eq:amgm} as \begin{equation}
+\end{equation} with equality if and only if \(x^2=y^2\). If \(y>0\) we
+can write \eqref{eq:amgm} as \begin{equation}
 |x|\leq\frac12\frac{1}{|y|}(x^2+y^2),\label{eq:amgmmaj}
 \end{equation} and this provides a quadratic majorization of \(|x|\) at
 \(y\). There is no quadratic majorization of \(|x|\) at \(y=0\), which
-is a nuisance we must deal with.
+is a nuisance we will have to deal with.
 
 Using the majorization \eqref{eq:amgmmaj}, and assuming
-\(\delta_k\not= d_k(Y)\) for all \(k\), we define \begin{equation}
+\(\delta_k\not=d_k(Y)\) for all \(k\), we define \begin{equation}
 \omega_1(X):=\frac12\sum w_k\frac{1}{|\delta_k-d_k(Y)|}((\delta_k-d_k(Y))^2+(\delta_k-d_k(X))^2).\label{eq:omegadef}
 \end{equation} Now \(\sigma_1(X)\leq\omega_1(X)\) for all \(X\) and
-\(\sigma_1(Y)=\omega_1(Y)\). Thus \(\omega_1\) majorizes \(\sigma_1\) at
-\(Y\).
+\(\sigma_1(Y)=\omega_1(Y)\), and thus \(\omega_1\) majorizes
+\(\sigma_1\) at \(Y\).
 
 \subsection{Algorithm}\label{algorithm}
 
@@ -415,8 +432,8 @@ unstable because the weights from \eqref{eq:wk1def} become very large.
 
 A large number of somewhat ad-hoc solutions have been proposed to deal
 with the problem of zero residuals, both in location analysis and in the
-statistical literature. We tend to agree with Aftab and Hartley
-(\citeproc{ref-aftab_hartley_15}{2015}).
+statistical literature. We tend to agree with the assessment of Aftab
+and Hartley (\citeproc{ref-aftab_hartley_15}{2015}).
 
 \begin{quote}
 .. attempts to analyze this difficulty {[}caused by infinite weights of
@@ -439,12 +456,14 @@ throughout if all residuals are larger than \(\epsilon\). If one of more
 residuals are smaller than epsilon then the weight for those residuals
 is set equal to one, while for the remaining residuals the weight is set
 to epsilon divided by the absolute value of the residual. Often we get
-the assurance that the problem is not really important in practice,
-because it is very rare, and by just wiggling we will get to the unique
-solution anyway. But both in location analysis and in LAV regression the
-loss function is convex, while this is certainly not the case in robust
-MDS. In this paper we try to follow a more systematic approach that uses
-smooth approximations to the absolute value function.
+the assurance in these papers that the problem is not really important
+in practice, because it is very rare, and by just wiggling we will get
+to the unique solution anyway. But both in location analysis and in LAV
+regression the loss function is convex, however, which guarantees a
+unique minimum. This is certainly not the case in robust MDS. In this
+paper we try to follow a more systematic approach that uses smooth
+parametric approximations to the absolute value function, where the
+parameter can be used to make the approximation as precise as necessary.
 
 To illustrate the problems with differentiability we compute the
 directional derivatives of strife.
@@ -521,9 +540,18 @@ reason we mention it here is that the work of Donoho and Elad
 \(\ell_1\) loss, i.e.~absolute value loss, gives a good approximation to
 the minimizer of \(\ell_0\) loss, at least in a number of special cases.
 In MDS we do not have linearity or convexity, but nevertheless the
-reulsr are suggestive. By computing the directional derivatives we have
+results are suggestive. By computing the directional derivatives we have
 seen that at least in the one-dimensional MDS case a number of residuals
 will indeed be zero at the optimum LAV solution.
+
+There is an excellent review of the use of \(\ell_1\) in various sparse
+recovery fields in Candes, Wakin, and Boyd
+(\citeproc{ref-candes_wakin_boyd_08}{2008}). In that paper they also
+propose an iteratively reweighted LAV algorithm, which solves \(\ell_1\)
+problems between weight updates. Maybe because of that they go so far as
+calling \(\ell_1\) ``the modern least squares''. But let's not get
+carried away, in actual ease and frequency of use \(\ell_1\) still has a
+long way to go if it wants to replace \(\ell_2\).
 
 \sectionbreak
 
@@ -534,29 +562,45 @@ majorization to minimize strife, using the AM/GM inequality. We now
 generalize this approach so that it can easily deal with other robust
 loss functions. A great number of loss functions will appear below. The
 intention is not to confuse the reader by requiring them to choose from
-impossibly large number of alternatives with rather limited information.
-We show all these loss functions as examples of the general principle of
+this large number of alternatives with rather limited information. We
+show all these loss functions as examples of the general principle of
 algorithm construction and as examples of loss functions that have been
 used in statistics, location analysis, image analysis and engineering
-over the years. They are all implemented in our software smacofRobust.R.
+over the years. They are all implemented in the function smacofRobust(),
+written in R (R Core Team (\citeproc{ref-r_core_team_24}{2024})).
 
 \subsection{Majorization}\label{majorization}
 
-First some definitions. A function \(g\) \emph{majorizes} a function
-\(f\) at \(y\) if \(g(x)\geq f(x)\) for all \(x\) and \(g(y)=f(y)\). The
-AM/GM inequality was used in the previous section to construct a
-quadratic majorization of strife. Majorization is \emph{strict} if
-\(g(x)>f(x)\) for all \(x\not= y\). If \(\mathfrak{H}\) is a family of
-functions that all majorize \(f\) at \(y\) then \(h\in\mathfrak{H}\) is
-a \emph{sharp majorization} if \(h(x)\leq g(x)\) for all
-\(g\in\mathfrak{H}\). The sharp majorization is by definition unique.
+First some definitions.
 
-We are specifically interested in this paper in sharp quadratic
-majorization, in which \(\mathfrak{H}\) is the set of all convex
-quadratics that majorize \(f\) at \(y\). This case has been studied in
-detail (in the case of real-valued functions on the line) by De Leeuw
-and Lange (\citeproc{ref-deleeuw_lange_A_09}{2009}). Their Theorems 4.5
-and 4.6 on pages 2478-2479 says
+\begin{definition}[]\protect\hypertarget{def-majorize}{}\label{def-majorize}
+
+A function \(g\) \emph{majorizes} a function \(f\) at \(y\) if
+\(g(x)\geq f(x)\) for all \(x\) and \(g(y)=f(y)\). Majorization is
+\emph{strict} if \(g(x)>f(x)\) for all \(x\not= y\).
+
+\end{definition}
+
+\begin{definition}[]\protect\hypertarget{def-sharp}{}\label{def-sharp}
+
+If \(\mathfrak{H}\) is a family of functions that all majorize \(f\) at
+\(y\) then \(h\in\mathfrak{H}\) is a \emph{sharp majorization} in
+\(\mathfrak{H}\) if \(h(x)\leq g(x)\) for all \(g\in\mathfrak{H}\). The
+sharp majorization is by definition unique.
+
+\end{definition}
+
+\subsubsection{Sharp Quadratic
+Majorization}\label{sharp-quadratic-majorization}
+
+The AM/GM inequality was used in Section~\ref{sec-majorization} to
+construct a quadratic majorization of strife. In this section we are
+specifically interested in this paper in sharp quadratic majorization,
+in which \(\mathfrak{H}\) is the set of all convex quadratics that
+majorize \(f\) at \(y\). This case has been studied in detail (in the
+case of real-valued functions on the line) by De Leeuw and Lange
+(\citeproc{ref-deleeuw_lange_A_09}{2009}). Their Theorems 4.5 and 4.6 on
+pages 2478-2479 say
 
 \begin{theorem}[]\protect\hypertarget{thm-wght}{}\label{thm-wght}
 
@@ -572,7 +616,7 @@ g(x)=\frac{f'(y)}{2y}(x^2-y^2)+f(y)\label{eq:sharp}
 \begin{theorem}[]\protect\hypertarget{thm-sqrt}{}\label{thm-sqrt}
 
 The ratio \(f'(x)/x\) is decreasing on \((0,\infty)\) if and only
-\(f(\sqrt(x))\) is concave. The set of functions satisfying this
+\(f(\sqrt{x})\) is concave. The set of functions satisfying this
 condition is closed under the formation of (a) positive multiples, (b)
 convex combinations, (c) limits, and (d) composition with a concave
 increasing function \(g(x)\).
@@ -582,7 +626,76 @@ increasing function \(g(x)\).
 Note that these theorems give a sufficient condition for quadratic
 majorization (in fact, for sharp quadratic majorization) and not a
 necessary one. Quadratic majorization may still be possible if the
-conditions in the theorem are violated (see discussion).
+conditions in the theorem are violated.
+
+We can get a considerable more general version of theorem
+Theorem~\ref{thm-wght} by using the framework for real analysis in
+Bourbaki (\citeproc{ref-bourbaki_76}{1976}), Bourbaki
+(\citeproc{ref-bourbaki_04}{2004}) (cf also Dieudonné
+(\citeproc{ref-dieudonne_69}{1969}), sections 7.6 and 8.7).
+
+\begin{definition}[]\protect\hypertarget{def-regulated}{}\label{def-regulated}
+
+A real-valued function on a closed interval \([a,b]\) is
+\emph{regulated} if it has a limit from the right on \([a,b)\) and a
+limit from the left on \((a,b]\).
+
+\end{definition}
+
+Note that the end-points of the interval can be \(\pm\infty\). Regulated
+functions have limits from the right and the left at every point in the
+interior of \((a,b)\). They can only have discontinuities of the first
+kind (jump discontinuities). Step functions, monotone functions, and
+continuous functions are all regulated functions. An alternative
+definition is that regulated functions are limits of sequences of step
+functions, where the convergence is uniform on compact sets.
+
+\begin{definition}[]\protect\hypertarget{def-primitive}{}\label{def-primitive}
+
+A real-valued function \(f\) on \([a,b]\) is a \emph{primitive} of a
+real-valued function \(g\) on \([a,b]\) if \(f\) is differentiable with
+\(f'(x)=g(x)\), except possibly at a denumerable number of points.
+
+\end{definition}
+
+A regulated function has at least one primitive, and primitives are
+unique up to addition of a constant function. The primitive \(f\) of a
+continuous function \(g\) is differentiable everywhere, with
+\(f'(x)=g(x)\).
+
+\begin{definition}[]\protect\hypertarget{def-integral}{}\label{def-integral}
+
+The \emph{integral} of a regulated function \(f\) on \([a,b]\), written
+as \(\int_a^b f(x)dx\), is equal to \(g(b)-g(a)\), where \(g\) is one of
+the primitives of \(f\).
+
+\end{definition}
+
+\begin{theorem}[]\protect\hypertarget{thm-dll}{}\label{thm-dll}
+
+Suppose \(g\) is a regulated function on \([a,b]\) and \(f\) is one of
+its primitives. Define \(h(z):=g(z)/z\) if \(z\not= 0\) and \(h(0)=0\).
+Assume \(h(z)\geq A\) on \([a,b]\). Then for all \(x,y\) in \([a,b]\) we
+have the quadratic majorization
+\begin{equation}\phantomsection\label{eq-amajor1}{
+f(x)\leq f(y)+\frac12 A(x^2-y^2).
+}\end{equation}
+
+\end{theorem}
+
+\begin{proof}
+\(f(y)-f(x)=\int_x^y g(z)dz=\int_x^yh(z)zdz\leq \frac12A(y^2-x^2)\).
+\end{proof}
+
+\begin{corollary}[]\protect\hypertarget{cor-dcor}{}\label{cor-dcor}
+
+Suppose \(g\) is a regulated function on \([a,y]\) and \(f\) is one of
+its primitives. Define \(h(z):=g(z)/z\) if \(z\not= 0\) and \(h(0)=0\)
+and assume \(h\) is non-increasing on \([a,y]\). Then we have the
+quadratic majorization
+\begin{equation}\phantomsection\label{eq-amajor}{f(x)\leq f(y)+\frac12h(y)(x^2-y^2).}\end{equation}
+
+\end{corollary}
 
 We now apply Theorem~\ref{thm-wght} to functions of the form
 \begin{equation}
@@ -593,10 +706,67 @@ We now apply Theorem~\ref{thm-wght} to functions of the form
 \end{equation} then \(\omega_f\) is a sharp quadratic majorization at
 \(Y\).
 
-Although the absolute value is not differentiable at the origin the
-theorem can still be applied (Van Ruitenburg
-(\citeproc{ref-vanruitenburg_05}{2005})). It just does not give a
-majorizer at \(y=0\). If \(f(x)=|x|\) then \begin{equation}
+\subsubsection{Two-point Quadratic
+Majorization}\label{two-point-quadratic-majorization}
+
+Sometimes sharp quadratic majorizations can be found by using the
+results by Van Ruitenburg (\citeproc{ref-vanruitenburg_05}{2005}) on
+quadratic majorization with two (or more) support points. We generalize
+his results by introducing the concept of a majorizing fan (De Leeuw
+(\citeproc{ref-deleeuw_E_18i}{2018b})).
+
+\begin{definition}[]\protect\hypertarget{def-fan}{}\label{def-fan}
+
+A majorizing fan \(\mathfrak{G}\) of \(f\) at \(y\) is a set of
+functions that majorize \(f\) at \(y\) and that have the property that
+for each pair of functions in \(\mathfrak{G}\) one of them strictly
+majorizes the other.
+
+\end{definition}
+
+Note that we do not assume differentiability of \(f\), or even
+continuity. Examples of fans are in De Leeuw
+(\citeproc{ref-deleeuw_E_18i}{2018b}).
+
+\begin{lemma}[]\protect\hypertarget{lem-first}{}\label{lem-first}
+
+Suppose \(g,h\) are in a majorizing fan of \(f\) at \(y\). Suppose, in
+addition, that \(g\) majorizes \(f\) at \(z\not=y\) and \(h\) majorizes
+\(f\) at \(v\not= y\). Then \(g=h\).
+
+\end{lemma}
+
+\begin{proof}
+For if \(g\not= h\) there are two possibilities. Either \(g\) strictly
+majorizes \(h\) at \(y\) or \(h\) strictly majorizes \(g\) at \(y\). In
+the first case \(h(z)<g(z)=f(z)\) and thus \(h\) does not majorize
+\(f\). In the second case \(g(v)<h(v)=f(v)\) and thus \(g\) does not
+majorize \(f\). Thus \(g=h\).
+\end{proof}
+
+\begin{theorem}[]\protect\hypertarget{thm-ruit}{}\label{thm-ruit}
+
+Suppose \(g\not= h\) are in a majorizing fan of \(f\) at \(y\). Suppose,
+in addition, that \(g\) majorizes \(f\) at \(z\not=y\) Then \(h\)
+strictly majorizes \(g\) at \(y\).
+
+\end{theorem}
+
+\begin{proof}
+For if \(g\) strictly majorizes \(h\) then \(h(z)<g(z)=f(z)\) and thus
+\(h\) does not majorize \(f\).
+\end{proof}
+
+Thus, by Theorem~\ref{thm-ruit}, if we have a majorizer \(g\) of \(f\)
+in a fan \(\mathfrak{G}\) at \(y\) that also majorizes \(f\) and
+\(z\not= y\), then \(g\) is a strict majorizer in \(\mathfrak{G}\) of
+\(f\) at \(y\).
+
+Now suppose \(f\) is differentiable at \(y\) and \(\mathfrak{G}\) is the
+set of all quadratic functions that majorize \(f\) at \(y\). Then
+\(\mathfrak{G}\) is a majorizing fan of \(f\) at \(y\).
+
+If \(f(x)=|x|\) then \begin{equation}
 g(x)=\frac{1}{2|y|}(x^2-y^2)+|y|=\frac{1}{2|y|}(x^2+y^2),\label{eq:abssharp}
 \end{equation} which is the same as \eqref{eq:amgmmaj}. Thus the AM/GM
 method gives the sharp quadratic majorization.
@@ -667,15 +837,15 @@ that takes care of the non-differentiability. And some of them also have
 a power parameter \(q\) that determines the shape of the loss function
 bowl.
 
-\subsection{Charbonnier loss}\label{charbonnier-loss}
+\subsection{Charbonnier}\label{charbonnier}
 
 The first, and perhaps most obvious, choice for smoothing the absolute
-value function is \begin{equation}
-f_c(x)=\sqrt{x^2 + c^2}.\label{eq:charf}
-\end{equation} This smoother was previously used by De Leeuw
-(\citeproc{ref-deleeuw_E_18f}{2018}) in least absolute value regression
-and in De Leeuw (\citeproc{ref-deleeuw_E_20b}{2020}) in what was called
-least squares absolute value regression.
+value function is \begin{equation}\phantomsection\label{eq-charf}{
+f_c(x)=\sqrt{x^2 + c^2}.
+}\end{equation} This smoother was previously used by De Leeuw
+(\citeproc{ref-deleeuw_E_18f}{2018a}) in LAV regression and in De Leeuw
+(\citeproc{ref-deleeuw_E_20b}{2020}) in what was called least squares
+absolute value regression.
 
 In Figure~\ref{fig-charfig} we show the loss function for \(c=1\)
 (black), \(c=0.1\) (red), \(c=0.01\) (blue), and \(c=0.001\) (green).
@@ -694,11 +864,11 @@ In Figure~\ref{fig-charfig} we show the loss function for \(c=1\)
 
 For \(c>0\) we have \(f_c(x)>|x|\). If \(c\rightarrow 0\) then
 \(f_c(x)\) decreases monotonically to \(|x|\). Also
-\(\min_x|f_c(x)-|x||=c\) attained at \(x=0\), which implies uniform
+\(\max_x|f_c(x)-|x||=c\) attained at \(x=0\), which implies uniform
 convergence of \(f_c\) to \(|x|\).
 
-In the engineering literature \eqref{eq:charf} is known as Charbonnier
-loss, after Charbonnier et al.
+In the engineering literature Equation~\ref{eq-charf} is known as
+Charbonnier loss, after Charbonnier et al.
 (\citeproc{ref-charbonnier_blanc-feraud_aubert_barlaud_94}{1994}), who
 were possibly the first researchers to use it in image restauration.
 Ramirez et al.
@@ -733,8 +903,7 @@ w_c(x)=\frac{1}{\sqrt{x^2+c^2}}\label{eq:charw}
 \end{equation} which is clearly a decreasing function of \(x\) on
 \(\mathbb{R}^+\).
 
-\subsection{Generalized Charbonnier
-Loss}\label{generalized-charbonnier-loss}
+\subsection{Generalized Charbonnier}\label{generalized-charbonnier}
 
 The loss function \((x^2+c^2)^\frac12\) smoothes \(|x|\). In the same
 way generalized Charbonnier loss smoothes \(\ell_p\) loss \(|x|^q\).
@@ -765,7 +934,7 @@ for \(c=1\) and \(\alpha\) equal to \(-5\) (black), \(-1\) (red),
 We see that for \(\alpha\rightarrow-\infty\) generalized Charbonnier
 loss aproximates \(\ell_0\) loss.
 
-\subsection{Barron Loss}\label{barron-loss}
+\subsection{Barron}\label{barron}
 
 There are a large number of generalizations of the power smoother types
 of loss functions in the engineering community, and in their maze of
@@ -776,6 +945,8 @@ Barron (\citeproc{ref-barron_19}{2019}).
 f_{\alpha,c}(x)=\frac{|\alpha-2|}{\alpha}\left(\left(\frac{(x/c)^2}{|\alpha-2|}+1\right)^{\alpha/2}-1\right).\label{eq:barron}
 \end{equation}
 
+To quote Barron
+
 \begin{quote}
 Here \(\alpha\in\mathbb{R}\) is a shape parameter that controls the
 robust-ness of the loss and \(c>0\) is a scale parameter that controls
@@ -783,13 +954,18 @@ the size of the loss's quadratic bowl near \(x=0\).
 \end{quote}
 
 There are a number of interesting special cases of \eqref{eq:barron} by
-selecting various values of the parameters. For \(\alpha=1\) it becomes
-Charbonnier loss, and for \(\alpha=-2\) it is Geman-McLure loss. For
-\(\alpha\rightarrow 2\) it becomes squared error loss, for
-\(\alpha\rightarrow 0\) it becomes Cauchy loss, and for
-\(\alpha\rightarrow-\infty\) it becomes Cauchy loss.
+selecting various values of the \(\alpha\) parameters. For \(\alpha=1\)
+it becomes Charbonnier loss, and for \(\alpha=-2\) it is Geman-McClure
+loss. There are also some limiting cases. For \(\alpha\rightarrow 2\)
+Barron loss becomes squared error loss, for \(\alpha\rightarrow 0\) it
+becomes Cauchy loss, and for \(\alpha\rightarrow-\infty\) it becomes
+Welsch loss.
 
-\sectionbreak
+Thus \begin{equation}
+f_{\alpha,c}(x)=\begin{cases}
+\frac{|\alpha-2|}{\alpha}\left(\left(\frac{(x/c)^2}{|\alpha-2|}+1\right)^{\alpha/2}-1\right).
+\end{cases}
+\end{equation} \sectionbreak
 
 \section{Convolution Smoothers}\label{convolution-smoothers}
 
@@ -808,27 +984,28 @@ define convolution smoothers. There is an infinite number of possible
 choices, with finite or infinite support, smooth or nonsmooth, using
 splines or wavelets, and so on. We give two quite different examples.
 
-\subsection{Huber Loss}\label{huber-loss}
+\subsection{Huber}\label{huber}
 
 Take \[
 \pi(x)=\begin{cases}\frac12 &\text{ if }|x|\leq 1,\\0&\text{ otherwise.}\end{cases}
-\] Then \[
+\] Then \begin{equation}\phantomsection\label{eq-hubera}{
 f_c(x)=\frac{1}{2c}\int_{-c}^{+c}|x-y|dy=\begin{cases}
 \frac{1}{2c}(x^2+c^2)&\text{ if }|x|\leq c,\\
 |x|&\text{ otherwise}.
 \end{cases}
-\]
+}\end{equation}
 
-The Huber function (Huber (\citeproc{ref-huber_64}{1964})) is \[
+The Huber function (Huber (\citeproc{ref-huber_64}{1964})) is
+traditionally written as \begin{equation}
 f_c(x)=\begin{cases}
 \frac12x^2&\text{ if }|x|<c,\\
 c|x|-\frac12 c^2&\text{ otherwise}.
 \end{cases}
-\]
-
-Because Charbonnier loss behaves like absolute value loss for large
-\(x\) and as squared loss for small \(x\) is also known as Pseudo-Huber
-loss.
+\end{equation} which gives the same weight function as
+Equation~\ref{eq-hubera} (up to a multiplicative constant). Because
+Charbonnier loss behaves the same way as Huber loss, as absolute value
+loss for large \(x\) and as squared loss for small \(x\), it is also
+known as Pseudo-Huber loss.
 
 The Huber function is differentiable, although not twice diffentiable.
 Its derivative is \[
@@ -840,7 +1017,8 @@ x&\text{ if }|x|\leq c,\\
 \] \[
 w(x)=
 \begin{cases}
-\hfill\frac{c}{x}&\text{ if }x\geq c,\\\hfill1&\text{ if }|x|\leq c,\\
+\hfill\frac{c}{x}&\text{ if }x\geq c,\\
+\hfill1&\text{ if }|x|\leq c,\\
 -\frac{c}{x}&\text{ if }x\leq -c.
 \end{cases}
 \] The Huber function is even and differentiable. Moreover \(f'(x)/x\)
@@ -856,9 +1034,9 @@ w_k&\text{ if }|\delta_k-d_k(Y)|<c,\\
 \end{cases}
 \]
 
-\subsection{Gaussian Convolution}\label{gaussian-convolution}
+\subsection{Gaussian}\label{gaussian}
 
-In De Leeuw (\citeproc{ref-deleeuw_E_18f}{2018}) we also discussed the
+In De Leeuw (\citeproc{ref-deleeuw_E_18f}{2018a}) we also discussed the
 convolution smoother proposed by Voronin, Ozkaya, and Yoshida
 (\citeproc{ref-voronin_ozkaya_yoshida_15}{n.d.}). The idea is to use the
 convolution of the absolute value function and a Gaussian pdf. \[
@@ -907,11 +1085,21 @@ Coleman et al.
 more modern computer implementation available, using the same eight
 weight functions, which was not limited to mainframes.
 
-We have implemented the same eight weight functions in smacofRobust,
-plus some additional ones that came out of our discussion of the power
-and convolution families. Below we give formulas for the loss function,
-the influence function, and the weight function. We also graph the loss
-function for selected values of the parameters.
+We have implemented the same eight weight functions in smacofRobust.
+Below we give formulas for the loss function, the influence function,
+and the weight function. One of the eight is Huber loss, which we
+already discussed in the convolution section. We graph the remaining
+seven loss functions for selected values of the ``tuning constants''
+\(c\).
+
+Holland and Welsch (\citeproc{ref-holland_welsch_77}{1977}), following
+Andrews et al.
+(\citeproc{ref-andrews_bickel_hampel_huber_rogers_tukey_72}{1972}),
+distnguish between ``hard redescenders'' that have an influence function
+\(f'\) equal to zero if \(x\) is large enough (Andrews, Tukey, and
+Hinich loss), ``soft redescenders'' with influence functions asymptotic
+to zero for large \(x\) (Cauchy, Welsch loss), and loss functions with a
+monotone influence function (Huber, Logistic, Fair loss)
 
 \subsection{Andrews}\label{andrews}
 
@@ -930,6 +1118,16 @@ w(x)&=\begin{cases}
 \end{cases}
 \end{align}
 
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/andrewsfig-1.pdf}
+
+}
+
+\caption{Andrews Loss}
+
+\end{figure}%
+
 \subsection{Tukey}\label{tukey}
 
 \begin{align}
@@ -947,30 +1145,67 @@ w(x)&=\begin{cases}
 \end{cases}
 \end{align}
 
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/tukeyfig-1.pdf}
+
+}
+
+\caption{Andrews Loss}
+
+\end{figure}%
+
 \subsection{Hinich}\label{hinich}
+
+\begin{align}
+f(x)&=\begin{cases}
+\frac12 x^2&\text{ if } |x|\leq c,\\
+\frac12 c^2&\text{ otherwise}.
+\end{cases}\\
+f'(x)&=\begin{cases}
+1&\text{ if } |x|\leq c,\\
+0&\text{ otherwise}.
+\end{cases}\\
+w(x)&=\begin{cases}
+1/x&\text{ if } |x|\leq c,\\
+0&\text{ otherwise}.
+\end{cases}
+\end{align}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/hinichfig-1.pdf}
+
+}
+
+\caption{Hinich Loss}
+
+\end{figure}%
 
 \subsection{Cauchy}\label{cauchy}
 
 \begin{align}
-f(x)&=\log(\{\frac{x}{c}\}^2+1),\\
-f'(x)&=\frac{1}{c^2}x\frac{1}{\{\frac{x}{c}\}^2+1},\\
-w(x)&=\frac{1}{c^2}\frac{1}{\{\frac{x}{c}\}^2+1}
+f(x)&=\frac12c^2\log(1+\{\frac{x}{c}\}^2),\\
+f'(x)&=x\frac{1}{\{1+\frac{x}{c}\}^2},\\
+w(x)&=\frac{1}{\{1+\frac{x}{c}\}^2}
 \end{align}
 
-\subsection{Fair}\label{fair}
+\begin{figure}[H]
 
-\subsection{Huber}\label{huber}
+{\centering \includegraphics{av_files/figure-pdf/cauchyfig-1.pdf}
 
-\subsection{Logistic}\label{logistic}
+}
 
-\subsection{Talwar}\label{talwar}
+\caption{Cauchy Loss}
+
+\end{figure}%
 
 \subsection{Welsch}\label{welsch}
 
 \begin{align}
-f(x)&=1-\exp(-\{\frac{x}{c}\}^2),\\
-f'(x)&=\\
-w(x)&=\frac{2}{c^2}\exp(-\{\frac{x}{c}\}^2)
+f(x)&=\frac12c^2[1-\exp(-\{\frac{x}{c}\}^2)],\\
+f'(x)&=x\exp(-\{\frac{x}{c}\}^2,\\
+w(x)&=\exp(-\{\frac{x}{c}\}^2),
 \end{align}
 
 \begin{figure}[H]
@@ -983,13 +1218,41 @@ w(x)&=\frac{2}{c^2}\exp(-\{\frac{x}{c}\}^2)
 
 \end{figure}%
 
-\$\$ which is non-increasing on \(\mathbb{R}^+\).
+\subsection{Logistic}\label{logistic}
 
-\subsection{Geman-McLure Loss}\label{geman-mclure-loss}
+\begin{align}
+f(x)&=c^2[\log(\cosh(x/c))],\\
+f'(x)&=c\tanh(x/c),\\
+w(x)&=(x/c)^{-1}\tanh(x/c).
+\end{align}
 
-\[
-f_c(x)=\frac{2(x/c)^2}{(x/c)^2+4}.
-\]
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/logisticfig-1.pdf}
+
+}
+
+\caption{Logistic Loss}
+
+\end{figure}%
+
+\subsection{Fair}\label{fair}
+
+\begin{align}
+f(x)&=c^2\{|x|/c-\log(1+|x|/c)\},\\
+f'(x)&=x(1+(|x|/c))^{-1},\\
+w(x)&=(1+(|x|/c))^{-1}.
+\end{align}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{av_files/figure-pdf/fairfig-1.pdf}
+
+}
+
+\caption{Fair Loss}
+
+\end{figure}%
 
 \sectionbreak
 
@@ -1098,8 +1361,8 @@ beneficial in this case.
 
 \subsubsection{Least Absolute Value}\label{least-absolute-value}
 
-For our least absolute value smacof we use engine smacofAV with
-\(c=.001\). We have convergence in 637 iterations.
+For our LAV smacof we use engine smacofAV with \(c=.001\). We have
+convergence in 637 iterations.
 
 \begin{figure}[H]
 
@@ -1127,12 +1390,12 @@ configurations have \((n-1)+(n-2)=2n-3\) degrees of freedom, which is 15
 in this case. Thus if we take the 15 dissimilarities which are fitted
 exactly, give them weight one, give all other 21 dissimilarities weight
 zero, and do a smacof analysis using these weights, then we will have
-perfect fit in two dimensions, and the solution will be the least
-absolute value solution. All this is easier said than done, because it
-presumes Charbonnier loss with \(c=0\) and the ability to decide what
-exact equality is. It also shows the possibility of a huge number of
-local minima in the least absolute value case, because there are so many
-ways to pick 15 out of 36 dissimilarities.
+perfect fit in two dimensions, and the solution will be the LAV
+solution. All this is easier said than done, because it presumes
+Charbonnier loss with \(c=0\) and the ability to decide what exact
+equality is. It also shows the possibility of a huge number of local
+minima in the LAV case, because there are so many ways to pick 15 out of
+36 dissimilarities.
 
 \begin{figure}[H]
 
@@ -1485,7 +1748,7 @@ functions.
 \NormalTok{\}}
 
 \NormalTok{smacofTorgerson }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(delta, ndim) \{}
-\NormalTok{  dd }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{\^{}} \DecValTok{2}
+\NormalTok{  dd }\OtherTok{\textless{}{-}}\NormalTok{ delta}\SpecialCharTok{\^{}}\DecValTok{2}
 \NormalTok{  rd }\OtherTok{\textless{}{-}} \FunctionTok{apply}\NormalTok{(dd, }\DecValTok{1}\NormalTok{, mean)}
 \NormalTok{  md }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(dd)}
 \NormalTok{  sd }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{.}\DecValTok{5} \SpecialCharTok{*}\NormalTok{ (dd }\SpecialCharTok{{-}} \FunctionTok{outer}\NormalTok{(rd, rd, }\StringTok{"+"}\NormalTok{) }\SpecialCharTok{+}\NormalTok{ md)}
@@ -1494,20 +1757,28 @@ functions.
 \NormalTok{\}}
 
 \NormalTok{smacofAV }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
-\NormalTok{  resi }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{((delta }\SpecialCharTok{{-}}\NormalTok{ dmat) }\SpecialCharTok{\^{}} \DecValTok{2} \SpecialCharTok{+}\NormalTok{ cons)}
+\NormalTok{  resi }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{((delta }\SpecialCharTok{{-}}\NormalTok{ dmat)}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{+}\NormalTok{ cons)}
 \NormalTok{  resi }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(resi }\SpecialCharTok{\textless{}} \FloatTok{1e{-}10}\NormalTok{, }\DecValTok{2} \SpecialCharTok{*} \FunctionTok{max}\NormalTok{(wmat), resi)}
 \NormalTok{  rmin }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{(cons)}
 \NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{/}\NormalTok{ (resi }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}
 \NormalTok{  strs }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wmat }\SpecialCharTok{*}\NormalTok{ resi) }\SpecialCharTok{{-}}\NormalTok{ rmin }\SpecialCharTok{*} \FunctionTok{sum}\NormalTok{(wmat)}
-  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{resi =}\NormalTok{ resi, }\AttributeTok{wght =}\NormalTok{ wght, }\AttributeTok{strs =}\NormalTok{ strs))}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{resi =}\NormalTok{ resi,}
+    \AttributeTok{wght =}\NormalTok{ wght,}
+    \AttributeTok{strs =}\NormalTok{ strs}
+\NormalTok{  ))}
 \NormalTok{\}}
 
 \NormalTok{smacofLP }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
-\NormalTok{  resi }\OtherTok{\textless{}{-}}\NormalTok{ ((delta }\SpecialCharTok{{-}}\NormalTok{ dmat) }\SpecialCharTok{\^{}} \DecValTok{2} \SpecialCharTok{+}\NormalTok{ cons[}\DecValTok{1}\NormalTok{]) }\SpecialCharTok{\^{}}\NormalTok{ cons[}\DecValTok{2}\NormalTok{]}
-\NormalTok{  rmin }\OtherTok{\textless{}{-}}\NormalTok{ cons[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\^{}}\NormalTok{ cons[}\DecValTok{2}\NormalTok{]}
-\NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{*}\NormalTok{ ((delta }\SpecialCharTok{{-}}\NormalTok{ dmat) }\SpecialCharTok{\^{}} \DecValTok{2} \SpecialCharTok{+}\NormalTok{ cons[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj)) }\SpecialCharTok{\^{}}\NormalTok{ (cons[}\DecValTok{2}\NormalTok{] }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)}
+\NormalTok{  resi }\OtherTok{\textless{}{-}}\NormalTok{ ((delta }\SpecialCharTok{{-}}\NormalTok{ dmat)}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{+}\NormalTok{ cons[}\DecValTok{1}\NormalTok{])}\SpecialCharTok{\^{}}\NormalTok{cons[}\DecValTok{2}\NormalTok{]}
+\NormalTok{  rmin }\OtherTok{\textless{}{-}}\NormalTok{ cons[}\DecValTok{1}\NormalTok{]}\SpecialCharTok{\^{}}\NormalTok{cons[}\DecValTok{2}\NormalTok{]}
+\NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{*}\NormalTok{ ((delta }\SpecialCharTok{{-}}\NormalTok{ dmat)}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{+}\NormalTok{ cons[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}\SpecialCharTok{\^{}}\NormalTok{(cons[}\DecValTok{2}\NormalTok{] }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)}
 \NormalTok{  strs }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wmat }\SpecialCharTok{*}\NormalTok{ resi) }\SpecialCharTok{{-}}\NormalTok{ rmin }\SpecialCharTok{*} \FunctionTok{sum}\NormalTok{(wmat)}
-  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{resi =}\NormalTok{ resi, }\AttributeTok{wght =}\NormalTok{ wght, }\AttributeTok{strs =}\NormalTok{ strs))}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{resi =}\NormalTok{ resi,}
+    \AttributeTok{wght =}\NormalTok{ wght,}
+    \AttributeTok{strs =}\NormalTok{ strs}
+\NormalTok{  ))}
 \NormalTok{\}}
 
 \NormalTok{smacofConvolution }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
@@ -1516,43 +1787,112 @@ functions.
 \NormalTok{  rmin }\OtherTok{\textless{}{-}} \DecValTok{2} \SpecialCharTok{*}\NormalTok{ cons }\SpecialCharTok{*} \FunctionTok{dnorm}\NormalTok{(}\DecValTok{0}\NormalTok{)}
 \NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{*}\NormalTok{ (}\FunctionTok{pnorm}\NormalTok{(difi }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{{-}} \FloatTok{0.5}\NormalTok{) }\SpecialCharTok{/}\NormalTok{ (difi }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj))}
 \NormalTok{  strs }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wmat }\SpecialCharTok{*}\NormalTok{ resi) }\SpecialCharTok{{-}}\NormalTok{ rmin }\SpecialCharTok{*} \FunctionTok{sum}\NormalTok{(wmat)}
-  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{resi =}\NormalTok{ resi, }\AttributeTok{wght =}\NormalTok{ wght, }\AttributeTok{strs =}\NormalTok{ strs))}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{resi =}\NormalTok{ resi,}
+    \AttributeTok{wght =}\NormalTok{ wght,}
+    \AttributeTok{strs =}\NormalTok{ strs}
+\NormalTok{  ))}
 \NormalTok{\}}
 
 \NormalTok{smacofHuber }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
 \NormalTok{  difi }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{{-}}\NormalTok{ dmat}
-\NormalTok{  resi }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{\textless{}}\NormalTok{ cons, (difi }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{2}\NormalTok{, cons }\SpecialCharTok{*} \FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{{-}}\NormalTok{ ((cons }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{2}\NormalTok{))}
-\NormalTok{  wght }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{\textless{}}\NormalTok{ cons, wmat,}
+\NormalTok{  resi }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{\textless{}}\NormalTok{ cons, (difi}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{2}\NormalTok{, cons }\SpecialCharTok{*} \FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{{-}}\NormalTok{ ((cons}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{2}\NormalTok{))}
+\NormalTok{  wght }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{\textless{}}\NormalTok{ cons,}
+\NormalTok{                 wmat,}
 \NormalTok{                 wmat }\SpecialCharTok{*} \FunctionTok{sign}\NormalTok{(difi }\SpecialCharTok{{-}}\NormalTok{ cons) }\SpecialCharTok{*}\NormalTok{ cons }\SpecialCharTok{/}\NormalTok{ (difi }\SpecialCharTok{+} \FunctionTok{diag}\NormalTok{(nobj)))}
 \NormalTok{  strs }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wmat }\SpecialCharTok{*}\NormalTok{ resi)}
-  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{resi =}\NormalTok{ resi, }\AttributeTok{wght =}\NormalTok{ wght, }\AttributeTok{strs =}\NormalTok{ strs))}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{resi =}\NormalTok{ resi,}
+    \AttributeTok{wght =}\NormalTok{ wght,}
+    \AttributeTok{strs =}\NormalTok{ strs}
+\NormalTok{  ))}
 \NormalTok{\}}
 
 \NormalTok{smacofTukey }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
-\NormalTok{  cans }\OtherTok{\textless{}{-}}\NormalTok{ (cons }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{6}
+\NormalTok{  cans }\OtherTok{\textless{}{-}}\NormalTok{ (cons}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{6}
 \NormalTok{  difi }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{{-}}\NormalTok{ dmat}
-\NormalTok{  resi }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{\textless{}}\NormalTok{ cons,}
-\NormalTok{                 cans }\SpecialCharTok{*}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ (difi }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{\^{}} \DecValTok{3}\NormalTok{), cans)}
-\NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{*} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{\textless{}}\NormalTok{ cons,}
-\NormalTok{                 (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ (difi }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+\NormalTok{  resi }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{\textless{}}\NormalTok{ cons, cans }\SpecialCharTok{*}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ (difi }\SpecialCharTok{/}\NormalTok{ cons)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{\^{}}\DecValTok{3}\NormalTok{), cans)}
+\NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{*} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{\textless{}}\NormalTok{ cons, (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ (difi }\SpecialCharTok{/}\NormalTok{ cons)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{, }\DecValTok{0}\NormalTok{)}
 \NormalTok{  strs }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wmat }\SpecialCharTok{*}\NormalTok{ resi)}
-  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{resi =}\NormalTok{ resi, }\AttributeTok{wght =}\NormalTok{ wght, }\AttributeTok{strs =}\NormalTok{ strs))}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{resi =}\NormalTok{ resi,}
+    \AttributeTok{wght =}\NormalTok{ wght,}
+    \AttributeTok{strs =}\NormalTok{ strs}
+\NormalTok{  ))}
 \NormalTok{\}}
 
 \NormalTok{smacofCauchy }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
 \NormalTok{  difi }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{{-}}\NormalTok{ dmat}
-\NormalTok{  resi }\OtherTok{\textless{}{-}} \FunctionTok{log}\NormalTok{((difi }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2} \SpecialCharTok{+} \DecValTok{1}\NormalTok{)}
-\NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{*}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{/}\NormalTok{ ((difi }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2} \SpecialCharTok{+} \DecValTok{1}\NormalTok{))}
+\NormalTok{  resi }\OtherTok{\textless{}{-}} \FunctionTok{log}\NormalTok{((difi }\SpecialCharTok{/}\NormalTok{ cons)}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{+} \DecValTok{1}\NormalTok{)}
+\NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{*}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{/}\NormalTok{ ((difi }\SpecialCharTok{/}\NormalTok{ cons)}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{+} \DecValTok{1}\NormalTok{))}
 \NormalTok{  strs }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wmat }\SpecialCharTok{*}\NormalTok{ resi)}
-  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{resi =}\NormalTok{ resi, }\AttributeTok{wght =}\NormalTok{ wght, }\AttributeTok{strs =}\NormalTok{ strs))}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{resi =}\NormalTok{ resi,}
+    \AttributeTok{wght =}\NormalTok{ wght,}
+    \AttributeTok{strs =}\NormalTok{ strs}
+\NormalTok{  ))}
 \NormalTok{\}}
 
 \NormalTok{smacofWelsch }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
 \NormalTok{  difi }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{{-}}\NormalTok{ dmat}
-\NormalTok{  resi }\OtherTok{\textless{}{-}} \DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{exp}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{(difi }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
-\NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{*} \FunctionTok{exp}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{(difi }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{)}
+\NormalTok{  resi }\OtherTok{\textless{}{-}} \DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{exp}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{(difi }\SpecialCharTok{/}\NormalTok{ cons)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
+\NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{*} \FunctionTok{exp}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{(difi }\SpecialCharTok{/}\NormalTok{ cons)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
 \NormalTok{  strs }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wmat }\SpecialCharTok{*}\NormalTok{ resi)}
-  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{resi =}\NormalTok{ resi, }\AttributeTok{wght =}\NormalTok{ wght, }\AttributeTok{strs =}\NormalTok{ strs))}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{resi =}\NormalTok{ resi,}
+    \AttributeTok{wght =}\NormalTok{ wght,}
+    \AttributeTok{strs =}\NormalTok{ strs}
+\NormalTok{  ))}
+\NormalTok{\}}
+
+\NormalTok{smacofAndrews }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
+\NormalTok{  difi }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{{-}}\NormalTok{ dmat}
+\NormalTok{  resi }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{\textless{}}\NormalTok{ pi }\SpecialCharTok{*}\NormalTok{ cons, }
+\NormalTok{                 (cons }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{*}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{cos}\NormalTok{(x }\SpecialCharTok{/}\NormalTok{ cons)), }
+                 \DecValTok{2} \SpecialCharTok{*}\NormalTok{ (cons}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{))}
+\NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{*} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{\textless{}}\NormalTok{ pi }\SpecialCharTok{*}\NormalTok{ cons, }\FunctionTok{sin}\NormalTok{(x }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{/}\NormalTok{ (x }\SpecialCharTok{/}\NormalTok{ cons), }\DecValTok{0}\NormalTok{)}
+\NormalTok{  strs }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wmat }\SpecialCharTok{*}\NormalTok{ resi)}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{resi =}\NormalTok{ resi,}
+    \AttributeTok{wght =}\NormalTok{ wght,}
+    \AttributeTok{strs =}\NormalTok{ strs}
+\NormalTok{  ))}
+\NormalTok{\}}
+
+\NormalTok{smacofHinich }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
+\NormalTok{  difi }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{{-}}\NormalTok{ dmat}
+\NormalTok{  resi }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{\textless{}}\NormalTok{ cons, (difi}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{2}\NormalTok{, (cons}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }\SpecialCharTok{/} \DecValTok{2}\NormalTok{)}
+\NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{*} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{abs}\NormalTok{(difi) }\SpecialCharTok{\textless{}}\NormalTok{ cons, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+\NormalTok{  strs }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wmat }\SpecialCharTok{*}\NormalTok{ resi)}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{resi =}\NormalTok{ resi,}
+    \AttributeTok{wght =}\NormalTok{ wght,}
+    \AttributeTok{strs =}\NormalTok{ strs}
+\NormalTok{  ))}
+\NormalTok{\}}
+
+\NormalTok{smacofLogistic }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
+\NormalTok{  difi }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{{-}}\NormalTok{ dmat}
+\NormalTok{  resi }\OtherTok{\textless{}{-}}\NormalTok{ (cons }\SpecialCharTok{\^{}} \DecValTok{2}\NormalTok{) }\SpecialCharTok{*} \FunctionTok{log}\NormalTok{(}\FunctionTok{cosh}\NormalTok{(x }\SpecialCharTok{/}\NormalTok{ cons))}
+\NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{*} \FunctionTok{tanh}\NormalTok{(x }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{/}\NormalTok{ (x }\SpecialCharTok{/}\NormalTok{ cons)}
+\NormalTok{  strs }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wmat }\SpecialCharTok{*}\NormalTok{ resi)}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{resi =}\NormalTok{ resi,}
+    \AttributeTok{wght =}\NormalTok{ wght,}
+    \AttributeTok{strs =}\NormalTok{ strs}
+\NormalTok{  ))}
+\NormalTok{\}}
+
+\NormalTok{smacofFair }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(nobj, wmat, delta, dmat, cons) \{}
+\NormalTok{  difi }\OtherTok{\textless{}{-}}\NormalTok{ delta }\SpecialCharTok{{-}}\NormalTok{ dmat}
+\NormalTok{  resi }\OtherTok{\textless{}{-}} \FunctionTok{log}\NormalTok{((difi }\SpecialCharTok{/}\NormalTok{ cons)}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{+} \DecValTok{1}\NormalTok{)}
+\NormalTok{  wght }\OtherTok{\textless{}{-}}\NormalTok{ wmat }\SpecialCharTok{*}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{/}\NormalTok{ ((difi }\SpecialCharTok{/}\NormalTok{ cons) }\SpecialCharTok{\^{}} \DecValTok{2} \SpecialCharTok{+} \DecValTok{1}\NormalTok{))}
+\NormalTok{  strs }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(wmat }\SpecialCharTok{*}\NormalTok{ resi)}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}
+    \AttributeTok{resi =}\NormalTok{ resi,}
+    \AttributeTok{wght =}\NormalTok{ wght,}
+    \AttributeTok{strs =}\NormalTok{ strs}
+\NormalTok{  ))}
 \NormalTok{\}}
 \end{Highlighting}
 \end{Shaded}
@@ -1579,9 +1919,22 @@ In \emph{Proceedings 2019 IEEE/CVF Conferehce on Computer Vision and
 Pattern Recognition}, 4331--39.
 \url{https://openaccess.thecvf.com/content_CVPR_2019/papers/Barron_A_General_and_Adaptive_Robust_Loss_Function_CVPR_2019_paper.pdf}.
 
+\bibitem[\citeproctext]{ref-bourbaki_76}
+Bourbaki, N. 1976. \emph{Fonctions d'une Variable r{é}elle}. Hermann.
+
+\bibitem[\citeproctext]{ref-bourbaki_04}
+---------. 2004. \emph{Functions of a Real Variable: Elementary Theory}.
+Springer. \url{https://doi.org/10.1007/978-3-642-59315-4e-}.
+
 \bibitem[\citeproctext]{ref-candes_tao_05}
 Candes, E. J., and T. Tao. 2005. {``Decoding by Linear Programming.''}
 \emph{IEEE Transactions on Information Theory} 51 (12): 4203--15.
+
+\bibitem[\citeproctext]{ref-candes_wakin_boyd_08}
+Candes, E. J., M. B. Wakin, and S. P. Boyd. 2008. {``Enhancing Sparsity
+by Reweighted l\_1 Minimization.''} \emph{Journal of Fourier Analysis
+and Applications} 14: 877--905.
+\url{https://doi.org/10.1007/s00041-008-9045-x}.
 
 \bibitem[\citeproctext]{ref-charbonnier_blanc-feraud_aubert_barlaud_94}
 Charbonnier, P., L. Blanc-Feraud, G. Aubert, and M. Barlaud. 1994.
@@ -1612,9 +1965,13 @@ Lenski, and M. M. Richter, 308--24. Berlin: Springer Verlag.
 \url{https://jansweb.netlify.app/publication/deleeuw-c-94-c/deleeuw-c-94-c.pdf}.
 
 \bibitem[\citeproctext]{ref-deleeuw_E_18f}
----------. 2018. {``{MM Algorithms for Smoothed Absolute Values}.''}
+---------. 2018a. {``{MM Algorithms for Smoothed Absolute Values}.''}
 2018.
 \url{https://jansweb.netlify.app/publication/deleeuw-e-18-f/deleeuw-e-18-f.pdf}.
+
+\bibitem[\citeproctext]{ref-deleeuw_E_18i}
+---------. 2018b. {``{Univariate Fans of Majorizers}.''} 2018.
+\url{https://jansweb.netlify.app/publication/deleeuw-e-18-i/deleeuw-e-18-i.pdf}.
 
 \bibitem[\citeproctext]{ref-deleeuw_E_20b}
 ---------. 2020. {``{Least Squares Absolute Value Regression}.''} 2020.
@@ -1629,6 +1986,10 @@ Using Majorization}.''} 2016.
 De Leeuw, J., and K. Lange. 2009. {``Sharp Quadratic Majorization in One
 Dimension.''} \emph{Computational Statistics and Data Analysis} 53:
 2471--84.
+
+\bibitem[\citeproctext]{ref-dieudonne_69}
+Dieudonné, J. 1969. \emph{Foundations of Modern Analysis}. Academic
+Press.
 
 \bibitem[\citeproctext]{ref-donoho_elad_03}
 Donoho, D. L., and M. Elad. 2003. {``Optimally Sparse Representation in
@@ -1687,6 +2048,11 @@ Algorithm.''} \emph{Statistics and Computing} 12: 281--85.
 \bibitem[\citeproctext]{ref-pliner_96}
 Pliner, V. 1996. {``{Metric Unidimensional Scaling and Global
 Optimization}.''} \emph{Journal of Classification} 13: 3--18.
+
+\bibitem[\citeproctext]{ref-r_core_team_24}
+R Core Team. 2024. \emph{R: A Language and Environment for Statistical
+Computing}. {Vienna, Austria}: R Foundation for Statistical Computing.
+\url{https://www.R-project.org/}.
 
 \bibitem[\citeproctext]{ref-ramirez_sanchez_kreinovich_argaez_14}
 Ramirez, C., R. Sanchez, V. Kreinovich, and M. Argaez. 2014.

@@ -120,12 +120,13 @@ source("smacofRobust.R")
 
 # Introduction
 
-The title of this paper seems something paradoxical. Least squares estimation
-is typically not robust, it is sensitive to outliers and pays a lot of attention to fitting the larger observations. What we mean by robust least squares MDS, however, is using the smacof machinery designed to minimize loss of the form
+The title of this paper is something paradoxical. Least squares estimation
+is typically not robust, it is sensitive to outliers and pays a lot of attention to fitting the larger observations. What we mean by robust least squares MDS, however, is using the smacof machinery designed to minimize least squares loss functions of the form
 \begin{equation}
 \sigma_2(X):=\sum w_k(\delta_k-d_k(X))^2\label{eq:stressdef},
 \end{equation}
 to minimize robust loss functions. The prototypical robust loss function is 
+least absolute value loss
 \begin{equation}
 \sigma_1(X):=\sum w_k|\delta_k-d_k(X)|\label{eq:stradddef},
 \end{equation}
@@ -156,36 +157,43 @@ stay as close to the absolute value function as possible.
 
 Our robust or smooth loss functions are all of the form
 \begin{equation}
-\sigma(X):=\sum w_k\ f(\delta_k-d_k(X))\label{eq:strifedef},
+\sigma(X):=\sum w_k\ f_c(\delta_k-d_k(X))\label{eq:strifedef},
 \end{equation}
 for a suitable choice of the real valued function $f$. We will
-define what we mean by "suitable" later on. For now, note that loss
-\eqref{eq:stressdef} is the special case with $f(x)=x^2$ and loss \eqref{eq:stradddef} 
-is the special case with $f(x)=|x|$. 
+define what we mean by "suitable" later on. The subscript $c$
+of $f_c$ is meant to indicate that the loss function may depend
+on one or more real-valued tuning parameters $c$ that regulate the degree
+of smoothness and/or robustness. For now, note that loss
+\eqref{eq:stressdef} is the special case with $f_c(x)=x^2$ and loss \eqref{eq:stradddef}is the special case with $f_c(x)=|x|$. There is no tuning in both these cases.
 
 \sectionbreak
 
-# Majorizing Strife
+# Majorizing Strife {#sec-majorization}
 
-The pioneering work in strife minimization using smacof is @heiser_88, building on earlier work in @heiser_87. It is based on a creative use of the Arithmetic Mean-Geometric Mean (AM/GM) inequality to find a majorizer of the absolute
+The idea of minimizing a least absolute value (LAV) to obtain parameter estimates dates back to the work of Boskovitch in the middle of the
+eighteenth century. Until recently it has been applied mainly to fit
+linear models, so that we can actually use standard linear programming
+algorithms to obtain optimal solutions.
+
+The pioneering work in strife minimization in MDS using smacof is @heiser_88, building on earlier work in @heiser_87. It is based on a creative use of the Arithmetic Mean-Geometric Mean (AM/GM) inequality to find a majorizer of the absolute
 value function. For the general theory of majorization algorithms (now more commonly known as MM algorithms) we refer to their original introduction in @deleeuw_C_94c and to the excellent book by @lange_16.
 
 The AM/GM inequality says that for all non-negative $x$ and $y$ we have 
 \begin{equation}
 |x||y|=\sqrt{x^2y^2}\leq\frac12(x^2+y^2),\label{eq:amgm}
 \end{equation}
-with equality if and only if $x=y$. If $y>0$ we can write \eqref{eq:amgm} as
+with equality if and only if $x^2=y^2$. If $y>0$ we can write \eqref{eq:amgm} as
 \begin{equation}
 |x|\leq\frac12\frac{1}{|y|}(x^2+y^2),\label{eq:amgmmaj}
 \end{equation}
 and this provides a quadratic majorization of $|x|$ at $y$. There is no quadratic
-majorization of $|x|$ at $y=0$, which is a nuisance we must deal with.
+majorization of $|x|$ at $y=0$, which is a nuisance we will have to deal with.
 
-Using the majorization \eqref{eq:amgmmaj}, and assuming $\delta_k\not= d_k(Y)$ for all $k$, we define
+Using the majorization \eqref{eq:amgmmaj}, and assuming $\delta_k\not=d_k(Y)$ for all $k$, we define
 \begin{equation}
 \omega_1(X):=\frac12\sum w_k\frac{1}{|\delta_k-d_k(Y)|}((\delta_k-d_k(Y))^2+(\delta_k-d_k(X))^2).\label{eq:omegadef}
 \end{equation}
-Now $\sigma_1(X)\leq\omega_1(X)$ for all $X$ and $\sigma_1(Y)=\omega_1(Y)$. Thus
+Now $\sigma_1(X)\leq\omega_1(X)$ for all $X$ and $\sigma_1(Y)=\omega_1(Y)$, and thus
 $\omega_1$ majorizes $\sigma_1$ at $Y$.
 
 ## Algorithm 
@@ -214,7 +222,7 @@ loss usually satisfies $d_k(X)=\delta_k$ for quite a few elements,
 which means that near convergence the algorithm will become unstable
 because the weights from \eqref{eq:wk1def} become very large. 
 
-A large number of somewhat ad-hoc solutions have been proposed to deal with the problem of zero residuals, both in location analysis and in the statistical literature. We tend to agree with @aftab_hartley_15.
+A large number of somewhat ad-hoc solutions have been proposed to deal with the problem of zero residuals, both in location analysis and in the statistical literature. We tend to agree with the assessment of @aftab_hartley_15.
 
 > .. attempts to analyze this difficulty [caused by infinite weights of IRLS for the $\ell_p$-loss] have a long history of proofs and counterexamples to incorrect claims.
 
@@ -223,9 +231,9 @@ less than some small positive value $\epsilon$. A similar approach, also used in
 In @heiser_88 all residuals smaller than this epsilon get a weight equal to the weighted average of all these small residuals. @phillips_02 assumes double-exponential
 errors in LAV regression and then concludes that the EM algorithm gives the 
 majorization method we have discussed. He uses \eqref{eq:wk1def} throughout if all residuals are larger than $\epsilon$. If one of more residuals are smaller than epsilon then the weight for those residuals is set equal to one, while for the remaining residuals the weight is set to epsilon divided by the absolute value of the
-residual. Often we get the assurance that the problem is not really important in practice, because it is very rare, and by just wiggling we will get to the unique solution anyway. But both in location analysis and in 
-LAV regression the loss function is convex, while this is certainly not the case in robust MDS. In this paper we try to follow a more systematic approach that uses smooth approximations to the absolute value function.
-
+residual. Often we get the assurance in these papers that the problem is not really important in practice, because it is very rare, and by just wiggling we will get to the unique solution anyway. But both in location analysis and in 
+LAV regression the loss function is convex, however, which guarantees a unique minimum. This is certainly not the case in robust MDS. In this paper we try to follow a more systematic approach that uses smooth parametric approximations to the absolute value function, where the parameter can be used to make the 
+approximation as precise as necessary.
 
 To illustrate the problems with differentiability we compute the directional derivatives of strife. 
 
@@ -273,12 +281,14 @@ f(x)=\begin{cases}
 $$
 This is $\ell_0$ loss. Minimizing $\ell_0$ loss means maximizing the number 
 of cases with perfect fit, i.e. with $\delta_k=d_k(X)$. The reason we
-mention it here is that the work of @donoho_elad_03 and @candes_tao_05   suggests that the minimizer of $\ell_1$ loss, i.e. absolute value loss, gives a good
-approximation to the minimizer of $\ell_0$ loss, at least in a number of
+mention it here is that the work of @donoho_elad_03 and @candes_tao_05   suggests that the minimizer of $\ell_1$ loss, i.e. absolute value loss, gives a good approximation to the minimizer of $\ell_0$ loss, at least in a number of
 special cases. In MDS we do not have linearity or convexity, but nevertheless
-the reulsr are suggestive. By computing the directional derivatives we have
+the results are suggestive. By computing the directional derivatives we have
 seen that at least in the one-dimensional MDS case a number of residuals
 will indeed be zero at the optimum LAV solution.
+
+There is an excellent review of the use of $\ell_1$ in various sparse recovery fields in @candes_wakin_boyd_08. In that paper they also propose an iteratively
+reweighted LAV algorithm, which solves $\ell_1$ problems between weight updates. Maybe because of that they go so far as calling $\ell_1$ "the modern least squares". But let's not get carried away, in actual ease and frequency of use $\ell_1$ still has a long way to go if it wants to replace $\ell_2$.
 
 \sectionbreak
 
@@ -286,17 +296,27 @@ will indeed be zero at the optimum LAV solution.
 
 We have seen that @heiser_88 applied majorization to minimize strife, using the AM/GM inequality. We now generalize this approach so that it can easily deal with other robust loss functions. A great number of loss functions will appear
 below. The intention is not to confuse the reader by requiring them to choose
-from impossibly large number of alternatives with rather limited information. We show all these loss functions as examples of the general principle of algorithm construction and as examples of loss functions that have been used in
+from this large number of alternatives with rather limited information. We show all these loss functions as examples of the general principle of algorithm construction and as examples of loss functions that have been used in
 statistics, location analysis, image analysis and engineering over the years.
-They are all implemented in our software smacofRobust.R.
+They are all implemented in the function smacofRobust(), written in R (@r_core_team_24).
 
 ## Majorization
 
-First some definitions. A function $g$ *majorizes* a function $f$ at $y$ if $g(x)\geq f(x)$ for all $x$ and $g(y)=f(y)$. The AM/GM inequality was used in the previous section to construct a quadratic majorization of strife. Majorization is *strict* if $g(x)>f(x)$ for all $x\not= y$. If $\mathfrak{H}$ is a family of functions that all majorize $f$ at $y$ then $h\in\mathfrak{H}$ is a *sharp majorization* if $h(x)\leq g(x)$ for all $g\in\mathfrak{H}$. The sharp majorization is by definition unique.
+First some definitions. 
 
-We are specifically interested in this paper in sharp quadratic majorization, in
+::: {#def-majorize}
+A function $g$ *majorizes* a function $f$ at $y$ if $g(x)\geq f(x)$ for all $x$ and $g(y)=f(y)$. Majorization is *strict* if $g(x)>f(x)$ for all $x\not= y$.
+:::
+ 
+::: {#def-sharp}
+If $\mathfrak{H}$ is a family of functions that all majorize $f$ at $y$ then $h\in\mathfrak{H}$ is a *sharp majorization* in $\mathfrak{H}$ if $h(x)\leq g(x)$ for all $g\in\mathfrak{H}$. The sharp majorization is by definition unique.
+:::
+
+### Sharp Quadratic Majorization
+
+The AM/GM inequality was used in @sec-majorization to construct a quadratic majorization of strife. In this section we are specifically interested in this paper in sharp quadratic majorization, in
 which $\mathfrak{H}$ is the set of all convex quadratics that majorize $f$ at $y$.
-This case has been studied in detail (in the case of real-valued functions on the line) by @deleeuw_lange_A_09. Their Theorems 4.5 and 4.6 on pages 2478-2479 says
+This case has been studied in detail (in the case of real-valued functions on the line) by @deleeuw_lange_A_09. Their Theorems 4.5 and 4.6 on pages 2478-2479 say
 
 ::: {#thm-wght}
 Suppose $f(x)$ is an even, differentiable function on $\mathbb{R}$ such that the ratio 
@@ -309,13 +329,55 @@ is a sharp quadratic majorizer of $f$ at the point $y$.
 
 ::: {#thm-sqrt} 
 The ratio $f'(x)/x$ is decreasing on $(0,\infty)$ if and only 
-$f(\sqrt(x))$ is concave. The set of functions satisfying this condition is closed under the formation of (a) positive multiples, (b) convex combinations, (c) limits, and (d) composition with a concave increasing function $g(x)$.
+$f(\sqrt{x})$ is concave. The set of functions satisfying this condition is closed under the formation of (a) positive multiples, (b) convex combinations, (c) limits, and (d) composition with a concave increasing function $g(x)$.
 :::
 
 Note that these theorems give a sufficient condition for quadratic
-majorization (in fact, for sharp quadratic majorization) and not a necessary one.
-Quadratic majorization may still be possible if the conditions in the theorem
-are violated (see discussion).
+majorization (in fact, for sharp quadratic majorization) and not a necessary one. Quadratic majorization may still be possible if the conditions in the theorem are violated.
+
+We can get a considerable more general version of theorem @thm-wght by using
+the framework for real analysis in @bourbaki_76, @bourbaki_04 (cf also
+@dieudonne_69, sections 7.6 and 8.7).
+
+::: {#def-regulated}
+A real-valued function on a closed interval $[a,b]$ is *regulated* if it has a limit from the right on $[a,b)$ and a limit from the left on $(a,b]$.
+:::
+
+Note that the end-points of the interval can be $\pm\infty$. Regulated functions have limits from the right and the left at every
+point in the interior of $(a,b)$. They can only have discontinuities of the first kind (jump discontinuities). Step functions, monotone functions, and continuous functions are all regulated functions. An alternative definition is that regulated functions are limits of sequences of step functions, where the convergence is uniform on compact sets. 
+
+::: {#def-primitive}
+A real-valued function $f$ on $[a,b]$ is a *primitive* of a real-valued function $g$ on $[a,b]$ if $f$ is differentiable with $f'(x)=g(x)$, except possibly at a denumerable number of points.
+:::
+
+A regulated function has at least one primitive, and primitives are unique
+up to addition of a constant function. The primitive $f$ of a continuous function $g$ is differentiable everywhere, with $f'(x)=g(x)$.
+
+::: {#def-integral}
+The *integral* of a regulated function $f$ on $[a,b]$, written as $\int_a^b f(x)dx$, is equal to $g(b)-g(a)$, where $g$ is one of the primitives of $f$.
+:::
+
+::: {#thm-dll}
+Suppose $g$ is a regulated function on $[a,b]$ and $f$ is one of its primitives. Define $h(z):=g(z)/z$ if $z\not= 0$ and $h(0)=0$.
+Assume $h(z)\geq A$ on $[a,b]$. Then for all $x,y$ in $[a,b]$ we have the quadratic majorization 
+$$
+f(x)\leq f(y)+\frac12 A(x^2-y^2)
+$${#eq-amajor1}
+of $f$ at $y$.
+:::
+::: {.proof}
+$f(y)-f(x)=\int_x^y g(z)dz=\int_x^yh(z)zdz\leq \frac12A(y^2-x^2)$.
+:::
+
+::: {#cor-dcor}
+Suppose $g$ is a regulated function on $[a,y]$ and $f$ is one of its primitives. Define $h(z):=g(z)/z$ if $z\not= 0$ and $h(0)=0$ and assume $h$ is non-increasing on $[a,y]$. Then
+we have the quadratic majorization
+$$f(x)\leq f(y)+\frac12h(y)(x^2-y^2).$${#eq-amajor}
+of $f$ at $y$.
+:::
+
+Suppose $g$ is the sign function, which is obviously regulated, and 
+$f$ is the absolute value function, a primitive of $g$. Then
 
 We now apply @thm-wght to functions of the form
 \begin{equation}
@@ -327,7 +389,52 @@ where $f$ satisfies the conditions in the theorem. If
 \end{equation}
 then $\omega_f$ is a sharp quadratic majorization at $Y$.
 
-Although the absolute value is not differentiable at the origin the theorem can still be applied (@vanruitenburg_05). It just does not give a majorizer at $y=0$. 
+### Two-point Quadratic Majorization
+
+Sometimes sharp quadratic majorizations can be found by using the results 
+by @vanruitenburg_05 on quadratic majorization with two (or more) support
+points. We generalize his results by introducing the concept of a majorizing fan (@deleeuw_E_18i).
+
+::: {#def-fan}
+A majorizing fan $\mathfrak{G}$ of $f$ at $y$ is a set of functions that
+majorize $f$ at $y$ and that have the property that for each pair
+of functions in $\mathfrak{G}$ one of them strictly majorizes the
+other. 
+:::
+
+Note that we do not assume differentiability of $f$, or even continuity.
+Examples of fans are in @deleeuw_E_18i.
+
+::: {#lem-first}
+Suppose $g,h$ are in a majorizing fan of $f$ at $y$. 
+Suppose, in addition, that $g$ majorizes $f$ at $z\not=y$
+and $h$ majorizes $f$ at $v\not= y$. Then $g=h$. 
+:::
+::: {.proof}
+For if $g\not= h$ there are two possibilities. Either $g$ strictly majorizes $h$ at $y$ or $h$ strictly majorizes $g$ at $y$. In the first case  $h(z)<g(z)=f(z)$ and thus $h$ does not majorize $f$. In the second case
+$g(v)<h(v)=f(v)$ and thus $g$ does not majorize $f$. Thus $g=h$.
+:::
+
+::: {#thm-ruit}
+Suppose $g\not= h$ are in a majorizing fan of $f$ at $y$. 
+Suppose, in addition, that $g$ majorizes $f$ at $z\not=y$
+Then $h$ strictly majorizes $g$ at $y$. 
+:::
+::: {.proof}
+For if $g$ strictly majorizes $h$ then $h(z)<g(z)=f(z)$
+and thus $h$ does not majorize $f$.
+:::
+
+Thus, by @thm-ruit, if we have a majorizer $g$ of $f$ in a
+fan $\mathfrak{G}$ at $y$ that also majorizes $f$ and $z\not= y$, then
+$g$ is a strict majorizer in $\mathfrak{G}$ of $f$ at $y$.
+
+Now suppose $f$ is differentiable at $y$ and $\mathfrak{G}$ is the
+set of all quadratic functions that majorize $f$ at $y$. Then $\mathfrak{G}$
+is a majorizing fan of $f$ at $y$.
+
+
+
 If $f(x)=|x|$ then
 \begin{equation}
 g(x)=\frac{1}{2|y|}(x^2-y^2)+|y|=\frac{1}{2|y|}(x^2+y^2),\label{eq:abssharp}
@@ -383,14 +490,14 @@ maintain most of its structure. They have a shift parameter $c$ that takes
 care of the non-differentiability. And some of them also have a power 
 parameter $q$ that determines the shape of the loss function bowl.
 
-## Charbonnier loss
+## Charbonnier
 
 The first, and perhaps most obvious, choice for smoothing the absolute
 value function is
-\begin{equation}
-f_c(x)=\sqrt{x^2 + c^2}.\label{eq:charf}
-\end{equation}
-This smoother was previously used by @deleeuw_E_18f in least absolute value regression and in @deleeuw_E_20b in what was called least squares absolute value regression.
+$$
+f_c(x)=\sqrt{x^2 + c^2}.
+$${#eq-charf}
+This smoother was previously used by @deleeuw_E_18f in LAV regression and in @deleeuw_E_20b in what was called least squares absolute value regression.
 
 In @fig-charfig we show the loss function for $c=1$ (black), $c=0.1$ (red),
 $c=0.01$ (blue), and $c=0.001$ (green).
@@ -410,11 +517,10 @@ curve(sqrt(x^2 + 0.001), from = -3, to = 3, add = TRUE, col = "GREEN", ylab = "f
 ```
 
 For $c>0$ we have $f_c(x)>|x|$.
-If $c\rightarrow 0$ then  $f_c(x)$ decreases monotonically to $|x|$. Also $\min_x|f_c(x)-|x||=c$ attained at $x=0$, which implies
+If $c\rightarrow 0$ then  $f_c(x)$ decreases monotonically to $|x|$. Also $\max_x|f_c(x)-|x||=c$ attained at $x=0$, which implies
 uniform convergence of $f_c$ to $|x|$.
 
-
-In the engineering literature \eqref{eq:charf} is known as Charbonnier loss, after @charbonnier_blanc-feraud_aubert_barlaud_94, who were possibly
+In the engineering literature @eq-charf is known as Charbonnier loss, after @charbonnier_blanc-feraud_aubert_barlaud_94, who were possibly
 the first researchers to use it in image restauration. 
 @ramirez_sanchez_kreinovich_argaez_14 count the number of elementary 
 computer operations and argue \eqref{eq:charf} is also the "most computationally efficient smooth approximation to $|x|$". 
@@ -447,7 +553,7 @@ w_c(x)=\frac{1}{\sqrt{x^2+c^2}}\label{eq:charw}
 \end{equation}
 which is clearly a decreasing function of $x$ on $\mathbb{R}^+$.
 
-## Generalized Charbonnier Loss
+## Generalized Charbonnier
 
 The loss function $(x^2+c^2)^\frac12$ smoothes $|x|$. In the same way generalized 
 Charbonnier loss smoothes $\ell_p$ loss $|x|^q$.
@@ -480,11 +586,7 @@ curve((x^2 + 1) ^ (-.1), from = -3, to = 3, add = TRUE, col = "GREEN", ylab = "f
 
 We see that for $\alpha\rightarrow-\infty$ generalized Charbonnier loss aproximates $\ell_0$ loss.
 
-
-
-
-
-## Barron Loss
+## Barron
 
 There are a large number of generalizations
 of the power smoother types of loss functions in the engineering community, and in their maze of conference publications. We will discuss one nice generalization in @barron_19. 
@@ -493,17 +595,20 @@ of the power smoother types of loss functions in the engineering community, and 
 f_{\alpha,c}(x)=\frac{|\alpha-2|}{\alpha}\left(\left(\frac{(x/c)^2}{|\alpha-2|}+1\right)^{\alpha/2}-1\right).\label{eq:barron}
 \end{equation}
 
+To quote Barron
+
 >Here $\alpha\in\mathbb{R}$ is a shape parameter that controls the robust-ness of the loss and $c>0$ is a scale parameter that controls the size of the loss’s quadratic bowl near $x=0$.
 
-There are a number of interesting special cases of \eqref{eq:barron} by selecting various values of the parameters. For $\alpha=1$ it becomes Charbonnier loss,
-and for $\alpha=-2$ it is Geman-McLure loss.
-For $\alpha\rightarrow 2$ it becomes squared error loss, for $\alpha\rightarrow 0$ it becomes Cauchy loss, and for $\alpha\rightarrow-\infty$ it becomes Cauchy loss.
+There are a number of interesting special cases of \eqref{eq:barron} by selecting various values of the $\alpha$ parameters. For $\alpha=1$ it becomes Charbonnier loss, and for $\alpha=-2$ it is Geman-McClure loss.
+There are also some limiting cases. For $\alpha\rightarrow 2$ Barron loss becomes squared error loss, for $\alpha\rightarrow 0$ it becomes Cauchy loss, and for $\alpha\rightarrow-\infty$ it becomes Welsch loss.
 
-
-
-
+Thus
+\begin{equation}
+f_{\alpha,c}(x)=\begin{cases}
+\frac{|\alpha-2|}{\alpha}\left(\left(\frac{(x/c)^2}{|\alpha-2|}+1\right)^{\alpha/2}-1\right).
+\end{cases}
+\end{equation}
 \sectionbreak
-
 
 # Convolution Smoothers
 
@@ -517,7 +622,7 @@ the absolute value function.
 
 It is  clear that we can use any scale family of probability densities to define convolution smoothers. There is an infinite number of possible choices, with finite or infinite support, smooth or nonsmooth, using splines or wavelets, and so on. We give two quite different examples.
 
-## Huber Loss
+## Huber
 
 Take
 $$
@@ -529,20 +634,17 @@ f_c(x)=\frac{1}{2c}\int_{-c}^{+c}|x-y|dy=\begin{cases}
 \frac{1}{2c}(x^2+c^2)&\text{ if }|x|\leq c,\\
 |x|&\text{ otherwise}.
 \end{cases}
-$$
+$${#eq-hubera}
 
-
-
-The Huber function (@huber_64) is 
-$$
+The Huber function (@huber_64) is traditionally written as
+\begin{equation}
 f_c(x)=\begin{cases}
 \frac12x^2&\text{ if }|x|<c,\\
 c|x|-\frac12 c^2&\text{ otherwise}.
 \end{cases}
-$$
-
-
-Because Charbonnier loss behaves like absolute value loss for large $x$ and as squared loss for small $x$ is also known as Pseudo-Huber loss.
+\end{equation}
+which gives the same weight function as @eq-hubera (up to a multiplicative 
+constant). Because Charbonnier loss behaves the same way as Huber loss, as absolute value loss for large $x$ and as squared loss for small $x$, it is also known as Pseudo-Huber loss.
 
 The Huber function is differentiable, although not twice diffentiable. Its derivative is
 $$
@@ -555,7 +657,8 @@ $$
 $$
 w(x)=
 \begin{cases}
-\hfill\frac{c}{x}&\text{ if }x\geq c,\\\hfill1&\text{ if }|x|\leq c,\\
+\hfill\frac{c}{x}&\text{ if }x\geq c,\\
+\hfill1&\text{ if }|x|\leq c,\\
 -\frac{c}{x}&\text{ if }x\leq -c.
 \end{cases}
 $$
@@ -575,7 +678,7 @@ w_k&\text{ if }|\delta_k-d_k(Y)|<c,\\
 \end{cases}
 $$
 
-## Gaussian Convolution
+## Gaussian
 
 In @deleeuw_E_18f we also discussed the
 convolution smoother proposed by @voronin_ozkaya_yoshida_15. The idea is
@@ -624,8 +727,15 @@ options. Somewhat later @coleman_holland_kaden_klema_peters_80 made an
 more modern computer implementation available, using the same eight weight
 functions, which was not limited to mainframes.
 
-We have implemented the same eight weight functions in smacofRobust, plus
-some additional ones that came out of our discussion of the power and convolution families. Below we give formulas for the loss function, the influence function, and the weight function. We also graph the loss function for selected values of the parameters.
+We have implemented the same eight weight functions in smacofRobust. Below we give formulas for the loss function, the influence function, and the weight function. One of the eight is Huber loss, which we already discussed in the convolution section. We graph the remaining seven loss functions for selected values of the "tuning constants" $c$.
+
+ @holland_welsch_77, following @andrews_bickel_hampel_huber_rogers_tukey_72,
+ distnguish between "hard redescenders" that have an influence function $f'$
+ equal to zero if $x$ is large enough (Andrews, Tukey, and Hinich loss),
+ "soft redescenders" with influence functions asymptotic to zero for large $x$
+ (Cauchy, Welsch loss), and loss functions with a monotone influence 
+ function (Huber, Logistic, Fair loss)
+ 
 
 ## Andrews
 
@@ -644,6 +754,23 @@ w(x)&=\begin{cases}
 \end{cases}
 \end{align}
 
+```{r}
+#| label: andrewsfig
+#| fig.align: center
+#| echo: FALSE
+#| fig.cap: Andrews Loss
+#| fig.dim: c(8, 8)
+#| fig.asp: 1
+fandrews <- function(x, c) {ifelse(abs(x) < pi * c, 
+                 (c ^ 2) * (1 - cos(x / c)), 
+                 2 * (c ^ 2))}
+curve(fandrews(x, 3), from = -3, to = 3, ylab = "f", ylim = c(0, .6))
+curve(fandrews(x, 2), from = -3, to = 3, add = TRUE, col = "RED", ylab = "f", ylim = c(0, 6))
+curve(fandrews(x, 1), from = -3, to = 3, add = TRUE, col = "BLUE", ylab = "f", ylim = c(0, 6))
+curve(fandrews(x, .5), from = -3, to = 3, add = TRUE, col = "GREEN", ylab = "f", ylim = c(0, 6))
+```
+
+
 ## Tukey 
 
 \begin{align}
@@ -661,30 +788,86 @@ w(x)&=\begin{cases}
 \end{cases}
 \end{align}
 
+```{r}
+#| label: tukeyfig
+#| fig.align: center
+#| echo: FALSE
+#| fig.cap: Andrews Loss
+#| fig.dim: c(8, 8)
+#| fig.asp: 1
+fandrews <- function(x, c) {ifelse(abs(x) < pi * c, 
+                 (c ^ 2) * (1 - cos(x / c)), 
+                 2 * (c ^ 2))}
+curve(fandrews(x, 3), from = -1, to = 1, ylab = "f", ylim = c(0, .6))
+curve(fandrews(x, 2), from = -1, to = 1, add = TRUE, col = "RED", ylab = "f", ylim = c(0, .6))
+curve(fandrews(x, 1), from = -1, to = 1, add = TRUE, col = "BLUE", ylab = "f", ylim = c(0, .6))
+curve(fandrews(x, .5), from = -1, to = 1, add = TRUE, col = "GREEN", ylab = "f", ylim = c(0, .6))
+```
+
+
 ## Hinich
+
+\begin{align}
+f(x)&=\begin{cases}
+\frac12 x^2&\text{ if } |x|\leq c,\\
+\frac12 c^2&\text{ otherwise}.
+\end{cases}\\
+f'(x)&=\begin{cases}
+1&\text{ if } |x|\leq c,\\
+0&\text{ otherwise}.
+\end{cases}\\
+w(x)&=\begin{cases}
+1/x&\text{ if } |x|\leq c,\\
+0&\text{ otherwise}.
+\end{cases}
+\end{align}
+
+```{r}
+#| label: hinichfig
+#| fig.align: center
+#| echo: FALSE
+#| fig.cap: Hinich Loss
+#| fig.dim: c(8, 8)
+#| fig.asp: 1
+fhinich <- function(x, c) {ifelse(abs(x) < c, (x ^ 2) / 2, (c ^ 2) / 2)}
+curve(fhinich(x, 3), from = -3, to = 3, ylab = "f", ylim = c(0, 1))
+curve(fhinich(x, 2), from = -3, to = 3, add = TRUE, col = "RED", ylab = "f", ylim = c(0, 1))
+curve(fhinich(x, 1), from = -3, to = 3, add = TRUE, col = "BLUE", ylab = "f", ylim = c(0, 1))
+curve(fhinich(x, .5), from = -3, to = 3, add = TRUE, col = "GREEN", ylab = "f", ylim = c(0, 1))
+```
+
+
 
 ## Cauchy 
 
 \begin{align}
-f(x)&=\log(\{\frac{x}{c}\}^2+1),\\
-f'(x)&=\frac{1}{c^2}x\frac{1}{\{\frac{x}{c}\}^2+1},\\
-w(x)&=\frac{1}{c^2}\frac{1}{\{\frac{x}{c}\}^2+1}
+f(x)&=\frac12c^2\log(1+\{\frac{x}{c}\}^2),\\
+f'(x)&=x\frac{1}{\{1+\frac{x}{c}\}^2},\\
+w(x)&=\frac{1}{\{1+\frac{x}{c}\}^2}
 \end{align}
 
-## Fair
+```{r}
+#| label: cauchyfig
+#| fig.align: center
+#| echo: FALSE
+#| fig.cap: Cauchy Loss
+#| fig.dim: c(8, 8)
+#| fig.asp: 1
+fcauchy <- function(x, c) {(c ^ 2) / 2 * log(1 + (x /c) ^ 2)}
+curve(fcauchy(x, 3), from = -3, to = 3, ylab = "f", ylim = c(0, .6))
+curve(fcauchy(x, 2), from = -3, to = 3, add = TRUE, col = "RED", ylab = "f", ylim = c(0, 6))
+curve(fcauchy(x, 1), from = -3, to = 3, add = TRUE, col = "BLUE", ylab = "f", ylim = c(0, 6))
+curve(fcauchy(x, .5), from = -3, to = 3, add = TRUE, col = "GREEN", ylab = "f", ylim = c(0, 6))
+```
 
-## Huber
 
-## Logistic
-
-## Talwar
 
 ## Welsch
 
 \begin{align}
-f(x)&=1-\exp(-\{\frac{x}{c}\}^2),\\
-f'(x)&=\\
-w(x)&=\frac{2}{c^2}\exp(-\{\frac{x}{c}\}^2)
+f(x)&=\frac12c^2[1-\exp(-\{\frac{x}{c}\}^2)],\\
+f'(x)&=x\exp(-\{\frac{x}{c}\}^2,\\
+w(x)&=\exp(-\{\frac{x}{c}\}^2),
 \end{align}
 
 ```{r}
@@ -702,14 +885,50 @@ curve(fwelsch(x, .1), from = -3, to = 3, add = TRUE, col = "GREEN", ylab = "f", 
 ```
 
 
-$$
-which is non-increasing on $\mathbb{R}^+$.
+## Logistic
 
-## Geman-McLure Loss
+\begin{align}
+f(x)&=c^2[\log(\cosh(x/c))],\\
+f'(x)&=c\tanh(x/c),\\
+w(x)&=(x/c)^{-1}\tanh(x/c).
+\end{align}
 
-$$
-f_c(x)=\frac{2(x/c)^2}{(x/c)^2+4}.
-$$
+```{r}
+#| label: logisticfig
+#| fig.align: center
+#| echo: FALSE
+#| fig.cap: Logistic Loss
+#| fig.dim: c(8, 8)
+#| fig.asp: 1
+flogistic <- function(x, c) (c ^ 2) * log(cosh(x / c))
+curve(flogistic(x, .6), from = -3, to = 3, ylab = "f", ylim = c(0, .6))
+curve(flogistic(x, .4), from = -3, to = 3, add = TRUE, col = "RED", ylab = "f", ylim = c(0, 6))
+curve(flogistic(x, .2), from = -3, to = 3, add = TRUE, col = "BLUE", ylab = "f", ylim = c(0, 6))
+curve(flogistic(x, .1), from = -3, to = 3, add = TRUE, col = "GREEN", ylab = "f", ylim = c(0, 6))
+```
+
+## Fair
+
+\begin{align}
+f(x)&=c^2\{|x|/c-\log(1+|x|/c)\},\\
+f'(x)&=x(1+(|x|/c))^{-1},\\
+w(x)&=(1+(|x|/c))^{-1}.
+\end{align}
+
+```{r}
+#| label: fairfig
+#| fig.align: center
+#| echo: FALSE
+#| fig.cap: Fair Loss
+#| fig.dim: c(8, 8)
+#| fig.asp: 1
+ffair <- function(x, c) log((x / c)^2 + 1)
+curve(ffair(x, 3), from = -3, to = 3, ylab = "f", ylim = c(0, .6))
+curve(ffair(x, 2), from = -3, to = 3, add = TRUE, col = "RED", ylab = "f", ylim = c(0, 6))
+curve(ffair(x, 1), from = -3, to = 3, add = TRUE, col = "BLUE", ylab = "f", ylim = c(0, 6))
+curve(ffair(x, .5), from = -3, to = 3, add = TRUE, col = "GREEN", ylab = "f", ylim = c(0, 6))
+```
+
 
 \sectionbreak
 
@@ -786,7 +1005,7 @@ hist(abs(delta[iall] - hls$d[iall]), main = "", xlab = "absolute residual")
 ```{r av, echo = FALSE}
 hav <- smacofRobust(delta, engine = smacofAV, cons = .001, verbose = FALSE, itmax = 100000, eps = 1e-15)
 ```
-For our least absolute value smacof we use engine smacofAV with $c=.001$.
+For our LAV smacof we use engine smacofAV with $c=.001$.
 We have convergence in `r formatC(hav$itel, format = "d")` iterations.
 
 ```{r pxav, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Configuration Least Absolute Value"}
@@ -810,10 +1029,10 @@ configurations have $(n-1)+(n-2)=2n-3$ degrees of freedom, which is
 fitted exactly, give them weight one, give all other 21 dissimilarities
 weight zero, and do a smacof analysis using these weights, then we
 will have perfect fit in two dimensions, and the solution will be
-the least absolute value solution. All this is easier said than done,
+the LAV solution. All this is easier said than done,
 because it presumes Charbonnier loss with $c=0$ and the ability to
 decide what exact equality is. It also shows the possibility of
-a huge number of local minima in the least absolute value case,
+a huge number of local minima in the LAV case,
 because there are so many ways to pick 15 out of 36 dissimilarities.
 
 ```{r phavh, fig.align = "center", fig.cap = "Histogram Least Absolute Value  Residuals", echo = FALSE}
