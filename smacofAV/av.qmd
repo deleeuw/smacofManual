@@ -104,7 +104,7 @@ index <- matrix(1:81, 9, 9)
 jndex <- index[-c(6, 8), -c(6, 8)][outer(1:7, 1:7, "<")]
 icpn <- c(46:50, 52:54)
 ibp <- c(64:70, 72)
-iall <- c(jndex, icpn, ibp)
+iall <- index[outer(1:9, 1:9, "<")]
 data(morse2, package = "smacof")
 morse2 <- 1 - morse2
 morse2 <- ifelse(morse2 == 0, .01, morse2)
@@ -114,6 +114,7 @@ kndex <- matrix(1:1296, 36, 36)[outer(1:36, 1:36, "<")]
 ```
 
 ```{r loadcode, echo = FALSE}
+library(ggplot2)
 source("smacofRobust.R")
 ```
 
@@ -333,10 +334,10 @@ $f(\sqrt{x})$ is concave. The set of functions satisfying this condition is clos
 :::
 
 Note that these theorems give a sufficient condition for quadratic
-majorization (in fact, for sharp quadratic majorization) and not a necessary one. Quadratic majorization may still be possible if the conditions in the theorem are violated.
+majorization (in fact, for sharp quadratic majorization) and not a necessary one. Quadratic majorization, and even sharp quadratic majorization, may still be possible if the conditions in the theorem are violated.
 
 We can get a considerable more general version of theorem @thm-wght by using
-the framework for real analysis in @bourbaki_76, @bourbaki_04 (cf also
+the integral used in @bourbaki_76, @bourbaki_04 (cf also
 @dieudonne_69, sections 7.6 and 8.7).
 
 ::: {#def-regulated}
@@ -344,7 +345,7 @@ A real-valued function on a closed interval $[a,b]$ is *regulated* if it has a l
 :::
 
 Note that the end-points of the interval can be $\pm\infty$. Regulated functions have limits from the right and the left at every
-point in the interior of $(a,b)$. They can only have discontinuities of the first kind (jump discontinuities). Step functions, monotone functions, and continuous functions are all regulated functions. An alternative definition is that regulated functions are limits of sequences of step functions, where the convergence is uniform on compact sets. 
+point in the interior of $[a,b]$. They can only have discontinuities of the first kind (jump discontinuities). Step functions, monotone functions, and continuous functions are all regulated functions. An alternative definition is that regulated functions are limits of sequences of step functions, where the convergence is uniform on compact sets. 
 
 ::: {#def-primitive}
 A real-valued function $f$ on $[a,b]$ is a *primitive* of a real-valued function $g$ on $[a,b]$ if $f$ is differentiable with $f'(x)=g(x)$, except possibly at a denumerable number of points.
@@ -358,8 +359,8 @@ The *integral* of a regulated function $f$ on $[a,b]$, written as $\int_a^b f(x)
 :::
 
 ::: {#thm-dll}
-Suppose $g$ is a regulated function on $[a,b]$ and $f$ is one of its primitives. Define $h(z):=g(z)/z$ if $z\not= 0$ and $h(0)=0$.
-Assume $h(z)\geq A$ on $[a,b]$. Then for all $x,y$ in $[a,b]$ we have the quadratic majorization 
+Suppose $g$ is a regulated function on $[a,b]$ and $f$ is one of its primitives. Define $h(z):=g(z)/z$, and
+assume $h(z)\geq A$ on $[a,b]\\0$. Then for all $x,y$ in $[a,b]$ we have the quadratic majorization 
 $$
 f(x)\leq f(y)+\frac12 A(x^2-y^2)
 $${#eq-amajor1}
@@ -369,15 +370,23 @@ of $f$ at $y$.
 $f(y)-f(x)=\int_x^y g(z)dz=\int_x^yh(z)zdz\leq \frac12A(y^2-x^2)$.
 :::
 
+Some clarification is needed on $h(z)$ for $z=0$. IIt could 
+be that $\lim_{z\rightarrow 0}h(z)$ exists, in which case we can use
+it as $h(0)$. 
+
 ::: {#cor-dcor}
-Suppose $g$ is a regulated function on $[a,y]$ and $f$ is one of its primitives. Define $h(z):=g(z)/z$ if $z\not= 0$ and $h(0)=0$ and assume $h$ is non-increasing on $[a,y]$. Then
-we have the quadratic majorization
+Suppose $g$ is a regulated function on $[a,y]$ and $f$ is one of its primitives. Define $h(z):=g(z)/z$ if $z\not= 0$ and assume $h$ is non-increasing on $[a,y]\\0$. Then we have the quadratic majorization
 $$f(x)\leq f(y)+\frac12h(y)(x^2-y^2).$${#eq-amajor}
 of $f$ at $y$.
 :::
 
 Suppose $g$ is the sign function, which is obviously regulated, and 
-$f$ is the absolute value function, a primitive of $g$. Then
+$f$ is the absolute value function, a primitive of $g$. Then for
+$y>0$
+$$
+|x|\leq|y|+\frac12\frac{1}{|y|}(x^2-y^2)=\frac12\frac{1}{|y|}(x^2+y^2),
+$$
+which is the AM/GM inequality.
 
 We now apply @thm-wght to functions of the form
 \begin{equation}
@@ -487,8 +496,8 @@ In robust statistics it has been known for a long time that iterative reweighted
 
 We first discuss a class of smoothers of the absolute value function that
 maintain most of its structure. They have a shift parameter $c$ that takes
-care of the non-differentiability. And some of them also have a power 
-parameter $q$ that determines the shape of the loss function bowl.
+care of the non-differentiability. Although different smoothers have different scales and interpretations for $c$, we will use the same symbol throughout. Also some smoothers have a power 
+parameter $q$ that determines the shape of the loss function bowl. 
 
 ## Charbonnier
 
@@ -497,33 +506,31 @@ value function is
 $$
 f_c(x)=\sqrt{x^2 + c^2}.
 $${#eq-charf}
-This smoother was previously used by @deleeuw_E_18f in LAV regression and in @deleeuw_E_20b in what was called least squares absolute value regression.
-
-In @fig-charfig we show the loss function for $c=1$ (black), $c=0.1$ (red),
-$c=0.01$ (blue), and $c=0.001$ (green).
-
-```{r}
-#| label: fig-charfig
-#| fig.align: center
-#| echo: FALSE 
-#| fig.cap: Charbonnier Loss
-#| fig.asp: 1
-#| fig.dim: c(8, 8)
-par(pty = "s")
-curve(sqrt(x^2 + 1), from = -3, to = 3, ylab = "f", ylim = c(0, 4))
-curve(sqrt(x^2 + 0.1), from = -3, to = 3, add = TRUE, col = "RED", ylab = "f", ylim = c(0, 4))
-curve(sqrt(x^2 + 0.01), from = -3, to = 3, add = TRUE, col = "BLUE", ylab = "f", ylim = c(0, 4))
-curve(sqrt(x^2 + 0.001), from = -3, to = 3, add = TRUE, col = "GREEN", ylab = "f", ylim = c(0, 4))
-```
 
 For $c>0$ we have $f_c(x)>|x|$.
 If $c\rightarrow 0$ then  $f_c(x)$ decreases monotonically to $|x|$. Also $\max_x|f_c(x)-|x||=c$ attained at $x=0$, which implies
 uniform convergence of $f_c$ to $|x|$.
 
-In the engineering literature @eq-charf is known as Charbonnier loss, after @charbonnier_blanc-feraud_aubert_barlaud_94, who were possibly
+In the engineering literature @eq-gcharf is known as Charbonnier loss, after @charbonnier_blanc-feraud_aubert_barlaud_94, who were possibly
 the first researchers to use it in image restauration. 
 @ramirez_sanchez_kreinovich_argaez_14 count the number of elementary 
-computer operations and argue \eqref{eq:charf} is also the "most computationally efficient smooth approximation to $|x|$". 
+computer operations and argue @eq-gcharf is also the "most computationally efficient smooth approximation to $|x|$". 
+
+```{r}
+#| label: charfig
+#| fig.align: center
+#| echo: FALSE
+#| fig.cap: "Charbonnier Loss"
+fcharbonnier <- function(x, c) {sqrt(x ^ 2 + c ^ 2)}
+base <- ggplot() + xlim(-3, 3)
+base <- base +
+  geom_function(aes(colour = "c = 1"), fun = fcharbonnier, args = list(c = 1))
+base <- base + labs(x = "variable", y = "value")
+base <- base + geom_function(aes(colour = "c = .1"), fun = fcharbonnier, args = list(c = .1)) 
+base <- base + geom_function(aes(colour = "c = .01"), fun = fcharbonnier, args = list(c = .01)) 
+base + geom_function(aes(colour = "c = .001"), fun = fcharbonnier, args = list(c = .001)) 
+```
+
 
 By l'Hôpital
 \begin{subequations}
@@ -543,7 +550,7 @@ Thus if $x$ is much smaller than $c$ then loss is approximately a quadratic in $
 and if $x$ is much larger than $c$ then loss is approximately the
 absolute value. 
 
-Loss function \eqref{eq:charf} is infinitely many times differentiable. Its first derivative is
+Loss function @eq-charf is infinitely many times differentiable. Its first derivative is
 \begin{equation}
 f'_c(x)=\frac{1}{\sqrt{x^2+c^2}}x,\label{eq:charg}
 \end{equation}
@@ -557,31 +564,33 @@ which is clearly a decreasing function of $x$ on $\mathbb{R}^+$.
 
 The loss function $(x^2+c^2)^\frac12$ smoothes $|x|$. In the same way generalized 
 Charbonnier loss smoothes $\ell_p$ loss $|x|^q$.
-\begin{equation}
-f_{c,q}(x):=(x^2+c^2)^{\frac12 q}\label{eq:gcharf}
-\end{equation}
+$$
+f_{c,q}(x):=(x^2+c^2)^{\frac12 q}
+$${#eq-gcharf}
 \begin{equation}
 w_{c,q}(x)=q(x^2+c^2)^{\frac12 q-1}\label{eq:gcharw}
 \end{equation}
 which is non-increasing for $q\leq 2$. Note that we do not assume that
-$q>0$, and consequently \eqref{eq:gcharf} provides us with much more flexibility than Charbonnier loss \eqref{eq:charf}.
-
-In figure @fig-gcharfig we have plotted \eqref{eq:gcharf} for
-$c=1$ and $\alpha$  equal to $-5$ (black), $-1$ (red), $-.5$ (blue),
-and $-.1$ (green). 
+$q>0$, and consequently generalized Charbonnier loss provides us with more flexibility than Charbonnier loss from @eq-charf. Of course if
+$q<0$ "loss" becomes "gain", with a maximum at zero instead of a
+minimum. To get a proper loss function, take the negative.
 
 ```{r}
-#| label: fig-gcharfig
+#| label: gcharfig
 #| fig.align: center
 #| echo: FALSE 
 #| fig.cap: Generalized Charbonnier Loss
-#| fig.asp: 1
-#| fig.dim: c(8, 8)
-par(pty = "s")
-curve((x^2 + 1) ^ (-5), from = -3, to = 3, ylab = "f", ylim = c(0, 1))
-curve((x^2 + 1) ^ (-1), from = -3, to = 3, add = TRUE, col = "RED", ylab = "f", ylim = c(0, 1))
-curve((x^2 + 1) ^ (-.5), from = -3, to = 3, add = TRUE, col = "BLUE", ylab = "f", ylim = c(0, 1))
-curve((x^2 + 1) ^ (-.1), from = -3, to = 3, add = TRUE, col = "GREEN", ylab = "f", ylim = c(0, 1))
+gfcharbonnier <- function(x, c, q) {
+  s <- sqrt(x ^ 2 + c ^ 2) ^ q
+  if (q < 0) return(1 - s)
+  return(s)
+}
+base <- ggplot() + xlim(-3, 3)
+base <- base +
+  geom_function(aes(colour = "c = 1, q = -5"), fun = gfcharbonnier, args = list(c = 1, q = -5)) 
+base <- base + geom_function(aes(colour = "c = 1, q = -1"), fun = gfcharbonnier, args = list(c = 1, q = -1)) 
+base <- base + geom_function(aes(colour = "c = 1, q = -.5"), fun = gfcharbonnier, args = list(c = 1, q = -.5)) 
+base + geom_function(aes(colour = "c = 1, q = -.1"), fun = gfcharbonnier, args = list(c = 1, q = -.1)) 
 ```
 
 We see that for $\alpha\rightarrow-\infty$ generalized Charbonnier loss aproximates $\ell_0$ loss.
@@ -589,25 +598,35 @@ We see that for $\alpha\rightarrow-\infty$ generalized Charbonnier loss aproxima
 ## Barron
 
 There are a large number of generalizations
-of the power smoother types of loss functions in the engineering community, and in their maze of conference publications. We will discuss one nice generalization in @barron_19. 
+of the power smoother types of loss functions in the engineering community, and in their maze of conference publications. We will discuss one nice generalization from @barron_19. 
 
-\begin{equation}
-f_{\alpha,c}(x)=\frac{|\alpha-2|}{\alpha}\left(\left(\frac{(x/c)^2}{|\alpha-2|}+1\right)^{\alpha/2}-1\right).\label{eq:barron}
-\end{equation}
+$$
+f_{\alpha,c}(x)=\frac{|\alpha-2|}{\alpha}\left(\left(\frac{(x/c)^2}{|\alpha-2|}+1\right)^{\alpha/2}-1\right).\
+$${#eq-barron}
 
 To quote Barron
 
->Here $\alpha\in\mathbb{R}$ is a shape parameter that controls the robust-ness of the loss and $c>0$ is a scale parameter that controls the size of the loss’s quadratic bowl near $x=0$.
+>Here $\alpha\in\mathbb{R}$ is a shape parameter that controls the robustness of the loss and $c>0$ is a scale parameter that controls the size of the loss's quadratic bowl near $x=0$.
 
-There are a number of interesting special cases of \eqref{eq:barron} by selecting various values of the $\alpha$ parameters. For $\alpha=1$ it becomes Charbonnier loss, and for $\alpha=-2$ it is Geman-McClure loss.
-There are also some limiting cases. For $\alpha\rightarrow 2$ Barron loss becomes squared error loss, for $\alpha\rightarrow 0$ it becomes Cauchy loss, and for $\alpha\rightarrow-\infty$ it becomes Welsch loss.
-
-Thus
-\begin{equation}
-f_{\alpha,c}(x)=\begin{cases}
-\frac{|\alpha-2|}{\alpha}\left(\left(\frac{(x/c)^2}{|\alpha-2|}+1\right)^{\alpha/2}-1\right).
+There are a number of interesting special cases of @eq-barron by selecting various values of the $\alpha$ parameters. For $\alpha=1$ it becomes Charbonnier loss, and for $\alpha=-2$ it is Geman-McClure loss.
+There are also some limiting cases. For $\alpha\rightarrow 2$ Barron loss becomes squared error loss, for $\alpha\rightarrow 0$ it becomes Cauchy loss, and for $\alpha\rightarrow-\infty$ it becomes Welsch loss. Accordingly
+$$
+f'_{\alpha,c}(x)=\begin{cases}
+\frac{x}{c^2}&\text{ if }\alpha=2,\\
+\frac{2x}{x^2+2c^2}&\text{ if }\alpha=0,\\
+\frac{x}{c^2}\exp\left(-\frac12(x/c)^2\right)&\text{ if }\alpha\rightarrow-\infty,\\
+\frac{x}{c^2}\left(\frac{(x/c)^2}{|\alpha-2|}+1\right)^{(\frac12\alpha-1)}&\text{ otherwise}.
 \end{cases}
-\end{equation}
+$${#eq-barroni}
+and thus
+$$
+w_{\alpha,c}(x)=\begin{cases}
+\frac{1}{c^2}&\text{ if }\alpha=2,\\
+\frac{2}{x^2+2c^2}&\text{ if }\alpha=0,\\
+\frac{1}{c^2}\exp\left(-\frac12(x/c)^2\right)&\text{ if }\alpha\rightarrow-\infty,\\
+\frac{1}{c^2}\left(\frac{(x/c)^2}{|\alpha-2|}+1\right)^{(\frac12\alpha-1)}&\text{ otherwise}.
+\end{cases}
+$${#eq-barronw}
 \sectionbreak
 
 # Convolution Smoothers
@@ -678,6 +697,20 @@ w_k&\text{ if }|\delta_k-d_k(Y)|<c,\\
 \end{cases}
 $$
 
+```{r}
+#| label: ghuberfig
+#| fig.align: center
+#| echo: FALSE
+#| fig.cap: Huber Loss
+fhuber <- function(x, c) {ifelse(abs(x) < c, (x ^ 2) / 2, c * abs(x) - ((c ^ 2) / 2))}
+base <- ggplot() + xlim(-3, 3)
+base <- base +
+  geom_function(aes(colour = "c = 3"), fun = fhuber, args = list(c = 3)) 
+base <- base + geom_function(aes(colour = "c = 2"), fun = fhuber, args = list(c = 2)) 
+base <- base + geom_function(aes(colour = "c = 1"), fun = fhuber, args = list(c = 1)) 
+base + geom_function(aes(colour = "c = .5"), fun = fhuber, args = list(c = .5))
+```
+
 ## Gaussian
 
 In @deleeuw_E_18f we also discussed the
@@ -711,6 +744,19 @@ w_k(Y)=
 \frac{\Phi((\delta_k-d_k(Y))/c)-\frac12}{\delta_k-d_k(Y)}\\
 $$
 
+```{r}
+#| label: ggaussianfig
+#| fig.align: center
+#| echo: FALSE
+#| fig.cap: Gaussian Convolution Loss
+fgauss <- function(x, c) {x * (2 * pnorm(x / c) - 1) + 2 * c * dnorm(x / c)}
+base <- ggplot() + xlim(-3, 3)
+base <- base +
+  geom_function(aes(colour = "c = 3"), fun = fgauss, args = list(c = 3)) 
+base <- base + geom_function(aes(colour = "c = 2"), fun = fgauss, args = list(c = 2)) 
+base <- base + geom_function(aes(colour = "c = 1"), fun = fgauss, args = list(c = 1)) 
+base + geom_function(aes(colour = "c = .5"), fun = fgauss, args = list(c = .5))
+```
 
 
 
@@ -755,19 +801,19 @@ w(x)&=\begin{cases}
 \end{align}
 
 ```{r}
-#| label: andrewsfig
+#| label: gandrewsfig
 #| fig.align: center
 #| echo: FALSE
 #| fig.cap: Andrews Loss
-#| fig.dim: c(8, 8)
-#| fig.asp: 1
 fandrews <- function(x, c) {ifelse(abs(x) < pi * c, 
                  (c ^ 2) * (1 - cos(x / c)), 
                  2 * (c ^ 2))}
-curve(fandrews(x, 3), from = -3, to = 3, ylab = "f", ylim = c(0, .6))
-curve(fandrews(x, 2), from = -3, to = 3, add = TRUE, col = "RED", ylab = "f", ylim = c(0, 6))
-curve(fandrews(x, 1), from = -3, to = 3, add = TRUE, col = "BLUE", ylab = "f", ylim = c(0, 6))
-curve(fandrews(x, .5), from = -3, to = 3, add = TRUE, col = "GREEN", ylab = "f", ylim = c(0, 6))
+base <- ggplot() + xlim(-3, 3)
+base <- base +
+  geom_function(aes(colour = "c = 3"), fun = fandrews, args = list(c = 3)) 
+base <- base + geom_function(aes(colour = "c = 2"), fun = fandrews, args = list(c = 2)) 
+base <- base + geom_function(aes(colour = "c = 1"), fun = fandrews, args = list(c = 1)) 
+base + geom_function(aes(colour = "c = .5"), fun = fandrews, args = list(c = .5)) 
 ```
 
 
@@ -788,20 +834,21 @@ w(x)&=\begin{cases}
 \end{cases}
 \end{align}
 
+
 ```{r}
-#| label: tukeyfig
+#| label: gtukeyfig
 #| fig.align: center
 #| echo: FALSE
-#| fig.cap: Andrews Loss
-#| fig.dim: c(8, 8)
-#| fig.asp: 1
-fandrews <- function(x, c) {ifelse(abs(x) < pi * c, 
-                 (c ^ 2) * (1 - cos(x / c)), 
-                 2 * (c ^ 2))}
-curve(fandrews(x, 3), from = -1, to = 1, ylab = "f", ylim = c(0, .6))
-curve(fandrews(x, 2), from = -1, to = 1, add = TRUE, col = "RED", ylab = "f", ylim = c(0, .6))
-curve(fandrews(x, 1), from = -1, to = 1, add = TRUE, col = "BLUE", ylab = "f", ylim = c(0, .6))
-curve(fandrews(x, .5), from = -1, to = 1, add = TRUE, col = "GREEN", ylab = "f", ylim = c(0, .6))
+#| fig.cap: Tukey Loss
+ftukey <- function(x, c) {ifelse(
+    abs(x) < c, ((c ^ 2) / 6) * ( 1 - (1 - (x / c) ^ 2) ^ 3), 
+                 (c ^ 2) / 6)}
+base <- ggplot() + xlim(-2, 2)
+base <- base +
+  geom_function(aes(colour = "c = 3"), fun = ftukey, args = list(c = 3)) 
+base <- base + geom_function(aes(colour = "c = 2"), fun = ftukey, args = list(c = 2)) 
+base <- base + geom_function(aes(colour = "c = 1"), fun = ftukey, args = list(c = 1)) 
+base + geom_function(aes(colour = "c = .5"), fun = ftukey, args = list(c = .5))
 ```
 
 
@@ -823,17 +870,17 @@ w(x)&=\begin{cases}
 \end{align}
 
 ```{r}
-#| label: hinichfig
+#| label: ghinichfig
 #| fig.align: center
 #| echo: FALSE
 #| fig.cap: Hinich Loss
-#| fig.dim: c(8, 8)
-#| fig.asp: 1
 fhinich <- function(x, c) {ifelse(abs(x) < c, (x ^ 2) / 2, (c ^ 2) / 2)}
-curve(fhinich(x, 3), from = -3, to = 3, ylab = "f", ylim = c(0, 1))
-curve(fhinich(x, 2), from = -3, to = 3, add = TRUE, col = "RED", ylab = "f", ylim = c(0, 1))
-curve(fhinich(x, 1), from = -3, to = 3, add = TRUE, col = "BLUE", ylab = "f", ylim = c(0, 1))
-curve(fhinich(x, .5), from = -3, to = 3, add = TRUE, col = "GREEN", ylab = "f", ylim = c(0, 1))
+base <- ggplot() + xlim(-3, 3)
+base <- base +
+  geom_function(aes(colour = "c = 3"), fun = fhinich, args = list(c = 3)) 
+base <- base + geom_function(aes(colour = "c = 2"), fun = fhinich, args = list(c = 2)) 
+base <- base + geom_function(aes(colour = "c = 1"), fun = fhinich, args = list(c = 1)) 
+base + geom_function(aes(colour = "c = .5"), fun = fhinich, args = list(c = .5))
 ```
 
 
@@ -847,17 +894,17 @@ w(x)&=\frac{1}{\{1+\frac{x}{c}\}^2}
 \end{align}
 
 ```{r}
-#| label: cauchyfig
+#| label: gcauchyfig
 #| fig.align: center
 #| echo: FALSE
 #| fig.cap: Cauchy Loss
-#| fig.dim: c(8, 8)
-#| fig.asp: 1
-fcauchy <- function(x, c) {(c ^ 2) / 2 * log(1 + (x /c) ^ 2)}
-curve(fcauchy(x, 3), from = -3, to = 3, ylab = "f", ylim = c(0, .6))
-curve(fcauchy(x, 2), from = -3, to = 3, add = TRUE, col = "RED", ylab = "f", ylim = c(0, 6))
-curve(fcauchy(x, 1), from = -3, to = 3, add = TRUE, col = "BLUE", ylab = "f", ylim = c(0, 6))
-curve(fcauchy(x, .5), from = -3, to = 3, add = TRUE, col = "GREEN", ylab = "f", ylim = c(0, 6))
+fcauchy <- function(x, c) {(c ^ 2) / 2 * log(1 + (x / c) ^ 2)}
+base <- ggplot() + xlim(-3, 3)
+base <- base +
+  geom_function(aes(colour = "c = 3"), fun = fcauchy, args = list(c = 3)) 
+base <- base + geom_function(aes(colour = "c = 2"), fun = fcauchy, args = list(c = 2)) 
+base <- base + geom_function(aes(colour = "c = 1"), fun = fcauchy, args = list(c = 1)) 
+base + geom_function(aes(colour = "c = .5"), fun = fcauchy, args = list(c = .5))
 ```
 
 
@@ -871,17 +918,17 @@ w(x)&=\exp(-\{\frac{x}{c}\}^2),
 \end{align}
 
 ```{r}
-#| label: welschfig
+#| label: gwelschfig
 #| fig.align: center
 #| echo: FALSE
 #| fig.cap: Welsch Loss
-#| fig.dim: c(8, )
-#| fig.asp: 1
 fwelsch <- function(x, c) 1 - exp(-.5 * (x / c) ^ 2)
-curve(fwelsch(x, 2), from = -3, to = 3, ylab = "f", ylim = c(0, 1))
-curve(fwelsch(x, 1), from = -3, to = 3, add = TRUE, col = "RED", ylab = "f", ylim = c(0, 1))
-curve(fwelsch(x, .5), from = -3, to = 3, add = TRUE, col = "BLUE", ylab = "f", ylim = c(0, 1))
-curve(fwelsch(x, .1), from = -3, to = 3, add = TRUE, col = "GREEN", ylab = "f", ylim = c(0, 1))
+base <- ggplot() + xlim(-3, 3)
+base <- base +
+  geom_function(aes(colour = "c = 3"), fun = fwelsch, args = list(c = 3)) 
+base <- base + geom_function(aes(colour = "c = 2"), fun = fwelsch, args = list(c = 2)) 
+base <- base + geom_function(aes(colour = "c = 1"), fun = fwelsch, args = list(c = 1)) 
+base + geom_function(aes(colour = "c = .5"), fun = fwelsch, args = list(c = .5))
 ```
 
 
@@ -894,17 +941,17 @@ w(x)&=(x/c)^{-1}\tanh(x/c).
 \end{align}
 
 ```{r}
-#| label: logisticfig
+#| label: glogisticfig
 #| fig.align: center
 #| echo: FALSE
 #| fig.cap: Logistic Loss
-#| fig.dim: c(8, 8)
-#| fig.asp: 1
 flogistic <- function(x, c) (c ^ 2) * log(cosh(x / c))
-curve(flogistic(x, .6), from = -3, to = 3, ylab = "f", ylim = c(0, .6))
-curve(flogistic(x, .4), from = -3, to = 3, add = TRUE, col = "RED", ylab = "f", ylim = c(0, 6))
-curve(flogistic(x, .2), from = -3, to = 3, add = TRUE, col = "BLUE", ylab = "f", ylim = c(0, 6))
-curve(flogistic(x, .1), from = -3, to = 3, add = TRUE, col = "GREEN", ylab = "f", ylim = c(0, 6))
+base <- ggplot() + xlim(-3, 3)
+base <- base +
+  geom_function(aes(colour = "c = 3"), fun = flogistic, args = list(c = 3)) 
+base <- base + geom_function(aes(colour = "c = 2"), fun = flogistic, args = list(c = 2)) 
+base <- base + geom_function(aes(colour = "c = 1"), fun = flogistic, args = list(c = 1)) 
+base + geom_function(aes(colour = "c = .5"), fun = flogistic, args = list(c = .5))
 ```
 
 ## Fair
@@ -916,17 +963,17 @@ w(x)&=(1+(|x|/c))^{-1}.
 \end{align}
 
 ```{r}
-#| label: fairfig
+#| label: gfairfig
 #| fig.align: center
 #| echo: FALSE
 #| fig.cap: Fair Loss
-#| fig.dim: c(8, 8)
-#| fig.asp: 1
-ffair <- function(x, c) log((x / c)^2 + 1)
-curve(ffair(x, 3), from = -3, to = 3, ylab = "f", ylim = c(0, .6))
-curve(ffair(x, 2), from = -3, to = 3, add = TRUE, col = "RED", ylab = "f", ylim = c(0, 6))
-curve(ffair(x, 1), from = -3, to = 3, add = TRUE, col = "BLUE", ylab = "f", ylim = c(0, 6))
-curve(ffair(x, .5), from = -3, to = 3, add = TRUE, col = "GREEN", ylab = "f", ylim = c(0, 6))
+ffair <- function(x, c) log((x / c) ^ 2 + 1)
+base <- ggplot() + xlim(-3, 3)
+base <- base +
+  geom_function(aes(colour = "c = 3"), fun = ffair, args = list(c = 3)) 
+base <- base + geom_function(aes(colour = "c = 2"), fun = ffair, args = list(c = 2)) 
+base <- base + geom_function(aes(colour = "c = 1"), fun = ffair, args = list(c = 1)) 
+base + geom_function(aes(colour = "c = .5"), fun = ffair, args = list(c = .5))
 ```
 
 
@@ -947,17 +994,17 @@ Some background on Dutch politics around that time may be useful.
 * CPN - Communists.
 * PSP - Pacifists, left-wing.
 * PvdA - Labour, Democratic Socialists.
-* D'66 - Pragmatists, nether left-wing fish nor right-wing flesh, brand new in 1967.
+* D'66 - Pragmatists, nether left-wing nor right-wing, brand new in 1967.
 * KVP - Christian Democrats, catholic.
 * ARP - Christian Democrats, protestant.
-* CHU - Christian Democrats, protestants, different flavor.
-* VVD - Liberals, European flavour, right-wing.
+* CHU - Christian Democrats, protestant.
+* VVD - Liberals, European flavour, conservative.
 * BP - Farmers, protest party, right-wing.
 
 The dissimilarities are in the table below.
 
 ```{r gruijter, echo = FALSE}
-delta
+knitr::kable(delta)
 ```
 
 The reason we have chosen this example is partly because CPN and BP are
@@ -965,10 +1012,10 @@ outliers, and we can expect the robust loss functions to handle outlying
 dissimilarities differently from the bulk of the data.
 
 Unless otherwise indicated we run smacofRobust() with a maximum of
-10,000 iterations, and we decide that we have comvergence if the
+10,000 iterations, and we decide that we have convergence if the
 difference between consecutive stress values is less than `r 1e-15`.
-We perform a single smacof iteration between the updates of
-the weights. For each analysis we show the configuration plot and the Shepard plot. In the Shepard plot points corresponding to the eight CPN-dissimilarities arelabeled "C", while BP-dissimilarities are "B".
+We perform one single smacof iteration between the updates of
+the weights. For each analysis we show the configuration plot, the Shepard plot, and a histogram of the absolute values of the residuals. In the Shepard plot points corresponding to the eight CPN-dissimilarities are labeled "C", while BP-dissimilarities are "B".
 
 ### Least Squares
 
@@ -981,62 +1028,94 @@ hls <- smacofRobust(delta, engine = smacofHuber, cons = 10, verbose = FALSE, itm
 We start with a least squares analysis, actually with Huber loss with
 $c=10$, which for these data is equivalent to least squares. The process converges in `r formatC(hls$itel, format = "d")` iterations.
 
-```{r pxls, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Configuration Least Squares"}
-par(pty = "s")
-plot(hls$x, type = "n", xlab = "dim1", ylab = "dim2")
-text(hls$x, names, col = "RED")
+```{r pxls, echo = FALSE, fig.align = "center", fig.cap = "Gruijter Configuration Least Squares"}
+df <- data.frame(dim1 = hls$x[, 1],
+                 dim2 = hls$x[, 2],
+                 names = names)
+ggplot(df, aes(dim1, dim2)) + geom_text(aes(label = names), colour = "red")
 ```
 
-```{r pdls, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Shepard Plot Least Squares"}
-par(pty = "s")
-plot(delta[jndex], hls$d[jndex], xlab = "delta", ylab = "d", col = "RED", xlim = c(0,10), ylim = c(0,10))
-abline(0, 1)
-points(delta[icpn], hls$d[icpn], col = "BLUE", pch = "C")
-points(delta[ibp], hls$d[ibp], col = "BLUE", pch = "B")
+
+```{r pdls, echo = FALSE, fig.align = "center", fig.cap = "Grujter Shepard Plot Least Squares"}
+df1 <- data.frame(
+      delta = delta[jndex],
+      d = hls$d[jndex]
+)
+df2 <- data.frame(
+          delta = delta[icpn],
+          d = hls$d[icpn],
+          names = rep("C", length(icpn))
+)
+df3 <- data.frame(
+          delta = delta[ibp],
+          d = hls$d[ibp],
+          names = rep("B", length(icpn))
+)
+ggplot(df1, aes(delta, d)) + xlim(0, 10) + ylim(0, 10) +
+  geom_point(data = df1, colour = "red") + 
+  geom_text(aes(label = names), data = df2, colour = "blue") +
+  geom_text(aes(label = names), data = df3, colour = "blue") +
+  geom_abline(slope = 1, intercept = 0)
 ```
 
 The Shepard plot clearly shows why an additive constant would be very beneficial in this case.
-```{r phlsh, fig.align = "center", fig.cap = "Histogram Least Squares Residuals", echo = FALSE}
-hist(abs(delta[iall] - hls$d[iall]), main = "", xlab = "absolute residual")
+
+```{r phlsh, fig.align = "center", fig.cap = "Gruijter Histogram Least Squares Residuals", echo = FALSE}
+residuals <- abs(delta[iall] - hls$d[iall])
+ggplot(as.data.frame(residuals), aes(residuals)) + geom_histogram(binwidth = .5)
 ```
 
 ### Least Absolute Value
 
 ```{r av, echo = FALSE}
-hav <- smacofRobust(delta, engine = smacofAV, cons = .001, verbose = FALSE, itmax = 100000, eps = 1e-15)
+hav <- smacofRobust(delta, engine = smacofCharbonnier, cons = .001, verbose = FALSE, itmax = 100000, eps = 1e-15)
 ```
-For our LAV smacof we use engine smacofAV with $c=.001$.
+For our LAV smacof we use engine smacofCharbonnier with $c=.001$.
 We have convergence in `r formatC(hav$itel, format = "d")` iterations.
 
-```{r pxav, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Configuration Least Absolute Value"}
-par(pty = "s")
-plot(hav$x, type = "n", xlab = "dim1", ylab = "dim2")
-text(hav$x, names, col = "RED")
+```{r pxav, echo = FALSE, fig.align = "center", fig.cap = "Gruijter Configuration Least Absolute Value"}
+df <- data.frame(dim1 = hav$x[, 1],
+                 dim2 = hav$x[, 2],
+                 names = names)
+ggplot(df, aes(dim1, dim2)) + geom_text(aes(label = names), colour = "red")
 ```
 
-```{r pdav, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Shepard Plot Least Absolute Value"}
-par(pty = "s")
-plot(delta[jndex], hav$d[jndex], xlab = "delta", ylab = "d", col = "RED", xlim = c(0,10), ylim = c(0,10))
-abline(0, 1)
-points(delta[icpn], hav$d[icpn], col = "BLUE", pch = "C")
-points(delta[ibp], hav$d[ibp], col = "BLUE", pch = "B")
+```{r pdav, echo = FALSE, fig.align = "center", fig.cap = "Gruijter Shepard Plot Least Absolute Value"}
+df1 <- data.frame(
+      delta = delta[jndex],
+      d = hav$d[jndex]
+)
+df2 <- data.frame(
+          delta = delta[icpn],
+          d = hav$d[icpn],
+          names = rep("C", length(icpn))
+)
+df3 <- data.frame(
+          delta = delta[ibp],
+          d = hav$d[ibp],
+          names = rep("B", length(icpn))
+)
+ggplot(df1, aes(delta, d)) + xlim(0, 10) + ylim(0, 10) +
+  geom_point(data = df1, colour = "red") + 
+  geom_text(aes(label = names), data = df2, colour = "blue") +
+  geom_text(aes(label = names), data = df3, colour = "blue") +
+  geom_abline(slope = 1, intercept = 0)
 ```
 
 In the Shepard plot we see that there are a number of dissimilarities which
-are fitted exactly. If we count them there are about 15. Note that 
-configurations have $(n-1)+(n-2)=2n-3$ degrees of freedom, which is
+are fitted exactly. If we count them there are about 15-20. Note that 
+configurations in two dimensions have $(n-1)+(n-2)=2n-3$ degrees of freedom, which is
 15 in this case. Thus if we take the 15 dissimilarities which are 
 fitted exactly, give them weight one, give all other 21 dissimilarities
-weight zero, and do a smacof analysis using these weights, then we
-will have perfect fit in two dimensions, and the solution will be
+weight zero, and do a regular non-robust smacof analysis using these weights, then we will have perfect fit in two dimensions, and the solution will be
 the LAV solution. All this is easier said than done,
-because it presumes Charbonnier loss with $c=0$ and the ability to
-decide what exact equality is. It also shows the possibility of
-a huge number of local minima in the LAV case,
+because it presumes thet we use Charbonnier loss with $c=0$ and that we are able to decide which residuals exactly equal zero. The LAV analysis also shows the possibility of
+a huge number of local minima,
 because there are so many ways to pick 15 out of 36 dissimilarities.
 
-```{r phavh, fig.align = "center", fig.cap = "Histogram Least Absolute Value  Residuals", echo = FALSE}
-hist(abs(delta[iall] - hav$d[iall]), main = "", xlab = "absolute residual")
+```{r phavh, fig.align = "center", fig.cap = "Gruijter Histogram Least Absolute Value Residuals", echo = FALSE}
+residuals <- abs(delta[iall] - hav$d[iall])
+ggplot(as.data.frame(residuals), aes(residuals)) + geom_histogram(binwidth = .5)
 ```
 
 ### Huber
@@ -1046,22 +1125,38 @@ hme <- smacofRobust(delta, engine = smacofHuber, cons = 1, verbose = FALSE, itma
 ```
 smacofHuber with $c=1$ converges in `r formatC(hme$itel, format = "d")` iterations.
 
-```{r pxhme, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Configuration Huber c = 1"}
-par(pty = "s")
-plot(hme$x, type = "n", xlab = "dim1", ylab = "dim2")
-text(hme$x, names, col = "RED")
+```{r pxhme, echo = FALSE, fig.align = "center", fig.cap = "Gruijter Configuration Huber c = 1"}
+df <- data.frame(dim1 = hme$x[, 1],
+                 dim2 = hme$x[, 2],
+                 names = names)
+ggplot(df, aes(dim1, dim2)) + geom_text(aes(label = names), colour = "red")
 ```
 
-```{r pdhme, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Shepard Plot Huber c = 1"}
-par(pty = "s")
-plot(delta[jndex], hme$d[jndex], xlab = "delta", ylab = "d", col = "RED", xlim = c(0,10), ylim = c(0,10))
-abline(0, 1)
-points(delta[icpn], hme$d[icpn], col = "BLUE", pch = "C")
-points(delta[ibp], hme$d[ibp], col = "BLUE", pch = "B")
+```{r pdhme, echo = FALSE, fig.align = "center", fig.cap = "Gruijter Shepard Plot Huber c = 1"}
+df1 <- data.frame(
+      delta = delta[jndex],
+      d = hme$d[jndex]
+)
+df2 <- data.frame(
+          delta = delta[icpn],
+          d = hme$d[icpn],
+          names = rep("C", length(icpn))
+)
+df3 <- data.frame(
+          delta = delta[ibp],
+          d = hme$d[ibp],
+          names = rep("B", length(icpn))
+)
+ggplot(df1, aes(delta, d)) + xlim(0, 10) + ylim(0, 12) +
+  geom_point(data = df1, colour = "red") + 
+  geom_text(aes(label = names), data = df2, colour = "blue") +
+  geom_text(aes(label = names), data = df3, colour = "blue") +
+  geom_abline(slope = 1, intercept = 0)
 ```
 
-```{r phmeh, fig.align = "center", fig.cap = "Histogram Huber Residuals", echo = FALSE}
-hist(abs(delta[iall] - hme$d[iall]), main = "", xlab = "absolute residual")
+```{r phmeh, fig.align = "center", fig.cap = "Gruijter Histogram Huber Residuals", echo = FALSE}
+residuals <- abs(delta[iall] - hme$d[iall])
+ggplot(as.data.frame(residuals), aes(residuals)) + geom_histogram(binwidth = .5)
 ```
 
 ### Tukey
@@ -1069,129 +1164,170 @@ hist(abs(delta[iall] - hme$d[iall]), main = "", xlab = "absolute residual")
 ```{r htu, echo = FALSE}
 htu <- smacofRobust(delta, engine = smacofTukey, cons = 2, verbose = FALSE, itmax = 10000)
 ```
-Converges in `r formatC(htu$itel, format = "d")` iterations.
+smacofTukey with $c=2$ converges in `r formatC(htu$itel, format = "d")` iterations.
 
-```{r pxtmed, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Configuration Tukey c = 2"}
-par(pty = "s")
-plot(htu$x, type = "n", xlab = "dim1", ylab = "dim2")
-text(htu$x, names, col = "RED")
+```{r pxtmed, echo = FALSE, fig.align = "center", fig.cap = "Gruijter Configuration Tukey c = 2"}
+df <- data.frame(dim1 = htu$x[, 1],
+                 dim2 = htu$x[, 2],
+                 names = names)
+ggplot(df, aes(dim1, dim2)) + geom_text(aes(label = names), colour = "red")
 ```
 
-```{r pdtmed, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Shepard Plot Tukey c = 2"}
-par(pty = "s")
-plot(delta[jndex], htu$d[jndex], xlab = "delta", ylab = "d", col = "RED", xlim = c(0,10), ylim = c(0,10))
-abline(0, 1)
-points(delta[icpn], htu$d[icpn], col = "BLUE", pch = "C")
-points(delta[ibp], htu$d[ibp], col = "BLUE", pch = "B")
+```{r pdtmed, echo = FALSE, fig.align = "center", fig.cap = "Gruijter Shepard Plot Tukey c = 2"}
+df1 <- data.frame(
+      delta = delta[jndex],
+      d = htu$d[jndex]
+)
+df2 <- data.frame(
+          delta = delta[icpn],
+          d = htu$d[icpn],
+          names = rep("C", length(icpn))
+)
+df3 <- data.frame(
+          delta = delta[ibp],
+          d = htu$d[ibp],
+          names = rep("B", length(icpn))
+)
+ggplot(df1, aes(delta, d)) + xlim(0, 10) + ylim(0, 10) +
+  geom_point(data = df1, colour = "red") + 
+  geom_text(aes(label = names), data = df2, colour = "blue") +
+  geom_text(aes(label = names), data = df3, colour = "blue") +
+  geom_abline(slope = 1, intercept = 0)
 ```
 
-```{r phtuh, fig.align = "center", fig.cap = "Histogram Tukey Residuals"}
-hist(abs(delta[iall] - htu$d[iall]), main = "", xlab = "absolute residual")
+```{r phtuh, fig.align = "center", fig.cap = "Gruijter Histogram Tukey Residuals", echo = FALSE}
+residuals <- abs(delta[iall] - htu$d[iall])
+ggplot(as.data.frame(residuals), aes(residuals)) + geom_histogram(binwidth = .5)
 ```
 
 ## Rothkopf
 
-Our seond example are the Rothkopf Morse data (@rothkopf_57), which are better
-behaved as the Gruijter data. We used the asymetric confusion matrix and defined
-a dissimilarity by the Shepard-Luce like formula
+Our second example are the Rothkopf Morse data (@rothkopf_57), which have a better fit and have fewer outliers than the Gruijter data. We used the asymetric confusion matrix from the smacof package (@deleeuw_mair_A_09c) and defined dissimilarities by the Shepard-Luce formula
 $$
 \delta_{ij}=-\log\frac{p_{ij}p_{ji}}{p_{ii}p_{jj}}.
 $$
-The fivenum for these data is `r fivenum(morse[kndex])`.
 
 ### Least Squares
 
 
 ```{r mls, echo = FALSE}
+jndex <- outer(1:36, 1:36, ">")
 mhls <- smacofRobust(morse, engine = smacofHuber, cons = 25, verbose = FALSE, itmax = 10000)
 ```
 For least squares we use the smacofHuber engine with $c=25$, well outside the range of the residuals. We have convergence in `r mhls$itel` iterations.
 
-```{r mpxls, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Configuration Least Squares"}
-par(pty = "s")
-plot(mhls$x, type = "n", xlab = "dim1", ylab = "dim2")
-text(mhls$x, row.names(morse))
+
+```{r mpxls, echo = FALSE, fig.align = "center", fig.cap = "Rothkopf Configuration Least Squares"}
+df <- data.frame(dim1 = mhls$x[, 1],
+                 dim2 = mhls$x[, 2],
+                 names = row.names(morse))
+ggplot(df, aes(dim1, dim2)) + geom_text(aes(label = names), colour = "red")
 ```
 
-```{r mkpdls, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Shepard Plot Least Squares"}
-par(pty = "s")
-plot(morse, mhls$d, xlab = "delta", ylab = "d", col = "RED")
-abline(0, 1, col = "BLUE")
+```{r mkpdls, echo = FALSE, fig.align = "center", fig.cap = "Rothkopf Shepard Plot Least Squares"}
+df <- data.frame(
+      delta = morse[jndex],
+      d = mhls$d[jndex]
+)
+ggplot(df, aes(delta, d)) + xlim(0, 9) + ylim(0, 9) +
+  geom_point(colour = "red") +
+  geom_abline(slope = 1, intercept = 0)
 ```
 
-```{r mphlsh, fig.align = "center", fig.cap = "Histogram Least Squares Residuals", echo = FALSE}
-hist(abs(morse[kndex] - mhls$d[kndex]), main = "", xlab = "absolute residual")
+```{r mphlsh, fig.align = "center", fig.cap = "Rothkopf Histogram Least Squares Residuals", echo = FALSE}
+residuals <- abs(morse[jndex] - mhls$d[jndex])
+ggplot(as.data.frame(residuals), aes(residuals)) + geom_histogram(binwidth = .5)
 ```
 
 ### Least Absolute Value
 
-Chardonnier with $c=.001$, de facto least absolute value loss.
-
 ```{r mav, echo = FALSE}
-mhav <- smacofRobust(morse, engine = smacofAV, cons = .001, verbose = FALSE, itmax = 10000)
+mhav <- smacofRobust(morse, engine = smacofCharbonnier, cons = .001, verbose = FALSE, itmax = 10000)
 ```
 For least absolute value we use Chardonnier loss with $c=.001$. We have convergence in `r mhav$itel` iterations.
 
-```{r mpxav, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Configuration Least Absolute Value"}
-par(pty = "s")
-plot(mhav$x, type = "n", xlab = "dim1", ylab = "dim2")
-text(mhav$x, row.names(morse))
+```{r mpxav, echo = FALSE, fig.align = "center", fig.cap = "Rothkopf Configuration Least Absolute Value"}
+df <- data.frame(dim1 = mhav$x[, 1],
+                 dim2 = mhav$x[, 2],
+                 names = row.names(morse))
+ggplot(df, aes(dim1, dim2)) + geom_text(aes(label = names), colour = "red")
 ```
 
-```{r mpdav, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Shepard Plot Least Absolute Value"}
-par(pty = "s")
-plot(morse[kndex], mhav$d[kndex], xlab = "delta", ylab = "d", col = "RED")
-abline(0, 1, col = "BLUE")
+```{r mpdav, echo = FALSE, fig.align = "center", fig.cap = "Rothkopf Shepard Plot Least Absolute Value"}
+df <- data.frame(
+      delta = morse[jndex],
+      d = mhav$d[jndex]
+)
+ggplot(df, aes(delta, d)) + xlim(0, 9) + ylim(0, 9) +
+  geom_point(colour = "red") +
+  geom_abline(slope = 1, intercept = 0)
 ```
-```{r mphlavh, fig.align = "center", fig.cap = "Histogram Least Absolute Value Residuals", echo = FALSE}
-hist(abs(morse[kndex] - mhav$d[kndex]), main = "", xlab = "absolute residual")
+
+```{r mphlavh, fig.align = "center", fig.cap = "Rothkopf Histogram Least Absolute Value Residuals", echo = FALSE}
+residuals <- abs(morse[jndex] - mhav$d[jndex])
+ggplot(as.data.frame(residuals), aes(residuals)) + geom_histogram(binwidth = .5)
 ```
+
 ### Huber
-
-Huber with $c=1$
 
 ```{r mhme, echo = FALSE}
 mhme <- smacofRobust(morse, engine = smacofHuber, cons = 1, verbose = FALSE, itmax = 10000)
 ```
 
-```{r mpxhme, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Configuration Huber"}
-par(pty = "s")
-plot(mhme$x, type = "n", xlab = "dim1", ylab = "dim2")
-text(mhme$x, row.names(morse))
+smacofHuber with $c=1$ converges in `r mhme$itel` iterations.
+
+```{r mpxhme, echo = FALSE, fig.align = "center", fig.cap = "Rothkopf Configuration Huber c = 1"}
+df <- data.frame(dim1 = mhme$x[, 1],
+                 dim2 = mhme$x[, 2],
+                 names = row.names(morse))
+ggplot(df, aes(dim1, dim2)) + geom_text(aes(label = names), colour = "red")
 ```
 
-```{r mpdhme, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Shepard Plot Huber"}
-par(pty = "s")
-plot(morse[kndex], mhme$d[kndex], xlab = "delta", ylab = "d", col = "RED")
-abline(0, 1, col = "BLUE")
+```{r mpdhme, echo = FALSE, fig.align = "center", fig.cap = "Rothkopf Shepard Plot Huber c = 1"}
+df <- data.frame(
+      delta = morse[jndex],
+      d = mhme$d[jndex]
+)
+ggplot(df, aes(delta, d)) + xlim(0, 9) + ylim(0, 9) +
+  geom_point(colour = "red") +
+  geom_abline(slope = 1, intercept = 0)
 ```
 
-```{r mphmeh, fig.align = "center", fig.cap = "Histogram Huber Residuals", echo = FALSE}
-hist(abs(morse[kndex] - mhme$d[kndex]), main = "", xlab = "absolute residual")
+```{r mphmeh, fig.align = "center", fig.cap = "Rothkopf Histogram Huber Residuals", echo = FALSE}
+residuals <- abs(morse[jndex] - mhme$d[jndex])
+ggplot(as.data.frame(residuals), aes(residuals)) + geom_histogram(binwidth = .5)
 ```
 
 ### Tukey
 
-Tukey with $c=1$.
 
 ```{r mhtu, echo = FALSE}
 mhtu <- smacofRobust(morse, engine = smacofTukey, cons = 1, verbose = FALSE, itmax = 10000)
 ```
 
-```{r mpxtu, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Configuration Median Tukey"}
-par(pty = "s")
-plot(mhtu$x, type = "n", xlab = "dim1", ylab = "dim2")
-text(mhtu$x, row.names(morse))
+Tukey with $c=1$.
+
+
+```{r mpxtu, echo = FALSE, fig.align = "center", fig.cap = "Rothkopf Configuration Tukey c = 1"}
+df <- data.frame(dim1 = mhtu$x[, 1],
+                 dim2 = mhtu$x[, 2],
+                 names = row.names(morse))
+ggplot(df, aes(dim1, dim2)) + geom_text(aes(label = names), colour = "red")
 ```
 
-```{r pdttu, echo = FALSE, fig.align = "center", fig.asp = 2, fig.cap = "Shepard Plot Median Tukey"}
-par(pty = "s")
-plot(morse[kndex], mhtu$d[kndex], xlab = "delta", ylab = "d", col = "RED")
-abline(0, 1, col = "BLUE")
+```{r pdttu, echo = FALSE, fig.align = "center", fig.cap = "Rothkopf Shepard Plot Tukey c = 1"}
+df <- data.frame(
+      delta = morse[jndex],
+      d = mhtu$d[jndex]
+)
+ggplot(df, aes(delta, d)) + xlim(0, 9) + ylim(0, 9) +
+  geom_point(colour = "red") +
+  geom_abline(slope = 1, intercept = 0)
 ```
 
-```{r mphtuh, fig.align = "center", fig.cap = "Histogram Tukey Residuals", echo = FALSE}
-hist(abs(morse[kndex] - mhtu$d[kndex]), main = "", xlab = "absolute residual")
+```{r mphtuh, fig.align = "center", fig.cap = "Rothkopf Histogram Tukey Residuals", echo = FALSE}
+residuals <- abs(morse[jndex] - mhtu$d[jndex])
+ggplot(as.data.frame(residuals), aes(residuals)) + geom_histogram(binwidth = .5)
 ```
 \sectionbreak
 
@@ -1201,26 +1337,30 @@ hist(abs(morse[kndex] - mhtu$d[kndex]), main = "", xlab = "absolute residual")
 
 ## Bounding the Second Derivative
 
-Minimize
-$$
-\sum w_k\ f(\delta_k-d_k(X))
-$$
-if $f''(x)\leq K$.
+In some cases our basic theorems may not apply, but there may be an alternative
+way to majorize loss. Infact, this is the classic quadratic bounding method as in @vosz_eckhardt_80 or @boehning_lindsay_88. As before, we want to minimize
+$\sum w_k\ f(\delta_k-d_k(X))$,
+but now we suppose that there is a $K>0$ such that $f''(x)\leq K$. We then have
+the majorization
 
 $$
 f(\delta_k-d_k(X))\leq f(\delta_k-d_k(Y))+f'(\delta_k-d_k(Y))(d_k(Y)-d_k(X))+\frac12K(d_k(Y)-d_k(X))^2
-$$
-Minimize
+$${#eq-qbound}
+and in iteration $k$ we minimize, or at least decrease, 
 $$
 \sum w_k\left[d_k(X)-\{d_k(X^{(k)})-K^{-1}f'(\delta_k-d_k(X^{(k)}))\}\right]^2
+$${#eq-qiter}
+Note that in this algorithm the weights do not change.  Instead
+of fitting a fixed target with moving weights, we fit a
+moving target with fixed weights.
+
+We can apply bounding the second derivatve, for example, to Charbonnier loss, using the inequality
 $$
-$$
-f_c''(x)=(x^2 + c^2)^{-\frac12}-x^2(x^2 + c^2)^{-\frac32}\leq(x^2 + c^2)^{-\frac12}\leq c^{-1}.
-$$
-Thus
-$$
-f(x)\leq f(y)+f'(y)(x-y)+\frac{1}{2c}(x-y)^2=f(y)+\frac{1}{2c}(x-(y-cf'(y)))^2
-$$
+f_c''(x)=(x^2 + c^2)^{-\frac12}-x^2(x^2 + c^2)^{-\frac32}\leq(x^2 + c^2)^{-\frac12}\leq c^{-1},
+$${#eq-chark}
+Of course this method requires that the second derivative exists at $x$.
+Although I have not done any comparisons it will probably require more
+iterations than our previous Charbonnier method.
 
 ## Residual Choice
 
@@ -1240,16 +1380,20 @@ which is considerably more complicated (@deleeuw_groenen_mair_E_16a).
 
 ## Robust Nonmetric MDS
 
-
+Our discussion and our software is all about metric MDS. It is easy to
+extend the discussion to non-linear and non-metric MDS by adding an
+alternating least squares step optimally scaling the dissimilarties.
+Note that this takes place within the majorization of the robust loss
+function, so one or more transformation plus smacof steps can be taken
+between updating the weights. 
 
 \sectionbreak
 
 # Code
 
 The function smacofRobust has a parameter "engine", which can be equal
-to smacofAV, smacofHuber, smacofTukey, or smacofConvolution. These
-four small modules compute the respective loss function values and
-weights for the IRLS procedure. This makes it easy to add additional robust
+to smacofCharbonnier, smacofGeneralizedCharbonnier, smacofBarron, smacofHuber, smacofTukey, smacofHinnich, smacofCauchy, smacofFair, smacofAndrews, smacofLogistic, smacofWelsch, or smacofGaussian. These thirteen small modules compute the respective loss function values and
+weights for the IRLS procedure. This makes it easy for interested parties to add additional their own robust
 loss functions.
 
 ```{r code, eval = FALSE}
