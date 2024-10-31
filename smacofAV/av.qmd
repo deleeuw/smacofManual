@@ -25,6 +25,10 @@ format:
     link-citations: true
     documentclass: scrartcl
     number-sections: true
+   html:
+    fontsize: 12pt
+    keep-md: true
+    number-sections: true
 toc: true
 toc-depth: 3
 editor: source
@@ -119,110 +123,177 @@ source("smacofRobust.R")
 ```
 
 
-# Introduction
+# Introduction {#sec-intro}
 
-The title of this paper is somewhat paradoxical. Least squares estimation
-is typically not robust, it is sensitive to outliers and pays too much  attention to minimizing the largest residuals. What we mean by robust least squares multidimensional scaling (MDS), however, is using the smacof machinery designed to minimize least squares loss functions of the form
-\begin{equation}
-\sigma_2(X):=\sum \omega_k(\delta_k-d_k(X))^2\label{eq:stressdef},
-\end{equation}
-to minimize robust loss functions. 
+The title of this paper is somewhat surprising. Least squares estimation
+is typically not robust, it is sensitive to outliers and pays too much  attention to minimizing the largest residuals. What we mean by robust least squares multidimensional scaling (MDS), however, is to use the smacof machinery designed to minimize least squares loss functions of the form
+$$
+\sigma(X):=\sum\omega_k(\delta_k-d_k(X))^2,
+$${#eq-stressdef}
+to minimize robust loss functions. In @eq-stressdef the $\omega_k$ are
+positive *weights*, the $\delta_k$ are positive *dissimilarities*, and the
+$d_k(X)$ are Euclidean *distances* between two of the rows of the $n\times p$
+*configuration* matrix $X$.
+
+Some terminological conventions we use throughout the paper. By *positive* we mean smaller than or equal to zero. Smaller than zero is *strictly positive*. Some for *negative* and *strictly negative*, for *increasing* and *strictly increasing*, and for *decreasing* and *strictly decreasing*.
 
 The prototypical robust loss function is least absolute value loss
-\begin{equation}
-\sigma_1(X):=\sum \omega_k|\delta_k-d_k(X)|\label{eq:stradddef},
-\end{equation}
+$$
+\sigma(X):=\sum \omega_k|\delta_k-d_k(X)|,
+$${#eq-stradddef}
 which we will call
-*strife*, because the names *stress*, *sstress*, and *strain* are already taken.
+*strife*, since the names *stress*, *sstress*, and *strain* are already taken. Note we are overloading the symbol $\sigma$, because we will use
+it for all of the loss functions in this paper.
 
 Strife is not differentiable at configurations $X$ for which there is at least one $k$ for which either $d_k(X)=\delta_k$ or $d_k(X)=0$ (or both). This lack of differentiability complicates the minimization problem. Moreover experience
 with one-dimensional and city block MDS suggests that having areas
 where the loss function is not differentiable leads to (many) additional local minima.
 
 In this paper we will discuss (and implement) various variations of 
-$\sigma_1$ from \eqref{eq:stradddef}. They can be interpreted in two different
-ways. On the one hand we use smoothers of the absolute value
+strife from @eq-stradddef. They can be interpreted in two different
+ways. On the one hand they are smoothers of the absolute value
 function, and consequently of strife. We want to eliminate the
 problems with differentiability, at least the ones caused by
 $\delta_k=d_k(X)$. If this is our main goal, then we want to choose
 the smoother in such a way that it is close to the absolute value
-function. This is not unlike the distance
+function. This is similar to the distance
 smoothing used by @pliner_96 and @groenen_heiser_meulman_99 in 
-the global minimization of $\sigma_2$ from \eqref{eq:stressdef}.
+the global minimization of stress from @eq-stressdef, except that
+we do not smooth the distance function but the strife residual.
 
-On the other hand our modified loss function can be interpreted
+On the other hand our modified loss functions can be interpreted
 as more robust versions of the least squares loss function, and
-consequently of stress. Our goal then is to combines the robustness of the
+consequently of stress. Our goal then is to combine the robustness of the
 absolute value function with the efficiency and computational ease 
-of least squares. If robustness is our goal then there is no reason to
-stay that close to the absolute value function.
+of least squares. If robustness is our main goal then there is no reason to
+stay close to the absolute value function.
 
 Our robust or smooth loss functions are all of the form
-\begin{equation}
-\sigma(X):=\sum \omega_k\ f_c(\delta_k-d_k(X))\label{eq:strifedef},
-\end{equation}
-for a suitable choice of the real valued function $f$. We will
-define what we mean by "suitable" later on. The subscript $c$
-of $f_c$ is meant to indicate that the loss function may depend
-on one or more real-valued tuning parameters $c$ that regulate the degree
-of smoothness and/or robustness. For now, note that loss
-\eqref{eq:stressdef} is the special case with $f_c(x)=x^2$ and loss \eqref{eq:stradddef}is the special case with $f_c(x)=|x|$. There is no tuning in both these cases.
+$$
+\sigma(X):=\sum\omega_k\ f(r_k(X)),
+$${#eq-strifedef}
+where $r_k(X)$ is the *residual*, i.e.
+$$
+r_k(X):=\delta_k-d_k(X).
+$${#eq-resdef}
+The function $f$ is assumed to be even (i.e. symmetric around zero) and attains its minimum, which is equal to zero, at zero. For now, note that loss in @eq-stressdef is the special case with $f(x)=x^2$ and loss in @eq-stradddef is the special case with $f(x)=|x|$. 
 
 \sectionbreak
+
+# Majorization {#sec-major}
+
+Our loss functions will be minimized by using majorization algorithms (these days more commonly known as MM algorithms).
+This paper discusses a general way to construct majorization algorithms
+for robust loss functions. 
+
+For completeness we give a short
+introduction to majorization, without aiming for maximum generality. 
+For the general theory of majorization algorithms  we refer to their introduction in @deleeuw_C_94c and to the excellent and comprehensive book by @lange_16. As mentioned in @sec-intro the robust loss functions in @eq-strifedef are real-valued functions of a single real variable,
+defined on the whole real line, they are even, and they attain a minimum equal to zero at zero. Thus they are all symmetric bowls anchored at zero.
+
+::: {#def-majorize}
+A function $g$ *majorizes* a function $f$ at a point $y$ if $g(x)\geq f(x)$ for all $x$ and $g(y)=f(y)$. The point $y$ is a *support point* of the majorization. Majorization of $f$ at $y$ is *strict* if $g(x)>f(x)$ for all $x\not= y$.
+:::
+ 
+Majorizers have at least one support point, but they can have many. The
+function $g(x)=x^2+\sin^2(x)$ majorizes $f(x)=x^2$ at every integer multiple of $\pi$, and strictly majorizes $f$ at none of its support points. Also
+any function $f$ majorizes itself at all points of the real line.
+
+::: {#def-sharp}
+If $\mathfrak{H}$ is a family of functions that all majorize $f$ at $y$ then $h\in\mathfrak{H}$ is a *sharp majorization* in $\mathfrak{H}$ if $h(x)\leq g(x)$ for all $g\in\mathfrak{H}$. The sharp majorization, if it exists, is by definition unique.
+:::
+
+
+::: {#thm-diff}
+Suppose $g$ majorizes $f$ at $y$.
+
+* If $f$ and $g$ are differentiable at $y$ then $f'(y)=g'(y)$.
+* If $f$ and $g$ are twice-differentiable at $y$ then $f''(y)\leq g''(y)$.
+* If $f''(y)<g''(y)$ then $g$ strictly majorizes $f$ in a neighborhood of $y$.
+:::
+::: {.proof}
+$h=g-f$ is negative and has a minimum equal to zero at $y$. Thus the derivative of $h$ vanishes at $y$ and the second derivative is negative at $y$. If the second derivative is strictly negative then we use the sufficient condition for a local minimum.
+:::
+
+A *majorization algorithm* to minimize $f$ is iterative. We update $x^{(\nu)}$, the approximation of the minimizer in iteration $\nu$,  by
+$$
+x^{(\nu+1)}\in\mathop{\text{argmin}}_x\ g_\nu(x),
+$${#eq-majmaj}
+where $g_\nu$ majorizes $f$ at $x^{(\nu)}$. If $x^{(\nu)}\in\mathop{\text{argmin}}_x\ g_\nu(x)$ we stop. Otherwise
+we find a new majorizer $g_{\nu+1}$, which majorizes $f$ at $x^{(\nu+1)}$,
+and start a new iteration.
+
+Convergence of majorization algorithms follows from the
+*sandwich inequality* 
+$$
+f(x^{(\nu+1)})\leq g_\nu(x^{(\nu+1)})\leq g_\nu(x^{(\nu)})=f(x^{(\nu)}).
+$${#eq-sandwich}
+This we the algorithm produces a decreasing sequence of loss function values, which converges if loss is bounded below. In @eq-sandwich the first 
+inquality (from the left) follows from majorization. If the
+majorization is strict, then so is the inequality. The second inequality
+follows from minimization of $g$. It is strict if $g$ has a
+unique minimizer, for example if $g$ is strictly convex. The final
+equality in @eq-sandwich comes from majorization at $x^{(\nu)}$.
+
+If $x^{(\nu)}$ minimizes $g_\nu$ we stop and we have finite convergence.
+If the algorithm generates an infinite sequence, which is the usual case,
+the second inequality in @eq-sandwich is always strict, and the algorithm generates a strictly decreasing sequence of loss function values. Note
+that for the validity of the sandwich inequality it suffices to decrease
+$g_\nu$ in every iteration, and not necessarily to minimize it. Different ways to decrease $g_\nu$ correspond with different step-size procedures in gradient methods.
+
+Of course convergence of loss function values does not guarantee convergence
+of the $x^{(k)}$. For the additional continuity, campactness, and identification conditions that are needed we refer to the majoriztaion and MM literature.
 
 # Majorizing Strife {#sec-majorization}
 
 The idea of minimizing a least absolute value (LAV) to obtain parameter estimates dates back to the work of Boskovitch in the middle of the
-eighteenth century. Until recently it has been applied mainly to fit
-linear models, so that we can actually use standard linear programming
-algorithms to obtain optimal solutions.
+eighteenth century. Until fairly recently it has been applied mainly to fit
+location parameters and more general linear models.
 
-The pioneering work in MDS strife minimization using smacof is @heiser_88, which builds on earlier work of @heiser_87. It is based on a creative use of the Arithmetic Mean-Geometric Mean (AM/GM) inequality to find a majorizer of the absolute
-value function. For the general theory of majorization algorithms (now more commonly known as MM algorithms) we refer to their original introduction in @deleeuw_C_94c and to the excellent recent book by @lange_16.
+The pioneering work in strife minimization using smacof is @heiser_88, which builds on earlier work of @heiser_87. It is based on a creative use of the Arithmetic Mean-Geometric Mean (AM/GM) inequality to find a majorizer of the absolute value function. 
 
 The AM/GM inequality says that for all non-negative $x$ and $y$ we have 
-\begin{equation}
-|x||y|=\sqrt{x^2y^2}\leq\frac12(x^2+y^2),\label{eq:amgm}
-\end{equation}
-with equality if and only if $x^2=y^2$. If $y>0$ we can write \eqref{eq:amgm} as
-\begin{equation}
-|x|\leq\frac12\frac{1}{|y|}(x^2+y^2),\label{eq:amgmmaj}
-\end{equation}
-and this provides a quadratic majorization of $|x|$ at $y$. There is no quadratic
-majorization of $|x|$ at $y=0$, which is a problem we will have to deal with.
+$$
+|x||y|=\sqrt{x^2y^2}\leq\frac12(x^2+y^2),
+$${#eq-amgm}
+with equality if and only if $|x|=|y|$. If $|y|>0$ we can write @eq-amgm as
+$$
+|x|\leq\frac12\frac{1}{|y|}(x^2+y^2),\
+$${#eq-amgmmaj}
+and this provides a quadratic majorization of $|x|$ at $y$. There is no quadratic majorization of $|x|$ at $y=0$, which is a problem we will have to deal with at some point.
 
-Using the majorization \eqref{eq:amgmmaj}, and assuming $\delta_k\not=d_k(Y)$ for all $k$, we define
-\begin{equation}
-\omega_1(X):=\frac12\sum \omega_k\frac{1}{|\delta_k-d_k(Y)|}((\delta_k-d_k(Y))^2+(\delta_k-d_k(X))^2).\label{eq:omegadef}
-\end{equation}
-Now $\sigma_1(X)\leq\omega_1(X)$ for all $X$ and $\sigma_1(Y)=\omega_1(Y)$, and thus
-$\omega_1$ majorizes $\sigma_1$ at $Y$.
+Using the majorization @eq-amgmmaj, and assuming $\delta_k\not=d_k(Y)$ for all $k$, we define
+$$
+\omega_k(X):=\omega_k\frac{1}{r_k(X)},
+$${#eq-wk1def}
+and, for a fixed $Y$,
+$$
+\eta(X):=\frac12\sum \omega_k(Y)(r_k^2(X)+r_k^2(Y)).
+$${#eq-strifemaj}
+Now $\sigma(X)\leq\eta(X)$ for all $X$ and $\sigma(Y)=\eta(Y)$, and thus $\eta$ majorizes $\sigma$ at $Y$.
 
 ## Algorithm {#sec-amgm}
 
-Define
-\begin{equation}
-\omega_k(Y):=\omega_k\frac{1}{|\delta_k-d_k(Y)|}.\label{eq:wk1def}
-\end{equation}
-Reweighted smacof to minimize strife computes $X^{(k+1)}$ by decreasing
-\begin{equation}
-\sum \omega_k(X^{(k)})(\delta_k-d_k(X^{(k)}))^2,\label{eq:sstrf}
-\end{equation}
-using a standard smacof step. It then computes the new weights $\omega_k(X^{(k+1)})$ from \eqref{eq:wk1def}
-and uses them in the next smacof step to update $X^{(k+1)}$. And so on, until convergence.
 
-A straightforward variation of the algorithm does a number of smacof steps before
+Reweighted smacof to minimize strife computes $X^{(\nu+1)}$ by minimizing or decreasing
+$$
+\sum \omega_k(X^{(\nu)})(\delta_k-d_k(X^{(\nu)}))^2,
+$${#eq-sstrf}
+using a standard smacof step. It then computes the new weights $\omega_k(X^{(\nu+1)})$ from @eq-wk1def
+and uses them in the next smacof step to update $X^{(\nu+1)}$. And so on, until convergence.
+
+A straightforward variation of the algorithm does a number of smacof steps between
 upgrading the weights. This still leads to a monotone, and thus convergent, algorithm.
-How many smacof steps we have to take in the inner iterations is something that needs further study. It is likely to depend on the fit of the data, on the shape of the function near the local minimum, and on how far the iterations are from the local minimum.
+How many smacof steps we have to take in these inner iterations is something that needs further study. It is likely to depend on the fit of the data, on the shape of the function near the local minimum, and on how far the currfent iteration is from the local minimum.
 
 ## Zero Residuals {#sec-zero}
 
-It may happen that for some $k$ we have $d_k(X^{(k)})=\delta_k$ while iterating. There have been various proposals to deal with such an 
-unfortunate event, and we will discuss some of them further on. Even more
+It may happen that for some $k$ we have $d_k(X^{(\nu)})=\delta_k$ while iterating. There have been various proposals to deal with such an 
+unfortunate event, and we will discuss some of them below. Even more
 importantly we will see that that the minimizer of the absolute value
 loss usually satisfies $d_k(X)=\delta_k$ for quite a few elements,
-which means that near convergence the algorithm will become unstable
-because the weights from \eqref{eq:wk1def} become very large. 
+which means that near convergence the algorithm may become unstable
+because the weights from @eq-wk1def become very large. 
 
 A large number of somewhat ad-hoc solutions have been proposed to deal with the problem of zero residuals, both in location analysis and in the statistical literature. We tend to agree with the assessment of @aftab_hartley_15.
 
@@ -237,22 +308,10 @@ residual. Often we get the assurance in these papers that the problem is not rea
 LAV regression the loss function is convex, however, which guarantees a unique minimum. This is certainly not the case in robust MDS. In this paper we try to follow a more systematic approach that uses smooth parametric approximations to the absolute value function, where the parameter can be used to make the 
 approximation as precise as necessary.
 
-To illustrate the problems with differentiability we compute the directional derivatives of strife. 
+In the case of stress the directional derivatives can be used to prove
+that if $\omega_k\delta_k>0$ for all $k$ then stress is differentiable at each local minimum (@deleeuw_A_84f). For strife to be differentiable we would have to prove that at a local minimum both $d_k(X)>0$ and $(d_k(X)-\delta_k)\not= 0$ for all $k$ with $\omega_k>0$. But this is impossible by the following argument. 
 
-Let $s_k(X):=\omega_k|d_k(X)-\delta_k|$.
-
-1. If $\delta_k=0$ and $d_k(X)=0$ then $ds_k(X;Y)=\omega_kd_k(Y)$.
-2. If $\delta_k>0$ and $d_k(X)=0$ then $ds(X;Y)=-\omega_kd_k(Y)$.
-3. If $d_k(X)>0$ and $d_k(X)-\delta_k>0$ then 
-$ds_k(X;Y)=\omega_k\frac{1}{d_k(X)}\text{tr}\ X'A_kY$.
-4. If $d_k(X)>0$ and $d_k(X)-\delta_k<0$ then $ds_k(X;Y)=-\omega_k\frac{1}{d_k(X)}\text{tr}\ X'A_kY$.
-5. If $d_k(X)>0$ and $d_k(X)-\delta_k=0$ then $ds_k(X;Y)=\omega_k\frac{1}{d_k(X)}\text{tr}\ |X'A_kY|$.
-
-The directional derivative of $\sigma_1$ is consequently the sum of
-five terms, corresponding with each of these five cases.
-
-In the case of stress the directional derivatives could be used to prove
-that if $\omega_k\delta_k>0$ for all $k$ then stress is differentiable at each local minimum (@deleeuw_A_84f). For strife to be differentiable we would have to prove that at a local minimum both $d_k(X)>0$ and $(d_k(X)-\delta_k)\not= 0$ for all $k$ with $\omega_k>0$. But this is impossible by the following argument. In the one-dimensional
+In the one-dimensional
 case we can partition $\mathbb{R}^n$ into $n!$ polyhedral convex cones
 corresponding with the permutations of $x$. Within each cone the distances
 are a linear function of $x$. Each cone can be partitioned by intersecting it
@@ -262,26 +321,23 @@ minima, local or global, in the interior of one of these polyhedral regions.
 We have thus shown that in one dimension strife is not differentiable at a local minimum, and that there is presumably a large number of them. Even for moderate $n$ the number of regions is of course too large to actually compute or draw. 
 
 In the multidimensional case linearity goes out the window. The
-set of configurations $d_k(X)=\delta_k$ is an ellipsoid and $d_k(X)=0$ defines a hyperplane. Strife is not differentiable at all intersections of these
-ellipsoids and hyperplanes. The partitioning of $\mathbb{R}^n$ by these
+set of configurations $d_k(X)=\delta_k$ is an ellipsoid and $d_k(X)=0$ defines a hyperplane. Strife is not differentiable at all intersections of these ellipsoids and hyperplanes. The partitioning of $\mathbb{R}^n$ by these
 ellipsoids and hyperplanes is not simple to describe. It has convex
 and non-convex cells, and within each cell strife is the difference
 of two weighted sums of distances. Anything can happen. 
 
 ## $\ell_0$ loss
 
-A somewhat extreme special case of Equation \eqref{eq:strifedef} has
+A somewhat extreme special case of @eq-strifedef has
 $$
 f(x)=\begin{cases}
 0&\text{ if }x = 0,\\
 1&\text{ otherwise}.
 \end{cases}
-$$
+$${#eq-elnul}
 This is $\ell_0$ loss. Minimizing $\ell_0$ loss means maximizing the number 
 of cases with perfect fit, i.e. with $\delta_k=d_k(X)$. The reason we
-mention it here is that the work of @donoho_elad_03 and @candes_tao_05   suggests that the minimizer of $\ell_1$ loss, i.e. absolute value loss, gives a good approximation to the minimizer of $\ell_0$ loss, at least in a number of
-special cases. In MDS we do not have linearity or convexity, but nevertheless
-the theoretical results in simpler cases are suggestive. By computing the directional derivatives we have seen that at least in the one-dimensional MDS case a number of residuals will indeed be zero at the optimum LAV solution.
+mention it here is that the work of @donoho_elad_03 and @candes_tao_05   suggests that the minimizer of $\ell_1$ loss, i.e. absolute value loss, gives a good approximation to the minimizer of $\ell_0$ loss, at least in a number of special cases. In MDS we do not have linearity or convexity, but nevertheless the theoretical results in simpler cases are suggestive. We have seen that at least in the one-dimensional MDS case a number of residuals will indeed be zero at the optimum LAV solution.
 
 There is an excellent review of the use of $\ell_1$ in various sparse recovery fields in @candes_wakin_boyd_08. In that paper they also propose an iteratively
 reweighted LAV algorithm, which solves $\ell_1$ problems between weight updates. Maybe because of that they go so far as calling $\ell_1$ "the modern least squares". But let's not get carried away, in actual ease and frequency of use $\ell_1$ still has a long way to go if it wants to replace $\ell_2$.
@@ -290,185 +346,165 @@ reweighted LAV algorithm, which solves $\ell_1$ problems between weight updates.
 
 # Generalizing Strife
 
-We have seen that @heiser_88 applied majorization to minimize strife, using the AM/GM inequality. We now generalize this approach so that it can easily deal with other robust loss functions. A great number of different loss functions will be discussed. The intention is not to confuse the reader by presenting a large number of alternatives with rather limited information. We show all these loss functions as examples of a general principle of algorithm construction and as examples of loss functions that have been used in
-statistics, location analysis, image analysis and engineering over the years.
-They are all implemented in the function smacofRobust(), written in R (@r_core_team_24).
+We have seen that @heiser_88 applied majorization to minimize strife, using the AM/GM inequality. We now generalize this approach so that it can  deal with other robust loss functions. A great number of different loss functions will be discussed. My intention is certainly not to confuse the reader and potential user by presenting a large number of alternatives with rather limited information. We show all these loss functions as examples of a general principle of algorithm construction and as examples of loss functions that have been used in
+statistics, location analysis, image analysis, and engineering over the years.
+They are all implemented in the function smacofRobust(), written in R (@r_core_team_24), and listed in the appendix of this paper.
 
-## Majorization
+## Sharp Quadratic Majorization
 
-First some definitions. 
+The AM/GM inequality was used in @sec-majorization to construct a quadratic majorization of strife. In this paper we are specifically interested in sharp quadratic majorization, in which $\mathfrak{H}$ is the set of all (not necessarily convex) quadratics that majorize $f$ at $y$. This case has been studied in detail (in the case of real-valued functions on the line) in @deleeuw_lange_A_09, and much of this section is taken from their paper. We
+added some minor extensions and reformulations.
 
-::: {#def-majorize}
-A function $g$ *majorizes* a function $f$ at $y$ if $g(x)\geq f(x)$ for all $x$ and $g(y)=f(y)$. The point $y$ is the *support point* of the majorization. Majorization of $f$ at $y$ is *strict* if $g(x)>f(x)$ for all $x\not= y$.
-:::
- 
-::: {#def-sharp}
-If $\mathfrak{H}$ is a family of functions that all majorize $f$ at $y$ then $h\in\mathfrak{H}$ is a *sharp majorization* in $\mathfrak{H}$ if $h(x)\leq g(x)$ for all $g\in\mathfrak{H}$. The sharp majorization, if it exists, is by definition unique.
-:::
+For the loss functions we study in this paper there are two problems that have to be solved. First, we want a general procedure to construct quadratic majorizers. Second, we what to show that some of our majorizers are sharp.
 
-::: {#thm-diff}
-Suppose $f$ and $g$ are two functions defined on an open interval of the
-real line and $y$ is a point of the interval where $g$ majorizes $f$.
-
-* If $f$ and $g$ are differentiable at $y$ then $f'(y)=g'(y)$.
-* If $f$ and $g$ are twice-differentiable at $y$ then $f''(y)\leq g''(y)$.
-* If $f''(y)<g''(y)$ then $g$ strictly majorizes $f$ in a neighborhood of $y$.
-:::
-::: {.proof}
-$h=g-f$ is non-negative and has a minimum equal to zero at $y$. Thus the derivative of $h$ vanishes at $y$ and the second derivative is non-negative at $y$. If the second derivative is negative then we use the sufficient 
-condition for a local minimum.
-:::
-
-
-### Sharp Quadratic Majorization
-
-The AM/GM inequality was used in @sec-majorization to construct a quadratic majorization of strife. In this paper we are specifically interested in sharp quadratic majorization, in which $\mathfrak{H}$ is the set of all convex quadratics that majorize $f$ at $y$. This case has been studied in detail (in the case of real-valued functions on the line) in @deleeuw_lange_A_09. For the
-loss functions we study there are two problems that have to be solved. First,
-we need a general procedure to construct quadratic majorizers. Second, we need
-to show that some of our majorizers are sharp.
-
-If $f$ is differentiable at $y$, then all quadratics $g$ that majorize $f$ at $y$ have
+If $f$ is differentiable at $y$, then all quadratics $g$ that majorize $f$ at $y$ are of the form
 $$
-g(x)=f(y)+f'(y)(x-y)+\frac12a(x-y)^2
+g_a(x):=f(y)+f'(y)(x-y)+\frac12a(x-y)^2
 $${#eq-qmaj}
-for some $a$, not necessarily positive.
-Since $g''(y)\geq f''(y)$ by @thm-diff we must have $a\geq f''(y)$. Note that not all functions have quadratic majorizations. If $f$ is a non-trivial cubic
-then so is $h=g-f$, and consequently we cannot have $h\geq 0$ on the whole real line.
+for some $a=g_a''(x)$, not necessarily positive.
+If $f$ is twice differentiable at $y$ then $g_a''(y)\geq f''(y)$ by @thm-diff, and thus we have the necessary condition $a\geq f''(y)$. Note that not all functions have quadratic majorizations. If $f$ is a non-trivial cubic and $g$ is quadratic, then $h=g-f$ is a non-trivial cubic, and consequently we cannot have $h\geq 0$ on the whole real line.
 
-We now look more closely at $a$ in @eq-qmaj. For $x\not = y$ define
+We now look more closely at $a$ in @eq-qmaj, initially concentrating on
+necessary conditions for majorization. For $x\not = y$ define
 $$
-\alpha(x):=\frac{f(x)-f(y)-f'(y)(x-y)}{\frac12(x-y)^2}
+\alpha(x):=\frac{f(x)-f(y)-f'(y)(x-y)}{\frac12(x-y)^2}.
 $${#eq-alpdef}
-If $f$ is two times differentiable at $y$ then by l' Hôpital
+Of course $\alpha$ is a different function of $x$ for each $y$, but since we are dealing with majorization at one fixed $y$ we suppress this dependence. 
+
+If $f$ is two times differentiable at $y$ then, by the definion of the second derivative,
 $$
 \lim_{x\rightarrow y}\alpha(x)=f''(y),
 $${\#eq-alphop}
-and thus we define $\alpha(y)=f''(y)$ to make $\alpha$ continuous at $y$.
-Of course $\alpha$ is a different function of $x$ for each $y$, but since we are dealing with only one fixed $y$ here we suppress this dependence. 
+and thus can we define $\alpha(y)=f''(y)$ to make $\alpha$ continuous at $y$.
 
-If $f$ is convex, then $\alpha$ is the ratio of two non-negative convex functions of $x$. If $f$ is two times differentiable then
+If $f$ is convex, then $\alpha$ is the ratio of two positive convex functions of $x$, and is thus positive. If $f$ is concave then $\alpha$ is negative.
+If $f$ is two times differentiable then
 there is a $z$ between $x$ and $y$ such that $\alpha(x)=f''(z)$.
-If $f''(x)\leq K$ for all $x$, then $\alpha(x)\leq K$ as well.
+Thus if $f''(x)\leq K$ for all $x$, then $\alpha(x)\leq K$ as well.
 
-Quadratic majorization is equivalent to $a\geq\alpha(x)$ for all $x$. 
-Sharp quadratic majorization is possible if and only 
+Quadratic majorization of $f$ by $g_a$ from @eq-qmaj at $y$ is equivalent to $\alpha(x)\leq a$ for all $x$. Thus $g_a$ majorizes $f$ at $y$ if and only if $\alpha$ is bounded above by $a$. If $\alpha$ is unbounded above there is no
+quadratic majorizer at $y$. We can also define
+$$ 
+a_+:=\sup_x\alpha(x),
+$${#eq-aplus}
+and say that sharp quadratic majorization at $y$ is possible if $a_+<+\infty$. We have majorization at $y$ by $g_a$ if $a\geq a_+$, we have sharp majorization if $a=a_+$. It follows that sharp quadratic majorizations
+exist if $f''$ is bounded above.
+
+We illustrate these concepts by applying them to low-degree polynomials. First a cubic. Expand the cubic around $y$ as 
 $$
-A:=\sup_x\alpha(x)<+\infty,
-$${#eq-Adef}
-in which case we get sharp quadratic majorization by setting $a=A$ in @eq-qmaj. The quadratic $g$ of @eq-qmaj majorizes $f$ if and only if $a\geq A$.
+f(x)=f(y)+f'(y)(x-y)+\frac12f''(y)(x-y)^2+\frac16f'''(y)(x-y)^3.
+$${#eq-cubexp}
+Thus
+$$
+\alpha(x)=f''(y)+\frac13f'''(y)(x-y).
+$${#eq-cubalp}
+Since $\alpha$ is always unbounded above, no quadratic majorizer exists 
+at any $y$. 
 
-We illustrate these concepts by using low-degree polynomials. First a cubic. Expand the function around $y$ as $f(x)=f(y)+f'(y)(x-y)+\frac12f''(y)(x-y)^2+\frac16f'''(y)(x-y)^3$. Thus
-$\alpha(x)=f''(y)+3f'''(y)(x-y)$
-and we have majorization at $y$ if the linear function $\alpha$ is everywhere
-non-negative. Since this is impossible, no quadratic majorizer exists at any $y$. Now apply the same reasoning to a quartic. We find
-$\alpha(x)=f''(y)+3f'''(y)(x-y)+\frac{1}{12}f^{iv}(y)(x-y)^2$, a quadratic in $x$. We have quadratic majorization at $y$ if this quadratic is non-negative in  $x-y$. It is clearly necessary that $f^{iv}(y)$ is positive.
-This implies the quadratic is unbounded above, and thus a sharp quadratic majorization does not exist at any $y$. Non-sharp quadratic majorizations at $y$ exist if the discriminant of the quadratic is non-positive, and this inequality constraint on $(f''(y),f'''(y),f^{iv}(y))$ defines a non-empty cone in $\mathbb{R}^3$. It is sufficient for quadratic majorization at $y$, for example, that both $f''(y)$ and $f^{iv}(y)$ are positive and that $f'''(y)=0$. It is necessary that both $f''(y)$ and $f^{iv}(y)$ are positive.
+Now apply the same reasoning to a non-trivial quartic. We find
+$$
+\alpha(x)=f''(y)+\frac13f'''(y)(x-y)+\frac{1}{12}f^{iv}(y)(x-y)^2,
+$${#eq-quaalp}
+a quadratic in $x$. Of course for a quartic $f^{iv}(y)$ is the same for every $y$ and we may as well write $f^{iv}$. If $f^{iv}$ is strictly positive the quadratic in @eq-quaalp is unbounded above, and no quadratic majorization exists at any $y$. If $f^{iv}$ is strictly negative then $\alpha$ has a maximum at $x=y-2f'''(y)/f^{iv}$, and a sharp quadratic majorization exists at any 
+$y$. 
 
+
+
+
+We can get some more information about $a_+$ by differentiating $\alpha$.
 
 ::: {#thm-locmax}
-Suppose $\alpha$ has a local maximum at a point $x$ where $\alpha$ is two times differentiable. Then 
+Suppose there is an $x$ where $\alpha$ is two times differentiable and $a_+=\alpha(x)$. Then 
 \begin{subequations}
 \begin{align}
 \frac{f(x)-f(y)}{x-y}&=\frac12(f'(x)+f'(y)),\label{eq-loc1}\\
-\alpha(x)&=\frac{f'(x)-f'(y)}{x-y},\label{eq-loc2}\\
-f''(x)&\leq\frac{f'(x)-f'(y)}{x-y}.\label{eq-loc3}
+f''(x)&\leq\frac{f'(x)-f'(y)}{x-y}.\label{eq-loc2}
 \end{align}
+Moreover
+\begin{equation}
+a_+=\frac{f'(x)-f'(y)}{x-y}.\label{eq-loc3}
+\end{equation}
 \end{subequations}
-If the inequality in \eqref{eq-loc3} is strict then $\alpha$ has a local maximum at $x$.
+If \eqref{eq-loc1} and the inequality in \eqref{eq-loc2} is strict then $\alpha$ has a local maximum at $x$.
 :::
 ::: {.proof}
-After some manipulation \eqref{eq-loc1} and \eqref{eq-loc3} are the necessary conditions $\alpha'(x)=0$ and 
-$\alpha''(x)\leq 0$ for a local maximum, and the sufficient condition $\alpha''(x)<0$. If $x$ satisfies \eqref{eq-loc1} then substitution in
-@eq-alpdef gives \eqref{eq-loc2}.
+After some manipulation \eqref{eq-loc1} and \eqref{eq-loc2} are the necessary conditions $\alpha'(x)=0$ and 
+$\alpha''(x)\leq 0$ for a local maximum. If $\alpha'(x)=0$ and 
+$\alpha''(x)>0$ the conditions are sufficient. If $x$ satisfies \eqref{eq-loc1} then substitution in @eq-alpdef gives \eqref{eq-loc3}.
 :::
 
 Note that we have not shown that $\alpha$ always attains its maximum. 
 @deleeuw_lange_A_09 give the example of the differentiable function
-$$
+\begin{equation}
 f(x)=\begin{cases}
 x^2&\text{ if }x\leq 1,\\
 2x-1&\text{ otherwise},
-\end{cases}
-$$(#eq-dllexam)
+\end{cases}\label{eq:dllexam}
+\end{equation}
 which has $\alpha(x)=0$ for $x>1$ and $\alpha(x)<2$ for $x\leq 1$, so that
-$A=\sup_{x\leq 1}\alpha(x)=2$ and the maximum does not exist.
+$a_+=\sup_{x\leq 1}\alpha(x)=2$ and the maximum does not exist. 
 
-Also, the conditions of @thm-locmax cannot show
-that $\alpha$ has a *global* maximum at $x$, and that consequently $g$ of @eq-qmaj with $a$ given by \eqref{eq-loc2} is a sharp quadratic majorizer.
+Also, the conditions of @thm-locmax cannot possibly show
+that $\alpha$ has a *global* maximum at $x$, and that consequently $g_a$ of @eq-qmaj with $a$ given by \eqref{eq-loc3} is a sharp quadratic majorizer.
 
-### Regulated Functions
+Differentiation of $\alpha$ gives the following result.
 
-Theorem 4.5 in @deleeuw_lange_A_09 gives a way to construct quadratic
-majorizers of a differentiable function on an interval. We generalize it
-here to regularized functions, which may not be differentiable at all
-points in the interval. First a short introduction to regularized 
-functions (@dieudonne_69, sections 7.6 and 8.7).
-
-::: {#def-regulated}
-A real-valued function on a closed interval $[a,b]$ is *regulated* if it has a limit from the right for each $x$ in $[a,b)$ and a limit from the left for each $x$ in $(a,b]$.
-:::
-
-Note that the end-points of the interval can be $\pm\infty$. Regularized functions can only have discontinuities of the first kind (jump discontinuities). Step functions, monotone functions, functions of bounded variation, and continuous functions are all regulated functions. An alternative definition is that regulated functions are limits of sequences of step functions, where the convergence is uniform on compact sets. 
-
-::: {#def-primitive}
-A real-valued function $f$ on $[a,b]$ is a *primitive* of a real-valued function $g$ on $[a,b]$ if $f$ is differentiable with $f'(x)=g(x)$, except possibly at a denumerable number of points.
-:::
-
-A regulated function has at least one primitive, and primitives are unique
-up to addition of a constant function. The primitive $f$ of a continuous function $g$ is differentiable everywhere, with $f'(x)=g(x)$.
-
-::: {#def-integral}
-The *integral* of a regulated function $f$ on $[a,b]$, written as $\int_a^b f(x)dx$, is equal to $g(b)-g(a)$, where $g$ is one of the primitives of $f$.
-:::
-
-
-::: {#thm-dll}
-Suppose $g$ is a regulated function on $[x,y]$ and $f$ is one of its primitives. Define $h(z):=g(z)/z$ and assume $h$ is non-increasing on $[x,y]$. Then we have the quadratic majorization
+::: {#cor-incdec}
+Suppose $\alpha$ is differentiable. Then it is strictly increasing if and only if for all $x$
 $$
-f(x)\leq f(y)+\frac12h(y)(x^2-y^2).
-$${#eq-amajor}
-of $f$ at $y$.
+\frac{f(x)-f(y)}{x-y}<\frac12(f'(x)+f'(y)),
+$${#eq-strinc}
+and strictly decreasing if and only if for all $x$
+$$
+\frac{f(x)-f(y)}{x-y}<\frac12(f'(x)+f'(y)).
+$${#eq-strdec}
 :::
 ::: {.proof}
-$$
-f(y)-f(x)=\int_x^y g(z)dz=\int_x^y h(z)zdz\geq h(y)\int_x^yzdz=\frac12(y^2-x^2).
-$${#eq:dllproof}
+These are the conditions $\alpha'(x)>0$ and $\alpha'(x)<0$ for all $x$.
 :::
 
-@thm-dll implicitly assumes that if $[x,y]$ contains zero then 
-$h(z)/z$ is defined at $z=0$. Maybe $h$ is of the form $h(z)=zu(z)$
-for some function $u$, or maybe l'Hôpital applies. 
-Since the value of the integral does not change if we change the integrand at a single point this causes no loss of generality.
+If @eq-strinc or @eq-strdec is true then $\alpha$ does not have a maximum,
+and the supremum (possibly infinite) is the limit of $\alpha$ to $-\infty$ or $+\infty$.
 
-Suppose $g$ is the sign function, which is obviously regulated, and 
-$f$ is the absolute value function, a primitive of $g$. Then for
-$y>0$
+Because of our robust loss functions we are especially interested in the case
+that $f$ is even. Setting $x=-y$ makes both sides of \eqref{eq-loc1} equal to zero. Thus $\alpha$ has a stationary point at $x=-y$. If in addition
 $$
-|x|\leq|y|+\frac12\frac{1}{|y|}(x^2-y^2)=\frac12\frac{1}{|y|}(x^2+y^2),
-$$
-which is the AM/GM inequality.
+f''(y)<\frac{f'(y)}{y}
+$${#eq-miny}
+then $\alpha$ has a local maximum at $x=-y$. 
 
-### Two Support Points {#sec-twosupport}
+::: {#thm-evena}
+Suppose $f$ is even and twice-differentiable. If $f'(x)/x$ is decreasing
+on the positive real line then $\alpha$ has a local maximum at $x=-y$.
+:::
+::: {.proof}
+If $f'(x)/x$ is strictly decreasing its derivative is strictly negative. Thus
+$xf''(x)-f'(x)<0$ for $x>0$. For an even function
+$f'(x)/x$ is strictly decreasing on the positive real line if and only if it is strictly increasing on the negative real line. Thus $xf''(x)-f'(x)>0$ for $x<0$. In both cases @eq-miny follows.
+:::
+
+## Two Support Points {#sec-twosupport}
+
+We can say more if it is known that the quadratic majorization has more than one support point.
 
 ::: {#thm-twop}
-Suppose the quadratic $g$ majorizes $f$ at $y$ and at $z\not= y$. Then
+Suppose the quadratic $g_a$ of @eq-qmaj majorizes $f$ at $y$ and at $z\not= y$. Then
 $$
 a=\frac{f'(z)-f'(y)}{z-y}
 $${#eq-atwop}
 :::
 ::: {.proof}
-From @eq-qmaj we have $g'(x)=f'(y)+a(x-y)$. But because of @thm-diff
-we must also have $g'(z)=f'(z)$. Thus $g'(z)=f'(y)+a(z-y)=f'(z)$.
+From @eq-qmaj we have $g_a'(x)=f'(y)+a(x-y)$. But because of @thm-diff
+we must also have $g_a'(z)=f'(z)$. Thus $g_a'(z)=f'(y)+a(z-y)=f'(z)$.
 :::
 
-Again, we have not shown that $g$ with $a$ from @eq-atwop majorizes
-$f$ at $y$ and $z$. Only the reverse implication, which is that if $g$
-majorizes $f$ at $y$ and $z$ then $g$ is uniquely determined
+Again, we have not shown that $g_a$ with $a$ from @eq-atwop majorizes
+$f$ at $y$ and $z$. Only the reverse implication, which is that if $g_a$
+majorizes $f$ at $y$ and $z$ then $g_a$ is uniquely determined
 by @eq-atwop. In practice, even if one knows the support points $y$ and $z$, 
-one still has to prove
-majorization. This is precisely how @heiser_88, @verboon_heiser_94, and 
-@groenen_giaquinto_kiers_03 establish their majorizations.
-@vanruitenburg_05 takes us a step further down that road.
+one still has to prove majorization. This is precisely how @heiser_88, @verboon_heiser_94, and  @groenen_giaquinto_kiers_03 establish their majorizations. 
+
+In his master's thesis @vanruitenburg_05 takes us one step further down the necessary conditions road. To present his main result we need two lemmas.
 
 ::: {#lem-fan}
 If different quadratics $g$ and $h$ majorize $f$ at $y$ then either
@@ -483,8 +519,7 @@ h(x)&=f(y)+f'(y)(x-y)+\frac12a_2(x-y)^2.\label{eq-hfunc}.
 \end{align}
 \end{subequations}
 Thus $g(x)-h(x)=\frac12(a_1-a_2)(x-y)^2$, which is either
-strictly positive or strictly negative for $x\not= y$ and
-zero for $x=y$.
+strictly positive or strictly negative for $x\not= y$.
 :::
 
 ::: {#lem-ruit}
@@ -493,13 +528,11 @@ Suppose, in addition, that $g$ majorizes $f$ at $z\not=y$.
 Then $h$ strictly majorizes $g$ at $y$. 
 :::
 ::: {.proof}
-If $g$ strictly majorizes $h$ at $y$ then $h(z)<g(z)=f(z)$
-and thus $h$ does not majorize $f$. By @lem-fan
-$h$ strictly majorizes $g$ at $y$.
+By @lem-fan one of $g$ and $h$ has to strictly majorize the other. If $g$ strictly majorizes $h$ then $h(z)<g(z)=f(z)$ and thus $h$ does not majorize $f$, contrary to assumption. It follows that $h$ strictly majorizes $g$ at $y$.
 :::
 
 ::: {#thm-ruit} 
-If the quadratic $g$ majorizes  $f$ at $y$ and at $z\not= y$, then $g$ is a
+If the quadratic $g$ majorizes $f$ at $y$ and at $z\not= y$, then $g$ is a
 sharp majorizer of $f$ at $y$.
 :::
 ::: {.proof}
@@ -507,8 +540,7 @@ Directly from @lem-ruit.
 :::
 
 
-
-### Even Functions
+Again our results simplify if the function $f$ is even.
 
 ::: {#thm-evqu}
 If $f$ is even and the quadratic $g$ majorizes $f$ at $y$ and $-y$, where $y\not= 0$, then $g$ is the even quadratic given by
@@ -535,111 +567,120 @@ g(x)=f(y)-f'(y)(x+y)+\frac12\frac{f'(y)}{y}(x+y)^2.\label{eq-gatminy}
 Averaging the two equations \eqref{eq-gatplusy} and \eqref{eq-gatminy} for $g$, and simplifying, gives the required result. That the majorization is sharp follows from @thm-ruit.
 :::
 
-If $f$ is even then $x=-y$ makes both sides of \eqref{eq-loc1} equal to zero.
-Thus $\alpha$ has a stationary point at $-y$.
+## Sufficient Conditions 
 
-If in addition
-$$
-f''(y)<\frac{f'(y)}{y}
-$${#eq-miny}
-then $-y$ is a local maximum of $\alpha$. 
-
-If $y>0$ then @eq-miny can be written as $yf''(y)-f'(y)<0$. 
-
-Now the sign of the
-derivative of $f'(x)/x$ is the sign of $xf''(x)-f'(x)$ and thus ... 
-is equivalent to $f'(x)/x$ is decreasing for $x>0$.
-
-::: {lem-decre}
-On the positive real line $f'(x)/x$ is decreasing if and only if $$
-f''(x)\leq\frac{f'(x)}{x}.
-$$
-:::
-$$
-\left(\frac{f'(x)}{x}\right)'=\frac{xf''(x)-f'(x)}{x^2}
-$$
-If $f'(x)/x$ is decreasing then $xf''(x)-f'(x)<0$. Thus if $x>0$ 
-$f'(x)/x$ is decreasing is equivalent with 
-$$
-f''(x)\leq\frac{f'(x)}{x}
-$$
-
-
-### Mis
-
+@deleeuw_lange_A_09 gives a way to construct quadratic
+majorizers of a differentiable function on the real line. We give a slightly more general version of their basic theorem that provides a convenient way to deal with loss functions that are not differentiable everywhere. Our proofs
+are different.
 
 ::: {#thm-wght}
-Suppose 
-
-1. $f$ is the primitive of a regulated function $h$ on $\mathbb{R}$
-2. the ratio  $h(x)/x$ is non-increasing on $(0,\infty)$
-3. $f$ is even
-
-Then the even quadratic
+Suppose there is a function $h$, concave on $\mathbb{R}^+$, such that
+$f(x)=h(x^2)$. Then
 $$
-g(x)=\frac{f'(y)}{2y}(x^2-y^2)+f(y)\label{eq:sharp}
-$$
-is a sharp quadratic majorizer of $f$ at the point $y$.
+g(x)=f(y)+\frac12\frac{f'(y)}{y}(x^2-y^2).
+$${#eq-given}
+is a sharp quadratic majorizer of $f$ at $y$
 :::
-
 ::: {.proof}
-Suppose $0<y<x$. Then
-\begin{align}
-f(x)-f(y)&=\int_y^x h(z)dz=\notag\\
-&=\int_y^x \frac{h(z)}{z}zdz\leq\frac{h(y)}{y}\int_y^xzdz=\notag\\
-&=\frac12\frac{h(y)}{y}(x^2-y^2).
-\end{align}
-If $0<x<y$ then
-\begin{align}
-f(y)-f(x)&=\int_x^y h(z)dz=\\
-&=\int_x^y \frac{h(z)}{z}zdz\geq\frac{h(y)}{y}\int_y^xzdz=\\
-&=\frac12\frac{h(y)}{y}(y^2-x^2).
-\end{align}
-If $x<0<y$ then
+By concavity for all $u\in\mathbb{R}^+$ and for all $v\in\mathbb{R}^+$ for which $h'(v)$ exists
 $$
-f(y)-f(x)=\int_x^y h(z)dz=
-\int_x^0 h(z)dz+\int_0^y h(z)dz=
-\int_0^{-x} h(z)dz+\int_0^y h(z)dz
-\leq\frac{h(-x)}{-x}
+h(u)\leq h(v)+h'(v)(u-v).
+$${#eq-concave}
+Substituting $u=x^2$ and $v=y^2$ gives the quadratic majorization
 $$
+f(x)\leq f(y)+h'(y^2)(x^2-y^2),
+$${#eq-conc2}
+which is true for all real $x$ and $y$, provided $h$ is differentiable at
+$y^2$. If it is then using $f'(y)=2yh'(y^2)$ in @eq-conc2 gives
+$$
+f(x)\leq f(y)+\frac12\frac{f'(y)}{y}(x^2-y^2).
+$${#eq-concmaj}
 :::
 
-::: {#thm-sqrt} 
-The ratio $f'(x)/x$ is decreasing on $(0,\infty)$ if and only 
-$f(\sqrt{x})$ is concave. The set of functions satisfying this condition is closed under the formation of (a) positive multiples, (b) convex combinations, (c) limits, and (d) composition with a concave increasing function $g(x)$.
+Note that $f(x)=h(x^2)$ implies that $f$ is even. If we want to get rid of the differentiability assumption altogether we can use the majorization
+$$
+f(x)\leq f(y)+a(y)(x^2-y^2)
+$$
+where $a(y)$ is any element of $\partial h(y^2)$, the superdifferential
+of $h$ at $y^2$. The superdifferential, which is the analog of the subdifferential for concave functions (@border_18), is non-empty on $\mathbb{R}^+$, except possibly at zero.
+
+
+::: {#thm-sqrt}
+$f(x)=h(x^2)$ for concave $h$ on $\mathbb{R}^+$ if and only if $f(\sqrt{x})$ is concave in $x$, and, for differentiable $f$, if and only if $f'(x)/x$ is decreasing on $\mathbb{R}^+$.
+:::
+::: {.proof}
+The first part of the theorem merely states the obvious. 
 :::
 
-Note that these theorems give a sufficient condition for quadratic
-majorization (in fact, for sharp quadratic majorization) and not a necessary one. Quadratic majorization, and even sharp quadratic majorization, may still be possible if the conditions in the theorem are violated.
+Some quick examples of the use of @thm-wght before we go to the
+robust loss functions.
 
+::: {#exm-sqrt}
+Suppose $h$ is the square root, so that $f(x)=\sqrt(x^2)=|x|$
+and for $y\not=0$ we have $f'(y)/y=1/|y|$.
+From @thm-wght we have the quadratic majorization
+$$
+|x|\leq|y|+\frac12\frac{1}{|y|}(x^2-y^2)=\frac12\frac{1}{|y|}(x^2+y^2),
+$$
+which is the AM/GM inequality. So AM/GM majorization of the absolute
+value is sharp.
+:::
+
+::: {#exm-quartic}
+Suppose $h(x)=\frac12x(1-\frac12x)$. Thus $f$ is the even quartic
+$$
+f(x)=\frac12x^2(1-\frac12x^2).
+$$
+We have $f'(y)/y=1-y^2,$ and thus the majorizer
+$$
+g(x)=f(y)+\frac12(1-y^2)(x^2-y^2).
+$$
+For all $y^2<1$ $g$ has its minimum at zero. If $y^2>1$ the majorizer is a concave quadratic, which has no
+minimum and is unbounded below. If $y^2=1$ the majorizer is the horizontal line $x=\frac14$ and the majorization method stops at a local maximum.
+:::
+
+
+```{r}
+#| label: fig-quartic
+#| fig.align: center
+#| echo: FALSE
+#| fig.cap: A Quartic
+fq <- function(x) {
+  z <- (x ^ 2) / 2
+  return(z * (1 - z))
+}
+gq <- function(x, y) {
+  return(fq(y) + (1 - (y ^ 2)) * ((x ^ 2) - (y ^ 2)) / 2.0)
+}
+base <- ggplot() + xlim(-1.3, 1.3)
+base <- base +
+  geom_function(aes(), fun = fq, colour = "red") 
+base + geom_function(aes(), fun = gq, args = list(y = 0.5), colour = "blue")
+```
 
 
 
 We now apply @thm-wght to functions of the form
-\begin{equation}
-\sigma_f(X):=\sum \omega_k\ f(\delta_k-d_k(X)),\label{eq:fstressdef}
-\end{equation}
+$$
+\sigma_f(X):=\sum \omega_k\ f(\delta_k-d_k(X)),
+$${#eq-fstressdef}
 where $f$ satisfies the conditions in the theorem. If
-\begin{equation}
-\omega_f(X):=\sum \omega_k\frac{f'(\delta_k-d_k(Y))}{2(\delta_k-d_k(Y))}\{(\delta_k-d_k(X))^2-(\delta_k-d_k(Y))^2\}+f(\delta_k-d_k(Y)),\label{eq:fstressmaj}
-\end{equation}
-then $\omega_f$ is a sharp quadratic majorization at $Y$.
-
-
+$$
+\eta(X):=\sum \omega_k\frac{f'(\delta_k-d_k(Y))}{2(\delta_k-d_k(Y))}\{(\delta_k-d_k(X))^2-(\delta_k-d_k(Y))^2\}+f(\delta_k-d_k(Y)),
+$${#eq-fstressmaj}
+then $\eta$ is a sharp quadratic majorization at $Y$.
 
 In iteration $k$ the robust smacof algorithm does a smacof step towards minimization of
- $\omega_f$ over $X$. We can ignore the parts of \eqref{eq:fstressmaj} that only depend on $Y$, and 
+ $\eta$ over $X$. We can ignore the parts of @eq-fstressmaj that only depend on $Y$, and 
 minimize
-\begin{equation}
-\sum \omega_k(X^{(k)})(\delta_k-d_k(X))^2,\label{eq:fstressaux}
-\end{equation}
+$$
+\sum \omega_k(X^{(\nu)})(\delta_k-d_k(X))^2,
+$${#eq-fstressaux}
 with 
-\begin{equation}
-\omega_k(X^{(k)}):=\omega_k\frac{f'(\delta_k-d_k(X^{(k)}))}{2(\delta_k-d_k(Y))}.\label{eq:wkdef}
-\end{equation}
-It then recomputes the weights $\omega_k(X^{(k+1)})$ and goes to the smacof step again. This can be thought of as iteratively reweighted least squares (IRLS), and also as nested majorization, with the smacof majorization based on the Cauchy-Schwartz inequality within the sharp quadratic majorization of the loss function based on the AM/GM inequality.
-
-
+$$
+\omega_k(X^{(\nu)}):=\omega_k\frac{f'(\delta_k-d_k(X^{(\nu)}))}{2(\delta_k-d_k(Y))}.
+$${#eq-wkdef}
+We then recomputes the weights $\omega_k(X^{(\nu+1)})$ and go to the smacof step again. This can be thought of as iteratively reweighted least squares (IRLS), and also as nested majorization, with the smacof majorization based on the Cauchy-Schwartz inequality within the sharp quadratic majorization of the loss function based on @thm-wght.
 
 \sectionbreak
 
@@ -655,32 +696,17 @@ parameter $q$ that determines the shape of the loss function bowl.
 The first, and perhaps most obvious, choice for smoothing the absolute
 value function is
 $$
-f_c(x)=\sqrt{x^2 + c^2}.
+f(x)=\sqrt{x^2 + c^2}.
 $${#eq-charf}
+In the engineering literature @eq-charf is known as Charbonnier loss, after @charbonnier_blanc-feraud_aubert_barlaud_94, who were possibly
+the first researchers to use it in image restauration. 
+@ramirez_sanchez_kreinovich_argaez_14 count the number of
+computer operations and conclude that @eq-charf is also the "most computationally efficient smooth approximation to $|x|$". 
 
 For $c>0$ we have $f_c(x)>|x|$.
 If $c\rightarrow 0$ then  $f_c(x)$ decreases monotonically to $|x|$. Also $\max_x|f_c(x)-|x||=c$ attained at $x=0$, which implies
 uniform convergence of $f_c$ to $|x|$.
 
-In the engineering literature @eq-gcharf is known as Charbonnier loss, after @charbonnier_blanc-feraud_aubert_barlaud_94, who were possibly
-the first researchers to use it in image restauration. 
-@ramirez_sanchez_kreinovich_argaez_14 count the number of elementary 
-computer operations and argue @eq-gcharf is also the "most computationally efficient smooth approximation to $|x|$". 
-
-```{r}
-#| label: charfig
-#| fig.align: center
-#| echo: FALSE
-#| fig.cap: "Charbonnier Loss"
-fcharbonnier <- function(x, c) {sqrt(x ^ 2 + c ^ 2)}
-base <- ggplot() + xlim(-3, 3)
-base <- base +
-  geom_function(aes(colour = "c = 1"), fun = fcharbonnier, args = list(c = 1))
-base <- base + labs(x = "variable", y = "value")
-base <- base + geom_function(aes(colour = "c = .1"), fun = fcharbonnier, args = list(c = .1)) 
-base <- base + geom_function(aes(colour = "c = .01"), fun = fcharbonnier, args = list(c = .01)) 
-base + geom_function(aes(colour = "c = .001"), fun = fcharbonnier, args = list(c = .001)) 
-```
 
 
 By l'Hôpital
@@ -711,6 +737,24 @@ w_c(x)=\frac{1}{\sqrt{x^2+c^2}}\label{eq:charw}
 \end{equation}
 which is clearly a decreasing function of $x$ on $\mathbb{R}^+$.
 
+```{r}
+#| label: fig-char
+#| fig.align: center
+#| echo: FALSE
+#| fig.cap: "Charbonnier Loss"
+fcharbonnier <- function(x, c) {sqrt(x ^ 2 + c ^ 2)}
+base <- ggplot() + xlim(-3, 3)
+base <- base +
+  geom_function(aes(colour = "c = 1"), fun = fcharbonnier, args = list(c = 1))
+base <- base + labs(x = "variable", y = "value")
+base <- base + geom_function(aes(colour = "c = .1"), fun = fcharbonnier, args = list(c = .1)) 
+base <- base + geom_function(aes(colour = "c = .01"), fun = fcharbonnier, args = list(c = .01)) 
+base + geom_function(aes(colour = "c = .001"), fun = fcharbonnier, args = list(c = .001)) 
+```
+
+
+
+
 ## Generalized Charbonnier
 
 The loss function $(x^2+c^2)^\frac12$ smoothes $|x|$. In the same way generalized Charbonnier loss smoothes $\ell_p$ loss $|x|^q$. We have
@@ -724,11 +768,12 @@ w_{c,q}(x)=q(x^2+c^2)^{\frac12 q-1}\label{eq:gcharw}
 which is non-increasing for $q\leq 2$. Note that we do not assume that
 $q>0$, and consequently generalized Charbonnier loss provides us with more flexibility than Charbonnier loss from @eq-charf. Of course if
 $q<0$ "loss" becomes "gain", with a maximum at zero instead of a
-minimum. To get a proper loss function, take the negative. @fig-gchar
-plots generalized Charbonnier loss for some negative values of $q$.
+minimum. To get a proper loss function, take the negative. 
+@fig-gchar plots generalized Charbonnier loss for some negative 
+values of $q$. We see that for $\alpha\rightarrow-\infty$ generalized Charbonnier loss aproximates $\ell_0$ loss.
 
 ```{r}
-#| label: gchar
+#| label: fig-gchar
 #| fig.align: center
 #| echo: FALSE 
 #| fig.cap: Generalized Charbonnier Loss
@@ -745,7 +790,7 @@ base <- base + geom_function(aes(colour = "c = 1, q = -.5"), fun = gfcharbonnier
 base + geom_function(aes(colour = "c = 1, q = -.1"), fun = gfcharbonnier, args = list(c = 1, q = -.1)) 
 ```
 
-We see that for $\alpha\rightarrow-\infty$ generalized Charbonnier loss aproximates $\ell_0$ loss.
+
 
 ## Barron
 
@@ -769,19 +814,19 @@ f'_{\alpha,c}(x)=\begin{cases}
 \frac{x}{c^2}\exp\left(-\frac12(x/c)^2\right)&\text{ if }\alpha\rightarrow-\infty,\\
 \frac{x}{c^2}\left(\frac{(x/c)^2}{|\alpha-2|}+1\right)^{(\frac12\alpha-1)}&\text{ otherwise}.
 \end{cases}
-$${#eq-barroni}
+$${#eq-barronf}
 and thus
 $$
-w_{\alpha,c}(x)=\begin{cases}
+h_{\alpha,c}(x)=\begin{cases}
 \frac{1}{c^2}&\text{ if }\alpha=2,\\
 \frac{2}{x^2+2c^2}&\text{ if }\alpha=0,\\
 \frac{1}{c^2}\exp\left(-\frac12(x/c)^2\right)&\text{ if }\alpha\rightarrow-\infty,\\
 \frac{1}{c^2}\left(\frac{(x/c)^2}{|\alpha-2|}+1\right)^{(\frac12\alpha-1)}&\text{ otherwise}.
 \end{cases}
-$${#eq-barronw}
+$${#eq-barronh}
 
 ```{r}
-#| label: barronfig
+#| label: fig-barron
 #| fig.align: center
 #| echo: FALSE
 #| fig.cap: "Barron Loss"
@@ -873,7 +918,7 @@ $$
 $$
 
 ```{r}
-#| label: ghuberfig
+#| label: fig-huber
 #| fig.align: center
 #| echo: FALSE
 #| fig.cap: Huber Loss
@@ -919,7 +964,7 @@ $$
 $$
 
 ```{r}
-#| label: ggaussianfig
+#| label: fig-gaussian
 #| fig.align: center
 #| echo: FALSE
 #| fig.cap: Gaussian Convolution Loss
@@ -980,7 +1025,7 @@ c\sin(x/c)&\text{ if }|x|\leq\pi c,\\
 Because $\cos$ is even and $\sin(x)/x$ decreases on $[0,\pi]$ @thm-wght  applies.
 
 ```{r}
-#| label: gandrewsfig
+#| label: fig-andrews
 #| fig.align: center
 #| echo: FALSE
 #| fig.cap: Andrews Loss
@@ -1018,7 +1063,7 @@ x\left(1-\left(1-(x/c)^2\right)^2\right)&\text{ if } |x|\leq c,\\
 The conditions of @thm-wght are clearly satisfied.
 
 ```{r}
-#| label: gtukeyfig
+#| label: fig-tukey
 #| fig.align: center
 #| echo: FALSE
 #| fig.cap: Tukey Loss
@@ -1036,26 +1081,26 @@ base + geom_function(aes(colour = "c = .5"), fun = ftukey, args = list(c = .5))
 
 ## Hinich
 
-Hinich loss, from @hinich_talwar_75, is somewhat special because it is even but not differentiable at $c$. For $x\not= c$ and $x>0$ the function $f'(x)/x$
-is non-increasing.
+Hinich loss, from @hinich_talwar_75, is somewhat special because it is not differentiable at $c$. For $x\not= c$ and $x>0$ the function $f'(x)/x$
+is discontinuous, but non-increasing on $[0,+\infty)$.
 
 \begin{align}
 f(x)&=\begin{cases}
 \frac12 x^2&\text{ if } |x|\leq c,\\
 \frac12 c^2&\text{ otherwise}.
 \end{cases}\\
-f'(x)&=\begin{cases}
-1&\text{ if } |x|\leq c,\\
+g(x)&=\begin{cases}
+x&\text{ if } |x|\leq c,\\
 0&\text{ otherwise}.
 \end{cases}\\
-\omega(x)&=\begin{cases}
-1/x&\text{ if } |x|\leq c,\\
+h(x)&=\begin{cases}
+1&\text{ if } |x|\leq c,\\
 0&\text{ otherwise}.
 \end{cases}
 \end{align}
 
 ```{r}
-#| label: ghinichfig
+#| label: fig-hinich
 #| fig.align: center
 #| echo: FALSE
 #| fig.cap: Hinich Loss
@@ -1085,7 +1130,7 @@ f'(x)&=x\frac{1}{\{1+\frac{x}{c}\}^2},\\
 
 
 ```{r}
-#| label: gcauchyfig
+#| label: fig-cauchy
 #| fig.align: center
 #| echo: FALSE
 #| fig.cap: Cauchy Loss
@@ -1113,7 +1158,7 @@ f'(x)&=x\exp(-\{\frac{x}{c}\}^2,\\
 \end{align}
 
 ```{r}
-#| label: gwelschfig
+#| label: fig-welsch
 #| fig.align: center
 #| echo: FALSE
 #| fig.cap: Welsch Loss
@@ -1136,7 +1181,7 @@ f'(x)&=c\tanh(x/c),\\
 \end{align}
 
 ```{r}
-#| label: glogisticfig
+#| label: fig-logistic
 #| fig.align: center
 #| echo: FALSE
 #| fig.cap: Logistic Loss
@@ -1158,7 +1203,7 @@ f'(x)&=x(1+(|x|/c))^{-1},\\
 \end{align}
 
 ```{r}
-#| label: gfairfig
+#| label: fig-fair
 #| fig.align: center
 #| echo: FALSE
 #| fig.cap: Fair Loss
@@ -1170,7 +1215,6 @@ base <- base + geom_function(aes(colour = "c = 2"), fun = ffair, args = list(c =
 base <- base + geom_function(aes(colour = "c = 1"), fun = ffair, args = list(c = 1)) 
 base + geom_function(aes(colour = "c = .5"), fun = ffair, args = list(c = .5))
 ```
-
 
 \sectionbreak
 
@@ -1526,7 +1570,7 @@ ggplot(as.data.frame(residuals), aes(residuals)) + geom_histogram(binwidth = .5)
 ```
 \sectionbreak
 
-# Literature
+# Literature {#sec-literature}
 
 The literature on results like @thm-wght and @thm-sqrt is difficult to review. There are various reasons for that. Relevant results have
 been published in robust statistics, computational statistics, optimization, location analysis, image restoration, sparse recovery. As is often the case, there are not many references between fields, almost everything is within.
@@ -1557,37 +1601,119 @@ In robust statistics it has been known for a long time that iterative reweighted
 
 In location analysis the first majorization/IRLS method is generally 
 attributed to a 16-year old Hungarian mathematics prodigy (@weiszfeld_37). His 
-algorithm avant-la-lettre was intended to minimize a function of
+algorithm avant-la-lettre was intended to find the minimum of a function of
 the form
 $$
-\sigma(x)=\sum_k \|x-y_k\|,
-$${#eq-weiszfeld}
-over $x$ in the plane or in three-space. The $y_i$ are known locations, called *anchors* in the literature, and the norm is Euclidean. 
-There is an English translation of Weiszfeld's paper, with bibliography and comments, in @weiszfeld_plastria_09. The minimization of @eq-weiszfeld
+\sigma(x)=\sum_k w_kd_k(x),
+$${#eq-web}
+where $d_k(x)=\|x-y_k\|$, over $x$ in $\mathbb{R}^n$. The $y_k$ are known locations, called *anchors* in the literature, and the norm is Euclidean. Actually @weiszfeld_37 did not use weights $w_k$ and worked in
+three-dimensional space. There is an English translation of Weiszfeld's paper, with bibliography and comments, in @weiszfeld_plastria_09. 
+
+The problem of minimizing @eq-web
 is known under various names, usually consisting of
 one of the seven different non-empty selections from the triple (Torricelli, Fermat, Weber). The history of the problem is discussed, for example, in @plastria_11.
 
-Over the years the location problem has been
-generalized in numerous directions, to multiple locations, to using different norms, to unknown anchors, to nonlinear manifolds, and to obnoxious anchors you want to be far from. A good recent overview is @beck_sabach_15. An paper close in spirit to our paper is @aftab_hartley_trumpf_15, which has generalizations to $\ell_q$ norms and to Riemannian manifolds of non-negative curvature.
-
-There is a huge literature on the convergence of the Weiszfeld algorithm.
-As in our @sec-amgm the basis is majorization based on the AM/GM inequality.
-Thus
+Weiszfeld first acknowledges that @sturm_84 has already established the
+existence and uniqueness of the minimum point. He then proceeds to give three new proofs. We are interested in the first one, described in his first theorem. It defines the iterative sequence
 $$
-\|x-y_\nu\|\leq\frac12\frac{1}{\|x^{(k)}-y_\nu\|}(\|x-y_\nu\|^2+\|x^{(k)}-y_\nu\|^2)
-$${#eq-wmajw}
-Thus the update is
-$$
-x^{(k+1)}=\frac{\sum\omega_\nu(x^{(k)})y_\nu}{\sum\omega_\nu(x^{(k)})}
-$${#eq-wupdate}
+x^{(\nu+1)}=\frac{\sum\omega_k(x^{(\nu)})y_k}{\sum\omega_k(x^{(\nu)})}
+$${#eq-wup}
 with weights
 $$
-\omega_\nu(x)=\frac{1}{\|x-y_\nu\|}.
-$${#eq-wweights}
+\omega_\nu(x)=\frac{1}{d_k(x^{(\nu)})}.
+$${#eq-ww}
+The proof then consists of showing that the sequence converges to the
+unique minimum point of @eq-web. It would have been nice if we were
+told where @eq-wup came from, but it is simply taken as the starting
+point. 
+
+We can guess what suggested this particular sequence. Observe first that the correponding problem with $d_k(x)$ replaced by $d_k^2(x)$ is easy to solve. The solution is simply the weighted mean of the $y_k$. This suggests the rewrite
+$$
+\sigma(x)=\sum_k w_kd_k(x)=\sum_kw_k \frac{1}{d_k(x)}d_k^2(x),
+$${#eq-rew}
+which in turn suggests @eq-wup. Alternatively, differentiate
+the loss in @eq-web and set the partials equal to zero. This
+gives
+$$
+\sum_k w_k\frac{1}{d_k(x)}(x-y_k)=0,
+$${#eq-wstatio1}
+or
+$$
+x=\frac{\sum\omega_k(x)y_k}{\sum\omega_k(x)}.
+$${#eq-wstatio2}
+@sturm_84 mentions that he derived his existence and uniqueness theorem
+without using differentiation, but he mentions a paper by Lorenz 
+Lindelöf from 1866 which derives his necessary conditions using
+differentiation (I have not been able to find a copy of that paper).
+The discussion is a clear example of the nineteenth century tension between using synthetic (geometric) methods or analytic (calculus) methods. 
+
+Even more synthetic were the methods in a paper by Lamé and Clapeyron
+of 1829. (I have not been able to find a copy of that paper either).
+There is a partial translation in @franksen_grattan-guinness_89.
+Lamé and Clapeyron suggest solving their "moindre distances" problems,
+which generalize the single facility location problem in various ways,
+by ingeneous systems of pulleys. There is a translation of the
+general principles section of the Lamé and Clapeyron
+paper in @franksen_grattan-guinness_89. From that translation we read in 
+General Principle 9 their defense of the mechanical method they propose.
+
+> But if one considers that the proposed problem is totally insoluble, in its entire generality, by the current means of analysis and geometry; that it is only in very special and very simple cases that one may obtain a complete graphical solution; that finally in the applications the data themselves are only approximate; one will be forced to adrmt that in the state of imperfection in which algebraic analysis is still found today, the manner of solution in question here is the only one which obtains for the proposed problem.
+
+In General Principle 21 they suggest an iterative method of "trial and error"
+to solve the weighted location problem, where the weights in each iteration
+are adjusted by multiplying them with the inverse of the distances in the previous iteration. Thus they propose the Weiszfeld algorithm, albeit in a version using pulleys.
+
+
+
+Over the years the location problem has been
+generalized in numerous directions, to multiple locations, to using different norms, to unknown anchors, to nonlinear manifolds, and to obnoxious anchors you want to be far from. A good recent overview is @beck_sabach_15. A paper close in spirit to our paper is @aftab_hartley_trumpf_15, which has generalizations to $\ell_q$ norms and to Riemannian manifolds of non-negative curvature.
+
+There is a huge literature on the convergence of the Weiszfeld algorithm.
+As in our @sec-amgm we can simply use AM/GM inequality.
+Thus
+$$
+\|x-y_\nu\|\leq\frac12\frac{1}{\|x^{(\nu)}-y_\nu\|}(\|x-y_\nu\|^2+\|x^{(\nu)}-y_\nu\|^2),
+$${#eq-webamgm}
+which immediately gives @eq-wup. Convergence follows from the general
+majorization of MM theory.
 
 Unlike robust smacof the Toricelli-Fermat-Weber problem is convex, 
 and consequently has no problems with non-global local minima.
 A most elegant proof of convergence using the tools of modern convex analysis is in @mordukhovich_nam_19. Older proofs sometimes have difficulty dealing with cases in which the iterates coincide with one of the anchors or in which the solution is actually one of the anchors. This creates problems similar to the problems in our @sec-zero, but in this simple case the problem is can be completely resolved using convexity and has no serious algorithmic consequences.
+
+In a straightforward generalization of the Toricelli-Fermat-Weber problem , which is particularly relevant for the developments in our paper, @katz_69 proposes to minimize
+$$
+\sigma(x)=\sum_{k=1}^mw_kd_k^q(x),
+$${#eq-katzp}
+and even 
+$$
+\sigma(x)=\sum_{k=1}^mw_kf_k(d_k(x))
+$${#eq-katzf}
+with Euclidean distances and $f_k$ functions defined on the non-negative reals. Note that if $f$ is convex ands increasing then $\sigma$ of
+@eq-katzf is convex. If $q\geq 1$ then $\sigma$ of @eq-katzp is convex.
+
+The algorithm Katz suggests for minimizinf $\sigma$ of @eq-katzp generalizes the decompostion in @eq-rew to
+$$
+\sigma(x)=\sum_k w_kd_k(x)=\sum_kw_k \frac{1}{d_k^{2-q}(x)}d_k^2(x),
+$${#eq-katzdec}
+which leads to
+$$
+x^{(\nu+1)}=\frac{\sum_{k=1}^mw_k\frac{1}{d_k^{2-q}(x^{(\nu)})}y_k}{\sum_{k=1}^mw_k\frac{1}{d_k^{2-q}(x^{(\nu)}}}.
+$${#eq-katzupdp}
+For @eq-katzf, analogous  with @eq-wstatio1,
+we set the derivative of @eq-katzf equal to zero. Thus we solve
+$$
+\sum_{k=1}^mw_k\frac{f_k'(d_k(x))}{d_k(x)}(x-y_k)=0,
+$${\#eq-katzder}
+and the iteration becomes
+$$
+x^{(\nu+1)}=\frac{\sum_{k=1}^mw_k\frac{f'(d_k(x^{(\nu)}))}{d_k(x^{(\nu)})}y_k}{\sum_{k=1}^mw_k\frac{f'(d_k(x^{(\nu)}))}{d_k(x^{(\nu)})}}.
+$${#eq-katzupdf}
+The conditions in @katz_69 on $f$ needed for the convergence proof, and also the proof itself, are rather complicated. We can simply use the conditions of @thm-wght that $f'(x)/x$ is non-increasing on the non-negatives reals to construct a quadratic majorization algorithm in which we minimize 
+$$
+\sum_{k=1}^m\sum_{k=1}^mw_k\frac{f'(d_k(x^{(\nu)})}{d_k(x^{(\nu)})}d_k^2(x)
+$${#eq-katzmajor}
+to find $x^{k+1}$. This gives directly the update @eq-katzupdp.
 
 ## Sparse Recovery
 
@@ -1599,19 +1725,18 @@ boundaries. Since classical statistics infers properties of the population from 
 
 The smacof majorization method for multidimensional scaling was first presented
 at the *US-Japan Seminar on Theory, Methods and Applications of Multidimensional Scaling and Related Techniques* at UCSD in La Jolla, August 1975. Shortly after that I read the basic EM paper by @dempster_laird_rubin_77,
-and shirtky after that I realized that smacof and EM were both special
+and shortly after that I realized that smacof and EM were both special
 cases of a general minimization strategy, which I called majorization
 at the time. In June 1978 both Nan Laird and I attended the *Fifth International Symposium on Multivariate Analysis* at the University of Pittsburgh. I remember mentioning majorization, excitedly, to Nan on the conference bus. 
 
-The smacof majorization method was fully discussed in @deleeuw_C_77, @deleeuw_heiser_C_77, and @deleeuw_heiser_C_80. The familiar picture illustrating two steps of the general majorization algorithm appears in @deleeuw_A_88b. But unlike EM the general idea of majorization remained unpublished, until @deleeuw_C_94c and @heiser_95. 
-
+The smacof majorization method was fully discussed in @deleeuw_C_77, @deleeuw_heiser_C_77, and @deleeuw_heiser_C_80. The familiar picture illustrating two steps of the general majorization algorithm first appears in @deleeuw_A_88b. But unlike EM, which took off as a rocket in 1977, the general idea of majorization remained unpublished, until @deleeuw_C_94c and @heiser_95. 
 Majorization was used regularly in the
 Gifi project. The book @gifi_B_90, which is a version of 1981 lecture
 notes, mentions majorization only once, but since then a stream of
-papers and dissertations using majorization appeared. @heiser_95 
-briefly mentions most of them. In @deleeuw_C_88b another large majorization
+papers and dissertations from the Data Theory department in Leiden
+using majorization appeared. @heiser_95 mentions most of them. In @deleeuw_C_88b another large majorization
 subfield, the *aspect approach* to multivariate analysis, was developed.
-In section 7 of that paper the general majorization/minorization approach to optimization is outlined, maybe for the first time in print.
+In section 7 of that paper the general majorization/minorization approach to optimization is outlined, possibly for the first time in print.
 
 Robust versions of low rank matrix approximation, a.k.a. principal component
 analysis, were first considered by @gabriel_odoroff_84. They start by
@@ -1651,7 +1776,7 @@ f(\delta_k-d_k(X))\leq f(\delta_k-d_k(Y))+f'(\delta_k-d_k(Y))(d_k(Y)-d_k(X))+\fr
 $${#eq-qbound}
 and in iteration $k$ we minimize, or at least decrease, 
 $$
-\sum \omega_k\left[d_k(X)-\{d_k(X^{(k)})-K^{-1}f'(\delta_k-d_k(X^{(k)}))\}\right]^2
+\sum \omega_k\left[d_k(X)-\{d_k(X^{(\nu)})-K^{-1}f'(\delta_k-d_k(X^{(\nu)}))\}\right]^2
 $${#eq-qiter}
 Note that in this algorithm the weights do not change.  Instead
 of fitting a fixed target with moving weights, we fit a
@@ -1700,9 +1825,9 @@ around zero, and defined on the whole real line, which was reflected in the fact
 In MDS, however, distances and dissimilarities are non-negative and reasonable
 error functions are not symmetric. One could follow the example of @ramsay_77 and measure residuals as $\log\delta_{ij}-\log d_{ij}(X)$. This does not have
 any effect on the majorization of the loss functions, but it means that in
-the smacof step to find $X^{(k+1)}$ we have to minimize
+the smacof step to find $X^{(\nu+1)}$ we have to minimize
 $$
-\sigma(X)=\sum \omega_k(X^{(k)})(\log\delta_{ij}-\log d_{ij}(X))^2,
+\sigma(X)=\sum \omega_k(X^{(\nu)})(\log\delta_{ij}-\log d_{ij}(X))^2,
 $$
 which is considerably more complicated (@deleeuw_groenen_mair_E_16a).
 
