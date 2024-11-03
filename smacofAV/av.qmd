@@ -752,12 +752,9 @@ base <- base + geom_function(aes(colour = "c = .01"), fun = fcharbonnier, args =
 base + geom_function(aes(colour = "c = .001"), fun = fcharbonnier, args = list(c = .001)) 
 ```
 
-
-
-
 ## Generalized Charbonnier
 
-The loss function $(x^2+c^2)^\frac12$ smoothes $|x|$. In the same way generalized Charbonnier loss smoothes $\ell_p$ loss $|x|^q$. We have
+The loss function $(x^2+c^2)^\frac12$ smoothes $|x|$. In the same way generalized Charbonnier loss smoothes $\ell_q$ loss $|x|^q$. We have
 a two-parameter family of loss functions in this case.
 $$
 f_{c,q}(x):=(x^2+c^2)^{\frac12 q}
@@ -789,7 +786,6 @@ base <- base + geom_function(aes(colour = "c = 1, q = -1"), fun = gfcharbonnier,
 base <- base + geom_function(aes(colour = "c = 1, q = -.5"), fun = gfcharbonnier, args = list(c = 1, q = -.5)) 
 base + geom_function(aes(colour = "c = 1, q = -.1"), fun = gfcharbonnier, args = list(c = 1, q = -.1)) 
 ```
-
 
 
 ## Barron

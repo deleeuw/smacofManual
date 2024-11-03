@@ -248,16 +248,16 @@
 \floatname{codelisting}{Listing}
 \newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
 \usepackage{amsthm}
-\theoremstyle{plain}
-\newtheorem{lemma}{Lemma}[section]
-\theoremstyle{plain}
-\newtheorem{theorem}{Theorem}[section]
-\theoremstyle{plain}
-\newtheorem{corollary}{Corollary}[section]
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[section]
 \theoremstyle{definition}
 \newtheorem{example}{Example}[section]
+\theoremstyle{plain}
+\newtheorem{corollary}{Corollary}[section]
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\theoremstyle{plain}
+\newtheorem{lemma}{Lemma}[section]
 \theoremstyle{remark}
 \AtBeginDocument{\renewcommand*{\proofname}{Proof}}
 \newtheorem*{remark}{Remark}
@@ -289,17 +289,17 @@
 
 \title{Robust Least Squares Multidimensional Scaling}
 \author{Jan de Leeuw}
-\date{October 30, 2024}
+\date{November 2, 2024}
 
 \begin{document}
 \maketitle
 \begin{abstract}
-Combining different loss functions with linear models and minimizing
-loss with iteratively reweighted least squares (IRLS) has a long history
-in robust statistics. In this paper we use an IRLS version of the smacof
-algorithm to minimize various robust multidimensional scaling loss
-functions. Our results use a general theorem on sharp quadratic
-majorization of De Leeuw and Lange
+Combining different loss functions with various linear models and
+minimizing loss with iteratively reweighted least squares (IRLS) has a
+longfrp,history in robust statistics. In this paper we use an IRLS
+version of the smacof algorithm to minimize various robust
+multidimensional scaling loss functions. Our results use a general
+theorem on sharp quadratic majorization from De Leeuw and Lange
 (\citeproc{ref-deleeuw_lange_A_09}{2009}). We relate this theorem to
 earlier results in robust statistics, location theory, and sparse
 recovery. Code in R is included.
@@ -320,12 +320,12 @@ recovery. Code in R is included.
 
 \section{Introduction}\label{sec-intro}
 
-The title of this paper is somewhat surprising. Least squares estimation
-is typically not robust, it is sensitive to outliers and pays too much
-attention to minimizing the largest residuals. What we mean by robust
-least squares multidimensional scaling (MDS), however, is to use the
-smacof machinery designed to minimize least squares loss functions of
-the form \begin{equation}\phantomsection\label{eq-stressdef}{
+The title of this paper is somewhat surprising. Least squares (LS)
+estimation is typically not robust, it is sensitive to outliers and pays
+too much attention to minimizing the largest residuals. What we mean by
+robust least squares multidimensional scaling (MDS), however, is to use
+the smacof machinery designed to minimize the familiar LS loss function
+of the form \begin{equation}\phantomsection\label{eq-stressdef}{
 \sigma(X):=\sum\omega_k(\delta_k-d_k(X))^2,
 }\end{equation} to minimize robust loss functions. In
 Equation~\ref{eq-stressdef} the \(\omega_k\) are positive
@@ -339,13 +339,13 @@ is \emph{strictly positive}. Some for \emph{negative} and \emph{strictly
 negative}, for \emph{increasing} and \emph{strictly increasing}, and for
 \emph{decreasing} and \emph{strictly decreasing}.
 
-The prototypical robust loss function is least absolute value loss
-\begin{equation}\phantomsection\label{eq-stradddef}{
+The prototypical robust loss function is \emph{least absolute value
+(LAV) loss} \begin{equation}\phantomsection\label{eq-stradddef}{
 \sigma(X):=\sum \omega_k|\delta_k-d_k(X)|,
 }\end{equation} which we will call \emph{strife}, since the names
 \emph{stress}, \emph{sstress}, and \emph{strain} are already taken. Note
 we are overloading the symbol \(\sigma\), because we will use it for all
-of the loss functions in this paper.
+the loss functions in this paper.
 
 Strife is not differentiable at configurations \(X\) for which there is
 at least one \(k\) for which either \(d_k(X)=\delta_k\) or \(d_k(X)=0\)
@@ -354,25 +354,25 @@ problem. Moreover experience with one-dimensional and city block MDS
 suggests that having areas where the loss function is not differentiable
 leads to (many) additional local minima.
 
-In this paper we will discuss (and implement) various variations of
-strife from Equation~\ref{eq-stradddef}. They can be interpreted in two
-different ways. On the one hand they are smoothers of the absolute value
-function, and consequently of strife. We want to eliminate the problems
-with differentiability, at least the ones caused by \(\delta_k=d_k(X)\).
-If this is our main goal, then we want to choose the smoother in such a
-way that it is close to the absolute value function. This is similar to
-the distance smoothing used by Pliner (\citeproc{ref-pliner_96}{1996})
-and Groenen, Heiser, and Meulman
+In this paper we will discuss (and implement) various variations of the
+strife loss function in Equation~\ref{eq-stradddef}. They can be
+interpreted in two different ways. On the one hand they are smoothers of
+the absolute value function, and consequently of strife. We want to
+eliminate the problems with differentiability, at least the ones caused
+by \(\delta_k=d_k(X)\). If this is our main goal, then we want to choose
+the smoother in such a way that it is close to the absolute value
+function. This is similar to the distance smoothing used by Pliner
+(\citeproc{ref-pliner_96}{1996}) and Groenen, Heiser, and Meulman
 (\citeproc{ref-groenen_heiser_meulman_99}{1999}) in the global
 minimization of stress from Equation~\ref{eq-stressdef}, except that we
 do not smooth the distance function but the strife residual.
 
 On the other hand our modified loss functions can be interpreted as more
-robust versions of the least squares loss function, and consequently of
-stress. Our goal then is to combine the robustness of the absolute value
-function with the efficiency and computational ease of least squares. If
-robustness is our main goal then there is no reason to stay close to the
-absolute value function.
+robust versions of the LS loss function, and consequently of stress. Our
+goal then is to combine the robustness of the absolute value function
+with the efficiency and computational ease of LS. If robustness is our
+main goal then there is no reason to stay close to the absolute value
+function.
 
 Our robust or smooth loss functions are all of the form
 \begin{equation}\phantomsection\label{eq-strifedef}{
@@ -401,10 +401,10 @@ algorithms we refer to their introduction in De Leeuw
 (\citeproc{ref-deleeuw_C_94c}{1994}) and to the excellent and
 comprehensive book by Lange (\citeproc{ref-lange_16}{2016}). As
 mentioned in Section~\ref{sec-intro} the robust loss functions in
-Equation~\ref{eq-strifedef} are real-valued functions of a single real
-variable, defined on the whole real line, they are even, and they attain
-a minimum equal to zero at zero. Thus they are all symmetric bowls
-anchored at zero.
+Equation~\ref{eq-strifedef} are even real-valued functions of a single
+real variable, defined on the whole real line, which attain a minimum
+equal to zero at zero. Thus they are all symmetric bowls anchored at
+zero.
 
 \begin{definition}[]\protect\hypertarget{def-majorize}{}\label{def-majorize}
 
@@ -437,6 +437,8 @@ Suppose \(g\) majorizes \(f\) at \(y\).
 \begin{itemize}
 \tightlist
 \item
+  \(f(y)=g(y)\).
+\item
   If \(f\) and \(g\) are differentiable at \(y\) then \(f'(y)=g'(y)\).
 \item
   If \(f\) and \(g\) are twice-differentiable at \(y\) then
@@ -458,15 +460,15 @@ use the sufficient condition for a local minimum.
 A \emph{majorization algorithm} to minimize \(f\) is iterative. We
 update \(x^{(\nu)}\), the approximation of the minimizer in iteration
 \(\nu\), by \begin{equation}\phantomsection\label{eq-majmaj}{
-x^{(\nu+1)}\in\mathop{\text{argmin}}_x\ g_\nu(x),
-}\end{equation} where \(g_\nu\) majorizes \(f\) at \(x^{(\nu)}\). If
-\(x^{(\nu)}\in\mathop{\text{argmin}}_x\ g_\nu(x)\) we stop. Otherwise we
-find a new majorizer \(g_{\nu+1}\), which majorizes \(f\) at
-\(x^{(\nu+1)}\), and start a new iteration.
+x^{(\nu+1)}\in\mathop{\text{argmin}}_x\ g(x),
+}\end{equation} where \(g\) majorizes \(f\) at \(x^{(\nu)}\). If
+\(x^{(\nu)}\in\mathop{\text{argmin}}_x\ g(x)\) we stop. Otherwise we
+find a new majorizer \(g\), which majorizes \(f\) at \(x^{(\nu+1)}\),
+and start a new iteration.
 
 Convergence of majorization algorithms follows from the \emph{sandwich
 inequality} \begin{equation}\phantomsection\label{eq-sandwich}{
-f(x^{(\nu+1)})\leq g_\nu(x^{(\nu+1)})\leq g_\nu(x^{(\nu)})=f(x^{(\nu)}).
+f(x^{(\nu+1)})\leq g(x^{(\nu+1)})\leq g(x^{(\nu)})=f(x^{(\nu)}).
 }\end{equation} This we the algorithm produces a decreasing sequence of
 loss function values, which converges if loss is bounded below. In
 Equation~\ref{eq-sandwich} the first inquality (from the left) follows
@@ -493,10 +495,10 @@ the majoriztaion and MM literature.
 
 \section{Majorizing Strife}\label{sec-majorization}
 
-The idea of minimizing a least absolute value (LAV) to obtain parameter
-estimates dates back to the work of Boskovitch in the middle of the
-eighteenth century. Until fairly recently it has been applied mainly to
-fit location parameters and more general linear models.
+The idea of minimizing a LAV loss function to obtain parameter estimates
+dates back to the work of Boskovitch in the middle of the eighteenth
+century. Until fairly recently it has been applied mainly to fit
+location parameters and more general linear models.
 
 The pioneering work in strife minimization using smacof is Heiser
 (\citeproc{ref-heiser_88}{1988}), which builds on earlier work of Heiser
@@ -691,9 +693,9 @@ majorizers are sharp.
 If \(f\) is differentiable at \(y\), then all quadratics \(g\) that
 majorize \(f\) at \(y\) are of the form
 \begin{equation}\phantomsection\label{eq-qmaj}{
-g_a(x):=f(y)+f'(y)(x-y)+\frac12a(x-y)^2
-}\end{equation} for some \(a=g_a''(x)\), not necessarily positive. If
-\(f\) is twice differentiable at \(y\) then \(g_a''(y)\geq f''(y)\) by
+g(x):=f(y)+f'(y)(x-y)+\frac12a(x-y)^2
+}\end{equation} for some \(a=g''(x)\), not necessarily positive. If
+\(f\) is twice differentiable at \(y\) then \(g''(y)\geq f''(y)\) by
 Theorem~\ref{thm-diff}, and thus we have the necessary condition
 \(a\geq f''(y)\). Note that not all functions have quadratic
 majorizations. If \(f\) is a non-trivial cubic and \(g\) is quadratic,
@@ -720,15 +722,15 @@ functions of \(x\), and is thus positive. If \(f\) is concave then
 is a \(z\) between \(x\) and \(y\) such that \(\alpha(x)=f''(z)\). Thus
 if \(f''(x)\leq K\) for all \(x\), then \(\alpha(x)\leq K\) as well.
 
-Quadratic majorization of \(f\) by \(g_a\) from Equation~\ref{eq-qmaj}
-at \(y\) is equivalent to \(\alpha(x)\leq a\) for all \(x\). Thus
-\(g_a\) majorizes \(f\) at \(y\) if and only if \(\alpha\) is bounded
-above by \(a\). If \(\alpha\) is unbounded above there is no quadratic
-majorizer at \(y\). We can also define
+Quadratic majorization of \(f\) by \(g\) from Equation~\ref{eq-qmaj} at
+\(y\) is equivalent to \(\alpha(x)\leq a\) for all \(x\). Thus \(g\)
+majorizes \(f\) at \(y\) if and only if \(\alpha\) is bounded above by
+\(a\). If \(\alpha\) is unbounded above there is no quadratic majorizer
+at \(y\). We can also define
 \begin{equation}\phantomsection\label{eq-aplus}{ 
 a_+:=\sup_x\alpha(x),
 }\end{equation} and say that sharp quadratic majorization at \(y\) is
-possible if \(a_+<+\infty\). We have majorization at \(y\) by \(g_a\) if
+possible if \(a_+<+\infty\). We have majorization at \(y\) by \(g\) if
 \(a\geq a_+\), we have sharp majorization if \(a=a_+\). It follows that
 sharp quadratic majorizations exist if \(f''\) is bounded above.
 
@@ -793,7 +795,7 @@ maximum does not exist.
 
 Also, the conditions of Theorem~\ref{thm-locmax} cannot possibly show
 that \(\alpha\) has a \emph{global} maximum at \(x\), and that
-consequently \(g_a\) of Equation~\ref{eq-qmaj} with \(a\) given by
+consequently \(g\) of Equation~\ref{eq-qmaj} with \(a\) given by
 \eqref{eq-loc3} is a sharp quadratic majorizer.
 
 Differentiation of \(\alpha\) gives the following result.
@@ -849,37 +851,85 @@ follows.
 We can say more if it is known that the quadratic majorization has more
 than one support point.
 
-\begin{theorem}[]\protect\hypertarget{thm-twop}{}\label{thm-twop}
+\begin{definition}[]\protect\hypertarget{def-twop}{}\label{def-twop}
 
-Suppose the quadratic \(g_a\) of Equation~\ref{eq-qmaj} majorizes \(f\)
-at \(y\) and at \(z\not= y\). Then
-\begin{equation}\phantomsection\label{eq-atwop}{
-a=\frac{f'(z)-f'(y)}{z-y}
+Functions \(f\) and \(g\) have the \emph{two-point property} at \(y\)
+and \(z\) if \(f(y)=g(y)\) and \(f'(y)=f'(z)\).
+
+\end{definition}
+
+If \(g\) majorizes \(f\) at \(y\) and \(z\) then by
+Theorem~\ref{thm-diff} \(g\) and \(f\) have the two-point property at
+\(y\) and \(z\).
+
+\begin{lemma}[]\protect\hypertarget{lem-twop}{}\label{lem-twop}
+
+Suppose \(f\) is differentiable at \(y\) and \(z\). Then there is a
+quadratic \(g\) such that \(f\) and \(g\) have the two-point property at
+\(y\) and \(z\) if and only if
+\begin{equation}\phantomsection\label{eq-qtp}{
+\frac{f(y)-f(z)}{y-z}=\frac12(f'(y)+f'(z)).
+}\end{equation} In that case \(g(x)=c+bx+\frac12ax^2,\) with
+\begin{equation}\phantomsection\label{eq-afunc}{
+a=\frac{f'(y)-f'(z)}{y-z},
+}\end{equation} \begin{equation}\phantomsection\label{eq-bfunc}{
+b=\frac{yf'(z)-zf'(y)}{y-z},
+}\end{equation} and \begin{equation}\phantomsection\label{eq-cfunc}{
+c=f(y)-by-\frac12ay^2=f(z)-bz-\frac12az^2.
 }\end{equation}
 
-\end{theorem}
+\end{lemma}
 
 \begin{proof}
-From Equation~\ref{eq-qmaj} we have \(g_a'(x)=f'(y)+a(x-y)\). But
-because of Theorem~\ref{thm-diff} we must also have \(g_a'(z)=f'(z)\).
-Thus \(g_a'(z)=f'(y)+a(z-y)=f'(z)\).
+This is elementary computation, but we write it down anyway. Function
+\(f\) and the quadratic \(g=c+bx+\frac12ax^2\) have the two-point
+property at \(y\) and \(z\) if and only if \(a, b\), and \(c\) solve the
+four linear equations. \begin{subequations}
+\begin{align}
+c+&by+\frac12ay^2=f(y),\label{eq-tp1}\\
+c+&bz+\frac12az^2=f(z),\label{eq-tp2}\\
+&b+ay=f'(y),\label{eq-tp3}\\
+&b+az=f'(z).\label{eq-tp4}
+\end{align}
+\end{subequations} Solve \eqref{eq-tp3} and \eqref{eq-tp4} gives the
+solution for \(a\) and \(b\) in Equation~\ref{eq-afunc} and
+Equation~\ref{eq-bfunc}. We can substitute these \(a\) and \(b\) in
+\eqref{eq-tp1} and \eqref{eq-tp2} to get two solutions for \(c\). The
+system \eqref{eq-tp1}-\eqref{eq-tp4} is consistent, and has a unique
+solution, if and only if these two values for \(c\) are the same, which
+is the case if and only if Equation~\ref{eq-qtp} is true.
 \end{proof}
 
-Again, we have not shown that \(g_a\) with \(a\) from
-Equation~\ref{eq-atwop} majorizes \(f\) at \(y\) and \(z\). Only the
-reverse implication, which is that if \(g_a\) majorizes \(f\) at \(y\)
-and \(z\) then \(g_a\) is uniquely determined by
-Equation~\ref{eq-atwop}. In practice, even if one knows the support
-points \(y\) and \(z\), one still has to prove majorization. This is
-precisely how Heiser (\citeproc{ref-heiser_88}{1988}), Verboon and
-Heiser (\citeproc{ref-verboon_heiser_94}{1994}), and Groenen, Giaquinto,
-and Kiers (\citeproc{ref-groenen_giaquinto_kiers_03}{2003}) establish
-their majorizations.
+\begin{corollary}[]\protect\hypertarget{cor-twop}{}\label{cor-twop}
+
+Suppose the quadratic \(g\) majorizes \(f\) at \(y\) and at
+\(z\not= y\). Then \begin{align}
+g(x)&=f(y)+f'(y)(x-y)+\frac12\frac{f'(z)-f'(y)}{z-y}(x-y)^2=\\
+&=f(z)+f'(z)(x-z)+\frac12\frac{f'(z)-f'(y)}{z-y}(x-z)^2.
+\end{align}
+
+\end{corollary}
+
+\begin{proof}
+From Theorem~\ref{thm-diff} and Lemma~\ref{lem-twop}.
+\end{proof}
+
+Again, we have not shown that \(g\) with \(a\) from
+Corollary~\ref{cor-twop} majorizes \(f\) at \(y\) and \(z\). Only the
+reverse implication, which is that if \(g\) majorizes \(f\) at \(y\) and
+\(z\) then \(g\) is uniquely determined by Corollary~\ref{cor-twop}. In
+practice, even if one knows the support points \(y\) and \(z\), one
+still has to prove majorization. This is precisely how Heiser
+(\citeproc{ref-heiser_88}{1988}), Verboon and Heiser
+(\citeproc{ref-verboon_heiser_94}{1994}), and Groenen, Giaquinto, and
+Kiers (\citeproc{ref-groenen_giaquinto_kiers_03}{2003}) establish their
+majorizations.
 
 In his master's thesis Van Ruitenburg
 (\citeproc{ref-vanruitenburg_05}{2005}) takes us one step further down
-the necessary conditions road. To present his main result we need two
-lemmas.
+the necessary conditions road by showing that quadratric majorization at
+two points implies strict quadratic majorization. To present his main
+result we need two lemmas.
 
 \begin{lemma}[]\protect\hypertarget{lem-fan}{}\label{lem-fan}
 
@@ -938,12 +988,11 @@ g(x)=f(y)+\frac12\frac{f'(y)}{y}(x^2-y^2).
 \end{theorem}
 
 \begin{proof}
-If \(f\) is even then \(f'\) is odd. Consequently
-Equation~\ref{eq-atwop} becomes
+For even \(f\) Equation~\ref{eq-afunc} becomes
 \begin{equation}\phantomsection\label{eq-aeven}{
 a=\frac{f'(y)}{y},
-}\end{equation} which is even. Moreover because \(g\) majorizes \(f\) at
-\(y\) \begin{subequations}
+}\end{equation} while \(b\) from \&eq-bfunc becomes zero. Moreover
+because \(g\) majorizes \(f\) at \(y\) \begin{subequations}
 \begin{equation}
 g(x)=f(y)+f'(y)(x-y)+\frac12\frac{f'(y)}{y}(x-y)^2,\label{eq-gatplusy}
 \end{equation}
@@ -991,15 +1040,16 @@ f(x)\leq f(y)+\frac12\frac{f'(y)}{y}(x^2-y^2).
 }\end{equation}
 \end{proof}
 
-Note that \(f(x)=h(x^2)\) implies that \(f\) is even. If we want to get
-rid of the differentiability assumption altogether we can use the
-majorization \[
+If we want to get rid of the differentiability assumption altogether we
+can use the majorization
+\begin{equation}\phantomsection\label{eq-super}{
 f(x)\leq f(y)+a(y)(x^2-y^2)
-\] where \(a(y)\) is any element of \(\partial h(y^2)\), the
-superdifferential of \(h\) at \(y^2\). The superdifferential, which is
-the analog of the subdifferential for concave functions (Border
+}\end{equation} where \(a(y)\) is any element of \(\partial h(y^2)\),
+the superdifferential of \(h\) at \(y^2\). The superdifferential, which
+is the analog of the subdifferential for concave functions (Border
 (\citeproc{ref-border_18}{2018})), is non-empty on \(\mathbb{R}^+\),
-except possibly at zero.
+except possibly at zero. Note, by the way, that \(f(x)=h(x^2)\) implies
+that \(f\) is even.
 
 \begin{theorem}[]\protect\hypertarget{thm-sqrt}{}\label{thm-sqrt}
 
@@ -1010,7 +1060,10 @@ and only if \(f'(x)/x\) is decreasing on \(\mathbb{R}^+\).
 \end{theorem}
 
 \begin{proof}
-The first part of the theorem merely states the obvious.
+The first part of the theorem merely states the obvious. If
+\(f(x)=h(x^2)\) with \(h\) concave then \(h'\) is decreasing, which
+means \(h'(x^2)\) is decreasing on \(\mathbb{R}^+\) ad thus \(f'(x)/x\)
+is decreasing..
 \end{proof}
 
 Some quick examples of the use of Theorem~\ref{thm-wght} before we go to
@@ -1033,10 +1086,11 @@ Suppose \(h(x)=\frac12x(1-\frac12x)\). Thus \(f\) is the even quartic \[
 f(x)=\frac12x^2(1-\frac12x^2).
 \] We have \(f'(y)/y=1-y^2,\) and thus the majorizer \[
 g(x)=f(y)+\frac12(1-y^2)(x^2-y^2).
-\] For all \(y^2<1\) \(g\) has its minimum at zero. If \(y^2>1\) the
-majorizer is a concave quadratic, which has no minimum and is unbounded
-below. If \(y^2=1\) the majorizer is the horizontal line \(x=\frac14\)
-and the majorization method stops at a local maximum.
+\] For all \(y^2<1\) the majorizer \(g\) has its minimum at zero. If
+\(y^2>1\) the majorizer is a concave quadratic, which has no minimum and
+is unbounded below. If \(y^2=1\) the majorizer is the horizontal line
+\(x=0.25\) and the majorization method stops at a local maximum. This is
+illustrated in Figure~\ref{fig-quartic1} and Figure~\ref{fig-quartic2}.
 
 \end{example}
 
@@ -1044,31 +1098,45 @@ and the majorization method stops at a local maximum.
 
 \centering{
 
-\pandocbounded{\includegraphics[keepaspectratio]{av_files/figure-pdf/fig-quartic-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{av_files/figure-pdf/fig-quartic1-1.pdf}}
 
 }
 
-\caption{\label{fig-quartic}A Quartic}
+\caption{\label{fig-quartic1}A Quartic, Majorized at \(\pm 0.5\)}
 
 \end{figure}%
 
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{av_files/figure-pdf/fig-quartic2-1.pdf}}
+
+}
+
+\caption{\label{fig-quartic2}A Quartic, Majorized at \(\pm 1.25\)}
+
+\end{figure}%
+
+\subsection{Algorithm}\label{algorithm}
+
 We now apply Theorem~\ref{thm-wght} to functions of the form
 \begin{equation}\phantomsection\label{eq-fstressdef}{
-\sigma_f(X):=\sum \omega_k\ f(\delta_k-d_k(X)),
+\sigma(X):=\sum \omega_k\ f(\delta_k-d_k(X)),
 }\end{equation} where \(f\) satisfies the conditions in the theorem. If
 \begin{equation}\phantomsection\label{eq-fstressmaj}{
 \eta(X):=\sum \omega_k\frac{f'(\delta_k-d_k(Y))}{2(\delta_k-d_k(Y))}\{(\delta_k-d_k(X))^2-(\delta_k-d_k(Y))^2\}+f(\delta_k-d_k(Y)),
 }\end{equation} then \(\eta\) is a sharp quadratic majorization at
 \(Y\).
 
-In iteration \(k\) the robust smacof algorithm does a smacof step
+In iteration \(\nu\) the robust smacof algorithm does a smacof step
 towards minimization of \(\eta\) over \(X\). We can ignore the parts of
 Equation~\ref{eq-fstressmaj} that only depend on \(Y\), and minimize
 \begin{equation}\phantomsection\label{eq-fstressaux}{
-\sum \omega_k(X^{(\nu)})(\delta_k-d_k(X))^2,
+\sum\omega_k(X^{(\nu)})(\delta_k-d_k(X))^2,
 }\end{equation} with \begin{equation}\phantomsection\label{eq-wkdef}{
 \omega_k(X^{(\nu)}):=\omega_k\frac{f'(\delta_k-d_k(X^{(\nu)}))}{2(\delta_k-d_k(Y))}.
-}\end{equation} We then recomputes the weights \(\omega_k(X^{(\nu+1)})\)
+}\end{equation} We then recompute the weights \(\omega_k(X^{(\nu+1)})\)
 and go to the smacof step again. This can be thought of as iteratively
 reweighted least squares (IRLS), and also as nested majorization, with
 the smacof majorization based on the Cauchy-Schwartz inequality within
@@ -1271,8 +1339,7 @@ use Equation~\ref{eq-hubera} or Equation~\ref{eq-huberb}. Our discussion
 in the introduction suggests that if we just want a smoother of the
 absolute value function, then Equation~\ref{eq-hubera} is the natural
 choice, if we want a robust loss function that combines the advantages
-of least squares and least absolute value then that leads us to
-Equation~\ref{eq-huberb}.
+of LS and LAV then that leads us to Equation~\ref{eq-huberb}.
 
 Because Charbonnier loss behaves the same way as Huber loss, as absolute
 value loss for large \(x\) and as squared loss for small \(x\), it is
@@ -1669,9 +1736,9 @@ CPN-dissimilarities are labeled ``C'', while BP-dissimilarities are
 
 \subsubsection{Least Squares}\label{least-squares}
 
-We start with a least squares analysis, actually with Huber loss with
-\(c=10\), which for these data is equivalent to least squares. The
-process converges in 859 iterations.
+We start with a LS analysis, actually with Huber loss with \(c=10\),
+which for these data is equivalent to LS. The process converges in 859
+iterations.
 
 \begin{figure}[H]
 
@@ -1872,8 +1939,8 @@ iterations.
 
 \subsubsection{Least Absolute Value}\label{least-absolute-value-1}
 
-For least absolute value we use Chardonnier loss with \(c=.001\). We
-have convergence in 2291 iterations.
+For LAV we use Chardonnier loss with \(c=.001\). We have convergence in
+2291 iterations.
 
 \begin{figure}[H]
 
@@ -2014,9 +2081,10 @@ notion of sharp quadratic majorization.
 
 I will discuss some of the literature under the headings ``robust
 statistics'', ``location analysis'', and ``sparse recovery''. Since I
-most definitely am not an expert in either of these three fields the
-literature reviews will be biased and incomplete. A final section, where
-I am somewhat more sure-footed, is ``multivariate analysis''.
+most definitely am not well-read in either of these three fields the
+literature reviews will surely be biased and incomplete. A final
+section, where I am somewhat more sure-footed, is ``multivariate
+analysis''.
 
 \subsection{Robust Statistics}\label{robust-statistics}
 
@@ -2030,8 +2098,8 @@ IRLS algorithm, is often attributed to Beaton and Tukey
 
 In location analysis the first majorization/IRLS method is generally
 attributed to a 16-year old Hungarian mathematics prodigy (Weiszfeld
-(\citeproc{ref-weiszfeld_37}{1937})). His algorithm avant-la-lettre was
-intended to find the minimum of a function of the form
+(\citeproc{ref-weiszfeld_37}{1937})). His algorithm avant-la-lettre can
+be used to find the minimum of a function of the form
 \begin{equation}\phantomsection\label{eq-web}{
 \sigma(x)=\sum_k w_kd_k(x),
 }\end{equation} where \(d_k(x)=\|x-y_k\|\), over \(x\) in
@@ -2076,21 +2144,20 @@ the partials equal to zero. This gives
 x=\frac{\sum\omega_k(x)y_k}{\sum\omega_k(x)}.
 }\end{equation} Sturm (\citeproc{ref-sturm_84}{1884}) mentions that he
 derived his existence and uniqueness theorem without using
-differentiation, but he mentions a paper by Lorenz Lindelöf from 1866
-which derives his necessary conditions using differentiation (I have not
-been able to find a copy of that paper). The discussion is a clear
-example of the nineteenth century tension between using synthetic
+differentiation, but he also mentions a paper by Lorenz Lindelöf from
+1866 which derives his necessary conditions using differentiation (I
+have not been able to find a copy of that paper). The discussion is a
+clear example of the nineteenth century tension between using synthetic
 (geometric) methods or analytic (calculus) methods.
 
 Even more synthetic were the methods in a paper by Lamé and Clapeyron of
 1829. (I have not been able to find a copy of that paper either). There
-is a partial translation in Franksen and Grattan-Guinness
+is a translation of the general principles section of the Lamé and
+Clapeyron paper in Franksen and Grattan-Guinness
 (\citeproc{ref-franksen_grattan-guinness_89}{1989}). Lamé and Clapeyron
 suggest solving their ``moindre distances'' problems, which generalize
-the single facility location problem in various ways, by ingeneous
-systems of pulleys. There is a translation of the general principles
-section of the Lamé and Clapeyron paper in Franksen and Grattan-Guinness
-(\citeproc{ref-franksen_grattan-guinness_89}{1989}). From that
+the single facility location problem in various ways, and solve it, at
+least conceptually, by using ingeneous systems of pulleys. From that
 translation we read in General Principle 9 their defense of the
 mechanical method they propose.
 
@@ -2113,8 +2180,8 @@ algorithm, albeit in a version using pulleys.
 
 Over the years the location problem has been generalized in numerous
 directions, to multiple locations, to using different norms, to unknown
-anchors, to nonlinear manifolds, and to obnoxious anchors you want to be
-far from. A good recent overview is Beck and Sabach
+anchors, to nonlinear manifolds, and to including obnoxious anchors you
+want to be far from. A good recent overview is Beck and Sabach
 (\citeproc{ref-beck_sabach_15}{2015}). A paper close in spirit to our
 paper is Aftab, Hartley, and Trumpf
 (\citeproc{ref-aftab_hartley_trumpf_15}{2015}), which has
@@ -2126,7 +2193,7 @@ algorithm. As in our Section~\ref{sec-amgm} we can simply use AM/GM
 inequality. Thus \begin{equation}\phantomsection\label{eq-webamgm}{
 \|x-y_\nu\|\leq\frac12\frac{1}{\|x^{(\nu)}-y_\nu\|}(\|x-y_\nu\|^2+\|x^{(\nu)}-y_\nu\|^2),
 }\end{equation} which immediately gives Equation~\ref{eq-wup}.
-Convergence follows from the general majorization of MM theory.
+Convergence follows from the general majorization or MM theory.
 
 Unlike robust smacof the Toricelli-Fermat-Weber problem is convex, and
 consequently has no problems with non-global local minima. A most
@@ -2148,11 +2215,11 @@ paper, Katz (\citeproc{ref-katz_69}{1969}) proposes to minimize
 \begin{equation}\phantomsection\label{eq-katzf}{
 \sigma(x)=\sum_{k=1}^mw_kf_k(d_k(x))
 }\end{equation} with Euclidean distances and \(f_k\) functions defined
-on the non-negative reals. Note that if \(f\) is convex ands increasing
-then \(\sigma\) of Equation~\ref{eq-katzf} is convex. If \(q\geq 1\)
-then \(\sigma\) of Equation~\ref{eq-katzp} is convex.
+on the non-negative reals. Note that the \(f_k\) are convex and
+increasing then \(\sigma\) of Equation~\ref{eq-katzf} is convex. If
+\(q\geq 1\) then \(\sigma\) of Equation~\ref{eq-katzp} is convex.
 
-The algorithm Katz suggests for minimizinf \(\sigma\) of
+The algorithm Katz suggests for minimizing \(\sigma\) of
 Equation~\ref{eq-katzp} generalizes the decompostion in
 Equation~\ref{eq-rew} to
 \begin{equation}\phantomsection\label{eq-katzdec}{
@@ -2230,18 +2297,17 @@ for the first time in print.
 Robust versions of low rank matrix approximation, a.k.a. principal
 component analysis, were first considered by Gabriel and Odoroff
 (\citeproc{ref-gabriel_odoroff_84}{1984}). They start by discussing the
-alternating least squares algorithm for least squares weighted matrix
-approximation of Gabriel and Zamir
-(\citeproc{ref-gabriel_zamir_79}{1979}). The alternating is to compute
-new row scores for currently fixed column scores by linear regression,
-and then computing new column scores corresponding with the new row
-scores, again by linear regression. Gabriel and Odoroff
+alternating LS algorithm for LS weighted matrix approximation of Gabriel
+and Zamir (\citeproc{ref-gabriel_zamir_79}{1979}). The alternating is to
+compute new row scores for currently fixed column scores by linear
+regression, and then computing new column scores corresponding with the
+new row scores, again by linear regression. Gabriel and Odoroff
 (\citeproc{ref-gabriel_odoroff_84}{1984}) suggest to replace the linear
 least squares weighted averages in each of the two stages by medians or
 trimmed means to get a robust PCA. There is no sign of a convergence
-proof, but there is the suggestion to use alternating least absolute
-value methods to minimize the sum of absolute residuals of the matrix
-approximation. This suggestion was taken up by Verboon and Heiser
+proof, but there is the suggestion to use alternating LAV methods to
+minimize the sum of absolute residuals of the matrix approximation. This
+suggestion was taken up by Verboon and Heiser
 (\citeproc{ref-verboon_heiser_94}{1994}) using the majorization approach
 and the Huber and Tukey robust loss functions. Their robust PCA method
 is very similar to our robust MDS method, but the presentation of their
@@ -2270,16 +2336,15 @@ Analysis (Li (\citeproc{ref-li_24}{2024})).
 
 \section{Discussion}\label{discussion}
 
-\subsection{Bounding the Second
-Derivative}\label{bounding-the-second-derivative}
+\subsection{Bounding the Second Derivative}\label{sec-bsec}
 
-In some cases our basic theorems may not apply, but there may be an
-alternative way to majorize loss. In fact, this is classic quadratic
-bounding as in Vosz and Eckhardt (\citeproc{ref-vosz_eckhardt_80}{1980})
-or Böhning and Lindsay (\citeproc{ref-boehning_lindsay_88}{1988}). As
-before, we want to minimize \(\sum \omega_k\ f(\delta_k-d_k(X))\), but
-now we suppose that there is a \(K>0\) such that \(f''(x)\leq K\). We
-then have the majorization
+In some cases our basic theorem Theorem~\ref{thm-wght} may not apply,
+but there may be an alternative way to majorize loss. In fact, this is
+classic quadratic bounding as in Böhning and Lindsay
+(\citeproc{ref-boehning_lindsay_88}{1988}). As before, we want to
+minimize \(\sum \omega_k\ f(\delta_k-d_k(X))\), but now we suppose that
+there is a \(K>0\) such that \(f''(x)\leq K\). We then have the
+majorization
 
 \begin{equation}\phantomsection\label{eq-qbound}{
 f(\delta_k-d_k(X))\leq f(\delta_k-d_k(Y))+f'(\delta_k-d_k(Y))(d_k(Y)-d_k(X))+\frac12K(d_k(Y)-d_k(X))^2
@@ -2300,11 +2365,19 @@ will probably require more iterations and take longer than the method in
 Section~\ref{sec-charb}.
 
 The paper by Vosz and Eckhardt (\citeproc{ref-vosz_eckhardt_80}{1980})
-deserves some special mention here.
+deserves some special mention here. Initially I thought their
+``Generalized Weiszfeld Method'' used majorization by upper-bounding the
+second derivative, as in this section. But that was just a case of
+careless reading. What they actually do is find a \(g\) that majorizes
+\(f\) and then bound the second derivative of \(g\). Since
+Theorem~\ref{thm-diff} tells us that \(f''\lesssim g''\) this implies
+that \(f''\) is bounded by the bound on \(g''\), but it is possible that
+bound can be improved by bounding \(f''\) directly.
 
-\[
-\mathcal{D}^2\sigma(x)=\sum\frac{1}{d_i(x)}\left\{I-\frac{(x-y_i)(x-y_i)'}{d_i^2(x)}\right\}
-\]
+The Hessian of Equation~\ref{eq-web} is
+\begin{equation}\phantomsection\label{eq-hess}{
+\mathcal{D}^2\sigma(x)=\sum\omega_k\frac{1}{d_k(x)}\left\{A_{ij}-\frac{A_{ij}y_ky_k'A_{ij}}{d_k^2(x)}\right\}
+}\end{equation}
 
 \subsection{Fixed Weights}\label{fixed-weights}
 
@@ -2358,11 +2431,10 @@ that in the smacof step to find \(X^{(\nu+1)}\) we have to minimize \[
 
 Our discussion and our software is all about metric MDS. It seems easy
 to extend the discussion to non-linear and non-metric MDS by adding an
-alternating least squares step optimally scaling the dissimilarities.
-This would take place between two majorizations of the robust loss
-function, so one or more transformation and smacof steps can be taken
-between updating the weights. But this paradigm does not work for robust
-smacof.
+alternating LS step optimally scaling the dissimilarities. This would
+take place between two majorizations of the robust loss function, so one
+or more transformation and smacof steps can be taken between updating
+the weights. But this paradigm does not work for robust smacof.
 
 Consider any hard redescender, such as Tukey or Hinich. At iteration
 \(\nu\), for current weights, first first improve the configuration,
@@ -2386,6 +2458,40 @@ In the unfortunate situation that the current absolute residuals are all
 larger than \(c\), even after choosing the optimal \(\hat d\), the next
 weights will all be zero and the algorithm stops with zero stress.
 
+\subsection{More Flexiblity}\label{more-flexiblity}
+
+The results in this paper apply almost everywhere to the more general
+problem of minimizing \begin{equation}\phantomsection\label{eq-flex}{
+\sigma(X)=\sum\omega_kf_k(\delta_k-d_k(X))
+}\end{equation} where the \(f_k\) are different robust loss functions
+satisfying the conditions of Theorem~\ref{thm-wght}.
+
+We have not included the loss function in Equation~\ref{eq-flex} in our
+software, because there is such a thing as too much flexibility, but it
+would be straightforward to add this option. We could combine, for
+example, LS loss for the residuals we expect to be small and LAV loss
+for residuals we expect to be large (maybe after a preliminary LS
+analysis).
+
+\subsection{Changing Smoothing
+Parameter}\label{changing-smoothing-parameter}
+
+As an example we take minimizing Charbonney loss in the simple case that
+\(f(x)=\sqrt{x^2+c^2}\). We use the quadratic majorizers \[
+g(x)=f(y)+\frac{y}{\sqrt{y^2+c^2}}(x-y)+\frac{1}{c}(x-y)^2
+\] which means the update is \[
+x^{(\nu+1)}=x^{(\nu)}\left\{1-\frac{c}{\sqrt{(x^{\nu})^2+c^2}}\right\}
+\] But now instead we use \[
+x^{(\nu+1)}=x^{(\nu)}\left\{1-\frac{c^{(\nu)}}{\sqrt{(x^{(\nu)})^2+(c^{(\nu)})^2}}\right\}
+\] with \(c^{(\nu+1)}=\frac12c^{(\nu)}\). We still have a version of the
+sandwich inequality.
+
+Convergence quadratic.
+
+\begin{center}
+\includegraphics[width=0.8\linewidth,height=\textheight,keepaspectratio]{av_files/figure-pdf/change-1.pdf}
+\end{center}
+
 \subsection{Practicalities}\label{practicalities}
 
 Recommending one particular loss function from the many we have
@@ -2407,6 +2513,15 @@ influence of outliers then trying some of the hard redescenders, such as
 the Tukey family, makes sense. Studying trajectories for some of robust
 loss functions is clearly interesting, but it is not something we can or
 will explore in this paper.
+
+We merely give a small example to show what s possible. Thus is the
+gruijter data with huber engine, and smoothing parameters
+\(c=5,2,1,.1\). The four solutions in \textbf{?@fig-traject} are coded
+RED, BLUE, GREEN, and PURPLE.
+
+\begin{center}
+\includegraphics[width=0.8\linewidth,height=\textheight,keepaspectratio]{av_files/figure-pdf/traject-1.pdf}
+\end{center}
 
 \sectionbreak
 
