@@ -1,32 +1,44 @@
 ---
 title: |
     | Smacof at 50: A Manual
-    | Part 1: Basics
+    | Part 1: Basics 
 author: 
-- Jan de Leeuw - University of California Los Angeles
-date: '`r paste("Started February 21 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
-output:
-  bookdown::pdf_document2:
-    latex_engine: lualatex
-    includes:
-      in_header: preamble.tex
-    keep_tex: yes
-    toc: true
-    toc_depth: 4
-    number_sections: yes
-  bookdown::html_document2:
-    keep_md: yes
-    css: preamble.css
-    toc: true
-    toc_depth: 4
-    number_sections: yes
-graphics: yes
+    - name: Jan de Leeuw
+      orcid: 0000-0003-1420-1797
+      email: jan@deleeuwpdx.net
+      affiliation: 
+        - name: University of California Los Angeles
+          city: Los Angeles
+          state: CA
+          url: www.ucla.edu
+      license: "CC0"
+date: last-modified
+date-format: long
+bibliography: [mypubs.bib, total.bib]
+number-sections: true
+pdf-engine: lualatex
+keep-tex: true
+format:
+   pdf:
+    fontsize: 12pt
+    include-in-header: 
+     - preamble.tex
+    keep-tex: true
+    link-citations: true
+    documentclass: scrartcl
+    number-sections: true
+   html:
+    fontsize: 12pt
+    keep-md: true
+    number-sections: true
+toc: true
+toc-depth: 3
+editor: source
+papersize: letter
+graphics: true
+link-citations: true
 mainfont: Times New Roman
-fontsize: 12pt
-bibliography: ["mypubs.bib","total.bib"]
-editor_options: 
-  markdown: 
-    wrap: 72
+abstract: TBD 
 ---
 
 ```{r loadpackages, echo = FALSE}
