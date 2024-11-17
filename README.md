@@ -17,6 +17,7 @@ each of the programs in the project.
 * smacofPO - Non-linear, Power Functions
 * smacofQQ - Constrained, simplex, circumplex, uniqueness
 * smacofRO - Non-metric, Rank orders
+* smacofSE - Initial, Elegant, Strain
 * smacofTR - Non-metric, Triads and Propellors
 * smacofUF - Rectangular, metric, Unfolding 
 
