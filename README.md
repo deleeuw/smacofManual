@@ -5,23 +5,18 @@ Manual for smacof MDS software
 The manual for "Smacof at 50" consists of chapters about
 each of the programs in the project.
 
-* smacofAV - Robust MDS
-* smacofBO - Bounded interval with or without additive constant
+* smacofAC - Metric with bounds and/or additive constant
 * smacofBS - Non-linear with B-splines
-* smacofCR - Non-metric, Conditional rank orders
+* smacofCR - Non-metric, Conditional Rank Orders
 * smacofEL - Constrained, spheres and ellipsoids
-* smacofHC - Rectangular, non-metric, Homogeneity Analysis, centroid restrictions
-* smacofHO - Rectangular, non-metric, Homogeneity Analysis, optional rank restrictions
-* smacofHS - Rectangular, non-metric, Homogeneity Analysis, spherical restrictions
+* smacofHO - Rectangular, non-metric, Homogeneity Analysis, Rank Constraints
+* smacofHC - Rectangular, non-metric, Homogeneity Analysis, Centroid Constraints
 * smacofID - Individual Differences
 * smacofLN - Constrained, Linear Constraints
-* smacofMA - Metric with additive constant
-* smacofME - Metric
-* smacofPC - Non-metric, Paired Comparisons
-* smacofPO - Metric, Power Functions
+* smacofPC - Non-metric, Paired Comparisions
+* smacofPO - Non-linear, Power Functions
 * smacofQQ - Constrained, simplex, circumplex, uniqueness
 * smacofRO - Non-metric, Rank orders
-* smacofTR - Non-metric, Cartwheels
+* smacofTR - Non-metric, Triads and Propellors
 * smacofUF - Rectangular, metric, Unfolding 
-
 
