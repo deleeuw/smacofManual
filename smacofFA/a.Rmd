@@ -1,0 +1,24 @@
+---
+title: "a"
+author: "Jan de Leeuw"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+$$
+\sigma(\epsilon)=\sum w_{ij}(\delta_{ij}-\sqrt{d_{ij}^2(X)+\epsilon d_{ij}^2(Y)})^2
+$$
+$$
+\sqrt{d_{ij}^2(X)+\epsilon d_{ij}^2(Y)}=d_{ij}(X)\sqrt{1+\epsilon\frac{d_{ij}^2(Y)}{d_{ij}^2(X)}}=d_{ij}(X)+\frac12\epsilon\frac{d_{ij}^2(Y)}{d_{ij}(X)}+o(\epsilon).
+$$
+
+$$
+\sigma(\epsilon)=\sigma(0)-\epsilon\sum w_{ij}(\delta_{ij}-d_{ij}(X))\frac{d_{ij}^2(Y)}{d_{ij}(X)}+o(\epsilon)=\sigma(0)+\epsilon\ \text{tr}\ Y'(V-B(X))Y+o(\epsilon)
+$$
+
+Minimize $f=g-h\$ with $g(X)=(1+\frac12\eta^2(X))$ and $h(X)=\rho(X)$. $h$ is convex and
+continuous, while $g$ is continuously differentiable. Also
+$$
+\|\nabla g(X)-\nabla g(Y)\|=\|V(X-Y)\|\leq p\lambda_{\text{max}}(V)\|X-Y\|,
+$$
+i.e. the gradient of the quadratic function $g$ is Lipschitz continuous with constant $p\lambda_{\text{max}}(V)$.
