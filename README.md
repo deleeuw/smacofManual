@@ -20,4 +20,5 @@ each of the programs in the project.
 * smacofSE - Initial, Elegant, Strain
 * smacofTR - Non-metric, Triads and Propellors
 * smacofUF - Rectangular, metric, Unfolding 
+* smacofUT - Various Utilities
 

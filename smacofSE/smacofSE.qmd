@@ -57,24 +57,32 @@ Here $\Delta^{(2)}$ is the elementwise square of $\Delta$ and $J=I-n^{-1}ee'$ is
 constructs the initial estimate $X$ for $p$-dimensional MDS by using the $p$% largest eigenvalues $\Lambda$ of $B$, and the corresponding eigenvectors in $K$,  by using
 $X=K\Lambda^{-1/2}$.
 
-Classical Scaling, as an MDS technique, has one enormous advantage over other forms
+Classical Scaling, as an MDS technique, has one major advantage over other forms
 of MDS, and three rather annoying disadvantages. The advantage is that it minimizes
 the strain loss function, defined as
 $$
 \sigma(X)=\text{tr}\ J(\Delta^{(2)}-D^{(2)}(X))J(\Delta^{(2)}-D^{(2)}(X))J)
-$$
-with $D^{(2)}(X)$ the squared Euclidean distances. This was first pointed out
-by @deleeuw_heiser_C_82. Not only does Classical Scaling minimize strain,
+$${#eq-strain}
+with $D^{(2)}(X)$ the squared Euclidean distances. In this matrix form strain was first discussed by
+by @deleeuw_heiser_C_82, although equivalent versions, using different notation, are already in @gower_66 and @mardia_78. Not only does Classical Scaling minimize strain,
 but it actually computes its global minimum, and if $\lambda_k(B)>\lambda_{k+1}(B)$
-that global minimum is unique (up to rotation and translation). 
+that global minimum is unique (up to rotation and translation).
+
+If $\Delta$ is Euclidean then @gower_66 shows that 
+$$
+d_{ij}^2(X_1)\leq d_{ij}^2(X_2)\leq\cdots\leq d_{ij}^2(X_r)=\delta_{ij}^2,
+$$
+where $X_p$ is the $p$-dimensional Classical Scaling 
+solution and $r$ is the rank of $B$. Thus squared dissimilarities are approximated
+from below (see also @deleeuw_meulman_C_86). 
 
 The first disadvantage of Classical Scaling is that the $B$-matrix may only
 have $q<p$ positive eigenvalues. If that is the case the global minimum of strain
-has only $q$ non-zero dimensions (and $p-q$ zero dimensions). This disadvantage
+has only $q$ non-zero dimensions (and $p-q$ zero dimensions).
+In practice this disadvantage
 is usually not a very serious one, because having fewer than $p$ positive
-eigenvalues suggests a horrendously bad fit so that maybe MDS is not a good
-idea in the first place. Alternatively, and more optimistically, one can
-compute an additive constant to force positive semi-definiteness (@cailliez_83).
+eigenvalues suggests a horrendously bad fit so that maybe MDS is not a good technique choice
+in the first place. Alternatively, and more optimistically, one can also compute an additive constant to force positive semi-definiteness of $B$ (@cailliez_83).
 
 The second disadvantage is that classical scaling, unlike smacof, has no provision to include data weights $w_{ij}$ for each of the dissimilarities $\delta_{ij}$. In particular this means that there cannot be missing dissimilarities, or, more precisely,
 something additional has to be done if there are missing data. One obvious
@@ -94,7 +102,31 @@ introduces dependencies between different observations, because the
 pseudo scalar products in $B$ are linear combinations of multiple
 (squared) dissimilarities.
 
-# Maximum Sum
+Nevertheless the smacof project includes a version of Classical MDS
+that can handle missing data (but not general weights). A similar non-metric version of strain was discussed by @trosset_98.
+
+We formulate loss as
+$$
+\sigma(X,\theta)=\text{tr}\ (B(\theta)-XX')^2
+$${#eq-strainmissing}
+where
+$$
+B(\theta)=-\frac12J(\Delta_0^2+\sum \theta_kE_k)J
+$${#eq-btheta}
+Here $\Delta_0^2$ is the matrix with dissimilarities, with elements equal to zero for missing data.
+The $E_k$ code missing data, and are for the form $e_ie_j'+e_je_i'$. Thus they are zero, except for
+elements $(i,j)$ and $(j,i)$, which are one. Strain ... must be minimized over configurations
+$X$ and over $\theta\geq 0$.
+
+We use alternating least squares. Minimizing over $X$ for fixed $\theta$ is classical MDS, minimizing
+over $\theta$ for fixed $X$ is a non-negative least squares problem. In an iteration the function
+smacofTorgersonWithMissing() does not actually minimize over $X$ for given $\theta$, but it uses
+majorization to make a number of steps in the right direction. The same applies to the non-negative
+least squares problem of minimizing over $\theta$ for given $X$.
+
+If there are no missing data the program just performs classical MDS.
+
+# Sstress
 
 In some early reports (@deleeuw_R_68e, @deleeuw_R_68g) I have proposed using 
 what I call the "maximum sum principle", not just for metric MDS, but for various 

@@ -1,0 +1,42 @@
+---
+title: "eecenter"
+format: pdf
+---
+
+$$
+T_{ij}=(e_ie_j'+e_je_i')-\frac{1}{n}(e_i+e_j)e'-\frac{1}{n}e(e_i+e_j)'+\frac{2}{n^2}ee'
+$$
+$$
+T_{kl}=(e_ke_l'+e_le_k')-\frac{1}{n}(e_k+e_l)e'-\frac{1}{n}e(e_k+e_l)'+\frac{2}{n^2}ee'
+$$
+Start over
+$$
+\text{tr}\ JE_{ij}JJE_{kl}J=\text{tr}\ E_{ij}JE_{kl}J
+$$
+$$
+E_{ij}J=(e_ie_j'+e_je_i')(I-\frac{1}{n}ee')=(e_ie_j'+e_je_i')-\frac{1}{n}(e_i+e_j)e'
+$$
+\begin{align}
+\text{tr}\ E_{ij}JE_{kl}J=
+&\text{tr}\ (e_ie_j'+e_je_i')(e_ke_l'+e_le_k')-\\
+&\frac{1}{n}\text{tr}\ (e_ie_j'+e_je_i')(e_k+e_l)e'-\\
+&\frac{1}{n}\text{tr}\ (e_i+e_j)e'(e_ke_l'+e_le_k')+\\
+&\frac{1}{n^2}\text{tr}\ (e_i+e_j)e'(e_k+e_l)e'
+\end{align}
+
+\begin{equation}
+\text{tr}\ E_{ij}JE_{kl}J=
+2(\delta^{ik}\delta^{jl}+\delta^{il}\delta^{jk})-
+\frac{2}{n}(\delta^{ik}+\delta^{il}+\delta^{jk}+\delta^{jl})+
+\frac{4}{n^2}
+\end{equation}
+
+$$
+\frac14\text{tr}\ T_{ij}T_{kl}=
+\begin{cases}
+\frac12-\frac{1}{n}+\frac{1}{n^2}&\text{two indices in common},\\
+-\frac{1}{2n}+\frac{1}{n^2}&\text{one index in common},\\
+\frac{1}{n^2}&\text{no indices in common}
+\end{cases}
+$$
+

@@ -6,6 +6,37 @@ kk <- qr.Q(qr(matrix(rnorm(100), 10, 10)))
 ll <- c(5, rep(-1, 9))
 s3 <- kk %*% diag(ll) %*% t(kk)
 
+smacofCailliez <- function () {
+}
+
+smacofTorgersonWithMissing <- function(data,
+                                       p = 2,
+                                       itmax = 100,
+                                       eps = 1e-10,
+                                       verbose = TRUE,
+                                       jtmax = 100,
+                                       jeps = 1e-10,
+                                       jverbose = TRUE,
+                                       ktmax = 5,
+                                       keps = 1E-10,
+                                       kverbose = FALSE) {
+  n <- max(data[,1:2])
+  dave <- mean(data[, 3])
+  bmat <- -smacofDoubleCenter(delta ^ 2) / 2
+  h <- smacofSymmetricEckartYoung(
+    bmat,
+    p = p,
+    bnd = TRUE,
+    itmax = jtmax,
+    eps = jeps,
+    verbose = jverbose
+  )
+  xold <- h$x
+  repeat {
+    
+  }
+}
+
 smacofElegant <- function() {
   
 }
@@ -110,24 +141,39 @@ smacofBauerRutishauser <- function(cmat,
   ))
 }
 
-smacofMarkham <- function(a, itmax = 100, eps = 1e-10, verbose = TRUE) {
+smacofMarkham <- function(a,
+                          itmax = 100,
+                          eps = 1e-10,
+                          verbose = TRUE) {
   itel <- 1
   repeat {
     r <- rowSums(a)
     minr <- min(r)
     maxr <- max(r)
     if (verbose) {
-      cat("itel ", formatC(itel, format = "d"),
-          "minr ", formatC(minr, digits = 10, format = "f"),
-          "maxr ", formatC(maxr, digits = 10, format = "f"),
-          "\n")
+      cat(
+        "itel ",
+        formatC(itel, format = "d"),
+        "minr ",
+        formatC(minr, digits = 10, format = "f"),
+        "maxr ",
+        formatC(maxr, digits = 10, format = "f"),
+        "\n"
+      )
     }
     if ((itel == itmax) || ((maxr - minr) < eps)) {
-        break
+      break
     }
     itel <- itel + 1
     s <- 1 / r
     a <- t(r * t(s * a))
   }
   return(list(s = (maxr + minr) / 2.0, itel = itel))
+}
+
+smacofDoubleCenter <- function(a) {
+  ra <- apply(a, 1, mean)
+  rb <- apply(a, 2, mean)
+  rr <- mean(a)
+  return(a - outer(ra, rb, "+") + rr)
 }
