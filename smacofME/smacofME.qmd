@@ -1,0 +1,124 @@
+---
+title: |
+    | Smacof at 50: A Manual
+    | Part 2: smacofME: Metric Smacof 
+author: 
+    - name: Jan de Leeuw
+      orcid: 0000-0003-1420-1797
+      email: jan@deleeuwpdx.net
+      affiliation: 
+        - name: University of California Los Angeles
+          city: Los Angeles
+          state: CA
+          url: www.ucla.edu
+      license: "CC0"
+date: last-modified
+date-format: long
+bibliography: [mypubs.bib, total.bib]
+number-sections: true
+pdf-engine: lualatex
+keep-tex: true
+format:
+   pdf:
+    fontsize: 12pt
+    include-in-header: 
+     - preamble.tex
+    keep-tex: true
+    link-citations: true
+    documentclass: scrartcl
+    number-sections: true
+   html:
+    fontsize: 12pt
+    keep-md: true
+    number-sections: true
+toc: true
+toc-depth: 3
+editor: source
+papersize: letter
+graphics: true
+link-citations: true
+mainfont: Times New Roman
+---
+
+```{r loadpackages, echo = FALSE}
+library(smacofAC)
+```
+
+```{r load code, echo = FALSE}
+source("~/Desktop/smacofProject/smacofExamples/smacofBS/gruijter/gruijter.R")
+gruijter <- as.matrix(gruijter)
+```
+
+**Note:** This is a working manuscript which will be expanded/updated
+frequently. All suggestions for improvement are welcome. All Rmd, tex,
+html, pdf, R, and C files are in the public domain. Attribution will be
+appreciated, but is not required. All files can be found at
+<https://github.com/deleeuw> in the smacofME directories of the repositories smacofCode, smacofManual, and smacofExamples. 
+
+# Introduction
+
+In this part of the manual we discuss metric MDS, and the program
+smacofME. Metric MDS is the core of all smacof programs, because they
+all have the majorization algorithm based on the Guttman transform 
+in common.
+
+
+# Program
+
+## Parameters
+
+```{r parameters, eval = FALSE}
+smacofME <- function(thedata,
+                     ndim = 2,
+                     xold = NULL,
+                     labels = NULL,
+                     width = 15,
+                     precision = 10,
+                     itmax = 1000,
+                     eps = 1e-10,
+                     verbose = TRUE,
+                     jitmax = 20,
+                     jeps = 1e-10,
+                     jverbose = FALSE,
+                     kitmax = 20,
+                     keps = 1e-10,
+                     kverbose = FALSE,
+                     init = 1)
+```
+
+Parameter *ndim* is the number of dimensions, and *init* tells if an initial configuration
+is read from a file (init = 1), is computed using classical scaling (init = 2), or is
+a random configuration (init = 3). Parameters
+*itmax*, *epsi*, and *verbose* control the iterations. The maximum number of iterations
+is *itmax*, the iterations stop if the decrease of stress in an iteration is less than
+1E-*epsi*, and if *verbose* is one intermediate iteration results are written to stdout.
+These intermediate iteration results are formatted with the R function formatC(), using
+*width* for the width argument and *precision* for the digits argument. 
+
+## Algorithm
+
+
+
+
+## Output
+
+```{r output, eval = FALSE}
+  h <- list(
+    delta = delta,
+    nobj = nobj,
+    ndim = ndim,
+    snew = snew,
+    itel = itel,
+    xnew = xnew,
+    dmat = dmat,
+    labels = labels
+  )
+```
+
+## Plots
+
+# Examples
+
+## @degruijter_67
+
+# References
