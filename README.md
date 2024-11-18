@@ -6,11 +6,15 @@ The manual for "Smacof at 50" consists of chapters about
 each of the programs in the project.
 
 * smacofAC - Metric with bounds and/or additive constant
+* smacofAV - Robust MDS
+* smacofBA - Smacof Basics (Introduction)
 * smacofBS - Non-linear with B-splines
 * smacofCR - Non-metric, Conditional Rank Orders
+* smacofDT - Data format
 * smacofEL - Constrained, spheres and ellipsoids
-* smacofHO - Rectangular, non-metric, Homogeneity Analysis, Rank Constraints
+* smacofFA - Accelerated Smacof
 * smacofHC - Rectangular, non-metric, Homogeneity Analysis, Centroid Constraints
+* smacofHO - Rectangular, non-metric, Homogeneity Analysis, Rank Constraints
 * smacofID - Individual Differences
 * smacofLN - Constrained, Linear Constraints
 * smacofPC - Non-metric, Paired Comparisions

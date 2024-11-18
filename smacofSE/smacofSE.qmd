@@ -42,8 +42,29 @@ mainfont: Times New Roman
 
 # Introduction
 
-The best way to avoid unwanted (i.e. non-global) local minima in smacof is to start the iterations with an excellent initial configuration Even if the iterations converge to a non-global local minimum, at least we can be sure than the solution has a lower stress
-than the initial configuration, which was presumably already excellent.
+The best way to avoid unwanted (i.e. non-global) local minima in smacof is to start the iterations with an excellent initial configuration Even if the iterations converge to a non-global local minimum, at least we can be sure than the solution has a lower stress than the initial configuration, which was supposedly already excellent.
+
+In this chapter we implement two fairly elaborate initial
+estimates for metric smacof, which can of course also be 
+used in the alternating least squares algorithm for non-linear
+and non-metric smacof. Both initial estimates basically
+iteratively minimize alternative loss functions, respectively called sstress and strain (see @deleeuw_heiser_C_82 for a
+definition and comparison of these loss functions).
+
+The R functions implementing the minimization of these
+loss functions can be interpreted (and can actually be used) as
+alternative MDS methods. It may seem somewhat peculiar to
+start an iterative MDS technique with an initial estimate 
+computed with another iterative MDS technique. But it is
+not exactly unprecedented, since traditionally MDS programs
+compute their initial configurations by using Classical
+MDS (which uses iterative eigenvalue-eigenvector methods).
+
+Our initial configuration techniques have a great deal of
+flexibility, because we do not necessarily iterate to
+convergence in the initial phase. We use the possibility
+in monotone iterative algorithms to merely improve instead
+of completely solve.
 
 # Strain
 
@@ -73,8 +94,7 @@ $$
 d_{ij}^2(X_1)\leq d_{ij}^2(X_2)\leq\cdots\leq d_{ij}^2(X_r)=\delta_{ij}^2,
 $$
 where $X_p$ is the $p$-dimensional Classical Scaling 
-solution and $r$ is the rank of $B$. Thus squared dissimilarities are approximated
-from below (see also @deleeuw_meulman_C_86). 
+solution and $r$ is the rank of $B$. Thus squared dissimilarities are approximated from below (see also @deleeuw_meulman_C_86). 
 
 The first disadvantage of Classical Scaling is that the $B$-matrix may only
 have $q<p$ positive eigenvalues. If that is the case the global minimum of strain
