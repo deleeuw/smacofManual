@@ -246,3 +246,4 @@ smacofOptionEight <- function(xold, delta, wgth, vmat, vinv) {
     cnew = cnew
   ))
 }
+
