@@ -19,7 +19,7 @@ each of the programs in the project.
 * smacofHS - Rectangular, non-metric, Homogeneity Analysis, Circular Constraints
 * smacofID - Individual Differences
 * smacofLN - Constrained, Linear Constraints
-# smacofME - Metric, with acceleration
+* smacofME - Metric, with acceleration
 * smacofPC - Non-metric, Paired Comparisions
 * smacofPO - Non-linear, Power Functions
 * smacofQQ - Constrained, simplex, circumplex, uniqueness
