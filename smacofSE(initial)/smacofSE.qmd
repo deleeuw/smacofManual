@@ -150,6 +150,44 @@ If there are no missing data the program just performs classical MDS.
 
 ### Fitting
 
+Finding an optimal $X$ for given $\theta$ is classical scaling. In smacofSE
+we find $X$ to decrease strain, not necessarily to minimize it. So we have to 
+decrease 
+$$
+\sigma(X)=\text{tr}\ (B-XX')^2
+$$
+For now, assume $B$ is positive semi-definite. Rewrite this as
+$$
+\sigma(K,\Lambda)=\text{tr}\ (B-K\Lambda K')^2
+$$
+with $K'K=I$ and $\Lambda$ is diagonal and non-negative. Now
+$$
+\sigma(K,\Lambda)=\text{tr}\ B^2-2\text{tr}\ K'BK\Lambda+\text{tr}\ \Lambda^2
+$$
+The utility smacofSymmetricEckartYoung alternates updating $K$ for given $\Lambda$and $\Lambda$ for given $K$. We update $\Lambda$ using $\Lambda=\text{diag}\ K'BK$.
+Updating $K$ is somewhat more intricate (@tenberge_kiers_93). Differentiating gives the stationary equations
+$BK\Lambda=KM$, with $M$ a symmetric matrix of Lagrange multipliers. 
+Thus
+$$
+BK\Lambda^\frac12=K\Lambda^\frac12 N
+$$
+with $N=\Lambda^{-\frac12}M\Lambda^{-\frac12}$ symmetric, i.e. we can write $N=L\Phi L'$. Thus
+$$
+BK\Lambda^\frac12L=K\Lambda^\frac12L\Phi
+$$
+and thus $K\Lambda^\frac12L$ are eigenvectors of $B$, with corresponding eigenvalues
+$\Phi$.
+
+```{r}
+smacofSymmetricEckartYoung <- function(cmat,
+                                       p = 2,
+                                       bnd = FALSE,
+                                       itmax = 1000,
+                                       eps = 1e-10,
+                                       verbose = TRUE) 
+```
+
+
 ### Imputing
 
 $$
