@@ -1,0 +1,271 @@
+---
+title: |
+    | Smacof at 50: Part xx
+    | Utilities
+author: 
+    - name: Jan de Leeuw
+      orcid: 0000-0003-1420-1797
+      email: jan@deleeuwpdx.net
+      affiliation: 
+        - name: University of California Los Angeles
+          city: Los Angeles
+          state: CA
+          url: www.ucla.edu
+      license: "CC0"
+date: last-modified
+date-format: long
+bibliography: [mypubs.bib, total.bib]
+number-sections: true
+pdf-engine: lualatex
+keep-tex: true
+format:
+   pdf:
+    fontsize: 12pt
+    include-in-header: 
+     - preamble.tex
+    keep-tex: true
+    link-citations: true
+    documentclass: scrartcl
+    number-sections: true
+   html:
+    fontsize: 12pt
+    keep-md: true
+    number-sections: true
+toc: true
+toc-depth: 3
+editor: source
+papersize: letter
+graphics: true
+link-citations: true
+mainfont: Times New Roman
+---
+
+```{r loadpackages, echo = FALSE}
+suppressPackageStartupMessages(library(knitr, quietly = TRUE))
+suppressPackageStartupMessages(library(tinytex, quietly = TRUE))
+```
+
+**Note:** This is a working manuscript which will be expanded/updated
+frequently. All suggestions for improvement are welcome. All Rmd, tex,
+html, pdf, R, and C files are in the public domain. Attribution will be
+appreciated, but is not required. The files can be found at
+<https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
+and smacofExamples.
+
+\sectionbreak
+
+# Simultaneous Iteration {#sec-simit}
+
+The problem in this section is to maximize
+$$
+\lambda(K):=\text{tr}\ K'AK
+$${#eq-lbddef}
+over all $n\times p$ orthonormal $K$. Suppose for the time being that $A$ is positive semi-definite. 
+
+Define
+$k=\text{vec}(K)$ and 
+$$
+A_p:=\underbrace{A\oplus\cdots\oplus A}_{p \text{times}}
+$${#eq-apdef}
+Then $\lambda=k'A_pk$, which shows that $\lambda$ i/s convex, and that consequently for 
+all $k$ and $\tilde k$ we have the minorization
+$$
+k'A_pk\geq \tilde k'A_p\tilde k+2\tilde k'A_p(k-\tilde k)=2k'A_p\tilde k-\tilde k'A_p\tilde k
+$${#eq-kmaj}
+It follows that we increase $\lambda$ by increasing $\text{tr}\ K'A\tilde K$
+over $K'K=I$. 
+$$
+K^{(\nu+1)}=\mathop{\text{argmax}}_{K'K=I}\text{tr}\ K'AK^{(\nu)}
+$${#eq-kupd}
+Computing K^{(\nu+1)} is an orthoginal Procrustus problem (@gower_dijksterhuis_04).
+Thus from the singular value decomposition  $AK^{(\nu)}=P\Phi Q'$ we find
+$K^{(\nu+1)}=PQ'$.
+
+There are two remaining elaborations of this result. First, we want to get rid of the
+assumption that $A$ is positive semi-definite. We do this by adding a constant to the diagonal of $A$. To compute a suitable constant $\mu$, use the
+fact that a diagonally dominant symmetric matrix with a non-negative diagonal is
+positive semidefinite. Thus if
+$$
+\mu\geq\max_i\sum_{j\not= i}|a_{ij}|-a_{ii}
+$${#eq-mubnd}
+for all $i$ then the matrix $\overline{A}:=A+\mu I$ is positive semi-definite. We now use @eq-kupd
+with the adjusted $\overline{A}$ and after convergence we subtract
+$p\mu$ from $\lambda$.
+
+Second, instead of computing the singular value decomposition to update $K$ in each iteration we can use the $Q$ from the less expensive QR decomposition. The argument is the same  as in @gifi_B_90 (page 98-99, page 171). The QR update of $K$ is a rotation of the
+Procrustus update of $K$, and it consequently gives the same value of $\lambda$
+from @eq-lbddef.
+
+\sectionbreak
+
+# Nonnegative Least Squares
+
+Minimize
+$$
+\sigma(x)=c-2b'x+x'Ax
+$$
+over $x\geq 0$. Suppose $A$ is positive semi-definite
+and $A\lesssim\mu I$.
+
+write $x=\tilde x +(x-\tilde x)$, and thus
+$$
+\sigma(x)\leq\sigma(\tilde x)+2(A\tilde x-b)'(x-\tilde x)
++\mu(x-\tilde x)'(x-\tilde x)=\\
+\sigma(\tilde x)+\mu\|(x-\tilde x)+\frac{1}{\mu}(A\tilde x-b))\|^2-\frac{1}{\mu}\|A\tilde x-b)\|^2
+$$
+Thus
+$$
+x^{(\nu+1)}=\max(0, x^{(\nu)}-\frac{1}{\mu}(Ax^{(\nu)}-b))
+$$
+# Symmetric Matrix Approximation {#sec-symmat}
+
+The problem in this section is to minimize
+$$
+\sigma(X)=\text{tr}\ (C-XX')^2
+$${#eq-eydef}
+over all $n\times p$ matrices $X$. Note there are no weights. The solution is well-known (@eckart_young_36, @keller_62). If $C=K\Lambda K'$ is the eigen-decomposition of $C$, with eigenvalues in non-increasing order on the diagonal of $\Lambda$, then define $\overline{\Lambda}$
+with elements $\max(0,\lambda_s)$. Then use the $p$ largest eigenvalues and corresponding vectors to compute $X=K_p\overline{\Lambda}_p$. Note that $\text{rank}(X)$ is less than
+$p$ if $C$ has fewer than $p$ positive eigenvalues.
+
+Our algorithm to minimize, or at least decrease, the loss function in @eq-eydef. Uses
+a combination of alternating least squares (@deleeuw_C_94c) and majorization (@deleeuw_C_94c) or MM (@lange_16). We first write $X$ in the form $X=K\Lambda$,
+with $K'K=I$ and $\Lambda$ diagonal. Then rewrite  @eq-eydef as
+$$
+\sigma(K,\Lambda)=\text{tr}\ (C-K\Lambda^2 K')^2=\text{tr}\ C^2-2\text{tr}\ K'CK\Lambda^2+\text{tr}\ \Lambda^4.
+$${#eq-eydefkl}
+Again, for the time being, assume $C$ is positive semi-definite.
+The minimum over $\Lambda$ for given $K$ has $\lambda_s^2=k_s'Ck_s$. Thus
+$$
+\min_{K'K=I}\min_\Lambda\sigma(K,\Lambda)=\text{tr}\ C^2-\max_{K'K=I}\sum_{s=1}^p (k_s'Ck_s)^2
+$${#eq-eydefklexpmin}
+The term depending on $K$ is convex and can consequently be minorized
+by the linear function
+$$
+\sum_{s=1}^p (k_s'Ck_s)^2=\sum_{s=1}^p (\tilde k_s'C\tilde k_s)^2+2\sum_{s=1}^p (\tilde k_s'C\tilde k_s)\tilde k_s'C(k_s-\tilde k_s).
+$$
+In iteration $\nu + 1$ we must maximize
+$\text{tr}\ K'CK^{(\nu)}\{\Lambda^{(\nu)}\}^2$
+over $K'K=I$, where $\{\Lambda^{(\nu)}\}^2=\text{diag}\{K^{(\nu)}\}'CK^{(\nu)}$.
+Again, this is an orthogonal Procrustus problem.
+
+\sectionbreak
+
+# Various Simple
+
+```{r simpleutils, eval = FALSE}
+smacofEi <- function(i, n) {
+  return(ifelse(i == 1:n, 1, 0))
+}
+
+smacofAij <- function(i, j, n) {
+  ei <- ifelse(i == 1:n, 1, 0)
+  ej <- ifelse(j == 1:n, 1, 0)
+  return(outer(ei - ej, ei - ej))
+}
+
+smacofDoubleCenter <- function(a) {
+  r <- apply(a, 1, mean)
+  s <- mean(a)
+  return(a - outer(r, r, "+") + s)
+}
+
+smacofCenter <- function(x) {
+  return(apply(x, 2, function(x) x - mean(x)))
+}
+
+smacofTrace <- function(a) {
+  return(sum(diag(a)))
+}
+
+smacofMakeDoubleCenter <- function(w) {
+  v <- -w
+  diag(v) <- -rowSums(v)
+  return(v)
+}
+
+smacofDoubleCenterGeneralizedInverse <- function(v) {
+  n <- nrow(v)
+  return(solve(v + (1 / n)) - 1 / n)
+}
+```
+
+# Data formats
+
+```{r datautils, eval = FALSE}
+smacofMakeData <-
+  function(delta,
+           weights = rep(1, length(delta)),
+           winclude = FALSE,
+           fname) {
+    m <- length(delta)
+    n <- as.integer((1 + sqrt(1 + 8 * m)) / 2)
+    h <- fullIndex(n)
+    g <- cbind(h$ii, h$jj, delta, weights)
+    for (k in 1:m) {
+      if ((g[k, 4] == 0) || is.na(g[k, 4]) || is.na(g[k, 3])) {
+        continue
+      } else {
+        if (winclude) {
+          cat(
+            formatC(g[k, 1], digits = 3, format = "d"),
+            formatC(g[k, 2], digits = 3, format = "d"),
+            formatC(g[k, 3], digits = 6, format = "f"),
+            formatC(g[k, 4], digits = 6, format = "f"),
+            "\n",
+            file = fname, append = TRUE
+          )
+        } else {
+          cat(
+            formatC(g[k, 1], digits = 3, format = "d"),
+            formatC(g[k, 2], digits = 3, format = "d"),
+            formatC(g[k, 3], digits = 6, format = "f"),
+            "\n",
+            file = fname, append = TRUE
+          )
+        }
+      }
+    }
+  }
+
+
+fullIndex <- function(n) {
+  ii <- c()
+  jj <- c()
+  for (j in 1:(n - 1)) {
+    for (i in (j + 1):n) {
+      ii <- c(ii, i)
+      jj <- c(jj, j)
+    }
+  }
+  return(list(ii = ii, jj = jj))
+}
+```
+
+# I/O
+
+```{r ioutils, eval = FALSE}
+smacofMatrixPrint <- function(x,
+                   digits = 6,
+                   width = 8,
+                   format = "f",
+                   flag = "+") {
+  print(noquote(
+    formatC(
+      x,
+      digits = digits,
+      width = width,
+      format = format,
+      flag = flag
+    )
+  ))
+}
+```
+
+
+# Indices
+
+sindex tindex mindex vindex
+
+\sectionbreak
+
+# References
