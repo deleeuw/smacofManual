@@ -40,6 +40,21 @@ link-citations: true
 mainfont: Times New Roman
 ---
 
+```{r load_stuff, echo = FALSE}
+library(microbenchmark)
+library(RSpectra)
+library(quadprog)
+source("../../smacofCode/smacofSE(initial)/smacofTorgerson.R")
+source("../../smacofCode/smacofSE(initial)/smacofALSCAL.R")
+source("../../smacofCode/smacofSE(initial)/smacofElegant.R")
+source("../../smacofCode/smacofSE(initial)/smacofMaximumSum.R")
+source("../../smacofCode/smacofUT(utilities)/smacofSimpleUtilities.R")
+source("../../smacofCode/smacofUT(utilities)/smacofIOUtilities.R")
+source("../../smacofCode/smacofUT(utilities)/smacofDataUtilities.R")
+source("../../smacofData/ekman.R")
+source("../../smacofData/gruijter.R")
+```
+
 \sectionbreak 
  
 # Introduction
@@ -443,37 +458,39 @@ We use the data from @ekman_54, which has a very good MDS fit in two dimensions,
 with apparently very few local minima.
 
 Comparisons of the various ELEGANT options are done with the microbenchmark package (@mersmann_23), using 100 runs and the default iteration options. 
-First we look at the unweighted case. @tbl-elegant1 varies the three bounds
+First we look at the unweighted case.  varies the three bounds
 on the largest eigenvalue and the initial configuration (zero is random, one
 is maximum sum).
 
-```{r tableelegant1, echo = FALSE}
-#| label: tbl-elegant1
-x <- matrix(c(
-  0,0,123.198317,
-  0,1,58.606117,
-  1,0,17.923355,
-  1,1,9.396667, 
-  2,0,9.687357,
-  2,1,5.315363), 6, 3, byrow = TRUE)
-knitr::kable(x, format = "pipe", digits = 6, col.names = c("bound", "initial", "median time"), caption = "Unweighted Elegant Execution Times, Ekman Data")
+```{r mbelegant1, echo = FALSE, cache = TRUE}
+ekmat <- as.matrix(1 - ekman)
+microbenchmark(
+  smacofElegant(ekmat, bnd = 0, xold = 0, itmax = 100000, verbose = FALSE),
+  smacofElegant(ekmat, bnd = 0, xold = 1, itmax = 100000, verbose = FALSE),
+  smacofElegant(ekmat, bnd = 1, xold = 0, itmax = 100000, verbose = FALSE),
+  smacofElegant(ekmat, bnd = 1, xold = 1, itmax = 100000, verbose = FALSE),
+  smacofElegant(ekmat, bnd = 2, xold = 0, itmax = 100000, verbose = FALSE),
+  smacofElegant(ekmat, bnd = 2, xold = 1, itmax = 100000, verbose = FALSE))
 ```
+
+
 As expected, bound 2 (the eigenvalue) is about twice as fast as bound 1 (maximum
 absolute row sum). The original ELEGANT, with bound 0, is indeed very slow. The maximum sum initial configuration gives another speedup of around two. 
 
 Next, we do the same comparison with weights $w_{ij}=\delta_{ij}^{-1}$. 
 
-```{r tableelegant2, echo = FALSE}
-#| label: tbl-elegant2
-x <- matrix(c(
-  0,0,481.26585,
-  0,1,483.74334,
-  1,0,139.59528,
-  1,1,107.35610, 
-  2,0,66.25688,
-  2,1,57.09246), 6, 3, byrow = TRUE)
-knitr::kable(x, format = "pipe", digits = 6, col.names = c("bound", "initial", "median time"), caption = "Weighted Elegant Execution Times, Ekman Data")
+```{r mbelegant2, echo = FALSE, cache = TRUE}
+ekmat <- as.matrix(1 - ekman)
+wmat <- 1 / (ekmat + diag(14)) - diag(14)
+microbenchmark(
+  smacofElegant(ekmat, wght = wmat, bnd = 0, xold = 0, itmax = 100000, verbose = FALSE),
+  smacofElegant(ekmat, wght = wmat, bnd = 0, xold = 1, itmax = 100000, verbose = FALSE),
+  smacofElegant(ekmat, wght = wmat, bnd = 1, xold = 0, itmax = 100000, verbose = FALSE),
+  smacofElegant(ekmat, wght = wmat, bnd = 1, xold = 1, itmax = 100000, verbose = FALSE),
+  smacofElegant(ekmat, wght = wmat, bnd = 2, xold = 0, itmax = 100000, verbose = FALSE),
+  smacofElegant(ekmat, wght = wmat, bnd = 2, xold = 1, itmax = 100000, verbose = FALSE))
 ```
+
 Using these reciprocal weights slows down everything, but the ranking of the
 various options remains the same, except for the fact that the maximum sum
 initial configuration does not give much of an improvement. Although
@@ -481,11 +498,30 @@ bound equal to two now involves one-time computation of the largest
 eigenvalue of $H$ it still is twice as fast as bound equal to one. But
 remember that for larger examples 
 
-We also used the Ekman data for a comparison of unwieghted ELEGANT, with the eigenvalue bound, and unweighted ALSCAL. If we used a random initial $x$ then microbenchmark gives a median time of 19.56022 milliseconds for ALSCAL versus 11.65208 for ELEGANT. Using the maximum sum initial $x$ changes this to 15.611836
-and 7.121864. 
+ 
 
-The results will be different for examples of a different size, and with 
-more local minima. Some additional comparisons will be added soon.
+```{r mbelegan3, echo = FALSE, cache = TRUE}
+grmat <- as.matrix(gruijter)
+microbenchmark(
+  smacofElegant(grmat, bnd = 0, xold = 0, itmax = 100000, verbose = FALSE),
+  smacofElegant(grmat, bnd = 0, xold = 1, itmax = 100000, verbose = FALSE),
+  smacofElegant(grmat, bnd = 1, xold = 0, itmax = 100000, verbose = FALSE),
+  smacofElegant(grmat, bnd = 1, xold = 1, itmax = 100000, verbose = FALSE),
+  smacofElegant(grmat, bnd = 2, xold = 0, itmax = 100000, verbose = FALSE),
+  smacofElegant(grmat, bnd = 2, xold = 1, itmax = 100000, verbose = FALSE))
+```
+
+We also used the Ekman data for a comparison of unweighted ELEGANT, with the eigenvalue bound, and unweighted ALSCAL. If we used a random initial $x$ then microbenchmark gives a median time of 19.56022 milliseconds for ALSCAL versus 11.65208 for ELEGANT. Using the maximum sum initial $x$ changes this to 15.611836
+and 7.121864.
+
+
+```{r mbelegant4, echo = FALSE, cache = TRUE}
+microbenchmark(
+  smacofElegant(ekmat, bnd = 2, xold = 0, itmax = 100000, verbose = FALSE),
+  smacofElegant(ekmat, bnd = 2, xold = 1, itmax = 100000, verbose = FALSE),
+  smacofALSCAL(ekmat, x = 0, itmax = 100000, verbose = FALSE),
+  smacofALSCAL(ekmat, x = 1, itmax = 100000, verbose = FALSE))
+```
 
 \sectionbreak
 
