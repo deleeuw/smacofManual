@@ -41,18 +41,9 @@ mainfont: Times New Roman
 ---
 
 ```{r load_stuff, echo = FALSE}
-library(microbenchmark)
 library(RSpectra)
 library(quadprog)
 source("../../smacofCode/smacofSE(initial)/smacofTorgerson.R")
-source("../../smacofCode/smacofSE(initial)/smacofALSCAL.R")
-source("../../smacofCode/smacofSE(initial)/smacofElegant.R")
-source("../../smacofCode/smacofSE(initial)/smacofMaximumSum.R")
-source("../../smacofCode/smacofUT(utilities)/smacofSimpleUtilities.R")
-source("../../smacofCode/smacofUT(utilities)/smacofIOUtilities.R")
-source("../../smacofCode/smacofUT(utilities)/smacofDataUtilities.R")
-source("../../smacofData/ekman.R")
-source("../../smacofData/gruijter.R")
 ```
 
 \sectionbreak 
@@ -91,7 +82,6 @@ computation.
 
 \sectionbreak
 
-# Using Strain
 
 In the standard R versions of smacof the initial configuration is chosen
 using classical multidimensional scaling, i.e. the method proposed in @torgerson_58 and @gower_66.
@@ -166,7 +156,6 @@ pseudo scalar products in $B$ are linear combinations of multiple
 
 Nevertheless the smacof project, and the code for this chapter, includes a version of classical MDS that can handle missing data (but not general weights). A similar non-metric version of strain was discussed by @trosset_98.
 
-## Algorithm
 
 We formulate loss as
 $$
@@ -228,302 +217,18 @@ of $V$.
 
 \sectionbreak
 
-# Maximum Sum
+# Weights
 
-In some early reports (@deleeuw_R_68e, @deleeuw_R_68g) I proposed using what I call the "maximum sum principle", not just for metric MDS, but for various other metric and nonmetric techniques as well. Around the same time @guttman_68 used a similar initial configuration for his MDS algorithms. 
-
-In metric MDS the maximum sum method maximizes
 $$
-\rho(X):=\mathop{\sum\sum}_{1<i\leq j<n}w_{ij}\delta_{ij}^2d_{ij}^2(X)
-$${#eq-rhodef}
-over $X$ in some compact set of configurations. General considerations seem to suggest that $\rho$ will tend to be large if $\Delta$ and $D(X)$ are numerically similar, or at least similarly ordered. The actual normalization
-constraint on $X$ is not specified, and different constraints will lead
-to different solutions.
-
-Now $\rho(X)=\text{tr}\ X'BX$ where
-$B$ is  defined as
-$$
-B:=\mathop{\sum\sum}_{1<i\leq j<n} w_{ij}\delta_{ij}^2A_{ij},
-$${#eq-bdef}
-i.e. $B$ has off-diagonal elements $-w_{ij}\delta_{ij}^2$, with the diagonal filled in such a way that rows and columns add up to zero. It follows that $B$ is symmetric, doubly-centered, and positive semi-definite. 
-
-But no matter how simple and attractive $\rho$ is, we still have to decide how to bound $X$ and how to introduce multi-dimensionality. A naive 
-choice would be requiring $\text{tr}\ X'X=1$,  but that gives a solution $X$ of rank one with all
-columns equal to the eigenvector corresponding with the largest eigenvalue of $B$. @deleeuw_R_70b suggests maximizing $\rho$ over $X'X=I$, which leads 
-to choosing $X$ as the eigenvectors corresponding with the $p$ largest
-eigenvalues of $B$. But that result is of limited usefulness, because the
-MDS problem does not specify anywhere that the configuration $X$ must be 
-orthonormal. But since the maximum sum solution is only to be used as
-an initial configuration this may not be that serious.
-
-@guttman_68 says his initial configuration maximizes 
-$$
-\lambda:=\sum_{s=1}^p\frac{x_s'Bx_s}{x_s'x_s}
-$${#eq-guttmaxsum}
-But that cannot be correct. In the first place it would mean that the $x_s$ can be scaled independently and arbitrarily, in the second place the maximum of $\lambda$ is just $p$ times the largest eigenvalue of $B$ and all $x_s$ are proportional to the corresponding eigenvector. Thus Guttman's derivation is wrong. 
-
-Both De Leeuw and Guttman seem to arrive, in somewhat mysterious ways, at the "solution" $X=K\Lambda^\frac12$, where $K$ and $\Lambda$ are the $p$ dominant eigenvectors and eigenvalues of $B$.
-An ad hoc justification of this normalization interprets it as a two step optimization over $X=K\Psi$ with $K'K=I$ and $\Psi$ diagonal. First maximize $\rho=\text{tr}\ K'BK$ over $K'K=I$. Then maximize $\rho=\text{tr}\ \Psi K'BK\Psi=\text{tr}\ \Lambda\Psi^2$ over $\text{tr}\ \Psi^4=1$, with $\Lambda$ again the $p$ largest eigenvalues. This gives $\Psi=\Lambda^\frac12$. But note that if $p=n-1$ then $K\Lambda K'$ reproduces $B$, and
-$$
-d_{ij}^2(X)=(e_i-e_j)'B(e_i-e_j)=\sum_{k=1}^nw_{ik}\delta_{ik}^2+\sum_{k=1}^nw_{jk}\delta_{jk}^2+2w_{ij}\delta_{ij}^2,
-$${#eq-maxsumrep}
-which does not reproduce the squared dissimilarities. Thus the maximum sum method gives at best a quick and dirty initial configuration
-
-\sectionbreak
-
-# Using Sstress
-
-## Elegant
-
-The maximum sum method is related to the problem of minimizing the MDS loss function sstress, defined by @takane_young_deleeuw_A_77 as
-$$
-\sigma(X)=\mathop{\sum\sum}_{1<i\leq j<n} w_{ij}(\delta_{ij}^2-d_{ij}^2(X))^2.
-$${#eq-sstressdef}
-For notational convenience only, assume the sum of squares of the squared dissimilarities is equal to one. Of course normalizing dissimilarities does
-not change the minimization problem.
-
-If we expand @eq-sstressdef we find
-$$
-\sigma(X)=1-2\rho(X)+\eta^2(X) ,
-$${#eq-sstressexp}
-with $\rho$ defines as in @eq-rhodef, and with
-$$
-\eta^2(X):=\mathop{\sum\sum}_{1<i\leq j<n} w_{ij}d_{ij}^4(X).
-$${#eq-stresseta}
-Now, by homogeneity of the distance function, 
-$$
-\min_X\sigma(X)=\min_{\eta^2(X)=1}\min_{\lambda}\{1-2\lambda\rho(X)+\lambda^2\}=1-\max_{\eta^2(X)=1}\rho^2(X).
-$${#eq-innermin}
-Thus minimizing sstress is equivalent to maximizing $\rho$ over all $X$ in the compact set $\eta^2(X)=1$. In that sense minimizing
-sstress is a maximum sum method.
-But, unlike the maximum sum approach of Guttman and de Leeuw, this normalization of $X$ does not lead to a simple eigenvalue-eigenvector problem. It can be solved, however, by majorization, which means, in thus case, iteratively solving a sequence of related eigenvalue-eigenvector problems. 
-
-If we use sstress to approximate stress there is a more or less rational way to choose the weights in sstress. This seems a good thing
-since we use sstress solutions as initial configurations for minimizing
-stress.
-\begin{align}
-\sigma(X)&=\mathop{\sum\sum}_{1<i\leq j<n}w_{ij}(\delta_{ij}-d_{ij}(X))^2\notag\\
-&=\mathop{\sum\sum}_{1<i\leq j<n}\frac{w_{ij}}{(\delta_{ij}+d_{ij}(X))^2}
-(\delta_{ij}^2-d_{ij}^2(X))^2\notag\\&\approx\frac14\mathop{\sum\sum}_{1<i\leq j<n} \frac{w_{ij}}{\delta_{ij}^2}
-(\delta_{ij}^2-d_{ij}^2(X))^2.
-\end{align}
-
-The complicated history of this majorization algorithm, which early on was called ELEGANT, starts with @deleeuw_U_75b, @takane_77, and 
-@browne_87. You may notice that in the references @deleeuw_U_75b is not linked to a pdf,
-because the paper seems to be irretrievably lost. It hangs on to its existence because it is discussed, referenced, and used, by Takane and Browne. See @deleeuw_groenen_pietersz_E_16m and @takane_16 for more on the history. The original derivation in @deleeuw_U_75b used augmentation
-(@deleeuw_C_94c), which leads to unsharp majorization and to the slow convergence
-mentioned by De Leeuw, Browne, and Takane as a major disadvantage of ELEGANT. In @deleeuw_groenen_pietersz_E_16m a sharper majorization is used to improve the asymptotic convergence rate of the original algorithm by a large factor $n$.
-The modified ELEGANT is much faster than the original version (@deleeuw_E_16o
-).
-
-Now for the actual algorithm. Since it handles general non-negative weights, including zeroes, there is no fitting step as in our missing data generalization of strain.
-
-Define $A_{ij}$ as usual, $C:=XX'$, $a_{ij}:=\text{vec}(A_{ij})$, and $c=\text{vec}(C)$. Also use $A$ for the $n^2\times\frac12n(n-1)$ matrix
-that has the $a_{ij}$ with $i<j$ as columns, and $W$ for the diagonal matrix
-with the $w_{ij}$ for $i<j$. Then $d_{ij}^2(X)=\text{tr}\ A_{ij}C=a_{ij}'c$, and thus
-$$
-\sigma(C)=1-2b'c+c'Hc,
-$${#eq-elegantc}
-with $b=\text{vec}(B)$, with $B$ from @eq-bdef, and with
-$$
-H:=AWA'.
-$${#eq-hdef}
-There are two alternative expressions for the $n^2\times n^2$ matrix $H$ which are worth mentioning. The first one uses Kronecker products. It is
-$$
-H=\mathop{\sum\sum}_{1<i\leq j<n} w_{ij}(A_{ij}\otimes A_{ij}).
-$${#eq-halt1}
-The second expression represents $H$ as an $n\times n$ block-matrix with elements (blocks) that are themselves $n\times n$ matrices. The $(i, j)$ off-diagonal block of $H$ is
-$$
-\{H\}_{ij}=-w_{ij}A_{ij},
-$${#eq-halt2}
-while for the diagonal blocks
-$$
-\{H_{ii}\}=\sum_{j\not= i} w_{ij}A_{ij}.
-$${#eq-halt3}
-
-We now apply the standard majorization method for quadratic optimization.
-Let $\mu$ be an upper bound for the largest eigenvalue $\lambda_+$ of $H$.  Write $C=\tilde C+(C-\tilde C)$.
-Then
-\begin{multline}
-\sigma(c)\leq\sigma(\tilde c)-2 (b-H\tilde c)'(c-\tilde c)+\mu(c-\tilde c)'(c-\tilde c)=\\\sigma(\tilde c)+\mu\|c-(\tilde c+\mu^{-1}H\tilde c-b))\|^2-\mu^{-1}\|H\tilde c-b\|^2.
-\end{multline}{#eq-elegantmaj}
-Thus we find $c^{(\nu+1)}$ by minimizing
-$$
-\omega(c):=\|c-(c^{(\nu)}+\mu^{-1}(Hc^{(\nu)}-b))\|^2
-$${#eq-elegantstep}
-over $c$. Now
-$$
-Hc=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}a_{ij}a_{ij}' c=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}d_{ij}^2(c)a_{ij}.
-$${#eq-hvecmat}
-Using @eq-hvecmat we can translate back to matrices 
-$$
-\omega(C)=\text{tr}\ (C-(C^{(\nu)}+\mu^{-1}R(C^{(\nu)}))^2
-$${#eq-omegamat}
-where 
-$$
-R(C^{(\nu)}):=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}(d_{ij}^2(C^{(\nu)})-\delta_{ij}^2)
-$${#eq-relegant}
-This is a low-rank symmetric matrix approximation problem, which we have encountered before, and which we can solve by partial eigen-decomposition.
-
-Various choices of $\mu\geq\lambda_+$ are possible. The simplest one is the 
-trace of $H$, which is equal to four times the sum of the weights.The
-original version of ELEGANT used this trace bound. A sharper bound, which involves only slightly more work, is the maximum row sum of the absolute values of the elements of $H$. This is equal to four times the maximum row sum of the weights $W$. The best choice for $\mu$, of course, is $\mu=\lambda_+$, which requires more computation in the general case. For really large examples
-matrices of order $O(n^2)$ may be prohibitively large, and the maximum absolute
-value bound can be computed without actually computing and storing $H$.
-
-If all weights are equal to one matters simplify. @tbl-bounds 
-gives the three bounds for various values of $n$.
-```{r vtable, echo = FALSE}
-#| label: tbl-bounds
-k <- c(2, 4, 8, 16, 32, 64, 128)
-x <- matrix(0, 7, 4)
-x[, 1] <- k
-x[, 2] <- 2 * k * ( k - 1)
-x[, 3] <- 4 * (k - 1)
-x[, 4] <- 2 * k
-knitr::kable(x, format = "pipe", digits = 5, col.names = c("n", "trc", "abs", "eig"), caption = "Eigenvalue Bounds")
-```
-The trace bound is $2n(n-1)$, the maximum row sum bound is $4(n-1)$. @deleeuw_groenen_pietersz_E_16m show that if all weights are one the maximum eigenvalue is $2n$. In the unfolding situation, with a rectangular $n\times m$ matrix of dissmilarities and all
-$nm$ weights equal to one, the trace bound is $4nm$. The absolute value bound 
-is $4\max(n,m)$ and the maximum eigenvalue is $n+m+2$. 
-
-The largest eigenvalue of $H$, which has order $n^2$, is also the largest eigenvalue of the matrix with elements $W^\frac12A'AW^\frac12$, which is a non-negative matrix of order $\frac12n(n-1)$. For general weights we use
-the algorithm of @markham_68 to compute the largest eigenvalue (the Perron-Frobenius root) of this matrix. In balanced situations, where the weights are not too different, the absolute value bound is about twice the largest eigenvalue, and it is unclear if the additional iterative computation of the largest eigenvalue is warranted. Moreover since the iterations approximate 
-the eigenvalue from below we need precise computations, otherwise we
-do not have an appropriate majorization. 
-
-## ALSCAL
-
-In ALSCAL we use cyclic coordinate descent to minimize sstress. The alternating least squares algorithm changes one coordinate at a time, keeping the other $np-1$ coordinates fixed at their current values. Each cycle changes all coordinates in this way, thus generating a decreasing and convergent sequence of sstress values. 
-
-The original ALSCAL algorithm (@takane_young_deleeuw_A_77) used alternating
-least squares, but  with $n$ blocks of size $p$, using a safeguarded version of Newton's method in each block subproblem. Even at the time (almost 50 years ago now) I pushed for using $np$ blocks of size one, but I lst out initially. But pretty soon afterwards Doug Carroll and
-others pointed out that the original algorithm has the problem that the
-Newton method may converge to a block local minimum (@takane_young_deleeuw_A_77, page 61-63). So in subsequent versions of ALSCAL in SAS and SPSS (@young_takane_lewyckyj_78b) coordinate descent
-was used.
-
-Formally changing a single coordinate is
-$$
-X=Y+\theta e_ke_s',
-$${#eq-xchange}
-which makes $d_{ij}^2(X)$ the following quadratic function of $\theta$. 
-$$
-d_{ij}^2(\theta)=
-d_{ij}^2(Y)+2\theta (y_{is}-y_{js})(\delta^{ik}-\delta^{jk})+\theta^2(\delta^{ik}+\delta^{jk}),
-$${#eq-dchange}
-Note there are superscripted 
-Kronecker deltas such as $\delta^{ik}$ and subscripted dissimilarity deltas such as $\delta_{ij}$.
-
-Define the residual 
-$$
-r_{ij}(Y):=d_{ij}^2(Y)-\delta_{ij}^2.
-$${#eq-sstressresidual}
-Then
-$$
-\sigma(\theta)=
-\sum_{i=1}^n\sum_{j=1}^nw_{ij}(r_{ij}(Y)+2\theta(y_{is}-y_{js})(\delta^{ik}-\delta^{jk})+\theta^2(\delta^{ik}-\delta^{jk})^2)^2
-$${#eq-sstresstheta}
-Now expand @eq-sstresstheta. This was also done undoubtedly by
-@young_takane_lewyckyj_78b, and explicitly for R version in @deleeuw_U_06i, with a mistake in his formula for $a_3(X)$ on page 3. 
-We use the fact that if $i\not= j$ then
-\begin{subequations}
-\begin{align}
-(\delta^{ik}-\delta^{jk})^2&=\delta^{ik}+\delta^{jk},\\
-(\delta^{ik}-\delta^{jk})(\delta^{ik}+\delta^{jk})&=\delta^{ik}-\delta^{jk},\\
-(\delta^{ik}+\delta^{jk})^2&=\delta^{ik}+\delta^{jk}.
-\end{align}
-\end{subequations}
-Expanding gives
-$$
-\sigma(\theta)=\sigma(Y)+\sigma_1(Y)\theta+\sigma_2(Y)\theta^2+\sigma_3(Y)\theta^3+\sigma_4(Y)\theta^4,
-$${#eq-sigmaexpansion}
-with
-\begin{subequations}
-\begin{align}
-\sigma_1(Y)&=8\sum_{j=1}^nw_{kj}r_{kj}(Y)(y_{ks}-y_{js}),\\
-\sigma_2(Y)&=4\sum_{j=1}^nw_{kj}r_{kj}(Y)+
-8\sum_{j=1}^nw_{kj}(y_{ks}-y_{js})^2,\\
-\sigma_3(Y)&=8\sum_{j=1}^nw_{kj}(y_{ks}-y_{js}),\\
-\sigma_4(Y)&=2\sum_{j=1}^nw_{kj}.
-\end{align}
-\end{subequations}
-This non=negative bowl-shaped quartic is minimized to find the optimum coordinate replacement of $x_{ks}$ in @eq-xchange. Then go to the next
-coordinate, and so on. Convergence is tested after each cycle.
-  
-\sectionbreak
-
-# Example
-
-We use the data from @ekman_54, which has a very good MDS fit in two dimensions,
-with apparently very few local minima.
-
-Comparisons of the various ELEGANT options are done with the microbenchmark package (@mersmann_23), using 100 runs and the default iteration options. 
-First we look at the unweighted case.  varies the three bounds
-on the largest eigenvalue and the initial configuration (zero is random, one
-is maximum sum).
-
-```{r mbelegant1, echo = FALSE, cache = TRUE}
-ekmat <- as.matrix(1 - ekman)
-microbenchmark(
-  smacofElegant(ekmat, bnd = 0, xold = 0, itmax = 100000, verbose = FALSE),
-  smacofElegant(ekmat, bnd = 0, xold = 1, itmax = 100000, verbose = FALSE),
-  smacofElegant(ekmat, bnd = 1, xold = 0, itmax = 100000, verbose = FALSE),
-  smacofElegant(ekmat, bnd = 1, xold = 1, itmax = 100000, verbose = FALSE),
-  smacofElegant(ekmat, bnd = 2, xold = 0, itmax = 100000, verbose = FALSE),
-  smacofElegant(ekmat, bnd = 2, xold = 1, itmax = 100000, verbose = FALSE))
-```
-
-
-As expected, bound 2 (the eigenvalue) is about twice as fast as bound 1 (maximum
-absolute row sum). The original ELEGANT, with bound 0, is indeed very slow. The maximum sum initial configuration gives another speedup of around two. 
-
-Next, we do the same comparison with weights $w_{ij}=\delta_{ij}^{-1}$. 
-
-```{r mbelegant2, echo = FALSE, cache = TRUE}
-ekmat <- as.matrix(1 - ekman)
-wmat <- 1 / (ekmat + diag(14)) - diag(14)
-microbenchmark(
-  smacofElegant(ekmat, wght = wmat, bnd = 0, xold = 0, itmax = 100000, verbose = FALSE),
-  smacofElegant(ekmat, wght = wmat, bnd = 0, xold = 1, itmax = 100000, verbose = FALSE),
-  smacofElegant(ekmat, wght = wmat, bnd = 1, xold = 0, itmax = 100000, verbose = FALSE),
-  smacofElegant(ekmat, wght = wmat, bnd = 1, xold = 1, itmax = 100000, verbose = FALSE),
-  smacofElegant(ekmat, wght = wmat, bnd = 2, xold = 0, itmax = 100000, verbose = FALSE),
-  smacofElegant(ekmat, wght = wmat, bnd = 2, xold = 1, itmax = 100000, verbose = FALSE))
-```
-
-Using these reciprocal weights slows down everything, but the ranking of the
-various options remains the same, except for the fact that the maximum sum
-initial configuration does not give much of an improvement. Although
-bound equal to two now involves one-time computation of the largest
-eigenvalue of $H$ it still is twice as fast as bound equal to one. But
-remember that for larger examples 
-
- 
-
-```{r mbelegan3, echo = FALSE, cache = TRUE}
-grmat <- as.matrix(gruijter)
-microbenchmark(
-  smacofElegant(grmat, bnd = 0, xold = 0, itmax = 100000, verbose = FALSE),
-  smacofElegant(grmat, bnd = 0, xold = 1, itmax = 100000, verbose = FALSE),
-  smacofElegant(grmat, bnd = 1, xold = 0, itmax = 100000, verbose = FALSE),
-  smacofElegant(grmat, bnd = 1, xold = 1, itmax = 100000, verbose = FALSE),
-  smacofElegant(grmat, bnd = 2, xold = 0, itmax = 100000, verbose = FALSE),
-  smacofElegant(grmat, bnd = 2, xold = 1, itmax = 100000, verbose = FALSE))
-```
-
-We also used the Ekman data for a comparison of unweighted ELEGANT, with the eigenvalue bound, and unweighted ALSCAL. If we used a random initial $x$ then microbenchmark gives a median time of 19.56022 milliseconds for ALSCAL versus 11.65208 for ELEGANT. Using the maximum sum initial $x$ changes this to 15.611836
-and 7.121864.
-
-
-```{r mbelegant4, echo = FALSE, cache = TRUE}
-microbenchmark(
-  smacofElegant(ekmat, bnd = 2, xold = 0, itmax = 100000, verbose = FALSE),
-  smacofElegant(ekmat, bnd = 2, xold = 1, itmax = 100000, verbose = FALSE),
-  smacofALSCAL(ekmat, x = 0, itmax = 100000, verbose = FALSE),
-  smacofALSCAL(ekmat, x = 1, itmax = 100000, verbose = FALSE))
-```
-
-\sectionbreak
-
+\sigma(X):=\frac14\text{tr}\ V(\Delta^2-D^2(X))V(\Delta^2-D^2(X))
+$${#eq-vstrain}
+with $V$ symmetric, doubly-centered and of rank $n-1$. Suppose $s_i=x_i'x_i$. Then
+$D^2(X)=se'+es'-2XX'$
+and thus $-\frac12VD^2(X)V=VXX'V$. With $B=-\frac12V\Delta^2V$
+we have residuals $-\frac12V(\Delta^2-D^2(X)V=B-VXX'V$ and @eq-vstrain
+is the sum of squares of these residuals. Thus in the Euclidean case
+$X=V^+K\Lambda L'$, with $K$ and $\Lambda$ from the eigen-analysis
+of $B$. In the non-Euclidean case different $V$ will give different
+solutions.
 
 # References
