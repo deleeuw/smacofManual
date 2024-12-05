@@ -44,20 +44,20 @@ mainfont: Times New Roman
 library(microbenchmark)
 library(RSpectra)
 library(quadprog)
-source("../../smacofCode/smacofSS(strain/sstress)/smacofTorgerson.R")
-source("../../smacofCode/smacofSS(strain/sstress)/smacofALSCAL.R")
-source("../../smacofCode/smacofSS(strain/sstress)/smacofElegant.R")
-source("../../smacofCode/smacofSS(strain/sstress)/smacofMaximumSum.R")
-source("../../smacofCode/smacofUT(strain/sstress)/smacofSimpleUtilities.R")
-source("../../smacofCode/smacofUT(strain/sstress)/smacofIOUtilities.R")
-source("../../smacofCode/smacofUT(strain/sstress)/smacofDataUtilities.R")
+source("../../smacofCode/smacofSS(strainsstress)/smacofTorgerson.R")
+source("../../smacofCode/smacofSS(strainsstress)/smacofALSCAL.R")
+source("../../smacofCode/smacofSS(strainsstress)/smacofElegant.R")
+source("../../smacofCode/smacofSS(strainsstress)/smacofMaximumSum.R")
+source("../../smacofCode/smacofUT(utilities)/smacofSimpleUtilities.R")
+source("../../smacofCode/smacofUT(utilities)/smacofIOUtilities.R")
+source("../../smacofCode/smacofUT(utilities)/smacofDataUtilities.R")
 source("../../smacofData/ekman.R")
 source("../../smacofData/gruijter.R")
 ```
 
 \sectionbreak 
  
- # Introduction
+# Introduction
 
 The best way to avoid unwanted (i.e. non-global) local minima in smacof is to start the iterations with an excellent initial configuration. Even if the iterations converge to a non-global local minimum, at least we can be sure than the solution has a lower stress than the initial configuration, which was supposedly already excellent.
 
@@ -91,6 +91,7 @@ computation.
 
 \sectionbreak
 
+# Strain
 
 In the standard R versions of smacof the initial configuration is chosen
 using classical multidimensional scaling, i.e. the method proposed in @torgerson_58 and @gower_66.
@@ -152,7 +153,7 @@ d_{ij}^2(X_1)\leq d_{ij}^2(X_2)\leq\cdots\leq d_{ij}^2(X_s)\geq\delta_{ij}^2,
 $${#eq-frombelowp}
 where $s$ is the number of positive eigenvalues.
 
-Another peculiarity, discussed in the excellent
+Another consideration, discussed in the excellent
 paper by @bailey_gower_90, is that strain is the sum of squares over all $n^2$ residuals, which means each off-diagonal element is used twice, each diagonal element only once. In minimizing stress
 or sstress the diagonal does not play a role, minimizing over all elements below the diagonal gives the same result as minimizing over all elements.
 
@@ -163,7 +164,9 @@ introduces dependencies between different observations, because the
 pseudo scalar products in $B$ are linear combinations of multiple
 (squared) dissimilarities.
 
-Nevertheless the smacof project, and the code for this chapter, includes a version of classical MDS that can handle missing data (but not general weights). A similar non-metric version of strain was discussed by @trosset_98.
+Nevertheless the smacof project, and the manual and code for this chapter, includes a generalization of classical MDS that can handle missing data and weights. A similar non-metric version of strain was discussed by @trosset_98.
+
+## Loss Function
 
 
 We formulate loss as
@@ -183,8 +186,8 @@ $X$ and over $\theta\geq 0$.
 
 We use alternating least squares. Minimizing over $X$ for fixed $\theta$ is classical MDS. Minimizing
 over $\theta$ for fixed $X$ is a non-negative linear least squares problem. 
-For the first problem we use the eigs_sym function from the RSpectra package (@qiu_mei_24), for the second the quadprog package and function (@turlach_weingessel_19). Both functions in an inner iteraton have a 
-cold start, which may be wasteful in later iterations, and the plan therefor is to eventually replace them with the majorization methods in smacofEigenRoutines.R
+For the first problem we use the eigs_sym function from the RSpectra package (@qiu_mei_24), for the second the quadprog package and function (@turlach_weingessel_19). Both functions in an inner iteration have a 
+cold start, which may be wasteful in later iterations. The plan therefor is to eventually replace them with the majorization methods in smacofEigenRoutines.R
 and smacofNNLS.R (both in the smacofUtilities directory in smacofCode).
 
 If there are no missing data the program just performs classical MDS.
