@@ -44,7 +44,7 @@ mainfont: Times New Roman
 library(microbenchmark)
 library(RSpectra)
 library(quadprog)
-source("../../smacofCode/smacofSS(strainsstress)/smacofTorgerson.R")
+#$source("../../smacofCode/smacofSS(strainsstress)/smacofTorgerson.R")
 source("../../smacofCode/smacofSS(strainsstress)/smacofALSCAL.R")
 source("../../smacofCode/smacofSS(strainsstress)/smacofElegant.R")
 source("../../smacofCode/smacofSS(strainsstress)/smacofMaximumSum.R")
@@ -106,9 +106,9 @@ Here $\Delta^2$ is the elementwise square of $\Delta$ and $J=I-n^{-1}ee'$ is the
 Classical scaling, as an MDS technique, has one major advantage over other forms
 of MDS, but also some disadvantages. The advantage is that it finds the global minimum of the strain loss function, defined as
 $$
-\sigma(X):=\frac14\text{tr}\ J(\Delta^2-D^2(X))J(\Delta^2-D^2(X))J)
+\sigma(X):=\frac14\text{tr}\ J(\Delta^2-D^2(X))J(\Delta^2-D^2(X)))
 $${#eq-strain}
-with $D^2(X)$ the squared Euclidean distances. So not only does classical scaling minimize strain, but it actually computes its global minimum, and if the ordered eigenvalues of $B$ from @eq-defbmat satisfy $\lambda_p(B)>\lambda_{p+1}(B)$ that global minimum over $p$-dimensional configurations is unique (up to rotation and translation).
+with $D^2(X)$ the squared Euclidean distances. So not only does classical scaling minimize strain, but it actually computes its global minimumm. If the ordered eigenvalues of $B$ from @eq-defbmat satisfy $\lambda_p(B)>\lambda_{p+1}(B)$ then the global minimum over $p$-dimensional configurations is unique (up to rotation and translation).
 
 To see that minimizing strain is an eigenvalue problem in disguise, note that if $X$ is column centered then
 $-\frac12JD^2(X)J=XX'$ and thus $-\frac12J(\Delta^2-D^2(X))J=B-XX'$. Taking
@@ -116,7 +116,7 @@ the sum of squares on both sides of the equation, and using the fact that $J$ is
 $$
 \sigma(X)=\text{tr}\ (B-XX')^2.
 $${#eq-cstrain}
-Minimizing @eq-cstrain over $p$-dimensional configuartions is indeed classical scaling. The matrix form in @eq-strain strain was first given
+Minimizing @eq-cstrain over $p$-dimensional configurations is indeed classical scaling. The matrix form in @eq-strain strain was first given
 by @deleeuw_heiser_C_82, although equivalent versions, using different notation, are already in @gower_66 and @mardia_78. 
 
 The first disadvantage of classical scaling is that the $B$-matrix may only
@@ -128,8 +128,7 @@ The second disadvantage is that classical scaling, unlike smacof, has no provisi
 Or, if there are weights it is unclear if they should be applied to @eq-strain or
 @eq-cstrain, and no matter where they are used the two definitions of strain are no longer equivalent and the global minimum advantage of classical scaling is lost. 
 
-In particular this disadvantage also means that there cannot be missing dissimilarities, or, more precisely, something additional has to be done if there are missing data. One obvious possibility is to use alternating least squares to minimize strain, alternating a step to impute the missing dissimilarities and a step to compute the optimal configuration. The current smacof program in R imputes the missing dissimilarities by replacing them with the average non-missing dissimilarity, which is computationally convenient but not very satisfactory. This second disadvantage also means there is no straightforward version of classical
-scaling for multidimensional unfolding, in which all within-set dissimilarities
+In particular this disadvantage also means that there cannot be missing dissimilarities, or, more precisely, something additional has to be done if there are missing data. One obvious possibility is to use alternating least squares to minimize strain, alternating a step to impute the missing dissimilarities and a step to compute the optimal configuration. The current smacof program in R imputes the missing dissimilarities by replacing them with the average non-missing dissimilarity, which is computationally convenient but not very satisfactory. This second disadvantage also means there is no straightforward version of classical scaling for multidimensional unfolding, in which all within-set dissimilarities
 are missing.
 
 Part of the problem is the double centering operator $J$, because it requires
@@ -139,7 +138,7 @@ origin of the configuration and compute $-\frac12\{\delta_{ij}^2-\delta_{1i}^2-\
 to $x_i'x_j$ for Euclidean dissimilarities. We can then define a version of strain on the non-missing elements of $B$, but we still need a low-rank approximation of
 a symmetric matrix with missing data. That is, we need low-rank symmetric matrix completion, for which there is a gigantic literature (@nguyen_kim_shim_19), although that literature mostly addresses the rectangular case.
 
-Another disadvantage, or peculiarity, is emphasized by @deleeuw_meulman_C_86. If $\Delta$ is Euclidean then @gower_66 shows that 
+Another disadvantage, or maybe I should say peculiarity, is emphasized by @deleeuw_meulman_C_86. If $\Delta$ is Euclidean then @gower_66 shows that 
 $$
 d_{ij}^2(X_1)\leq d_{ij}^2(X_2)\leq\cdots\leq d_{ij}^2(X_r)=\delta_{ij}^2,
 $${#eq-frombelow}
@@ -154,8 +153,7 @@ $${#eq-frombelowp}
 where $s$ is the number of positive eigenvalues.
 
 Another consideration, discussed in the excellent
-paper by @bailey_gower_90, is that strain is the sum of squares over all $n^2$ residuals, which means each off-diagonal element is used twice, each diagonal element only once. In minimizing stress
-or sstress the diagonal does not play a role, minimizing over all elements below the diagonal gives the same result as minimizing over all elements.
+paper by @bailey_gower_90, is that strain is the sum of squares over all $n^2$ residuals, which means each off-diagonal element is used twice, each diagonal element only once. In minimizing stress or sstress the diagonal does not play a role, minimizing over all elements below the diagonal gives the same result as minimizing over all elements.
 
 And finally the squaring and double-centering of the dissimilarities may not
 be such a good idea from a statistical point of view. Squaring will
@@ -168,92 +166,72 @@ Nevertheless the smacof project, and the manual and code for this chapter, inclu
 
 ## Loss Function
 
-
-We formulate loss as
+We introduce two generalizations of strain. The first one introduces weights.
+Suppose $V$ is a symmetric and doubly-centered positive semi-definite matrix
+of rank $n-1$. Define strain as
 $$
-\sigma(X,\theta)=\text{tr}\ (B(\theta)-XX')^2
+\sigma(X):=\frac14\text{tr}\ V^2(\Delta^2-D^2(X))V^2(\Delta^2-D^2(X)).
+$${#eq-vstrain}
+The choice of $V$ defines a number of homogeneous linear combinations
+of the residuals $\Delta^2-D^2(X)$ whose squares we minimize. We can choose
+$V$ to be a banded matrix, a block matrix with diagonal blocks, and so on.
+If $V=J$ we are back at @eq-strain. Note that $J$ is the only idempotent 
+doubly-centered positive semi-definite matrix of rank $n-1$.
+
+With @eq-vstrain the global optimization advantage of classical scaling is still maintained.
+Suppose $s_i=x_i'x_i$. Then $D^2(X)=se'+es'-2XX'$. Thus with $B:=-\frac12V\Delta^2V$
+we have residuals $-\frac12V(\Delta^2-D^2(X)V=B-VXX'V$ and @eq-vstrain
+is the sum of squares of these residuals. In the Euclidean case we can recover
+$VX$ from $B$, and set $X=V^+K\Lambda L'$, with $K$ and $\Lambda$ from the eigen-analysis
+of $B$ and $L$ an arbitrary rotation. For non-Euclidean $\Delta^2$ different $V$ will give different solutions.
+
+The second generalization makes $\Delta^2$, and thus $B$, a function of a number of
+optimal scaling parameters. @trosset_98 uses this to implement a non-metric scaling method
+based on strain, but we will use it as a way to handle missing data. Strain becomes
+$$
+\sigma(X,\theta):=\text{tr}\ V^2(\Delta^2(\theta)-D^2(X))V^2(\Delta^2(\theta)-D^2(X))=\text{tr}\ (B(\theta)-VXX'V)^2,
 $${#eq-strainmissing}
 where
 $$
-B(\theta)=-\frac12J(\Delta_0^2+\sum \theta_kE_k)J=B_0+\sum \theta_kT_k
+\Delta^2(\theta):=\Delta^2_0+\mathop{\sum\sum}_{1\leq i<j\leq n}\theta_{ij}E_{ij}.
+$${#eq-deltatheta}
+Here $\Delta_0^2$ is the matrix with squared dissimilarities, with elements equal to zero for missing data. The $E_{ij}:=e_ie_j'+e_je_i'$ indicate missing data. We require that $\theta_{ij}\geq 0$ if $(i,j)$ is missing, and $\theta_{ij}=0$ otherwise. Define
+$$
+B(\theta):=-\frac12V\Delta^2(\theta)V=B_0-\sum \theta_kT_k,
 $${#eq-btheta}
-Here $\Delta_0^2$ is the matrix with squared dissimilarities, with elements equal to zero for missing data.
-The $E_k$ code missing data, and are for the form $e_ie_j'+e_je_i'$. Thus they are zero, except for
-elements $(i,j)$ and $(j,i)$, which are one. 
-
-Strain @eq-strainmissing must be minimized over configurations
-$X$ and over $\theta\geq 0$.
-
-We use alternating least squares. Minimizing over $X$ for fixed $\theta$ is classical MDS. Minimizing
-over $\theta$ for fixed $X$ is a non-negative linear least squares problem. 
-For the first problem we use the eigs_sym function from the RSpectra package (@qiu_mei_24), for the second the quadprog package and function (@turlach_weingessel_19). Both functions in an inner iteration have a 
-cold start, which may be wasteful in later iterations. The plan therefor is to eventually replace them with the majorization methods in smacofEigenRoutines.R
-and smacofNNLS.R (both in the smacofUtilities directory in smacofCode).
-
-If there are no missing data the program just performs classical MDS.
-
-Finding an better $X^{(\nu+1)}$ for given $\theta^{(\nu)}$ is classical scaling. In smacofTorgerson() we find $X$ to decrease strain, not necessarily to minimize it. So we have to decrease 
+where the $T_{ij}$ are of the form
 $$
-\sigma(X)=\text{tr}\ (B(\theta^{(\nu)})-XX')^2
-$${#eq-straintheta}
-The majorization method smacofSymmetricEckartYoung() is described in the chapter on utilities.
+T_{ij}:=\frac12VE_{ij}V=\frac12(v_iv_j'+v_jv_i').
+$${#eq-tmatdef}
 
-To impute the missing data define the residuals
-$$
-R^{(k)}:=B_0-X^{(k)}\{X^{(k)}\}'.
-$${#eq-strainres}
-Then
-$$
-\sigma(\theta)=\text{tr}\ (R^{(\nu)}+\sum\theta_sT_s)^2
-$${#eq-strainimpute}
-where the $T_s$ are matrices of the form $-\frac12JE_{ij}J$. 
-Note $R$ is doubly-centered and thus $-\frac12\text{tr}\ JE_{ij}JR=-r_{ij}$.
-Consequently
-$$
-\sigma(\theta)=\text{tr}\ \{R^{(\nu)}\}^2-2\theta'r^{(\nu)}+\theta'V\theta,
-$${#eq-strainexpand}
-where $V$ has elements $\text{tr}\ T_sT_t$. After some additional computation we find the following convenient expression for the elements of $V$.
-$$
-\frac14\text{tr}\ JE_{ij}JJE_{kl}J=
-\begin{cases}
-\frac12-\frac{1}{n}+\frac{1}{n^2}&\text{two indices in common},\\
--\frac{1}{2n}+\frac{1}{n^2}&\text{one index in common},\\
-\frac{1}{n^2}&\text{no indices in common}.
-\end{cases}
-$${#eq-strainvmat}
-Minimizing @eq-strainexpand
-over $\theta\geq 0$ is straightforward quadratic programming.
+## Algorithm
 
-The utilities chapter has the majorization routine smacofNonnegativeQP() that find a $\theta^{(\nu)}$ that decreases the loss in @eq-strainexpand over $\theta\geq 0$. For the majorization we need an upper bound for the largest eigenvalue
-of $V$.
+Strain from @eq-strainmissing must be minimized over configurations $X$ and over $\theta\geq 0$. We use alternating least squares. Minimizing 
+$$
+\text{tr}\ (B(\theta)-VXX'V)^2
+$${#eq-torgcomp1}
+over $VX$ for fixed $\theta$ is classical MDS. Minimizing 
+$$
+\text{tr}\ ((B_0-VXX'V)-\mathop{\sum\sum}_{1\leq i<j\leq n}\theta_{ij}T_{ij})^2
+$${#eq-torgcomp2}
+over $\theta$ for fixed $X$ is a non-negative linear least squares problem.
+
+For the first subproblem we use the eigs_sym function from the RSpectra package (@qiu_mei_24), for the second the nnls package and function (@mullen_vanstokkum_23).
+We alternate the two subproblems in an outer iteration. Both eigs-sym and nnls have a cold start and iterate until convergence, which may be wasteful in later outer iterations. We may eventually replace them with the hot start majorization methods in smacofEigenRoutines.R and smacofNNLS.R (both in the smacofUtilities directory in smacofCode).
+
+If there are no missing data and $V=J$ the program just performs classical MDS.
 
 \sectionbreak
-
-# Weights
-
-$$
-\sigma(X):=\frac14\text{tr}\ V(\Delta^2-D^2(X))V(\Delta^2-D^2(X))
-$${#eq-vstrain}
-with $V$ symmetric, doubly-centered and of rank $n-1$. Suppose $s_i=x_i'x_i$. Then
-$D^2(X)=se'+es'-2XX'$
-and thus $-\frac12VD^2(X)V=VXX'V$. With $B=-\frac12V\Delta^2V$
-we have residuals $-\frac12V(\Delta^2-D^2(X)V=B-VXX'V$ and @eq-vstrain
-is the sum of squares of these residuals. Thus in the Euclidean case
-$X=V^+K\Lambda L'$, with $K$ and $\Lambda$ from the eigen-analysis
-of $B$. In the non-Euclidean case different $V$ will give different
-solutions.
 
 # Maximum Sum
 
 In some early reports (@deleeuw_R_68e, @deleeuw_R_68g) I proposed using what I call the "maximum sum principle", not just for metric MDS, but for various other metric and nonmetric techniques as well. Around the same time @guttman_68 used a similar initial configuration for his MDS algorithms. 
 
-In metric MDS the maximum sum method maximizes
+In metric MDS the maximum sum principle maximizes
 $$
 \rho(X):=\mathop{\sum\sum}_{1<i\leq j<n}w_{ij}\delta_{ij}^2d_{ij}^2(X)
 $${#eq-rhodef}
-over $X$ in some compact set of configurations. General considerations seem to suggest that $\rho$ will tend to be large if $\Delta$ and $D(X)$ are numerically similar, or at least similarly ordered. The actual normalization
-constraint on $X$ is not specified, and different constraints will lead
-to different solutions.
+over $X$ in some compact set of configurations. General considerations seem to suggest that $\rho$ will tend to be large if $\Delta$ and $D(X)$ are numerically similar, or at least similarly ordered. The actual normalization constraint on $X$ is not specified, and different constraints will lead to different solutions.
 
 Now $\rho(X)=\text{tr}\ X'BX$ where
 $B$ is  defined as
