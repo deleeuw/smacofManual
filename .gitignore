@@ -6,6 +6,7 @@
 *.md
 *.sty
 !README.md
+!NEWS.md
 .Rproj
 literature
 *_cache
