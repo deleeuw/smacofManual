@@ -52,6 +52,11 @@ appreciated, but is not required. The files can be found at
 <https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
 and smacofExamples.
 
+
+\sectionbreak
+
+# Notation and Reserved Symbols {-}
+
 \sectionbreak
 
 # Introduction
