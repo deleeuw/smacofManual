@@ -1,7 +1,11 @@
-12/08/24\
-Added NEWS.md\
-Started smacofNW (Newton-Raphson)\
-softlinks now copies template files instead of just linking\
-.gitignore allows pdf and tex again\
-.gitignore ignores cach and files directories\
+**12/08/24**
+
+* Added NEWS.md\
+* Started smacofNW (Newton-Raphson)\
+* softlinks now copies template files instead of just linking them\
+* .gitignore allows pdf and tex again\
+* .gitignore ignores cache and files directories\
+* Started smacofIN (Introduction), split off from smacofBA (Basics)\
+* Added Conventions, Notations, and Reserved Symbols to smacofIN
+
 
