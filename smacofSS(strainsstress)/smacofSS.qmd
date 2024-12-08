@@ -116,7 +116,7 @@ the sum of squares on both sides of the equation, and using the fact that $J$ is
 $$
 \sigma(X)=\text{tr}\ (B-XX')^2.
 $${#eq-cstrain}
-Minimizing @eq-cstrain over $p$-dimensional configurations is indeed classical scaling. The matrix form in @eq-strain strain was first given
+Minimizing @eq-cstrain over $p$-dimensional configurations is indeed classical scaling. The matrix form of strain in @eq-strain was first given
 by @deleeuw_heiser_C_82, although equivalent versions, using different notation, are already in @gower_66 and @mardia_78. 
 
 The first disadvantage of classical scaling is that the $B$-matrix may only
@@ -167,23 +167,28 @@ Nevertheless the smacof project, and the manual and code for this chapter, inclu
 ## Loss Function
 
 We introduce two generalizations of strain. The first one introduces weights.
-Suppose $V$ is a symmetric and doubly-centered positive semi-definite matrix
-of rank $n-1$. Define strain as
+Define strain as
 $$
-\sigma(X):=\frac14\text{tr}\ V^2(\Delta^2-D^2(X))V^2(\Delta^2-D^2(X)).
+\sigma(X):=\frac14\text{tr}\ V(\Delta^2-D^2(X))V(\Delta^2-D^2(X)).
 $${#eq-vstrain}
-The choice of $V$ defines a number of homogeneous linear combinations
-of the residuals $\Delta^2-D^2(X)$ whose squares we minimize. We can choose
-$V$ to be a banded matrix, a block matrix with diagonal blocks, and so on.
-If $V=J$ we are back at @eq-strain. Note that $J$ is the only idempotent 
-doubly-centered positive semi-definite matrix of rank $n-1$.
+with
+$$
+V=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}A_{ij}.
+$${#eq-vstraindef}
+If all weights are equal to one we are back to @eq-strain. 
 
-With @eq-vstrain the global optimization advantage of classical scaling is still maintained.
-Suppose $s_i=x_i'x_i$. Then $D^2(X)=se'+es'-2XX'$. Thus with $B:=-\frac12V\Delta^2V$
+
+With @eq-vstrain the global optimization advantage of classical scaling is still maintained. Suppose $s_i=x_i'x_i$. Then $D^2(X)=se'+es'-2XX'$. Thus with $B:=-\frac12V\Delta^2V$
 we have residuals $-\frac12V(\Delta^2-D^2(X)V=B-VXX'V$ and @eq-vstrain
 is the sum of squares of these residuals. In the Euclidean case we can recover
-$VX$ from $B$, and set $X=V^+K\Lambda L'$, with $K$ and $\Lambda$ from the eigen-analysis
-of $B$ and $L$ an arbitrary rotation. For non-Euclidean $\Delta^2$ different $V$ will give different solutions.
+$VX$ from $B$, and set $X=V^+K\Lambda L'$, with $K$ and $\Lambda$ from the eigen-analysis of $B$ and $L$ an arbitrary rotation. For non-Euclidean $\Delta^2$ different $V$ will give different solutions.
+
+Having weights in a doubly-centered matrix, and not in a diagonal matrix, makes
+it difficult to interpret and analyze the influence of weighting. We have
+chosen to use a doubly-centered $V$ because it preserves the global minimum
+property of classical scaling. And we have insisted that $V$ has rank
+$n-1$ so that we can uniquely find $X$ from $VX$. Computationally there is
+no problem if we drop these two constraints on $V$. 
 
 The second generalization makes $\Delta^2$, and thus $B$, a function of a number of
 optimal scaling parameters. @trosset_98 uses this to implement a non-metric scaling method
@@ -208,18 +213,16 @@ $${#eq-tmatdef}
 
 Strain from @eq-strainmissing must be minimized over configurations $X$ and over $\theta\geq 0$. We use alternating least squares. Minimizing 
 $$
-\text{tr}\ (B(\theta)-VXX'V)^2
+\sigma(X,\theta)=\text{tr}\ (B(\theta)-VXX'V)^2
 $${#eq-torgcomp1}
 over $VX$ for fixed $\theta$ is classical MDS. Minimizing 
 $$
-\text{tr}\ ((B_0-VXX'V)-\mathop{\sum\sum}_{1\leq i<j\leq n}\theta_{ij}T_{ij})^2
+\sigma(X,\theta)=\text{tr}\ ((B_0-VXX'V)-\mathop{\sum\sum}_{1\leq i<j\leq n}\theta_{ij}T_{ij})^2
 $${#eq-torgcomp2}
 over $\theta$ for fixed $X$ is a non-negative linear least squares problem.
 
 For the first subproblem we use the eigs_sym function from the RSpectra package (@qiu_mei_24), for the second the nnls package and function (@mullen_vanstokkum_23).
-We alternate the two subproblems in an outer iteration. Both eigs-sym and nnls have a cold start and iterate until convergence, which may be wasteful in later outer iterations. We may eventually replace them with the hot start majorization methods in smacofEigenRoutines.R and smacofNNLS.R (both in the smacofUtilities directory in smacofCode).
-
-If there are no missing data and $V=J$ the program just performs classical MDS.
+We alternate the two subproblems in an outer iteration. Both eigs-sym and nnls have a cold start and both iterate until convergence, which may be wasteful in later outer iterations. We may eventually replace them with the hot start majorization methods in smacofEigenRoutines.R and smacofNNLS.R (both in the smacofUtilities directory in smacofCode). If there are no missing data and $V=J$ the program just performs classical MDS.
 
 \sectionbreak
 
@@ -266,7 +269,7 @@ which does not reproduce the squared dissimilarities. Thus the maximum sum metho
 
 # Using Sstress
 
-## Elegant
+## Loss Function
 
 The maximum sum method is related to the problem of minimizing the MDS loss function sstress, defined by @takane_young_deleeuw_A_77 as
 $$
@@ -289,7 +292,7 @@ $$
 $${#eq-innermin}
 Thus minimizing sstress is equivalent to maximizing $\rho$ over all $X$ in the compact set $\eta^2(X)=1$. In that sense minimizing
 sstress is a maximum sum method.
-But, unlike the maximum sum approach of Guttman and de Leeuw, this normalization of $X$ does not lead to a simple eigenvalue-eigenvector problem. It can be solved, however, by majorization, which means, in thus case, iteratively solving a sequence of related eigenvalue-eigenvector problems. 
+But, unlike the maximum sum approach of Guttman and de Leeuw, this explicit normalization of $X$ does not lead to a simple eigenvalue-eigenvector problem. It can be solved, however, by majorization, which means, in thus case, iteratively solving a sequence of related eigenvalue-eigenvector problems. 
 
 If we use sstress to approximate stress there is a more or less rational way to choose the weights in sstress. This seems a good thing
 since we use sstress solutions as initial configurations for minimizing
@@ -300,6 +303,53 @@ stress.
 (\delta_{ij}^2-d_{ij}^2(X))^2\notag\\&\approx\frac14\mathop{\sum\sum}_{1<i\leq j<n} \frac{w_{ij}}{\delta_{ij}^2}
 (\delta_{ij}^2-d_{ij}^2(X))^2.
 \end{align}
+
+There are some interesting connections between sstress, a least squares loss
+function defined on the squared distances, and strain, a least squares loss
+function defined on the scalar products. From @eq-vstrain we see that
+$$
+\sigma(X)=\frac14(\delta^2-d^2(X))'(V^2\otimes V^2)(\delta^2-d^2(X)),
+$$
+where $\delta^2=\text{vec}(\Delta^2)$ and $d^2(X)=\text{vec}(D^2(X))$. It follows
+that
+$$
+\sigma(X)\leq\frac14\lambda_+^2\sum\sum (\delta_{ij}^2-d_{ij}^2(X))^2,
+$$
+where $\lambda_+$ is the largest eigenvalue of $V^2$. If $V=J$ then $V^2=J$. The
+
+
+Sstress
+If $B=-\frac12J\Delta^2J$ the $\text{tr}\ A_{ij}B=\delta_{ij}^2$. Thus
+$$
+\sigma(X)=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}(\delta_{ij}^2-d_{ij}^2(X))^2=
+\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\{\text{tr}\ A_{ij}(B-XX')\}^2
+$$
+and thus, with $C=XX'$, we have 
+$$
+\sigma(C)=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\ \text{tr}\ A_{ij}(B-C)A_{ij}(B-C),
+$$
+which expresses sstress as a function of the scalar products. If $b=\text{vec}(B)$
+and $c=\vec{C}$ then 
+$$
+\sigma(c)=(b-c)'H(b-c)
+$$
+with 
+$$
+H:=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}(A_{ij}\otimes A_{ij})
+$$
+If $H\lesssim V$, with $V$ diagonal and non-negative, then
+$$
+\sigma(C)\leq\mathop{\sum\sum}_{1\leq i<j\leq n}v_{ij}(b_{ij}-c_{ij})^2,
+$$
+which is a weighted version of strain.
+
+
+
+
+
+## Algorithms
+
+### ELEGANT
 
 The complicated history of this majorization algorithm, which early on was called ELEGANT, starts with @deleeuw_U_75b, @takane_77, and 
 @browne_87. You may notice that in the references @deleeuw_U_75b is not linked to a pdf,
@@ -385,7 +435,7 @@ the algorithm of @markham_68 to compute the largest eigenvalue (the Perron-Frobe
 the eigenvalue from below we need precise computations, otherwise we
 do not have an appropriate majorization. 
 
-## ALSCAL
+### ALSCAL
 
 In ALSCAL we use cyclic coordinate descent to minimize sstress. The alternating least squares algorithm changes one coordinate at a time, keeping the other $np-1$ coordinates fixed at their current values. Each cycle changes all coordinates in this way, thus generating a decreasing and convergent sequence of sstress values. 
 
