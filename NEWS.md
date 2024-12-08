@@ -1,7 +1,7 @@
 **12/08/24**
 
 * Added NEWS.md\
-* Started smacofNW (Newton-Raphson)\
+* Started smacofNW (Newton-Raphson)<br>
 * softlinks now copies template files instead of just linking them\
 * .gitignore allows pdf and tex again\
 * .gitignore ignores cache and files directories\
