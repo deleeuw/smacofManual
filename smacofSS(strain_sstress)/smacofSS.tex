@@ -1,0 +1,1090 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  12pt,
+  letterpaper,
+  DIV=11,
+  numbers=noendperiod]{scrartcl}
+
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else  
+    % xetex/luatex font selection
+    \setmainfont[]{Times New Roman}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\setcounter{secnumdepth}{5}
+% Make \paragraph and \subparagraph free-standing
+\makeatletter
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}{
+    \@ifstar
+      \xxxParagraphStar
+      \xxxParagraphNoStar
+  }
+  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
+  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}{
+    \@ifstar
+      \xxxSubParagraphStar
+      \xxxSubParagraphNoStar
+  }
+  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
+  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+\makeatother
+
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+\usepackage{tcolorbox}
+\usepackage{amssymb}
+\usepackage{yfonts}
+\usepackage{bm}
+
+
+\newtcolorbox{greybox}{
+  colback=white,
+  colframe=blue,
+  coltext=black,
+  boxsep=5pt,
+  arc=4pt}
+  
+\newcommand{\sectionbreak}{\clearpage}
+
+ 
+\newcommand{\ds}[4]{\sum_{{#1}=1}^{#3}\sum_{{#2}=1}^{#4}}
+\newcommand{\us}[3]{\mathop{\sum\sum}_{1\leq{#2}<{#1}\leq{#3}}}
+
+\newcommand{\ol}[1]{\overline{#1}}
+\newcommand{\ul}[1]{\underline{#1}}
+
+\newcommand{\amin}[1]{\mathop{\text{argmin}}_{#1}}
+\newcommand{\amax}[1]{\mathop{\text{argmax}}_{#1}}
+
+\newcommand{\ci}{\perp\!\!\!\perp}
+
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\mb}[1]{\mathbb{#1}}
+\newcommand{\mf}[1]{\mathfrak{#1}}
+
+\newcommand{\eps}{\epsilon}
+\newcommand{\lbd}{\lambda}
+\newcommand{\alp}{\alpha}
+\newcommand{\df}{=:}
+\newcommand{\am}[1]{\mathop{\text{argmin}}_{#1}}
+\newcommand{\ls}[2]{\mathop{\sum\sum}_{#1}^{#2}}
+\newcommand{\ijs}{\mathop{\sum\sum}_{1\leq i<j\leq n}}
+\newcommand{\jis}{\mathop{\sum\sum}_{1\leq j<i\leq n}}
+\newcommand{\sij}{\sum_{i=1}^n\sum_{j=1}^n}
+	
+\KOMAoption{captions}{tableheading}
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Table of contents}
+\else
+  \newcommand\contentsname{Table of contents}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{List of Figures}
+\else
+  \newcommand\listfigurename{List of Figures}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{List of Tables}
+\else
+  \newcommand\listtablename{List of Tables}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figure}
+\else
+  \newcommand\figurename{Figure}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Table}
+\else
+  \newcommand\tablename{Table}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+
+\usepackage{bookmark}
+
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdfauthor={Jan de Leeuw},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+
+\title{Smacof at 50: A Manual\\
+Part zz: smacofSS: Strain and Sstress}
+\author{Jan de Leeuw}
+\date{December 7, 2024}
+
+\begin{document}
+\maketitle
+
+\renewcommand*\contentsname{Table of contents}
+{
+\hypersetup{linkcolor=}
+\setcounter{tocdepth}{3}
+\tableofcontents
+}
+
+\sectionbreak
+
+\section{Introduction}\label{introduction}
+
+The best way to avoid unwanted (i.e.~non-global) local minima in smacof
+is to start the iterations with an excellent initial configuration. Even
+if the iterations converge to a non-global local minimum, at least we
+can be sure than the solution has a lower stress than the initial
+configuration, which was supposedly already excellent.
+
+In this chapter we implement two fairly elaborate initial estimates for
+metric smacof, which can of course also be used in the alternating least
+squares algorithm for non-linear and non-metric smacof. Both initial
+estimates basically iteratively minimize alternative loss functions,
+respectively called sstress and strain (see De Leeuw and Heiser
+(\citeproc{ref-deleeuw_heiser_C_82}{1982}) for a definition and
+comparison of these loss functions).
+
+The R functions implementing the minimization of these loss functions
+can be interpreted (and can actually be used) as alternative MDS
+methods. It may seem somewhat peculiar to start an iterative MDS
+technique with an initial estimate computed with another iterative MDS
+technique. But it is not exactly unprecedented, since traditionally MDS
+programs compute their initial configurations by using classical MDS
+(which uses iterative eigenvalue-eigenvector methods).
+
+Our initial configuration techniques have a great deal of flexibility,
+because we do not necessarily iterate to convergence in the initial
+phase. We use the option in monotone iterative algorithms to merely
+improve instead of completely solve.
+
+Also keep in mind that our objective is to find excellent local minima
+of stress, in fact our ultimate objective is to find the global minimum.
+This makes it desirable to find as good an initial approximation as
+possible, even if that requires a considerable amount of computation.
+
+\sectionbreak
+
+\section{Strain}\label{strain}
+
+In the standard R versions of smacof the initial configuration is chosen
+using classical multidimensional scaling, i.e.~the method proposed in
+Torgerson (\citeproc{ref-torgerson_58}{1958}) and Gower
+(\citeproc{ref-gower_66}{1966}).
+
+Classical scaling is based on the Euclidean embedding theorem of
+Schoenberg (\citeproc{ref-schoenberg_35}{1935}), revealed to
+psychometricians by G. Young and Householder
+(\citeproc{ref-young_householder_38}{1938}). A real hollow symmetric
+matrix \(\Delta\) of order \(n\), with non-negative entries, is a
+Euclidean distance matrix if and only if the matrix
+\begin{equation}\phantomsection\label{eq-defbmat}{
+B:=-\frac12 J\Delta^2J
+}\end{equation} is positive semi-definite. Here \(\Delta^2\) is the
+elementwise square of \(\Delta\) and \(J=I-n^{-1}ee'\) is the centering
+matrix. Moreover if \(B\) is positive semi-definite then the embedding
+dimension is the rank of \(B\). Classical scaling computes \(B\) and its
+eigen-decomposition. It then constructs the initial estimate \(X\) for
+\(p\)-dimensional MDS by using the \(p\) largest eigenvalues \(\Lambda\)
+of \(B\), and the corresponding eigenvectors in \(K\), to give
+\(X=K\Lambda^\frac12\).
+
+Classical scaling, as an MDS technique, has one major advantage over
+other forms of MDS, but also some disadvantages. The advantage is that
+it finds the global minimum of the strain loss function, defined as
+\begin{equation}\phantomsection\label{eq-strain}{
+\sigma(X):=\frac14\text{tr}\ J(\Delta^2-D^2(X))J(\Delta^2-D^2(X)))
+}\end{equation} with \(D^2(X)\) the squared Euclidean distances. So not
+only does classical scaling minimize strain, but it actually computes
+its global minimumm. If the ordered eigenvalues of \(B\) from
+Equation~\ref{eq-defbmat} satisfy \(\lambda_p(B)>\lambda_{p+1}(B)\) then
+the global minimum over \(p\)-dimensional configurations is unique (up
+to rotation and translation).
+
+To see that minimizing strain is an eigenvalue problem in disguise, note
+that if \(X\) is column centered then \(-\frac12JD^2(X)J=XX'\) and thus
+\(-\frac12J(\Delta^2-D^2(X))J=B-XX'\). Taking the sum of squares on both
+sides of the equation, and using the fact that \(J\) is idempotent,
+gives the alternative expression for strain
+\begin{equation}\phantomsection\label{eq-cstrain}{
+\sigma(X)=\text{tr}\ (B-XX')^2.
+}\end{equation} Minimizing Equation~\ref{eq-cstrain} over
+\(p\)-dimensional configurations is indeed classical scaling. The matrix
+form in Equation~\ref{eq-strain} strain was first given by De Leeuw and
+Heiser (\citeproc{ref-deleeuw_heiser_C_82}{1982}), although equivalent
+versions, using different notation, are already in Gower
+(\citeproc{ref-gower_66}{1966}) and Mardia
+(\citeproc{ref-mardia_78}{1978}).
+
+The first disadvantage of classical scaling is that the \(B\)-matrix may
+only have \(q<p\) positive eigenvalues. If that is the case the global
+minimizer \(X_p\) of strain in \(p<q\) dimensions does not exist. The
+global minimizer in \(r\leq p\) dimensions has only \(q\) non-zero
+dimensions (and \(p-q\) zero dimensions). In practice this disadvantage
+is often not a very serious one, because having fewer than \(p\)
+positive eigenvalues suggests a bad fit so that maybe MDS is not a good
+technique choice in the first place. Because \(n\) is usually much
+larger than \(p\) matrix \(B\) is bound to have more than \(p\) positive
+eigenvalues. If not, one can always compute an additive constant to
+force positive semi-definiteness of \(B\) (Cailliez
+(\citeproc{ref-cailliez_83}{1983})).
+
+The second disadvantage is that classical scaling, unlike smacof, has no
+provision to include data weights \(w_{ij}\) for each of the
+dissimilarities \(\delta_{ij}\). Or, if there are weights it is unclear
+if they should be applied to Equation~\ref{eq-strain} or
+Equation~\ref{eq-cstrain}, and no matter where they are used the two
+definitions of strain are no longer equivalent and the global minimum
+advantage of classical scaling is lost.
+
+In particular this disadvantage also means that there cannot be missing
+dissimilarities, or, more precisely, something additional has to be done
+if there are missing data. One obvious possibility is to use alternating
+least squares to minimize strain, alternating a step to impute the
+missing dissimilarities and a step to compute the optimal configuration.
+The current smacof program in R imputes the missing dissimilarities by
+replacing them with the average non-missing dissimilarity, which is
+computationally convenient but not very satisfactory. This second
+disadvantage also means there is no straightforward version of classical
+scaling for multidimensional unfolding, in which all within-set
+dissimilarities are missing.
+
+Part of the problem is the double centering operator \(J\), because it
+requires complete data. This problem can be alleviated if we have one
+object, say the first one, for which there are no missing data. We then
+put that object in the origin of the configuration and compute
+\(-\frac12\{\delta_{ij}^2-\delta_{1i}^2-\delta_{1j}^2\}\), which is
+equal to \(x_i'x_j\) for Euclidean dissimilarities. We can then define a
+version of strain on the non-missing elements of \(B\), but we still
+need a low-rank approximation of a symmetric matrix with missing data.
+That is, we need low-rank symmetric matrix completion, for which there
+is a gigantic literature (Nguyen, Kim, and Shim
+(\citeproc{ref-nguyen_kim_shim_19}{2019})), although that literature
+mostly addresses the rectangular case.
+
+Another disadvantage, or maybe I should say peculiarity, is emphasized
+by De Leeuw and Meulman (\citeproc{ref-deleeuw_meulman_C_86}{1986}). If
+\(\Delta\) is Euclidean then Gower (\citeproc{ref-gower_66}{1966}) shows
+that \begin{equation}\phantomsection\label{eq-frombelow}{
+d_{ij}^2(X_1)\leq d_{ij}^2(X_2)\leq\cdots\leq d_{ij}^2(X_r)=\delta_{ij}^2,
+}\end{equation} where \(X_p\) is the \(p\)-dimensional classical scaling
+solution and \(r\) is the rank of \(B\). Thus squared dissimilarities
+are approximated from below, which may not be the most obvious way to
+approximate. If \(B\) has negative eigenvalues then
+Equation~\ref{eq-frombelow} is no longer true and we have
+\begin{equation}\phantomsection\label{eq-frombelowp}{
+d_{ij}^2(X_1)\leq d_{ij}^2(X_2)\leq\cdots\leq d_{ij}^2(X_s)\geq\delta_{ij}^2,
+}\end{equation} where \(s\) is the number of positive eigenvalues.
+
+Another consideration, discussed in the excellent paper by Bailey and
+Gower (\citeproc{ref-bailey_gower_90}{1990}), is that strain is the sum
+of squares over all \(n^2\) residuals, which means each off-diagonal
+element is used twice, each diagonal element only once. In minimizing
+stress or sstress the diagonal does not play a role, minimizing over all
+elements below the diagonal gives the same result as minimizing over all
+elements.
+
+And finally the squaring and double-centering of the dissimilarities may
+not be such a good idea from a statistical point of view. Squaring will
+emphasize large errors, and can easily lead to outliers.
+Double-centering introduces dependencies between different observations,
+because the pseudo scalar products in \(B\) are linear combinations of
+multiple (squared) dissimilarities.
+
+Nevertheless the smacof project, and the manual and code for this
+chapter, includes a generalization of classical MDS that can handle
+missing data and weights. A similar non-metric version of strain was
+discussed by Trosset (\citeproc{ref-trosset_98}{1998}).
+
+\subsection{Loss Function}\label{loss-function}
+
+We introduce two generalizations of strain. The first one introduces
+weights. Suppose \(V\) is a symmetric and doubly-centered positive
+semi-definite matrix of rank \(n-1\). Define strain as
+\begin{equation}\phantomsection\label{eq-vstrain}{
+\sigma(X):=\frac14\text{tr}\ V(\Delta^2-D^2(X))V(\Delta^2-D^2(X)).
+}\end{equation} with
+\begin{equation}\phantomsection\label{eq-vstraindef}{
+V=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}A_{ij}.
+}\end{equation} If all weights are equal to one we are back to
+Equation~\ref{eq-strain}.
+
+With Equation~\ref{eq-vstrain} the global optimization advantage of
+classical scaling is still maintained. Suppose \(s_i=x_i'x_i\). Then
+\(D^2(X)=se'+es'-2XX'\). Thus with \(B:=-\frac12V\Delta^2V\) we have
+residuals \(-\frac12V(\Delta^2-D^2(X)V=B-VXX'V\) and
+Equation~\ref{eq-vstrain} is the sum of squares of these residuals. In
+the Euclidean case we can recover \(VX\) from \(B\), and set
+\(X=V^+K\Lambda L'\), with \(K\) and \(\Lambda\) from the eigen-analysis
+of \(B\) and \(L\) an arbitrary rotation. For non-Euclidean \(\Delta^2\)
+different \(V\) will give different solutions.
+
+Having weights in a doubly-centered matrix, and not in a diagonal
+matrix, makes it difficult to interpret and analyze the influence of
+weighting. We have chosen to use double-centered \(V\) because it
+preserves the global minimum property of classical scaling. And we have
+insisted that \(V\) has rank \(n-1\) so that we can uniquely find \(X\)
+from \(VX\). Computationally there is no problem if we drop these two
+constraints on \(V\).
+
+The second generalization makes \(\Delta^2\), and thus \(B\), a function
+of a number of optimal scaling parameters. Trosset
+(\citeproc{ref-trosset_98}{1998}) uses this to implement a non-metric
+scaling method based on strain, but we will use it as a way to handle
+missing data. Strain becomes
+\begin{equation}\phantomsection\label{eq-strainmissing}{
+\sigma(X,\theta):=\text{tr}\ V^2(\Delta^2(\theta)-D^2(X))V^2(\Delta^2(\theta)-D^2(X))=\text{tr}\ (B(\theta)-VXX'V)^2,
+}\end{equation} where
+\begin{equation}\phantomsection\label{eq-deltatheta}{
+\Delta^2(\theta):=\Delta^2_0+\mathop{\sum\sum}_{1\leq i<j\leq n}\theta_{ij}E_{ij}.
+}\end{equation} Here \(\Delta_0^2\) is the matrix with squared
+dissimilarities, with elements equal to zero for missing data. The
+\(E_{ij}:=e_ie_j'+e_je_i'\) indicate missing data. We require that
+\(\theta_{ij}\geq 0\) if \((i,j)\) is missing, and \(\theta_{ij}=0\)
+otherwise. Define \begin{equation}\phantomsection\label{eq-btheta}{
+B(\theta):=-\frac12V\Delta^2(\theta)V=B_0-\sum \theta_kT_k,
+}\end{equation} where the \(T_{ij}\) are of the form
+\begin{equation}\phantomsection\label{eq-tmatdef}{
+T_{ij}:=\frac12VE_{ij}V=\frac12(v_iv_j'+v_jv_i').
+}\end{equation}
+
+\subsection{Algorithm}\label{algorithm}
+
+Strain from Equation~\ref{eq-strainmissing} must be minimized over
+configurations \(X\) and over \(\theta\geq 0\). We use alternating least
+squares. Minimizing \begin{equation}\phantomsection\label{eq-torgcomp1}{
+\sigma(X,\theta)=\text{tr}\ (B(\theta)-VXX'V)^2
+}\end{equation} over \(VX\) for fixed \(\theta\) is classical MDS.
+Minimizing \begin{equation}\phantomsection\label{eq-torgcomp2}{
+\sigma(X,\theta)=\text{tr}\ ((B_0-VXX'V)-\mathop{\sum\sum}_{1\leq i<j\leq n}\theta_{ij}T_{ij})^2
+}\end{equation} over \(\theta\) for fixed \(X\) is a non-negative linear
+least squares problem.
+
+For the first subproblem we use the eigs\_sym function from the RSpectra
+package (Qiu and Mei (\citeproc{ref-qiu_mei_24}{2024})), for the second
+the nnls package and function (Mullen and van Stokkum
+(\citeproc{ref-mullen_vanstokkum_23}{2023})). We alternate the two
+subproblems in an outer iteration. Both eigs-sym and nnls have a cold
+start and both iterate until convergence, which may be wasteful in later
+outer iterations. We may eventually replace them with the hot start
+majorization methods in smacofEigenRoutines.R and smacofNNLS.R (both in
+the smacofUtilities directory in smacofCode). If there are no missing
+data and \(V=J\) the program just performs classical MDS.
+
+\sectionbreak
+
+\section{Maximum Sum}\label{maximum-sum}
+
+In some early reports (De Leeuw (\citeproc{ref-deleeuw_R_68e}{1968a}),
+De Leeuw (\citeproc{ref-deleeuw_R_68g}{1968b})) I proposed using what I
+call the ``maximum sum principle'', not just for metric MDS, but for
+various other metric and nonmetric techniques as well. Around the same
+time Guttman (\citeproc{ref-guttman_68}{1968}) used a similar initial
+configuration for his MDS algorithms.
+
+In metric MDS the maximum sum principle maximizes
+\begin{equation}\phantomsection\label{eq-rhodef}{
+\rho(X):=\mathop{\sum\sum}_{1<i\leq j<n}w_{ij}\delta_{ij}^2d_{ij}^2(X)
+}\end{equation} over \(X\) in some compact set of configurations.
+General considerations seem to suggest that \(\rho\) will tend to be
+large if \(\Delta\) and \(D(X)\) are numerically similar, or at least
+similarly ordered. The actual normalization constraint on \(X\) is not
+specified, and different constraints will lead to different solutions.
+
+Now \(\rho(X)=\text{tr}\ X'BX\) where \(B\) is defined as
+\begin{equation}\phantomsection\label{eq-bdef}{
+B:=\mathop{\sum\sum}_{1<i\leq j<n} w_{ij}\delta_{ij}^2A_{ij},
+}\end{equation} i.e.~\(B\) has off-diagonal elements
+\(-w_{ij}\delta_{ij}^2\), with the diagonal filled in such a way that
+rows and columns add up to zero. It follows that \(B\) is symmetric,
+doubly-centered, and positive semi-definite.
+
+But no matter how simple and attractive \(\rho\) is, we still have to
+decide how to bound \(X\) and how to introduce multi-dimensionality. A
+naive choice would be requiring \(\text{tr}\ X'X=1\), but that gives a
+solution \(X\) of rank one with all columns equal to the eigenvector
+corresponding with the largest eigenvalue of \(B\). De Leeuw
+(\citeproc{ref-deleeuw_R_70b}{1970}) suggests maximizing \(\rho\) over
+\(X'X=I\), which leads to choosing \(X\) as the eigenvectors
+corresponding with the \(p\) largest eigenvalues of \(B\). But that
+result is of limited usefulness, because the MDS problem does not
+specify anywhere that the configuration \(X\) must be orthonormal. But
+since the maximum sum solution is only to be used as an initial
+configuration this may not be that serious.
+
+Guttman (\citeproc{ref-guttman_68}{1968}) says his initial configuration
+maximizes \begin{equation}\phantomsection\label{eq-guttmaxsum}{
+\lambda:=\sum_{s=1}^p\frac{x_s'Bx_s}{x_s'x_s}
+}\end{equation} But that cannot be correct. In the first place it would
+mean that the \(x_s\) can be scaled independently and arbitrarily, in
+the second place the maximum of \(\lambda\) is just \(p\) times the
+largest eigenvalue of \(B\) and all \(x_s\) are proportional to the
+corresponding eigenvector. Thus Guttman's derivation is wrong.
+
+Both De Leeuw and Guttman seem to arrive, in somewhat mysterious ways,
+at the ``solution'' \(X=K\Lambda^\frac12\), where \(K\) and \(\Lambda\)
+are the \(p\) dominant eigenvectors and eigenvalues of \(B\). An ad hoc
+justification of this normalization interprets it as a two step
+optimization over \(X=K\Psi\) with \(K'K=I\) and \(\Psi\) diagonal.
+First maximize \(\rho=\text{tr}\ K'BK\) over \(K'K=I\). Then maximize
+\(\rho=\text{tr}\ \Psi K'BK\Psi=\text{tr}\ \Lambda\Psi^2\) over
+\(\text{tr}\ \Psi^4=1\), with \(\Lambda\) again the \(p\) largest
+eigenvalues. This gives \(\Psi=\Lambda^\frac12\). But note that if
+\(p=n-1\) then \(K\Lambda K'\) reproduces \(B\), and
+\begin{equation}\phantomsection\label{eq-maxsumrep}{
+d_{ij}^2(X)=(e_i-e_j)'B(e_i-e_j)=\sum_{k=1}^nw_{ik}\delta_{ik}^2+\sum_{k=1}^nw_{jk}\delta_{jk}^2+2w_{ij}\delta_{ij}^2,
+}\end{equation} which does not reproduce the squared dissimilarities.
+Thus the maximum sum method gives at best a quick and dirty initial
+configuration
+
+\sectionbreak
+
+\section{Using Sstress}\label{using-sstress}
+
+\subsection{Loss Function}\label{loss-function-1}
+
+The maximum sum method is related to the problem of minimizing the MDS
+loss function sstress, defined by Takane, Young, and De Leeuw
+(\citeproc{ref-takane_young_deleeuw_A_77}{1977}) as
+\begin{equation}\phantomsection\label{eq-sstressdef}{
+\sigma(X)=\mathop{\sum\sum}_{1<i\leq j<n} w_{ij}(\delta_{ij}^2-d_{ij}^2(X))^2.
+}\end{equation} For notational convenience only, assume the sum of
+squares of the squared dissimilarities is equal to one. Of course
+normalizing dissimilarities does not change the minimization problem.
+
+If we expand Equation~\ref{eq-sstressdef} we find
+\begin{equation}\phantomsection\label{eq-sstressexp}{
+\sigma(X)=1-2\rho(X)+\eta^2(X) ,
+}\end{equation} with \(\rho\) defines as in Equation~\ref{eq-rhodef},
+and with \begin{equation}\phantomsection\label{eq-stresseta}{
+\eta^2(X):=\mathop{\sum\sum}_{1<i\leq j<n} w_{ij}d_{ij}^4(X).
+}\end{equation} Now, by homogeneity of the distance function,
+\begin{equation}\phantomsection\label{eq-innermin}{
+\min_X\sigma(X)=\min_{\eta^2(X)=1}\min_{\lambda}\{1-2\lambda\rho(X)+\lambda^2\}=1-\max_{\eta^2(X)=1}\rho^2(X).
+}\end{equation} Thus minimizing sstress is equivalent to maximizing
+\(\rho\) over all \(X\) in the compact set \(\eta^2(X)=1\). In that
+sense minimizing sstress is a maximum sum method. But, unlike the
+maximum sum approach of Guttman and de Leeuw, this explicit
+normalization of \(X\) does not lead to a simple eigenvalue-eigenvector
+problem. It can be solved, however, by majorization, which means, in
+thus case, iteratively solving a sequence of related
+eigenvalue-eigenvector problems.
+
+If we use sstress to approximate stress there is a more or less rational
+way to choose the weights in sstress. This seems a good thing since we
+use sstress solutions as initial configurations for minimizing stress.
+\begin{align}
+\sigma(X)&=\mathop{\sum\sum}_{1<i\leq j<n}w_{ij}(\delta_{ij}-d_{ij}(X))^2\notag\\
+&=\mathop{\sum\sum}_{1<i\leq j<n}\frac{w_{ij}}{(\delta_{ij}+d_{ij}(X))^2}
+(\delta_{ij}^2-d_{ij}^2(X))^2\notag\\&\approx\frac14\mathop{\sum\sum}_{1<i\leq j<n} \frac{w_{ij}}{\delta_{ij}^2}
+(\delta_{ij}^2-d_{ij}^2(X))^2.
+\end{align}
+
+There are some interesting connections between sstress, a least squares
+loss function defined on the squared distances, and strain, a least
+squares loss function defined on the scalar products. From
+Equation~\ref{eq-vstrain} we see that \[
+\sigma(X)=\frac14(\delta^2-d^2(X))'(V^2\otimes V^2)(\delta^2-d^2(X)),
+\] where \(\delta^2=\text{vec}(\Delta^2)\) and
+\(d^2(X)=\text{vec}(D^2(X))\). It follows that \[
+\sigma(X)\leq\frac14\lambda_+^2\sum\sum (\delta_{ij}^2-d_{ij}^2(X))^2,
+\] where \(\lambda_+\) is the largest eigenvalue of \(V^2\). If \(V=J\)
+then \(V^2=J\). The
+
+Sstress If \(B=-\frac12J\Delta^2J\) the
+\(\text{tr}\ A_{ij}B=\delta_{ij}^2\). Thus \[
+\sigma(X)=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}(\delta_{ij}^2-d_{ij}^2(X))^2=
+\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\{\text{tr}\ A_{ij}(B-XX')\}^2
+\] and thus, with \(C=XX'\), we have \[
+\sigma(C)=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\ \text{tr}\ A_{ij}(B-C)A_{ij}(B-C),
+\] which expresses sstress as a function of the scalar products. If
+\(b=\text{vec}(B)\) and \(c=\vec{C}\) then \[
+\sigma(c)=(b-c)'H(b-c)
+\] with \[
+H:=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}(A_{ij}\otimes A_{ij})
+\] If \(H\lesssim V\), with \(V\) diagonal and non-negative, then \[
+\sigma(C)\leq\mathop{\sum\sum}_{1\leq i<j\leq n}v_{ij}(b_{ij}-c_{ij})^2,
+\] which is a weighted version of strain.
+
+\subsection{Algorithms}\label{algorithms}
+
+\subsubsection{ELEGANT}\label{elegant}
+
+The complicated history of this majorization algorithm, which early on
+was called ELEGANT, starts with De Leeuw
+(\citeproc{ref-deleeuw_U_75b}{1975}), Takane
+(\citeproc{ref-takane_77}{1977}), and Browne
+(\citeproc{ref-browne_87}{1987}). You may notice that in the references
+De Leeuw (\citeproc{ref-deleeuw_U_75b}{1975}) is not linked to a pdf,
+because the paper seems to be irretrievably lost. It hangs on to its
+existence because it is discussed, referenced, and used, by Takane and
+Browne. See De Leeuw, Groenen, and Pietersz
+(\citeproc{ref-deleeuw_groenen_pietersz_E_16m}{2016}) and Takane
+(\citeproc{ref-takane_16}{2016}) for more on the history. The original
+derivation in De Leeuw (\citeproc{ref-deleeuw_U_75b}{1975}) used
+augmentation (De Leeuw (\citeproc{ref-deleeuw_C_94c}{1994})), which
+leads to unsharp majorization and to the slow convergence mentioned by
+De Leeuw, Browne, and Takane as a major disadvantage of ELEGANT. In De
+Leeuw, Groenen, and Pietersz
+(\citeproc{ref-deleeuw_groenen_pietersz_E_16m}{2016}) a sharper
+majorization is used to improve the asymptotic convergence rate of the
+original algorithm by a large factor \(n\). The modified ELEGANT is much
+faster than the original version (De Leeuw
+(\citeproc{ref-deleeuw_E_16o}{2016}) ).
+
+Now for the actual algorithm. Since it handles general non-negative
+weights, including zeroes, there is no fitting step as in our missing
+data generalization of strain.
+
+Define \(A_{ij}\) as usual, \(C:=XX'\), \(a_{ij}:=\text{vec}(A_{ij})\),
+and \(c=\text{vec}(C)\). Also use \(A\) for the
+\(n^2\times\frac12n(n-1)\) matrix that has the \(a_{ij}\) with \(i<j\)
+as columns, and \(W\) for the diagonal matrix with the \(w_{ij}\) for
+\(i<j\). Then \(d_{ij}^2(X)=\text{tr}\ A_{ij}C=a_{ij}'c\), and thus
+\begin{equation}\phantomsection\label{eq-elegantc}{
+\sigma(C)=1-2b'c+c'Hc,
+}\end{equation} with \(b=\text{vec}(B)\), with \(B\) from
+Equation~\ref{eq-bdef}, and with
+\begin{equation}\phantomsection\label{eq-hdef}{
+H:=AWA'.
+}\end{equation} There are two alternative expressions for the
+\(n^2\times n^2\) matrix \(H\) which are worth mentioning. The first one
+uses Kronecker products. It is
+\begin{equation}\phantomsection\label{eq-halt1}{
+H=\mathop{\sum\sum}_{1<i\leq j<n} w_{ij}(A_{ij}\otimes A_{ij}).
+}\end{equation} The second expression represents \(H\) as an
+\(n\times n\) block-matrix with elements (blocks) that are themselves
+\(n\times n\) matrices. The \((i, j)\) off-diagonal block of \(H\) is
+\begin{equation}\phantomsection\label{eq-halt2}{
+\{H\}_{ij}=-w_{ij}A_{ij},
+}\end{equation} while for the diagonal blocks
+\begin{equation}\phantomsection\label{eq-halt3}{
+\{H_{ii}\}=\sum_{j\not= i} w_{ij}A_{ij}.
+}\end{equation}
+
+We now apply the standard majorization method for quadratic
+optimization. Let \(\mu\) be an upper bound for the largest eigenvalue
+\(\lambda_+\) of \(H\). Write \(C=\tilde C+(C-\tilde C)\). Then
+\begin{multline}
+\sigma(c)\leq\sigma(\tilde c)-2 (b-H\tilde c)'(c-\tilde c)+\mu(c-\tilde c)'(c-\tilde c)=\\\sigma(\tilde c)+\mu\|c-(\tilde c+\mu^{-1}H\tilde c-b))\|^2-\mu^{-1}\|H\tilde c-b\|^2.
+\end{multline}\{\#eq-elegantmaj\} Thus we find \(c^{(\nu+1)}\) by
+minimizing \begin{equation}\phantomsection\label{eq-elegantstep}{
+\omega(c):=\|c-(c^{(\nu)}+\mu^{-1}(Hc^{(\nu)}-b))\|^2
+}\end{equation} over \(c\). Now
+\begin{equation}\phantomsection\label{eq-hvecmat}{
+Hc=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}a_{ij}a_{ij}' c=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}d_{ij}^2(c)a_{ij}.
+}\end{equation} Using Equation~\ref{eq-hvecmat} we can translate back to
+matrices \begin{equation}\phantomsection\label{eq-omegamat}{
+\omega(C)=\text{tr}\ (C-(C^{(\nu)}+\mu^{-1}R(C^{(\nu)}))^2
+}\end{equation} where
+\begin{equation}\phantomsection\label{eq-relegant}{
+R(C^{(\nu)}):=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}(d_{ij}^2(C^{(\nu)})-\delta_{ij}^2)
+}\end{equation} This is a low-rank symmetric matrix approximation
+problem, which we have encountered before, and which we can solve by
+partial eigen-decomposition.
+
+Various choices of \(\mu\geq\lambda_+\) are possible. The simplest one
+is the trace of \(H\), which is equal to four times the sum of the
+weights.The original version of ELEGANT used this trace bound. A sharper
+bound, which involves only slightly more work, is the maximum row sum of
+the absolute values of the elements of \(H\). This is equal to four
+times the maximum row sum of the weights \(W\). The best choice for
+\(\mu\), of course, is \(\mu=\lambda_+\), which requires more
+computation in the general case. For really large examples matrices of
+order \(O(n^2)\) may be prohibitively large, and the maximum absolute
+value bound can be computed without actually computing and storing
+\(H\).
+
+If all weights are equal to one matters simplify. Table~\ref{tbl-bounds}
+gives the three bounds for various values of \(n\).
+
+\begin{longtable}[]{@{}rrrr@{}}
+
+\caption{\label{tbl-bounds}Eigenvalue Bounds}
+
+\tabularnewline
+
+\toprule\noalign{}
+n & trc & abs & eig \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+2 & 4 & 4 & 4 \\
+4 & 24 & 12 & 8 \\
+8 & 112 & 28 & 16 \\
+16 & 480 & 60 & 32 \\
+32 & 1984 & 124 & 64 \\
+64 & 8064 & 252 & 128 \\
+128 & 32512 & 508 & 256 \\
+
+\end{longtable}
+
+The trace bound is \(2n(n-1)\), the maximum row sum bound is \(4(n-1)\).
+De Leeuw, Groenen, and Pietersz
+(\citeproc{ref-deleeuw_groenen_pietersz_E_16m}{2016}) show that if all
+weights are one the maximum eigenvalue is \(2n\). In the unfolding
+situation, with a rectangular \(n\times m\) matrix of dissmilarities and
+all \(nm\) weights equal to one, the trace bound is \(4nm\). The
+absolute value bound is \(4\max(n,m)\) and the maximum eigenvalue is
+\(n+m+2\).
+
+The largest eigenvalue of \(H\), which has order \(n^2\), is also the
+largest eigenvalue of the matrix with elements
+\(W^\frac12A'AW^\frac12\), which is a non-negative matrix of order
+\(\frac12n(n-1)\). For general weights we use the algorithm of Markham
+(\citeproc{ref-markham_68}{1968}) to compute the largest eigenvalue (the
+Perron-Frobenius root) of this matrix. In balanced situations, where the
+weights are not too different, the absolute value bound is about twice
+the largest eigenvalue, and it is unclear if the additional iterative
+computation of the largest eigenvalue is warranted. Moreover since the
+iterations approximate the eigenvalue from below we need precise
+computations, otherwise we do not have an appropriate majorization.
+
+\subsubsection{ALSCAL}\label{alscal}
+
+In ALSCAL we use cyclic coordinate descent to minimize sstress. The
+alternating least squares algorithm changes one coordinate at a time,
+keeping the other \(np-1\) coordinates fixed at their current values.
+Each cycle changes all coordinates in this way, thus generating a
+decreasing and convergent sequence of sstress values.
+
+The original ALSCAL algorithm (Takane, Young, and De Leeuw
+(\citeproc{ref-takane_young_deleeuw_A_77}{1977})) used alternating least
+squares, but with \(n\) blocks of size \(p\), using a safeguarded
+version of Newton's method in each block subproblem. Even at the time
+(almost 50 years ago now) I pushed for using \(np\) blocks of size one,
+but I lst out initially. But pretty soon afterwards Doug Carroll and
+others pointed out that the original algorithm has the problem that the
+Newton method may converge to a block local minimum (Takane, Young, and
+De Leeuw (\citeproc{ref-takane_young_deleeuw_A_77}{1977}), page 61-63).
+So in subsequent versions of ALSCAL in SAS and SPSS (F. W. Young,
+Takane, and Lewyckyj (\citeproc{ref-young_takane_lewyckyj_78b}{1978}))
+coordinate descent was used.
+
+Formally changing a single coordinate is
+\begin{equation}\phantomsection\label{eq-xchange}{
+X=Y+\theta e_ke_s',
+}\end{equation} which makes \(d_{ij}^2(X)\) the following quadratic
+function of \(\theta\).
+\begin{equation}\phantomsection\label{eq-dchange}{
+d_{ij}^2(\theta)=
+d_{ij}^2(Y)+2\theta (y_{is}-y_{js})(\delta^{ik}-\delta^{jk})+\theta^2(\delta^{ik}+\delta^{jk}),
+}\end{equation} Note there are superscripted Kronecker deltas such as
+\(\delta^{ik}\) and subscripted dissimilarity deltas such as
+\(\delta_{ij}\).
+
+Define the residual
+\begin{equation}\phantomsection\label{eq-sstressresidual}{
+r_{ij}(Y):=d_{ij}^2(Y)-\delta_{ij}^2.
+}\end{equation} Then
+\begin{equation}\phantomsection\label{eq-sstresstheta}{
+\sigma(\theta)=
+\sum_{i=1}^n\sum_{j=1}^nw_{ij}(r_{ij}(Y)+2\theta(y_{is}-y_{js})(\delta^{ik}-\delta^{jk})+\theta^2(\delta^{ik}-\delta^{jk})^2)^2
+}\end{equation} Now expand Equation~\ref{eq-sstresstheta}. This was also
+done undoubtedly by F. W. Young, Takane, and Lewyckyj
+(\citeproc{ref-young_takane_lewyckyj_78b}{1978}), and explicitly for R
+version in De Leeuw (\citeproc{ref-deleeuw_U_06i}{2006}), with a mistake
+in his formula for \(a_3(X)\) on page 3. We use the fact that if
+\(i\not= j\) then \begin{subequations}
+\begin{align}
+(\delta^{ik}-\delta^{jk})^2&=\delta^{ik}+\delta^{jk},\\
+(\delta^{ik}-\delta^{jk})(\delta^{ik}+\delta^{jk})&=\delta^{ik}-\delta^{jk},\\
+(\delta^{ik}+\delta^{jk})^2&=\delta^{ik}+\delta^{jk}.
+\end{align}
+\end{subequations} Expanding gives
+\begin{equation}\phantomsection\label{eq-sigmaexpansion}{
+\sigma(\theta)=\sigma(Y)+\sigma_1(Y)\theta+\sigma_2(Y)\theta^2+\sigma_3(Y)\theta^3+\sigma_4(Y)\theta^4,
+}\end{equation} with \begin{subequations}
+\begin{align}
+\sigma_1(Y)&=8\sum_{j=1}^nw_{kj}r_{kj}(Y)(y_{ks}-y_{js}),\\
+\sigma_2(Y)&=4\sum_{j=1}^nw_{kj}r_{kj}(Y)+
+8\sum_{j=1}^nw_{kj}(y_{ks}-y_{js})^2,\\
+\sigma_3(Y)&=8\sum_{j=1}^nw_{kj}(y_{ks}-y_{js}),\\
+\sigma_4(Y)&=2\sum_{j=1}^nw_{kj}.
+\end{align}
+\end{subequations} This non=negative bowl-shaped quartic is minimized to
+find the optimum coordinate replacement of \(x_{ks}\) in
+Equation~\ref{eq-xchange}. Then go to the next coordinate, and so on.
+Convergence is tested after each cycle.
+
+\sectionbreak
+
+\section{Example}\label{example}
+
+We use the data from Ekman (\citeproc{ref-ekman_54}{1954}), which has a
+very good MDS fit in two dimensions, with apparently very few local
+minima.
+
+Comparisons of the various ELEGANT options are done with the
+microbenchmark package (Mersmann (\citeproc{ref-mersmann_23}{2023})),
+using 100 runs and the default iteration options. First we look at the
+unweighted case. varies the three bounds on the largest eigenvalue and
+the initial configuration (zero is random, one is maximum sum).
+
+\begin{verbatim}
+Warning in microbenchmark(smacofElegant(ekmat, bnd = 0, xold = 0, itmax =
+1e+05, : less accurate nanosecond times to avoid potential integer overflows
+\end{verbatim}
+
+\begin{verbatim}
+Unit: milliseconds
+                                                                    expr
+ smacofElegant(ekmat, bnd = 0, xold = 0, itmax = 1e+05, verbose = FALSE)
+ smacofElegant(ekmat, bnd = 0, xold = 1, itmax = 1e+05, verbose = FALSE)
+ smacofElegant(ekmat, bnd = 1, xold = 0, itmax = 1e+05, verbose = FALSE)
+ smacofElegant(ekmat, bnd = 1, xold = 1, itmax = 1e+05, verbose = FALSE)
+ smacofElegant(ekmat, bnd = 2, xold = 0, itmax = 1e+05, verbose = FALSE)
+ smacofElegant(ekmat, bnd = 2, xold = 1, itmax = 1e+05, verbose = FALSE)
+        min         lq       mean     median         uq       max neval
+ 116.634791 133.557972 145.824174 141.250043 152.658662 250.22972   100
+  78.363095  79.523046  81.617043  80.954479  82.400857 129.80288   100
+  17.690393  20.324827  23.208637  22.091005  24.222493  75.14710   100
+  12.236040  12.339586  13.598644  12.627447  12.898293  62.65095   100
+   9.800107  10.653624  12.117433  11.414154  12.359921  30.47005   100
+   6.761966   6.886811   7.238513   7.007064   7.159789  10.11605   100
+\end{verbatim}
+
+As expected, bound 2 (the eigenvalue) is about twice as fast as bound 1
+(maximum absolute row sum). The original ELEGANT, with bound 0, is
+indeed very slow. The maximum sum initial configuration gives another
+speedup of around two.
+
+Next, we do the same comparison with weights
+\(w_{ij}=\delta_{ij}^{-1}\).
+
+\begin{verbatim}
+Unit: milliseconds
+                                                                                      expr
+ smacofElegant(ekmat, wght = wmat, bnd = 0, xold = 0, itmax = 1e+05,      verbose = FALSE)
+ smacofElegant(ekmat, wght = wmat, bnd = 0, xold = 1, itmax = 1e+05,      verbose = FALSE)
+ smacofElegant(ekmat, wght = wmat, bnd = 1, xold = 0, itmax = 1e+05,      verbose = FALSE)
+ smacofElegant(ekmat, wght = wmat, bnd = 1, xold = 1, itmax = 1e+05,      verbose = FALSE)
+ smacofElegant(ekmat, wght = wmat, bnd = 2, xold = 0, itmax = 1e+05,      verbose = FALSE)
+ smacofElegant(ekmat, wght = wmat, bnd = 2, xold = 1, itmax = 1e+05,      verbose = FALSE)
+       min        lq      mean    median        uq       max neval
+ 159.19447 175.64949 190.82172 185.23331 201.98250 255.89223   100
+ 125.98418 127.64848 131.47819 129.10111 131.77470 187.07398   100
+  28.74465  34.13943  36.61538  36.18350  38.38000  51.28842   100
+  23.67024  24.17038  25.41483  24.78495  26.55957  29.12730   100
+  32.26495  34.87546  36.64014  36.06501  37.31621  85.66450   100
+  28.63924  29.97383  31.30094  31.42914  32.38555  36.70074   100
+\end{verbatim}
+
+Using these reciprocal weights slows down everything, but the ranking of
+the various options remains the same, except for the fact that the
+maximum sum initial configuration does not give much of an improvement.
+Although bound equal to two now involves one-time computation of the
+largest eigenvalue of \(H\) it still is twice as fast as bound equal to
+one. But remember that for larger examples
+
+\begin{verbatim}
+Unit: milliseconds
+                                                                    expr
+ smacofElegant(grmat, bnd = 0, xold = 0, itmax = 1e+05, verbose = FALSE)
+ smacofElegant(grmat, bnd = 0, xold = 1, itmax = 1e+05, verbose = FALSE)
+ smacofElegant(grmat, bnd = 1, xold = 0, itmax = 1e+05, verbose = FALSE)
+ smacofElegant(grmat, bnd = 1, xold = 1, itmax = 1e+05, verbose = FALSE)
+ smacofElegant(grmat, bnd = 2, xold = 0, itmax = 1e+05, verbose = FALSE)
+ smacofElegant(grmat, bnd = 2, xold = 1, itmax = 1e+05, verbose = FALSE)
+       min        lq      mean    median        uq       max neval
+  90.74719 117.26238 268.80010 279.00670 356.40039 545.97293   100
+ 497.51405 510.18377 523.79944 515.33179 528.03843 631.07840   100
+  20.51710  25.70503  61.10595  62.81598  80.76572 132.82893   100
+ 110.13834 111.65690 114.37898 113.69878 115.54733 163.04228   100
+  11.03236  15.26182  34.58285  34.66230  48.56604  70.76744   100
+  59.48018  60.03392  61.89118  60.86960  62.27252 107.62242   100
+\end{verbatim}
+
+We also used the Ekman data for a comparison of unweighted ELEGANT, with
+the eigenvalue bound, and unweighted ALSCAL. If we used a random initial
+\(x\) then microbenchmark gives a median time of 19.56022 milliseconds
+for ALSCAL versus 11.65208 for ELEGANT. Using the maximum sum initial
+\(x\) changes this to 15.611836 and 7.121864.
+
+\begin{verbatim}
+Unit: milliseconds
+                                                                    expr
+ smacofElegant(ekmat, bnd = 2, xold = 0, itmax = 1e+05, verbose = FALSE)
+ smacofElegant(ekmat, bnd = 2, xold = 1, itmax = 1e+05, verbose = FALSE)
+              smacofALSCAL(ekmat, x = 0, itmax = 1e+05, verbose = FALSE)
+              smacofALSCAL(ekmat, x = 1, itmax = 1e+05, verbose = FALSE)
+       min        lq      mean    median        uq      max neval
+  9.323646 11.179244 13.031234 12.057875 13.504518 65.91205   100
+  6.807312  7.054194  7.508257  7.237874  7.505911 10.21642   100
+ 15.934199 18.044264 20.160187 19.304153 20.868672 81.47807   100
+ 14.696942 15.361306 16.369027 15.927270 17.475409 20.84952   100
+\end{verbatim}
+
+\sectionbreak
+
+\section*{References}\label{references}
+\addcontentsline{toc}{section}{References}
+
+\phantomsection\label{refs}
+\begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-bailey_gower_90}
+Bailey, R. A., and J. C. Gower. 1990. {``{Approximating a Symmetric
+Matrix}.''} \emph{Psychometrika} 55 (4): 665--75.
+
+\bibitem[\citeproctext]{ref-browne_87}
+Browne, M. W. 1987. {``{The Young-Householder Algorithm and the Least
+Squares Multidimensional Scaling of Squared Distances}.''} \emph{Journal
+of Classification} 4: 175--90.
+
+\bibitem[\citeproctext]{ref-cailliez_83}
+Cailliez, F. 1983. {``{The Analytical Solution to the Additive Constant
+Problem}.''} \emph{Psychometrika} 48 (2): 305--8.
+
+\bibitem[\citeproctext]{ref-deleeuw_R_68e}
+De Leeuw, J. 1968a. {``Canonical Discriminant Analysis of Relational
+Data.''} Research Note 007-68. Department of Data Theory FSW/RUL.
+\url{https://jansweb.netlify.app/publication/deleeuw-r-68-e/deleeuw-r-68-e.pdf}.
+
+\bibitem[\citeproctext]{ref-deleeuw_R_68g}
+---------. 1968b. {``Nonmetric Multidimensional Scaling.''} Research
+Note 010-68. Department of Data Theory FSW/RUL.
+\url{https://jansweb.netlify.app/publication/deleeuw-r-68-g/deleeuw-r-68-g.pdf}.
+
+\bibitem[\citeproctext]{ref-deleeuw_R_70b}
+---------. 1970. {``{The Euclidean Distance Model}.''} Research Note
+002-70. Department of Data Theory FSW/RUL.
+\url{https://jansweb.netlify.app/publication/deleeuw-r-70-b/deleeuw-r-70-b.pdf}.
+
+\bibitem[\citeproctext]{ref-deleeuw_U_75b}
+---------. 1975. {``{An Alternating Least Squares Approach to Squared
+Distance Scaling}.''} Department of Data Theory FSW/RUL.
+
+\bibitem[\citeproctext]{ref-deleeuw_C_94c}
+---------. 1994. {``{Block Relaxation Algorithms in Statistics}.''} In
+\emph{Information Systems and Data Analysis}, edited by H. H. Bock, W.
+Lenski, and M. M. Richter, 308--24. Berlin: Springer Verlag.
+\url{https://jansweb.netlify.app/publication/deleeuw-c-94-c/deleeuw-c-94-c.pdf}.
+
+\bibitem[\citeproctext]{ref-deleeuw_U_06i}
+---------. 2006. {``{ALSCAL in R}.''} UCLA Department of Statistics.
+\url{https://jansweb.netlify.app/publication/deleeuw-u-06-i/deleeuw-u-06-i.pdf}.
+
+\bibitem[\citeproctext]{ref-deleeuw_E_16o}
+---------. 2016. {``Convergence Rate of {ELEGANT} Algorithms.''} 2016.
+\url{https://jansweb.netlify.app/publication/deleeuw-e-16-o/deleeuw-e-16-o.pdf}.
+
+\bibitem[\citeproctext]{ref-deleeuw_groenen_pietersz_E_16m}
+De Leeuw, J., P. Groenen, and R. Pietersz. 2016. {``An Alternating Least
+Squares Approach to Squared Distance Scaling.''}
+\url{https://jansweb.netlify.app/publication/deleeuw-groenen-pietersz-e-16-m/deleeuw-groenen-pietersz-e-16-m.pdf}.
+
+\bibitem[\citeproctext]{ref-deleeuw_heiser_C_82}
+De Leeuw, J., and W. J. Heiser. 1982. {``Theory of Multidimensional
+Scaling.''} In \emph{Handbook of Statistics, Volume {II}}, edited by P.
+R. Krishnaiah and L. Kanal. Amsterdam, The Netherlands: North Holland
+Publishing Company.
+
+\bibitem[\citeproctext]{ref-deleeuw_meulman_C_86}
+De Leeuw, J., and J. J. Meulman. 1986. {``Principal Component Analysis
+and Restricted Multidimensional Scaling.''} In \emph{Classification as a
+Tool of Research}, edited by W. Gaul and M. Schader, 83--96. Amsterdam,
+London, New York, Tokyo: North-Holland.
+
+\bibitem[\citeproctext]{ref-ekman_54}
+Ekman, G. 1954. {``{Dimensions of Color Vision}.''} \emph{Journal of
+Psychology} 38: 467--74.
+
+\bibitem[\citeproctext]{ref-gower_66}
+Gower, J. C. 1966. {``{Some Distance Properties of Latent Root and
+Vector Methods Used in Multivariate Analysis}.''} \emph{Biometrika} 53:
+325--38.
+
+\bibitem[\citeproctext]{ref-guttman_68}
+Guttman, L. 1968. {``{A General Nonmetric Technique for Fitting the
+Smallest Coordinate Space for a Configuration of Points}.''}
+\emph{Psychometrika} 33: 469--506.
+
+\bibitem[\citeproctext]{ref-mardia_78}
+Mardia, K. V. 1978. {``Some Properties of Classical Multidimensional
+Scaling.''} \emph{Communications in Statistics - Theory and Methods} 7
+(13): 1233--41.
+
+\bibitem[\citeproctext]{ref-markham_68}
+Markham, T. L. 1968. {``An Iterative Procedure for Computing the Maximal
+Root of a Positive Matrix.''} \emph{Mathematics of Computation} 22:
+869--71.
+
+\bibitem[\citeproctext]{ref-mersmann_23}
+Mersmann, O. 2023. \emph{{microbenchmark: Accurate Timing Functions}}.
+\url{https://CRAN.R-project.org/package=microbenchmark}.
+
+\bibitem[\citeproctext]{ref-mullen_vanstokkum_23}
+Mullen, K. M., and I. H. M. van Stokkum. 2023. \emph{{nnls: The
+Lawson-Hanson algorithm for non-negative least squares (NNLS)}}.
+\url{\%7Bhttps://CRAN.R-project.org/package=nnls\%7D}.
+
+\bibitem[\citeproctext]{ref-nguyen_kim_shim_19}
+Nguyen, L. T., J. Kim, and B. Shim. 2019. {``{Low-Rank Matrix
+Completion: A Contemporary Survey}.''}
+\url{https://arxiv.org/abs/1907.11705}.
+
+\bibitem[\citeproctext]{ref-qiu_mei_24}
+Qiu, Y., and J. Mei. 2024. \emph{{RSpectra: Solvers for Large-Scale
+Eigenvalue and SVD Problems}}.
+\url{https://CRAN.R-project.org/package=RSpectra}.
+
+\bibitem[\citeproctext]{ref-schoenberg_35}
+Schoenberg, I. J. 1935. {``{Remarks to Maurice Frechet's article: Sur la
+Definition Axiomatique d'une Classe d'Espaces Vectoriels Distancies
+Applicables Vectoriellement sur l'Espace de Hllbert}.''} \emph{Annals of
+Mathematics} 36: 724--32.
+
+\bibitem[\citeproctext]{ref-takane_77}
+Takane, Y. 1977. {``{On the Relations among Four Methods of
+Multidimensional Scaling}.''} \emph{Behaviormetrika} 4: 29--42.
+
+\bibitem[\citeproctext]{ref-takane_16}
+---------. 2016. {``{My Early Interactions with Jan and Some of His Lost
+Papers}.''} \emph{Journal of Statistical Software} 73 (7): 1--14.
+\url{https://www.jstatsoft.org/article/view/v073i07}.
+
+\bibitem[\citeproctext]{ref-takane_young_deleeuw_A_77}
+Takane, Y., F. W. Young, and J. De Leeuw. 1977. {``Nonmetric Individual
+Differences in Multidimensional Scaling: An Alternating Least Squares
+Method with Optimal Scaling Features.''} \emph{Psychometrika} 42: 7--67.
+
+\bibitem[\citeproctext]{ref-torgerson_58}
+Torgerson, W. S. 1958. \emph{{Theory and Methods of Scaling}}. New York:
+Wiley.
+
+\bibitem[\citeproctext]{ref-trosset_98}
+Trosset, M. W. 1998. {``A New Formulation of the Nonmetric Strain
+Problem in Multidimensional Scaling.''} \emph{Journal of Classification}
+15: 15--35.
+
+\bibitem[\citeproctext]{ref-young_takane_lewyckyj_78b}
+Young, F. W., Y. Takane, and R. Lewyckyj. 1978. {``{Three Notes on
+ALSCAL}.''} \emph{Psychometrika} 43 (3): 433--35.
+
+\bibitem[\citeproctext]{ref-young_householder_38}
+Young, G., and A. S. Householder. 1938. {``{Discussion of a Set of
+Points in Terms of Their Mutual Distances}.''} \emph{Psychometrika} 3
+(19-22).
+
+\end{CSLReferences}
+
+
+
+
+\end{document}

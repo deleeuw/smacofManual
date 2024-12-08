@@ -1,0 +1,947 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  12pt,
+  letterpaper,
+  DIV=11,
+  numbers=noendperiod]{scrartcl}
+
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else  
+    % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\setcounter{secnumdepth}{5}
+% Make \paragraph and \subparagraph free-standing
+\makeatletter
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}{
+    \@ifstar
+      \xxxParagraphStar
+      \xxxParagraphNoStar
+  }
+  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
+  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}{
+    \@ifstar
+      \xxxSubParagraphStar
+      \xxxSubParagraphNoStar
+  }
+  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
+  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+\makeatother
+
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+\KOMAoption{captions}{tableheading}
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Table of contents}
+\else
+  \newcommand\contentsname{Table of contents}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{List of Figures}
+\else
+  \newcommand\listfigurename{List of Figures}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{List of Tables}
+\else
+  \newcommand\listtablename{List of Tables}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figure}
+\else
+  \newcommand\figurename{Figure}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Table}
+\else
+  \newcommand\tablename{Table}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Notes on Multidimensional Scaling of Three Points},
+  pdfauthor={Jan de Leeuw},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+
+\title{Notes on Multidimensional Scaling of Three Points}
+\author{Jan de Leeuw}
+\date{September 28, 2024}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+We apply various metric multidimensional scaling methods to the
+dissimilarities between three points. This smallest non-trivial case is
+used to illustrate some general properties of MDS, and some specific
+properties for \(n=3\).
+\end{abstract}
+
+
+\section{Introduction}\label{introduction}
+
+Studying MDS for \(n=3\) seems somewhat esoteric. Practical MDS problems
+have a larger, and often much larger, number of points. Nevertheless, I
+think \(n=3\) is interesting. Note that a configuration of three points
+in one dimension has only two parameters because of the translational
+invariance of the distance function. In two dimensions the effective
+number of parameters is five, because of both translational and
+rotational invariance. This implies that at least in one dimension we
+can make contour and perspective plots of the MDS loss functions, and
+study their stationary points graphically (see De Leeuw
+(\citeproc{ref-deleeuw_E_16l}{2016})).
+
+In two dimensions we deal with functions of five variables, and plotting
+loss functions in a convincing way is no longer possible. But is
+important to emphasize from the start that \(n=3\) is special. The
+converse of the triangle inequality says that if we have three
+non-negative numbers \(x,y,z\) then we can construct a triangle with
+sides \(x,y,z\) if and only if \(x\leq y+z\), \(y\leq x+z\), and
+\(z\leq x+y\). Or, to put it differently, every three-point metric space
+in isometrically embeddable in the Euclidean plane. This implies that
+the set of Euclidean distance matrices of order \(3\) is a pointed
+convex polyhedral cone in the linear space of symmetric and hollow
+matrices or order three. If we fit a two-dimensional configuration we
+parametrize loss as a function of the distances. It is necessary and
+sufficient that the three distances between the three points satisfy six
+linear inequalities: three for non=negativity and three for the triangle
+inequalities. This means that for convex loss functions the MDS problem
+with three poinst in two dimensions is convex, and has no local minima.
+
+There is another way to arrive at an even more special result for
+\(n=3\) in the case of least squares loss on the distances, i.e.~if
+using Kruskal's raw stress (Kruskal (\citeproc{ref-kruskal_64a}{1964})).
+The theory of full-dimensional scaling (De Leeuw, Groenen, and Mair
+(\citeproc{ref-deleeuw_groenen_mair_E_16e}{2016}), see also De Leeuw and
+Groenen (\citeproc{ref-deleeuw_groenen_A_97}{2007}), especially
+Corollary 6.3) tells us if we minimize stress for a distance matrix of
+order three then there are only two possibilities. Either the distance
+matrix is Euclidean, in which case minimum stress is zero, or the
+solution minimizing stress is one-dimensional, in which case there are
+no non-global local minima. In fact the minimum of stress over all
+configurations of rank two does not exist if the distance matris is not
+Euclidean. The infimum exists, and is attained at a matrix of rank one.
+
+\section{Example}\label{example}
+
+Suppose we have the dissimilarity matrix \[
+\begin{bmatrix}
+0&1&4\\
+1&0&2\\
+4&2&0
+\end{bmatrix}
+\] This violates the triangle inequality and consequently cannot be
+represented in any metric space. MDS algorithms will always find a
+solution with non-zero loss.
+
+For our one dimensional solutions we write \[
+x=\begin{bmatrix}
+0&0\\
+0&1\\
+1&1
+\end{bmatrix}
+\begin{bmatrix}
+\alpha\\
+\beta
+\end{bmatrix}
+=
+\begin{bmatrix}
+0\\
+\beta\\
+\alpha+\beta
+\end{bmatrix},
+\], with distances \[
+d(x)=\begin{bmatrix}
+0&|\beta|&|\alpha+\beta|\\
+|\beta|&0&|\alpha|\\
+|\alpha+\beta|&|\alpha|&0
+\end{bmatrix}
+\] Thus the residuals are \begin{align}
+r_{12}(x)&=1-|\beta|,\\
+r_{13}(x)&=4-|\alpha+\beta|,\\
+r_{23}(x)&=2-|\alpha|.
+\end{align} \} \# Least Squares Euclidean MDS
+
+\subsection{Unidimensional}\label{unidimensional}
+
+In least squares unidimensional scaling we partition the space
+\(\mathbb{R}^3\) using closed convex polyhedral cones of vectors with
+the same weak ordering. In each of the cones \(K\) we define an
+anti-symmetric sign matrix \(S_K\) indicating if \(i\) preceeds \(j\) or
+\(j\) preceeds \(i\) in the order.
+
+Define \[
+t_K=\frac{1}{n}(\Delta\times S_K)e
+\] Thus vector \(t\) are the row averages of the Hadamard (elementwise)
+product of the sign matrix and the dissimilarity matrix. If \(t\) is in
+the interior of its cone then it is a local minimum. If it is on the
+boundary of its cone, or even outside it, then it is not (De Leeuw
+(\citeproc{ref-deleeuw_C_05h}{2005}))
+
+\subsubsection{Example}\label{example-1}
+
+For \(1<2<3\)
+
+\[
+\frac13\begin{bmatrix}
+\hfill 0&-1&-4\\
++1&\hfill 0&-2\\
++4&+2&\hfill 0
+\end{bmatrix}
+\begin{bmatrix}
+1\\
+1\\
+1
+\end{bmatrix}=
+\frac13\begin{bmatrix}
+-5\\
+-1\\
++6
+\end{bmatrix}
+\] This is in the correct order, thus it defines a local minimum. Loss
+is \(\frac13\). This is the global minimum.
+
+If \(1<3<2\) then \[
+\frac13\begin{bmatrix}
+\hfill 0&-1&-4\\
++1&\hfill 0&+2\\
++4&-2&\hfill 0
+\end{bmatrix}
+\begin{bmatrix}
+1\\
+1\\
+1
+\end{bmatrix}=
+\frac13\begin{bmatrix}
+-5\\
++3\\
++2
+\end{bmatrix}
+\] This \(t\) is also in its cone, and is consequently another local
+minimum, with loss value \(25/3\).
+
+For \(2<1<3\) \[
+\frac13\begin{bmatrix}
+\hfill 0&+1&-4\\
+-1&\hfill 0&-2\\
++4&+2&\hfill 0
+\end{bmatrix}
+\begin{bmatrix}
+1\\
+1\\
+1
+\end{bmatrix}=
+\frac13\begin{bmatrix}
+-3\\
+-3\\
++6
+\end{bmatrix}
+\] This is not a local minimum, because the first two coordinates are
+equal. The vector \(t\) is on the boundary of its cone. Loss is equal to
+one.
+
+The remaining three permutations are the reverse of permutations we have
+already handled, which means that their \(S\) matrix, and consequently
+their vector \(t\), is the negative of the \(t\) of the reverse
+permutation. That gives two additional local minima, with the same loss
+as the solution for the reverse permutation.
+
+\subsection{Two-dimensional MDS}\label{two-dimensional-mds}
+
+Torgerson -- there is no optimal solution with \(p = 2\)
+
+FDS -- same
+
+The set of square, non-negative, symmetric, and hollow matrices of order
+three that are Euclidean distance matrices is a pointed convex cone with
+apex at the origin. This follows directly from the converse of the
+triangle inequality, which says that if we have three non-negative
+numbers \(x,y,z\) then we can construct a triangle with sides \(x,y,z\)
+if and only if \(x\leq y+z\), \(y\leq x+z\), and \(z\leq x+y\). Thus
+finding the best fitting Euclidean matrix to a set of three
+dissimilarities is equivalent to projecting on a convex cone. This can
+be transformed to a problem with non-negativity constraints by using a
+frame for the cone, i.e.~the set of its extreme rays.
+
+\[
+\begin{bmatrix}
+d_{12}\\
+d_{13}\\
+d_{23}
+\end{bmatrix}=
+\begin{bmatrix}
+0&1&1\\
+1&0&1\\
+1&1&0
+\end{bmatrix}
+\begin{bmatrix}
+\alpha\\
+\beta\\
+\gamma
+\end{bmatrix}
+\] for some non-negative \(\alpha\), \(\beta\), and \(\gamma\).
+
+In the least squares case a result of De Leeuw and Groenen
+(\citeproc{ref-deleeuw_groenen_A_97}{2007}) applies to our tiny example.
+
+\section{Least Absolute Value MDS}\label{least-absolute-value-mds}
+
+\subsection{Unidimensional}\label{unidimensional-1}
+
+Suppose we have the dissimilarities \begin{align*}
+\delta_{12}&=1,\\
+\delta_{13}&=4,\\
+\delta_{23}&=2
+\end{align*} and we want to fit a one-dimensional MDS solution using
+least absolute value loss \begin{equation*}
+\sigma(x)=\mathop{\sum\sum}_{1\leq i<j\leq 3} |\delta_{ij}-|x_i-x_j||
+\end{equation*} In this case \(\sigma\) is continuous on
+\(\mathbb{R}^3\) and piecewise linear, and it fails to be differentiable
+at quite a number of points. The dissimilarities are chosen in such a
+way that they violate the triangle inequality and consequently they
+cannot be imbedded perfectly in any metric space.
+
+One way to attack this minimization problem is to partition the space
+into the \(3!=6\) cones defining the different orders of \(x\). In each
+cone the distance function is linear, and consequently we could use
+linear programming to solve the linear least absolute value problem over
+the cone. This gives a minimum for each cone, and the global minimum is
+the smallest of these minima.
+
+In this paper we take this idea one step further. We partition each code
+into \(2^3=8\) polyhedra by requiring each of the three residuals to be
+non-negative or non-positive. Some of regions these may be empty, and
+some may be unbounded. But the loss function \(\sigma\) is a linear
+function in each region, bounded below by zero, and thus attains its
+minimum in one of the vertices.
+
+Computationally we use the translation invariance of the distance
+function to transform the minimization problem for each of the monotone
+cones to the non-negative orthant of \(\mathbb{R}^2\). The scale values
+\(x\) are expressed as a non-negative linear combination of the two
+extreme rays of the cone, where the smallest element of \(x\) is always
+set equal to zero. The coefficients of the linear combination are
+\(\alpha\) and \(\beta\), and their non-negativity defines two
+homogeneous linear inequalities. The polyhedral regions within the cone
+are defined by inequalities of the form
+\(\delta_{ij}-d_{ij}(X)\bowtie 0\), where \(\bowtie\) can be either
+\(\leq\) or \(\geq\).
+
+For each cone we have five linear inequalities in two variables. We can
+easily find the vertices by setting the linear equations corresponding
+to each pair of inequalities equal to zero (which means finding the
+intersection of two lines). Some of the two-by-two systems may not be
+solvable. Thus we find a maximum of \(\binom{5}{2}=10\) vertices and we
+can evaluate the cone-specific linear loss function in each of these
+vertices. This will give us all local minima and maxima of the loss
+function, and thus also the global minimum. Since the loss is unbounded
+above there is no global maximum.
+
+\pagebreak
+
+\section{\texorpdfstring{Rank order
+\(1<2<3\)}{Rank order 1\textless2\textless3}}\label{rank-order-123}
+
+\subsection{Basis}\label{basis}
+
+\[
+x=\begin{bmatrix}
+0&0\\
+0&1\\
+1&1
+\end{bmatrix}
+\begin{bmatrix}
+\alpha\\
+\beta
+\end{bmatrix}=
+\begin{bmatrix}
+0\\
+\beta\\
+\alpha+\beta
+\end{bmatrix}
+\]
+
+\subsection{Distances}\label{distances}
+
+\[
+\begin{bmatrix}
+d_{12}(x)\\
+d_{13}(x)\\
+d_{23}(x)
+\end{bmatrix}
+=
+\begin{bmatrix}
+\beta\\
+\alpha+\beta\\
+\alpha
+\end{bmatrix}
+\]
+
+\subsection{Inequalities}\label{inequalities}
+
+\begin{align}
+\alpha&\geq 0,\\
+\beta&\geq 0,\\
+1-\beta&\bowtie 0,\\
+4-(\alpha+\beta)&\bowtie 0,\\
+2-\alpha&\bowtie 0.
+\end{align}
+
+\subsection{Solutions}\label{solutions}
+
+\((0,0)\Rightarrow 7\Rightarrow(0,0,0)\)\newline
+\((0,1)\Rightarrow 5\Rightarrow(0,1,1)\)\newline
+\((0,4)\Rightarrow 5\Rightarrow(0,4,4)\)\newline
+\((4,0)\Rightarrow 3\Rightarrow(0,0,4)\)\newline
+\((2,0)\Rightarrow 3\Rightarrow(0,0,2)\)\newline
+\((3,1)\Rightarrow 1\Rightarrow(0,1,4)\)\newline
+\((2,1)\Rightarrow 1\Rightarrow(0,1,3)\)\newline
+\((2,2)\Rightarrow 1\Rightarrow(0,2,4)\)\newline
+
+\begin{center}
+\includegraphics{exhausting_files/figure-pdf/p123-1.pdf}
+\end{center}
+
+\pagebreak
+
+\section{\texorpdfstring{Rank order
+\(1<3<2\)}{Rank order 1\textless3\textless2}}\label{rank-order-132}
+
+\subsection{Basis}\label{basis-1}
+
+\[
+x=
+\begin{bmatrix}
+0&0\\
+1&1\\
+0&1
+\end{bmatrix}
+\begin{bmatrix}
+\alpha\\
+\beta
+\end{bmatrix}=
+\begin{bmatrix}
+0\\
+\alpha+\beta\\
+\beta
+\end{bmatrix}
+\]
+
+\subsection{Distances}\label{distances-1}
+
+\[
+\begin{bmatrix}
+d_{12}(x)\\
+d_{13}(x)\\
+d_{23}(x)
+\end{bmatrix}
+=
+\begin{bmatrix}
+\alpha+\beta\\
+\beta\\
+\alpha
+\end{bmatrix}
+\]
+
+\subsection{Inequalities}\label{inequalities-1}
+
+\begin{align}
+\alpha&\geq 0,\\
+\beta&\geq 0,\\
+1-(\alpha+\beta)&\bowtie 0,\\
+4-\beta&\bowtie 0,\\
+2-\alpha&\bowtie 0.
+\end{align}
+
+\subsection{Solutions}\label{solutions-1}
+
+\((0,0)\Rightarrow 7\Rightarrow(0,0,0)\)\newline
+\((0,1)\Rightarrow 5\Rightarrow(0,1,1)\)\newline
+\((0,4)\Rightarrow 5\Rightarrow(0,4,4)\)\newline
+\((1,0)\Rightarrow 5\Rightarrow(0,1,0)\)\newline
+\((2,0)\Rightarrow 5\Rightarrow(0,2,0)\)\newline
+\((2,4)\Rightarrow 5\Rightarrow(0,6,4)\)\newline
+
+\begin{center}
+\includegraphics{exhausting_files/figure-pdf/p132-1.pdf}
+\end{center}
+
+\pagebreak
+
+\section{\texorpdfstring{Rank order
+\(2<1<3\)}{Rank order 2\textless1\textless3}}\label{rank-order-213}
+
+\subsection{Basis}\label{basis-2}
+
+\[
+x=\begin{bmatrix}
+0&1\\
+0&0\\
+1&1
+\end{bmatrix}
+\begin{bmatrix}
+\alpha\\
+\beta
+\end{bmatrix}=
+\begin{bmatrix}
+\beta\\
+0\\
+\alpha+\beta
+\end{bmatrix}
+\]
+
+\subsection{Distances}\label{distances-2}
+
+\[
+\begin{bmatrix}
+d_{12}(x)\\
+d_{13}(x)\\
+d_{23}(x)
+\end{bmatrix}
+=\begin{bmatrix}
+\beta\\
+\alpha\\
+\alpha+\beta
+\end{bmatrix}
+\]
+
+\subsection{Inequalities}\label{inequalities-2}
+
+\begin{align}
+\alpha&\geq 0,\\
+\beta&\geq 0,\\
+1-\beta&\bowtie 0,\\
+4-\alpha&\bowtie 0,\\
+2-(\alpha+\beta)&\bowtie 0.
+\end{align}
+
+\subsection{Solutions}\label{solutions-2}
+
+\((0,0)\Rightarrow 7\Rightarrow(0,0,0)\)\newline
+\((0,1)\Rightarrow 5\Rightarrow(1,0,1)\)\newline
+\((0,2)\Rightarrow 5\Rightarrow(2,0,2)\)\newline
+\((4,0)\Rightarrow 3\Rightarrow(0,0,4)\)\newline
+\((1,1)\Rightarrow 3\Rightarrow(1,0,2)\)\newline
+\((2,0)\Rightarrow 5\Rightarrow(0,2,2)\)\newline
+\((4,1)\Rightarrow 3\Rightarrow(1,0,5)\)\newline
+
+\begin{center}
+\includegraphics{exhausting_files/figure-pdf/p213-1.pdf}
+\end{center}
+
+\pagebreak
+
+\section{\texorpdfstring{Rank order
+\(2<3<1\)}{Rank order 2\textless3\textless1}}\label{rank-order-231}
+
+\subsection{Basis}\label{basis-3}
+
+\[
+x=\begin{bmatrix}
+1&1\\
+0&0\\
+0&1
+\end{bmatrix}
+\begin{bmatrix}
+\alpha\\
+\beta
+\end{bmatrix}=
+\begin{bmatrix}
+\alpha+\beta\\
+0\\
+\beta
+\end{bmatrix}
+\]
+
+\subsection{Distances}\label{distances-3}
+
+\[
+\begin{bmatrix}
+d_{12}(x)\\
+d_{13}(x)\\
+d_{23}(x)
+\end{bmatrix}
+=\begin{bmatrix}
+\alpha+\beta\\
+\alpha\\
+\beta
+\end{bmatrix}
+\]
+
+\subsection{Inequalities}\label{inequalities-3}
+
+\begin{align}
+\alpha&\geq 0,\\
+\beta&\geq 0,\\
+1-(\alpha+\beta)&\bowtie 0,\\
+4-\alpha&\bowtie 0,\\
+2-\beta&\bowtie 0.
+\end{align}
+
+\subsection{Solutions}\label{solutions-3}
+
+\((0,0)\Rightarrow 7\Rightarrow(0,0,0)\)\newline
+\((0,1)\Rightarrow 5\Rightarrow(1,0,1)\)\newline
+\((0,2)\Rightarrow 5\Rightarrow(2,0,2)\)\newline
+\((1,0)\Rightarrow 5\Rightarrow(1,0,0)\)\newline
+\((4,0)\Rightarrow 3\Rightarrow(4,4,0)\)\newline
+\((4,2)\Rightarrow 5\Rightarrow(6,0,2)\)\newline
+
+\begin{center}
+\includegraphics{exhausting_files/figure-pdf/p231-1.pdf}
+\end{center}
+
+\pagebreak
+
+\section{\texorpdfstring{Rank order
+\(3<1<2\)}{Rank order 3\textless1\textless2}}\label{rank-order-312}
+
+\subsection{Basis}\label{basis-4}
+
+\[
+x=\begin{bmatrix}
+0&1\\
+1&1\\
+0&0
+\end{bmatrix}
+\begin{bmatrix}
+\alpha\\
+\beta
+\end{bmatrix}=
+\begin{bmatrix}
+\beta\\
+\alpha+\beta\\
+0
+\end{bmatrix}
+\]
+
+\subsection{Distances}\label{distances-4}
+
+\[
+\begin{bmatrix}
+d_{12}(x)\\
+d_{13}(x)\\
+d_{23}(x)
+\end{bmatrix}
+=\begin{bmatrix}
+\alpha\\\
+\beta\\
+\alpha+\beta
+\end{bmatrix}
+\]
+
+\subsection{Inequalities}\label{inequalities-4}
+
+\begin{align}
+\alpha&\geq 0,\\
+\beta&\geq 0,\\
+1-\alpha&\bowtie 0,\\
+4-\beta&\bowtie 0,\\
+2-(\alpha+\beta)&\bowtie 0.
+\end{align}
+
+\subsection{Solutions}\label{solutions-4}
+
+\((0,0)\Rightarrow 7\Rightarrow(0,0,0)\)\newline
+\((0,4)\Rightarrow 3\Rightarrow(4,4,0)\)\newline
+\((0,2)\Rightarrow 5\Rightarrow(2,2,0)\)\newline
+\((1,0)\Rightarrow 5\Rightarrow(0,1,0)\)\newline
+\((2,0)\Rightarrow 5\Rightarrow(0,2,0)\)\newline
+\((1,4)\Rightarrow 3\Rightarrow(4,5,0)\)\newline
+\((1,1)\Rightarrow 3\Rightarrow(1,2,0)\)\newline
+
+\begin{center}
+\includegraphics{exhausting_files/figure-pdf/p312-1.pdf}
+\end{center}
+
+\pagebreak
+
+\section{\texorpdfstring{Rank order
+\(3<2<1\)}{Rank order 3\textless2\textless1}}\label{rank-order-321}
+
+\subsection{Basis}\label{basis-5}
+
+\[
+x=\begin{bmatrix}
+1&1\\
+0&1\\
+0&0
+\end{bmatrix}
+\begin{bmatrix}
+\alpha\\
+\beta
+\end{bmatrix}=
+\begin{bmatrix}
+\alpha+\beta\\
+\beta\\
+0
+\end{bmatrix}
+\]
+
+\subsection{Distances}\label{distances-5}
+
+\[
+\begin{bmatrix}
+d_{12}(x)\\
+d_{13}(x)\\
+d_{23}(x)
+\end{bmatrix}
+=\begin{bmatrix}
+\alpha\\\
+\alpha+\beta\\
+\beta
+\end{bmatrix}
+\]
+
+\subsection{Inequalities}\label{inequalities-5}
+
+\begin{align}
+\alpha&\geq 0,\\
+\beta&\geq 0,\\
+1-\alpha&\bowtie 0,\\
+4-(\alpha+\beta)&\bowtie 0,\\
+2-\beta&\bowtie 0.
+\end{align}
+
+\subsection{Solutions}\label{solutions-5}
+
+\((0,0)\Rightarrow 7\Rightarrow(0,0,0)\)\newline
+\((0,4)\Rightarrow 3\Rightarrow(4,4,0)\)\newline
+\((0,2)\Rightarrow 3\Rightarrow(2,2,0)\)\newline
+\((1,0)\Rightarrow 5\Rightarrow(1,0,0)\)\newline
+\((1,3)\Rightarrow 1\Rightarrow(4,3,0)\)\newline
+\((1,2)\Rightarrow 1\Rightarrow(3,2,0)\)\newline
+\((2,2)\Rightarrow 1\Rightarrow(4,2,0)\)\newline
+
+\begin{center}
+\includegraphics{exhausting_files/figure-pdf/p321-1.pdf}
+\end{center}
+
+\pagebreak
+
+\section{Summary}\label{summary}
+
+In the table below we give all 25 vertices we have found, with their
+distance function, and the stress value. The minimum is equal to one,
+and it is attained at six different vertices, although these correspond
+with only three different sets of distances. We could half the number of
+vertices by we eliminating mirror images such as \((0,2,0)\) and
+\((2,0,2)\) or \((4,3,0)\) and \((0,1,4)\). These pairs give the same
+distances. Note that at the minimum all distances are non-zero and that
+the origin is a local maximum. At the vertices the only values of the
+function are one, three, five, and seven.
+
+\begin{verbatim}
+      x1 x2 x3 d12 d13 d23 stress
+ [1,]  0  0  0   0   0   0      7
+ [2,]  0  0  2   0   2   2      3
+ [3,]  0  0  4   0   4   4      3
+ [4,]  0  1  0   1   0   1      5
+ [5,]  0  1  1   1   1   0      5
+ [6,]  0  1  3   1   3   2      1
+ [7,]  0  1  4   1   4   3      1
+ [8,]  0  2  0   2   0   2      5
+ [9,]  0  2  2   2   2   0      5
+[10,]  0  2  4   2   4   2      1
+[11,]  0  4  4   4   4   0      5
+[12,]  0  6  4   6   4   2      5
+[13,]  1  0  0   1   1   0      5
+[14,]  1  0  1   1   0   1      5
+[15,]  1  0  2   1   1   2      3
+[16,]  1  0  5   1   4   5      3
+[17,]  1  2  0   1   1   2      3
+[18,]  2  0  2   2   0   2      5
+[19,]  2  2  0   0   2   2      3
+[20,]  3  2  0   1   3   2      1
+[21,]  4  2  0   2   4   2      1
+[22,]  4  3  0   1   4   3      1
+[23,]  4  4  0   0   4   4      3
+[24,]  4  5  0   1   4   5      3
+[25,]  6  0  2   6   4   2      5
+\end{verbatim}
+
+\section{Computation}\label{computation}
+
+We also run this tiny example with our majorization algoritm
+smacofRobust with least absolute value option, which is a slight
+variation of the algorithm proposed by Heiser
+(\citeproc{ref-heiser_88}{1988}). In 1000 random starts we find the
+global minimum with loss one 339 times, we find a local minimum with
+loss three 307 times, and a local minimum with loss five 354 times. In
+235 cases a single smacof iteration is enough for convergence, in 724
+cases we need two iterations, in 38 cases we need three, and in 3 cases
+we need four.
+
+\section{Discussion}\label{discussion}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Write a program
+\item
+  Compare with unidimensional least squares MDS
+\item
+  Extend to higher dimensions
+\end{enumerate}
+
+\section*{References}\label{references}
+\addcontentsline{toc}{section}{References}
+
+\phantomsection\label{refs}
+\begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-deleeuw_C_05h}
+De Leeuw, J. 2005. {``{Unidimensional Scaling}.''} In \emph{The
+Encyclopedia of Statistics in Behavioral Science}, edited by B. S.
+Everitt and D. Howell, 4:2095--97. New York, N.Y.: Wiley.
+
+\bibitem[\citeproctext]{ref-deleeuw_E_16l}
+---------. 2016. {``Pictures of Stress.''} 2016.
+
+\bibitem[\citeproctext]{ref-deleeuw_groenen_A_97}
+De Leeuw, J., and P. J. F. Groenen. 2007. {``Inverse Multidimensional
+Scaling.''} \emph{Journal of Classification} 14: 3--21.
+
+\bibitem[\citeproctext]{ref-deleeuw_groenen_mair_E_16e}
+De Leeuw, J., P. Groenen, and P. Mair. 2016. {``Full-Dimensional
+Scaling.''} 2016.
+\url{https://jansweb.netlify.app/publication/deleeuw-groenen-mair-e-16-e/deleeuw-groenen-mair-e-16-e.pdf}.
+
+\bibitem[\citeproctext]{ref-heiser_88}
+Heiser, W. J. 1988. {``{Multidimensional Scaling with Least Absolute
+Residuals}.''} In \emph{Classification and Related Methods of Data
+Analysis}, edited by H. H. Bock, 455--62. North-Holland Publishing Co.
+
+\bibitem[\citeproctext]{ref-kruskal_64a}
+Kruskal, J. B. 1964. {``{Multidimensional Scaling by Optimizing Goodness
+of Fit to a Nonmetric Hypothesis}.''} \emph{Psychometrika} 29: 1--27.
+
+\end{CSLReferences}
+
+
+
+
+\end{document}

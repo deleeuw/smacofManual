@@ -1,0 +1,538 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  12pt,
+  letterpaper,
+  DIV=11,
+  numbers=noendperiod]{scrartcl}
+
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else  
+    % xetex/luatex font selection
+    \setmainfont[]{Times New Roman}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\setcounter{secnumdepth}{5}
+% Make \paragraph and \subparagraph free-standing
+\makeatletter
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}{
+    \@ifstar
+      \xxxParagraphStar
+      \xxxParagraphNoStar
+  }
+  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
+  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}{
+    \@ifstar
+      \xxxSubParagraphStar
+      \xxxSubParagraphNoStar
+  }
+  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
+  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+\makeatother
+
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{241,243,245}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.40,0.45,0.13}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\ExtensionTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.28,0.35,0.67}{#1}}
+\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.46,0.62}{#1}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.07,0.07,0.07}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+\usepackage{tcolorbox}
+\usepackage{amssymb}
+\usepackage{yfonts}
+\usepackage{bm}
+
+
+\newtcolorbox{greybox}{
+  colback=white,
+  colframe=blue,
+  coltext=black,
+  boxsep=5pt,
+  arc=4pt}
+  
+\newcommand{\sectionbreak}{\clearpage}
+
+ 
+\newcommand{\ds}[4]{\sum_{{#1}=1}^{#3}\sum_{{#2}=1}^{#4}}
+\newcommand{\us}[3]{\mathop{\sum\sum}_{1\leq{#2}<{#1}\leq{#3}}}
+
+\newcommand{\ol}[1]{\overline{#1}}
+\newcommand{\ul}[1]{\underline{#1}}
+
+\newcommand{\amin}[1]{\mathop{\text{argmin}}_{#1}}
+\newcommand{\amax}[1]{\mathop{\text{argmax}}_{#1}}
+
+\newcommand{\ci}{\perp\!\!\!\perp}
+
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\mb}[1]{\mathbb{#1}}
+\newcommand{\mf}[1]{\mathfrak{#1}}
+
+\newcommand{\eps}{\epsilon}
+\newcommand{\lbd}{\lambda}
+\newcommand{\alp}{\alpha}
+\newcommand{\df}{=:}
+\newcommand{\am}[1]{\mathop{\text{argmin}}_{#1}}
+\newcommand{\ls}[2]{\mathop{\sum\sum}_{#1}^{#2}}
+\newcommand{\ijs}{\mathop{\sum\sum}_{1\leq i<j\leq n}}
+\newcommand{\jis}{\mathop{\sum\sum}_{1\leq j<i\leq n}}
+\newcommand{\sij}{\sum_{i=1}^n\sum_{j=1}^n}
+	
+\KOMAoption{captions}{tableheading}
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Table of contents}
+\else
+  \newcommand\contentsname{Table of contents}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{List of Figures}
+\else
+  \newcommand\listfigurename{List of Figures}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{List of Tables}
+\else
+  \newcommand\listtablename{List of Tables}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figure}
+\else
+  \newcommand\figurename{Figure}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Table}
+\else
+  \newcommand\tablename{Table}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+
+\usepackage{bookmark}
+
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdfauthor={Jan de Leeuw},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+
+\title{Smacof at 50: Part xx\\
+Utilities}
+\author{Jan de Leeuw}
+\date{November 23, 2024}
+
+\begin{document}
+\maketitle
+
+\renewcommand*\contentsname{Table of contents}
+{
+\hypersetup{linkcolor=}
+\setcounter{tocdepth}{3}
+\tableofcontents
+}
+
+\textbf{Note:} This is a working manuscript which will be
+expanded/updated frequently. All suggestions for improvement are
+welcome. All Rmd, tex, html, pdf, R, and C files are in the public
+domain. Attribution will be appreciated, but is not required. The files
+can be found at \url{https://github.com/deleeuw} in the repositories
+smacofCode, smacofManual, and smacofExamples.
+
+\sectionbreak
+
+\section{Simultaneous Iteration}\label{sec-simit}
+
+The problem in this section is to maximize
+\begin{equation}\phantomsection\label{eq-lbddef}{
+\lambda(K):=\text{tr}\ K'AK
+}\end{equation} over all \(n\times p\) orthonormal \(K\). Suppose for
+the time being that \(A\) is positive semi-definite.
+
+Define \(k=\text{vec}(K)\) and
+\begin{equation}\phantomsection\label{eq-apdef}{
+A_p:=\underbrace{A\oplus\cdots\oplus A}_{p \text{times}}
+}\end{equation} Then \(\lambda=k'A_pk\), which shows that \(\lambda\)
+i/s convex, and that consequently for all \(k\) and \(\tilde k\) we have
+the minorization \begin{equation}\phantomsection\label{eq-kmaj}{
+k'A_pk\geq \tilde k'A_p\tilde k+2\tilde k'A_p(k-\tilde k)=2k'A_p\tilde k-\tilde k'A_p\tilde k
+}\end{equation} It follows that we increase \(\lambda\) by increasing
+\(\text{tr}\ K'A\tilde K\) over \(K'K=I\).
+\begin{equation}\phantomsection\label{eq-kupd}{
+K^{(\nu+1)}=\mathop{\text{argmax}}_{K'K=I}\text{tr}\ K'AK^{(\nu)}
+}\end{equation} Computing K\^{}\{(\nu+1)\} is an orthoginal Procrustus
+problem (Gower and Dijksterhuis
+(\citeproc{ref-gower_dijksterhuis_04}{2004})). Thus from the singular
+value decomposition \(AK^{(\nu)}=P\Phi Q'\) we find \(K^{(\nu+1)}=PQ'\).
+
+There are two remaining elaborations of this result. First, we want to
+get rid of the assumption that \(A\) is positive semi-definite. We do
+this by adding a constant to the diagonal of \(A\). To compute a
+suitable constant \(\mu\), use the fact that a diagonally dominant
+symmetric matrix with a non-negative diagonal is positive semidefinite.
+Thus if \begin{equation}\phantomsection\label{eq-mubnd}{
+\mu\geq\max_i\sum_{j\not= i}|a_{ij}|-a_{ii}
+}\end{equation} for all \(i\) then the matrix \(\overline{A}:=A+\mu I\)
+is positive semi-definite. We now use Equation~\ref{eq-kupd} with the
+adjusted \(\overline{A}\) and after convergence we subtract \(p\mu\)
+from \(\lambda\).
+
+Second, instead of computing the singular value decomposition to update
+\(K\) in each iteration we can use the \(Q\) from the less expensive QR
+decomposition. The argument is the same as in Gifi
+(\citeproc{ref-gifi_B_90}{1990}) (page 98-99, page 171). The QR update
+of \(K\) is a rotation of the Procrustus update of \(K\), and it
+consequently gives the same value of \(\lambda\) from
+Equation~\ref{eq-lbddef}.
+
+\sectionbreak
+
+\section{Symmetric Matrix Approximation}\label{sec-symmat}
+
+The problem in this section is to minimize
+\begin{equation}\phantomsection\label{eq-eydef}{
+\sigma(X)=\text{tr}\ (C-XX')^2
+}\end{equation} over all \(n\times p\) matrices \(X\). Note there are no
+weights. The solution is well-known (Eckart and Young
+(\citeproc{ref-eckart_young_36}{1936}), Keller
+(\citeproc{ref-keller_62}{1962})). If \(C=K\Lambda K'\) is the
+eigen-decomposition of \(C\), with eigenvalues in non-increasing order
+on the diagonal of \(\Lambda\), then define \(\overline{\Lambda}\) with
+elements \(\max(0,\lambda_s)\). Then use the \(p\) largest eigenvalues
+and corresponding vectors to compute \(X=K_p\overline{\Lambda}_p\). Note
+that \(\text{rank}(X)\) is less than \(p\) if \(C\) has fewer than \(p\)
+positive eigenvalues.
+
+Our algorithm to minimize, or at least decrease, the loss function in
+Equation~\ref{eq-eydef}. Uses a combination of alternating least squares
+(De Leeuw (\citeproc{ref-deleeuw_C_94c}{1994})) and majorization (De
+Leeuw (\citeproc{ref-deleeuw_C_94c}{1994})) or MM (Lange
+(\citeproc{ref-lange_16}{2016})). We first write \(X\) in the form
+\(X=K\Lambda\), with \(K'K=I\) and \(\Lambda\) diagonal. Then rewrite
+Equation~\ref{eq-eydef} as
+\begin{equation}\phantomsection\label{eq-eydefkl}{
+\sigma(K,\Lambda)=\text{tr}\ (C-K\Lambda^2 K')^2=\text{tr}\ C^2-2\text{tr}\ K'CK\Lambda^2+\text{tr}\ \Lambda^4.
+}\end{equation} Again, for the time being, assume \(C\) is positive
+semi-definite. The minimum over \(\Lambda\) for given \(K\) has
+\(\lambda_s^2=k_s'Ck_s\). Thus
+\begin{equation}\phantomsection\label{eq-eydefklexpmin}{
+\min_{K'K=I}\min_\Lambda\sigma(K,\Lambda)=\text{tr}\ C^2-\max_{K'K=I}\sum_{s=1}^p (k_s'Ck_s)^2
+}\end{equation} The term depending on \(K\) is convex and can
+consequently be minorized by the linear function \[
+\sum_{s=1}^p (k_s'Ck_s)^2=\sum_{s=1}^p (\tilde k_s'C\tilde k_s)^2+2\sum_{s=1}^p (\tilde k_s'C\tilde k_s)\tilde k_s'C(k_s-\tilde k_s).
+\] In iteration \(\nu + 1\) we must maximize
+\(\text{tr}\ K'CK^{(\nu)}\Lambda^{(\nu)}\) over \(K'K=I\), where
+\(\Lambda^{(\nu)}=\text{diag}\{K^{(\nu)}\}'CK^{(\nu)}\). Again, this is
+an orthogonal Procrustus problem.
+
+\sectionbreak
+
+\section{Various Simple}\label{various-simple}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{smacofEi }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(i, n) \{}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{ifelse}\NormalTok{(i }\SpecialCharTok{==} \DecValTok{1}\SpecialCharTok{:}\NormalTok{n, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{))}
+\NormalTok{\}}
+
+\NormalTok{smacofAij }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(i, j, n) \{}
+\NormalTok{  ei }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(i }\SpecialCharTok{==} \DecValTok{1}\SpecialCharTok{:}\NormalTok{n, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+\NormalTok{  ej }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(j }\SpecialCharTok{==} \DecValTok{1}\SpecialCharTok{:}\NormalTok{n, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{outer}\NormalTok{(ei }\SpecialCharTok{{-}}\NormalTok{ ej, ei }\SpecialCharTok{{-}}\NormalTok{ ej))}
+\NormalTok{\}}
+
+\NormalTok{smacofDoubleCenter }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(a) \{}
+\NormalTok{  r }\OtherTok{\textless{}{-}} \FunctionTok{apply}\NormalTok{(a, }\DecValTok{1}\NormalTok{, mean)}
+\NormalTok{  s }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(a)}
+  \FunctionTok{return}\NormalTok{(a }\SpecialCharTok{{-}} \FunctionTok{outer}\NormalTok{(r, r, }\StringTok{"+"}\NormalTok{) }\SpecialCharTok{+}\NormalTok{ s)}
+\NormalTok{\}}
+
+\NormalTok{smacofCenter }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) \{}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{apply}\NormalTok{(x, }\DecValTok{2}\NormalTok{, }\ControlFlowTok{function}\NormalTok{(x) x }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(x)))}
+\NormalTok{\}}
+
+\NormalTok{smacofTrace }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(a) \{}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{sum}\NormalTok{(}\FunctionTok{diag}\NormalTok{(a)))}
+\NormalTok{\}}
+
+\NormalTok{smacofMakeDoubleCenter }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(w) \{}
+\NormalTok{  v }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{w}
+  \FunctionTok{diag}\NormalTok{(v) }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FunctionTok{rowSums}\NormalTok{(v)}
+  \FunctionTok{return}\NormalTok{(v)}
+\NormalTok{\}}
+
+\NormalTok{smacofDoubleCenterGeneralizedInverse }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(v) \{}
+\NormalTok{  n }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(v)}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{solve}\NormalTok{(v }\SpecialCharTok{+}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{/}\NormalTok{ n)) }\SpecialCharTok{{-}} \DecValTok{1} \SpecialCharTok{/}\NormalTok{ n)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Data formats}\label{data-formats}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{smacofMakeData }\OtherTok{\textless{}{-}}
+  \ControlFlowTok{function}\NormalTok{(delta,}
+           \AttributeTok{weights =} \FunctionTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FunctionTok{length}\NormalTok{(delta)),}
+           \AttributeTok{winclude =} \ConstantTok{FALSE}\NormalTok{,}
+\NormalTok{           fname) \{}
+\NormalTok{    m }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(delta)}
+\NormalTok{    n }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{((}\DecValTok{1} \SpecialCharTok{+} \FunctionTok{sqrt}\NormalTok{(}\DecValTok{1} \SpecialCharTok{+} \DecValTok{8} \SpecialCharTok{*}\NormalTok{ m)) }\SpecialCharTok{/} \DecValTok{2}\NormalTok{)}
+\NormalTok{    h }\OtherTok{\textless{}{-}} \FunctionTok{fullIndex}\NormalTok{(n)}
+\NormalTok{    g }\OtherTok{\textless{}{-}} \FunctionTok{cbind}\NormalTok{(h}\SpecialCharTok{$}\NormalTok{ii, h}\SpecialCharTok{$}\NormalTok{jj, delta, weights)}
+    \ControlFlowTok{for}\NormalTok{ (k }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{m) \{}
+      \ControlFlowTok{if}\NormalTok{ ((g[k, }\DecValTok{4}\NormalTok{] }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) }\SpecialCharTok{||} \FunctionTok{is.na}\NormalTok{(g[k, }\DecValTok{4}\NormalTok{]) }\SpecialCharTok{||} \FunctionTok{is.na}\NormalTok{(g[k, }\DecValTok{3}\NormalTok{])) \{}
+\NormalTok{        continue}
+\NormalTok{      \} }\ControlFlowTok{else}\NormalTok{ \{}
+        \ControlFlowTok{if}\NormalTok{ (winclude) \{}
+          \FunctionTok{cat}\NormalTok{(}
+            \FunctionTok{formatC}\NormalTok{(g[k, }\DecValTok{1}\NormalTok{], }\AttributeTok{digits =} \DecValTok{3}\NormalTok{, }\AttributeTok{format =} \StringTok{"d"}\NormalTok{),}
+            \FunctionTok{formatC}\NormalTok{(g[k, }\DecValTok{2}\NormalTok{], }\AttributeTok{digits =} \DecValTok{3}\NormalTok{, }\AttributeTok{format =} \StringTok{"d"}\NormalTok{),}
+            \FunctionTok{formatC}\NormalTok{(g[k, }\DecValTok{3}\NormalTok{], }\AttributeTok{digits =} \DecValTok{6}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
+            \FunctionTok{formatC}\NormalTok{(g[k, }\DecValTok{4}\NormalTok{], }\AttributeTok{digits =} \DecValTok{6}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
+            \StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{,}
+            \AttributeTok{file =}\NormalTok{ fname, }\AttributeTok{append =} \ConstantTok{TRUE}
+\NormalTok{          )}
+\NormalTok{        \} }\ControlFlowTok{else}\NormalTok{ \{}
+          \FunctionTok{cat}\NormalTok{(}
+            \FunctionTok{formatC}\NormalTok{(g[k, }\DecValTok{1}\NormalTok{], }\AttributeTok{digits =} \DecValTok{3}\NormalTok{, }\AttributeTok{format =} \StringTok{"d"}\NormalTok{),}
+            \FunctionTok{formatC}\NormalTok{(g[k, }\DecValTok{2}\NormalTok{], }\AttributeTok{digits =} \DecValTok{3}\NormalTok{, }\AttributeTok{format =} \StringTok{"d"}\NormalTok{),}
+            \FunctionTok{formatC}\NormalTok{(g[k, }\DecValTok{3}\NormalTok{], }\AttributeTok{digits =} \DecValTok{6}\NormalTok{, }\AttributeTok{format =} \StringTok{"f"}\NormalTok{),}
+            \StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{,}
+            \AttributeTok{file =}\NormalTok{ fname, }\AttributeTok{append =} \ConstantTok{TRUE}
+\NormalTok{          )}
+\NormalTok{        \}}
+\NormalTok{      \}}
+\NormalTok{    \}}
+\NormalTok{  \}}
+
+
+\NormalTok{fullIndex }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(n) \{}
+\NormalTok{  ii }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{()}
+\NormalTok{  jj }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{()}
+  \ControlFlowTok{for}\NormalTok{ (j }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{(n }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)) \{}
+    \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in}\NormalTok{ (j }\SpecialCharTok{+} \DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{n) \{}
+\NormalTok{      ii }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(ii, i)}
+\NormalTok{      jj }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(jj, j)}
+\NormalTok{    \}}
+\NormalTok{  \}}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{ii =}\NormalTok{ ii, }\AttributeTok{jj =}\NormalTok{ jj))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\section{I/O}\label{io}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{smacofMatrixPrint }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x,}
+                   \AttributeTok{digits =} \DecValTok{6}\NormalTok{,}
+                   \AttributeTok{width =} \DecValTok{8}\NormalTok{,}
+                   \AttributeTok{format =} \StringTok{"f"}\NormalTok{,}
+                   \AttributeTok{flag =} \StringTok{"+"}\NormalTok{) \{}
+  \FunctionTok{print}\NormalTok{(}\FunctionTok{noquote}\NormalTok{(}
+    \FunctionTok{formatC}\NormalTok{(}
+\NormalTok{      x,}
+      \AttributeTok{digits =}\NormalTok{ digits,}
+      \AttributeTok{width =}\NormalTok{ width,}
+      \AttributeTok{format =}\NormalTok{ format,}
+      \AttributeTok{flag =}\NormalTok{ flag}
+\NormalTok{    )}
+\NormalTok{  ))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Indices}\label{indices}
+
+sindex tindex mindex vindex
+
+\sectionbreak
+
+\section*{References}\label{references}
+\addcontentsline{toc}{section}{References}
+
+\phantomsection\label{refs}
+\begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-deleeuw_C_94c}
+De Leeuw, J. 1994. {``{Block Relaxation Algorithms in Statistics}.''} In
+\emph{Information Systems and Data Analysis}, edited by H. H. Bock, W.
+Lenski, and M. M. Richter, 308--24. Berlin: Springer Verlag.
+\url{https://jansweb.netlify.app/publication/deleeuw-c-94-c/deleeuw-c-94-c.pdf}.
+
+\bibitem[\citeproctext]{ref-eckart_young_36}
+Eckart, C., and G. Young. 1936. {``{The Approximation of One Matrix by
+Another of Lower Rank}.''} \emph{Psychometrika} 1 (3): 211--18.
+
+\bibitem[\citeproctext]{ref-gifi_B_90}
+Gifi, A. 1990. \emph{Nonlinear Multivariate Analysis}. New York, N.Y.:
+Wiley.
+
+\bibitem[\citeproctext]{ref-gower_dijksterhuis_04}
+Gower, J. C., and G. B. Dijksterhuis. 2004. \emph{Procrustus Problems}.
+Oxford University Press.
+
+\bibitem[\citeproctext]{ref-keller_62}
+Keller, J. B. 1962. {``{Factorization of Matrices by Least Squares}.''}
+\emph{Biometrika} 49: 239--42.
+
+\bibitem[\citeproctext]{ref-lange_16}
+Lange, K. 2016. \emph{MM Optimization Algorithms}. SIAM.
+
+\end{CSLReferences}
+
+
+
+
+\end{document}

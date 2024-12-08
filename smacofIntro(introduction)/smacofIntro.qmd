@@ -14,7 +14,7 @@ author:
       license: "CC0"
 date: last-modified
 date-format: long
-bibliography: [mypubs.bib, total.bib]
+bibliography: [/Users/deleeuw/Desktop/bibtex/total.bib,  /Users/deleeuw/Desktop/bibtex/mypubs.bib]
 number-sections: true
 pdf-engine: lualatex
 keep-tex: true
@@ -22,13 +22,15 @@ format:
    pdf:
     fontsize: 12pt
     include-in-header: 
-     - preamble.tex
+     - /Users/deleeuw/Desktop/template/preamble.tex
     keep-tex: true
     link-citations: true
     documentclass: scrartcl
     number-sections: true
    html:
     fontsize: 12pt
+    include-in-header: 
+     - /Users/deleeuw/Desktop/template/preamble.css
     keep-md: true
     number-sections: true
 toc: true
@@ -149,7 +151,7 @@ $\mathop{\sum\sum}_{1\leq i<j\leq n}a_{ij}$.
 
 # Preface {.unnumbered}
 
-This book is definitely *not* an impartial and balanced review of all of
+This manual is definitely *not* an impartial and balanced review of all of
 multidimensional scaling (MDS) theory and history. It emphasizes 
 computation, and the mathematics needed for computation. In addition, it
 is a summary of over 50 years of MDS work by me, either solo or together
@@ -302,7 +304,7 @@ knitr::include_graphics("graphics/lajolla_08_75.png")
 
 # Introduction {#intro}
 
-In this book we study the smacof family of *Multidimensional Scaling (MDS)* techniques. 
+In this manual we study the smacof family of *Multidimensional Scaling (MDS)* techniques. 
 In MDS the data consist of some type of information about the *dissimilarities* between a pairs of *objects*. These objects can be anything: individuals, variables, colors, 
 locations, chemicals, molecules, works of Plato, political parties, Morse code signals, and so on. The dissimilarities can be approximate or imprecise distances, dissimilarity judgments, import/export tables, sociometric choices, and so on. They generally are *distance-like*, but we do not expect them to satisfy
 the triangle inequality, and in general not even non-negativity and symmetry. *Similarities*, such as confusion probabilities, correlations, or preferences, are always converted in some way or another to dissimilarities before they can serve as data for MDS. 
@@ -497,7 +499,7 @@ all those unnecessary square roots in my algorithms, and I do not want to drag t
 
 #### Weights {#bweights}
 
-There were no weights $W=\{w_{ij}\}$ in the original definition of stress by @kruskal_64a, and neither are they there in most of the basic later contributions to MDS by Guttman, Lingoes, Roskam, Ramsay, or Young. We will use weights throughout the book, because they have various interesting applications within basic MDS, without unduly complicating the derivations and computations. In @groenen_vandevelden_16, section 6, the various uses of weights in the stress loss function are enumerated. They generously, but correctly, attribute the consistent use of weights in MDS to me. I quote from their paper:
+There were no weights $W=\{w_{ij}\}$ in the original definition of stress by @kruskal_64a, and neither are they there in most of the basic later contributions to MDS by Guttman, Lingoes, Roskam, Ramsay, or Young. We will use weights throughout the book, because they have various interesting applications within basic MDS, without unduly complicating the derivations and computations. In @groenen_vandevelden_16, section 6, the various uses of weights in the stress loss function are enumerated. They generously, and correctly, attribute the consistent use of weights in MDS to me. I quote from their paper:
 
 > 1. Handling missing data is done by specifying $w_{ij} = 0$ for missings and 1  otherwise thereby ignoring the error corresponding to the missing dissimilarities.
 > 2. Correcting for nonuniform distributions of the dissimilarities to avoid dominance of the most frequently occurring dissimilarities.
@@ -510,7 +512,7 @@ In some situations, for example for huge data sets, it is computationally conven
 
 #### Normalization {#intronorm}
 
-This section deals with a rather trivial problem, which has however caused problems in various stages of smacof's 45-year development history. Because the problem is trivial, and the choices that must be made are to a large extent arbitrary, it has been overlooked and somewhat neglected.
+This section deals with a rather trivial problem, which has however caused problems in various stages of smacof's 50-year development history. Because the problem is trivial, and the choices that must be made are to a large extent arbitrary, it has been overlooked and somewhat neglected.
 
 In basic MDS we scale the weights and dissimilarities. It is clear that if we multiply the weights or dissimilarities by a constant, then the optimal approximating distances $D(X)$ and the optimal configuration $X$ will be multiplied by the same constant. That is exactly why Kruskal's raw stress had to be normalized. Consequently we in basic MDS we always scale weights and dissimilarities by
 
@@ -523,7 +525,6 @@ This simplifies our formulas and makes them look better (see, for example, secti
 all weights are equal (which we call the *unweighted case*) then they are equal to $1/\binom{n}{2}$ and thus we require $\mathop{\sum\sum}_{1\leq i<j\leq n}\delta_{ij}^2=\frac12n(n-1)$.
 
 Using normalized dissimilarities amounts to the same defining stress as
-
 \begin{equation}
 \sigma(X)=\frac12\frac{\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}(\delta_{ij}^2-d_{ij}(X))^2}{\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\delta_{ij}^2}.
 (\#eq:stressrat)
