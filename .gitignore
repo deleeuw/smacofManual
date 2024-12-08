@@ -4,8 +4,9 @@
 .Ruserdata
 *.log
 *.md
+*.sty
 !README.md
 .Rproj
-*/literature/
+literature
 *_cache
 *_files

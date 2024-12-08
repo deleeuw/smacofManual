@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Jan de Leeuw - University of California Los Angeles">
+
+<title>quarto-input8ae4bb8de3a1c556</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="smacofAC_files/libs/clipboard/clipboard.min.js"></script>
+<script src="smacofAC_files/libs/quarto-html/quarto.js"></script>
+<script src="smacofAC_files/libs/quarto-html/popper.min.js"></script>
+<script src="smacofAC_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="smacofAC_files/libs/quarto-html/anchor.min.js"></script>
+<link href="smacofAC_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="smacofAC_files/libs/quarto-html/quarto-syntax-highlighting-01c78b5cd655e4cd89133cf59d535862.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="smacofAC_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="smacofAC_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="smacofAC_files/libs/bootstrap/bootstrap-bac730856bb4b16bf084a50c333a7250.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><div class="line-block">Smacof at 50: A Manual<br>
+Part 2: smacofAC: Metric and Interval Smacof</div></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Jan de Leeuw - University of California Los Angeles </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">Invalid Date</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><strong>Note:</strong> This is a working manuscript which will be expanded/updated frequently. All suggestions for improvement are welcome. All Rmd, tex, html, pdf, R, and C files are in the public domain. Attribution will be appreciated, but is not required. All files can be found at <a href="https://github.com/deleeuw" class="uri">https://github.com/deleeuw</a> in the smacofAC directories of the repositories smacofCode, smacofManual, and smacofExamples.</p>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>In this part of the manual we discuss metric MDS, and the program smacofAC. Metric MDS is the core of all smacof programs, because they all have the majorization algorithm based on the Guttman transform in common.</p>
+<p>There are two options, <em>bounds</em> and <em>constant</em>, to make smacofAC more widely applicable. Using these options the metric MDS problem becomes minimization of <span class="math display">\[\begin{equation}
+\sigma(X,\hat D)=\sum\sum w_{ij}(\hat d_{ij}-d_{ij}(X))^2
+(\#eq:sdefac)
+\end{equation}\]</span> over both <span class="math inline">\(X\)</span> and <span class="math inline">\(\hat D\)</span>, allowing some limited “metric” transformations of the data <span class="math inline">\(\Delta\)</span>. Here <span class="math inline">\(\Delta^-\)</span> and <span class="math inline">\(\Delta^+\)</span> are known matrices with bounds, and <span class="math inline">\(c\)</span> is an unknown additive constant. The four “metric” types of transformations relating disparities <span class="math inline">\(\hat d_{ij}\)</span> to dissimilarities <span class="math inline">\(\delta_{ij}\)</span> are</p>
+<ol type="1">
+<li>type AC1: if bounds = 0 and constant = 0 <span class="math inline">\(\hat d_{ij}=\delta_{ij}\)</span>.</li>
+<li>type AC2: if bounds = 0 and constant = 1 <span class="math inline">\(\hat d_{ij}=\delta_{ij}+c\)</span> for some <span class="math inline">\(c\)</span>,</li>
+<li>type AC3: if bounds = 1 and constant = 0 <span class="math inline">\(\delta^-_{ij}\leq\hat d_{ij}\leq\delta^+_{ij}\)</span>,</li>
+<li>type AC4: if bounds = 1 and constant = 1 <span class="math inline">\(\delta^-_{ij}+c\leq\hat d_{ij}\leq\delta^+_{ij}+c\)</span> for some <span class="math inline">\(c\)</span>,</li>
+</ol>
+<p>All four types of transformations also require that <span class="math inline">\(\hat d_{ij}\geq 0\)</span> for all <span class="math inline">\((i,j)\)</span>. There are extensions of the smacof theory (<span class="citation" data-cites="heiser_91">Heiser (<a href="#ref-heiser_91" role="doc-biblioref">1991</a>)</span>) that do not require non-negativity of the disparities, but in the implementations in this manual we always force them to be non-negative. Note that AC3 is AC4 with <span class="math inline">\(c=0\)</span> and AC2 is AC4 with <span class="math inline">\(\Delta^-=\Delta^+=\Delta\)</span>.</p>
+<p>Note that for types AC2 and AC4 the data <span class="math inline">\(\Delta\)</span> do not need to be non-negative. In fact, the original motivation for the additive constant in classical scaling (<span class="citation" data-cites="messick_abelson_56">Messick and Abelson (<a href="#ref-messick_abelson_56" role="doc-biblioref">1956</a>)</span>) was that Thurstonian analysis of tetrad or triad comparisons produced dissimilarities on an interval scale, and thus could very well include negative values.</p>
+<p>In AC3 and AC4 there is no mention of <span class="math inline">\(\Delta\)</span>, which means the bounds <span class="math inline">\(\Delta^-\)</span> and <span class="math inline">\(\Delta^+\)</span> are actually the data. There are several possible uses of the bounds. We could collect dissimilarity data by asking subjects for interval judgments. Instead of a rating scale with possible responses from one to ten we could ask for a mark on a line between zero and ten, and then interpret the marks as a choice of one of the intervals <span class="math inline">\([k, k+1]\)</span>. These finite precision or interval type of data could even come from physical measurements of distances. Thus the bounds parameter provides one way to incorporate uncertainty into MDS, similar to interval analysis, fuzzy computing, or soft computing.</p>
+<p>The non-negativity requirement for <span class="math inline">\(\hat D\)</span> implies bounds for the additive constant <span class="math inline">\(c\)</span>. In AC2 we need <span class="math inline">\(c\geq-\min\delta_{ij}\)</span> to maintain non-negativity. For AC4 we must have <span class="math inline">\(c\geq-\min\delta_{ij}^+\)</span>, otherwise the constraints on the transformation are inconsistent. Clearly for consistency of AC3 and AC4 we require that <span class="math inline">\(\delta_{ij}^-\leq\delta_{ij}^+\)</span> for all <span class="math inline">\((i,j)\)</span>. It makes sense in most situations to choose <span class="math inline">\(\Delta^-\)</span> and <span class="math inline">\(\Delta^+\)</span> to be monotone with <span class="math inline">\(\Delta\)</span>, but there is no requirement to do so.</p>
+</section>
+<section id="program" class="level1">
+<h1>Program</h1>
+<section id="parameters" class="level2">
+<h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>smacofAC <span class="ot">&lt;-</span> <span class="cf">function</span>(delta,</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">ndim =</span> <span class="dv">2</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">wmat =</span> <span class="cn">NULL</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">xold =</span> <span class="cn">NULL</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">bounds =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">constant =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">deltalw =</span> <span class="cn">NULL</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                     <span class="at">deltaup =</span> <span class="cn">NULL</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                     <span class="at">alpha =</span> <span class="dv">2</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">row.names</span>(delta),</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>                     <span class="at">width =</span> <span class="dv">15</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>                     <span class="at">precision =</span> <span class="dv">10</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>                     <span class="at">itmax =</span> <span class="dv">1000</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>                     <span class="at">eps =</span> <span class="fl">1e-10</span>,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>                     <span class="at">verbose =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>                     <span class="at">kitmax =</span> <span class="dv">5</span>,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>                     <span class="at">keps =</span> <span class="fl">1e-10</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>                     <span class="at">kverbose =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>                     <span class="at">init =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The parameters <em>constant</em>, <em>bounds</em>, <em>alpha</em>, <em>kitmax</em>, <em>kepsi</em>, and <em>kverbose</em> are only relevant for AC2, AC3, and AC4. Nevertheless even for AC1 they should have integer values, it just doesn’t matter what these values are. Parameter <em>ndim</em> is the number of dimensions, and <em>init</em> tells if an initial configuration is read from a file (init = 1), is computed using classical scaling (init = 2), or is a random configuration (init = 3). Parameters <em>itmax</em>, <em>epsi</em>, and <em>verbose</em> control the iterations. The maximum number of iterations is <em>itmax</em>, the iterations stop if the decrease of stress in an iteration is less than 1E-<em>epsi</em>, and if <em>verbose</em> is one intermediate iteration results are written to stdout. These intermediate iteration results are formatted with the R function formatC(), using <em>width</em> for the width argument and <em>precision</em> for the digits argument.</p>
+</section>
+<section id="algorithm" class="level2">
+<h2 class="anchored" data-anchor-id="algorithm">Algorithm</h2>
+<section id="type-ac1" class="level3">
+<h3 class="anchored" data-anchor-id="type-ac1">Type AC1</h3>
+<p>This is standard non-metric smacof, no bells and whistles.</p>
+</section>
+<section id="type-ac2" class="level3">
+<h3 class="anchored" data-anchor-id="type-ac2">Type AC2</h3>
+<p>For AC2 we also optimize over the additive constant <span class="math inline">\(c\)</span>, and thus the ALS algorithm has two sub-steps. The first sub-step consists of a number of Guttman iterations to update <span class="math inline">\(X\)</span> for given <span class="math inline">\(\hat D\)</span> (i.e.&nbsp;for given <span class="math inline">\(c\)</span>) and the second sub-step updates <span class="math inline">\(c\)</span> for given <span class="math inline">\(X\)</span>. Parameters <em>kitmax</em>, <em>kepsi</em>, and <em>kverbose</em> control the inner iterations in the first sub-step in the same way as <em>itmax</em>, <em>epsi</em>, and <em>verbose</em> control the outer iterations that include both sub-steps. No inner iterations are used to update the additive constant, which only requires computing a weighted average. <span class="math display">\[\begin{equation}
+c=-\frac{\sum\sum w_{ij}(\delta_{ij}-d_{ij}(X))}{\sum\sum w_{ij}}
+(\#eq:updac2)
+\end{equation}\]</span> AC2 should give the same results as the MDS method of <span class="citation" data-cites="cooper_72">Cooper (<a href="#ref-cooper_72" role="doc-biblioref">1972</a>)</span>.</p>
+</section>
+<section id="type-ac3" class="level3">
+<h3 class="anchored" data-anchor-id="type-ac3">Type AC3</h3>
+<p>The algorithm for AC3 has the same structure as that for AC2. Instead of a second sub-step computing the additive constant, the second sub-step computes <span class="math inline">\(\hat D\)</span> by squeezing the <span class="math inline">\(D(X)\)</span> into the bounds. Thus <span class="math display">\[\begin{equation}
+\hat d_{ij}=\begin{cases}
+\delta_{ij}^-&amp;\text{ if }d_{ij}(X)&lt;\delta_{ij}^-,\\
+\delta_{ij}^+&amp;\text{ if }d_{ij}(X)&gt;\delta_{ij}^+,\\
+d_{ij}(X)&amp;\text{ otherwise }.
+\end{cases}
+(\#eq:updac3)
+\end{equation}\]</span> Obviously no iterations are required in the second sub-step.</p>
+</section>
+<section id="type-ac4" class="level3">
+<h3 class="anchored" data-anchor-id="type-ac4">Type AC4</h3>
+<p>Of the four regression problems in the second ALS sub-step only the one for AC4 with both bounds and additive constant is non-trivial. We’ll give it some extra attention.</p>
+<p>It may help to give an example of what it actually requires. We use the De Gruijter example with nine Dutch political parties from 1967 (<span class="citation" data-cites="degruijter_67">De Gruijter (<a href="#ref-degruijter_67" role="doc-biblioref">1967</a>)</span>). For ease of reference we include the data here. Dissimilarities are averages over a group of 100 students from an introductory psychology course.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>      KVP PvdA  VVD  ARP  CHU  CPN  PSP   BP  D66
+KVP  0.00 5.63 5.27 4.60 4.80 7.54 6.73 7.18 6.17
+PvdA 5.63 0.00 6.72 5.64 6.22 5.12 4.59 7.22 5.47
+VVD  5.27 6.72 0.00 5.46 4.97 8.13 7.55 6.90 4.67
+ARP  4.60 5.64 5.46 0.00 3.20 7.84 6.73 7.28 6.13
+CHU  4.80 6.22 4.97 3.20 0.00 7.80 7.08 6.96 6.04
+CPN  7.54 5.12 8.13 7.84 7.80 0.00 4.08 6.34 7.42
+PSP  6.73 4.59 7.55 6.73 7.08 4.08 0.00 6.88 6.36
+BP   7.18 7.22 6.90 7.28 6.96 6.34 6.88 0.00 7.36
+D66  6.17 5.47 4.67 6.13 6.04 7.42 6.36 7.36 0.00</code></pre>
+</div>
+</div>
+<p>We compute distances from the Torgerson solution. The Shepard plot for <span class="math inline">\(c=0\)</span> and the Torgerson distances is in figure @ref(fig:bandplot). The two blue lines are connecting the <span class="math inline">\(\delta_{ij}^-\)</span> and the <span class="math inline">\(\delta_{ij}^+\)</span>, i.e.&nbsp;they give the bounds for <span class="math inline">\(c=0\)</span>. In our example the lines are parallel, because <span class="math inline">\(\delta_{ij}^+-\delta_{ij}^-=2\)</span> for all <span class="math inline">\((i,j)\)</span>, but in general this may not be the case. The points between the two lines do not contribute to the loss, and the points outside the band contribute by how much they are outside, as indicated by the black vertical fitlines.</p>
+<p>By varying <span class="math inline">\(c\)</span> we shift the region between the two parallel lines upwards or downwards. The width of the region, or more generally the shape, always remains the same, because it is determined by the difference of <span class="math inline">\(\delta^+\)</span> and <span class="math inline">\(\delta^-\)</span> and does not depend on <span class="math inline">\(c\)</span>. The optimal <span class="math inline">\(c\)</span> is that shift for which the red <span class="math inline">\((\delta_{ij},d_{ij}(X))\)</span> points are as much as possible within the strip between the <span class="math inline">\(\delta^-\)</span> and <span class="math inline">\(\delta^+\)</span> lines. This is in the least squares sense, which means that we minimize the horizontal squared distances from the points outside the strip to the <span class="math inline">\(\delta^-\)</span> and <span class="math inline">\(\delta^+\)</span> lines (i.e.&nbsp;the black vertical lines).</p>
+<p>Let’s formalize this. Define <span class="math display">\[\begin{equation}
+\phi_{ij}(c):=\min_{\delta_{ij}\geq 0}\{(\delta_{ij}-d_{ij}(X))^2\mid \delta^-_{ij}+c\leq\delta_{ij}\leq\delta^+_{ij}+c\}
+(\#eq:phiijdef)
+\end{equation}\]</span> and <span class="math display">\[\begin{equation}
+\phi(c):=\sum\sum w_{ij}\phi_{ij}(c)
+(\#eq:phidef)
+\end{equation}\]</span> The constraints are consistent if <span class="math inline">\(\delta_{ij}^++c\geq 0\)</span>, i.e.&nbsp;if <span class="math inline">\(c\geq c_0:=-\min\delta_{ij}^+\)</span>. The regression problem is to minimize <span class="math inline">\(\phi\)</span> over <span class="math inline">\(c\geq c_0:=-\min\delta_{ij}^+\)</span>.</p>
+<p>Figure has an example of one of the <span class="math inline">\(\phi_{ij}\)</span>. The value of the <span class="math inline">\(d_{ij}(X)\)</span> we used is , <span class="math inline">\(\delta_{ij}\)</span> is , <span class="math inline">\(\delta_{ij}^-\)</span> is , and <span class="math inline">\(\delta_{ij}^+\)</span> is . The two red vertical lines are at <span class="math inline">\(c=d_{ij}(X)-\delta_{ij}^+\)</span> and <span class="math inline">\(c=d_{ij}(X)-\delta_{ij}^-\)</span>.</p>
+<p>Now <span class="math display">\[\begin{equation}
+\hat d_{ij}=\begin{cases}
+\delta_{ij}^-+c&amp;\text{ if }c\geq d_{ij}(X)-\delta_{ij}^-,\\
+\delta_{ij}^++c&amp;\text{ if }c\leq d_{ij}(X)-\delta_{ij}^+,\\
+d_{ij}(X)&amp;\text{ otherwise}.
+\end{cases}
+(\#eq:solves)
+\end{equation}\]</span> and thus <span class="math display">\[\begin{equation}
+\phi_{ij}(c)=\begin{cases}
+(d_{ij}(X)-(\delta_{ij}^-+c))^2&amp;\text{ if }c\geq d_{ij}(X)-\delta_{ij}^-,\\
+(d_{ij}(X)-(\delta_{ij}^++c))^2&amp;\text{ if }c\leq d_{ij}(X)-\delta_{ij}^+,\\
+0&amp;\text{ otherwise}.
+\end{cases}
+(\#eq:funcs)
+\end{equation}\]</span> It follows that <span class="math inline">\(\phi_{ij}\)</span> is piecewise quadratic, convex, and continuously differentiable. The derivative is piecewise linear, continuous, and increasing. In fact <span class="math display">\[\begin{equation}
+\mathcal{D}\phi_{ij}(c)=\begin{cases}
+2(c-(d_{ij}(X)-\delta_{ij}^-))&amp;\text{ if }c\geq d_{ij}(X)-\delta_{ij}^-,\\
+2(c-(d_{ij}(X)-\delta_{ij}^+))&amp;\text{ if }c\leq d_{ij}(X)-\delta_{ij}^+,\\
+0&amp;\text{ otherwise}.
+\end{cases}
+(\#eq:derivs)
+\end{equation}\]</span></p>
+<p>Since <span class="math inline">\(\phi\)</span> is a positive linear combination of the <span class="math inline">\(\phi_{ij}\)</span> it is also piecewise quadratic, convex, and continuously differentiable, with a continuous piecewise linear increasing derivative. Note <span class="math inline">\(\phi\)</span> is <strong>not</strong> twice-differentiable and <strong>not</strong> strictly convex. Figure @ref(fig:morefunc) has a plot of <span class="math inline">\(\phi\)</span> for the De Gruijter example. The red vertical lines are at <span class="math inline">\(c=c_0\)</span> and at <span class="math inline">\(c_1:=\max\{d_{ij}(X)-\delta_{ij}^-\}\)</span>. From @ref(eq:derivs) we see that if <span class="math inline">\(c\geq c_1\)</span> then <span class="math inline">\(\mathcal{D}\phi(c_1)\geq 0\)</span> and thus we can look for the optimum <span class="math inline">\(c\)</span> in the interval <span class="math inline">\([c_0,c_1]\)</span>.</p>
+<p>We minimize <span class="math inline">\(\phi\)</span> by using the R function optimize().</p>
+</section>
+</section>
+<section id="output" class="level2">
+<h2 class="anchored" data-anchor-id="output">Output</h2>
+</section>
+<section id="plots" class="level2">
+<h2 class="anchored" data-anchor-id="plots">Plots</h2>
+</section>
+</section>
+<section id="examples" class="level1">
+<h1>Examples</h1>
+<section id="degruijter_67" class="level2">
+<h2 class="anchored" data-anchor-id="degruijter_67"><span class="citation" data-cites="degruijter_67">De Gruijter (<a href="#ref-degruijter_67" role="doc-biblioref">1967</a>)</span></h2>
+<p>It may help to give an example of what it actually requires. We use the De Gruijter example with nine Dutch political parties from 1967 (<span class="citation" data-cites="degruijter_67">De Gruijter (<a href="#ref-degruijter_67" role="doc-biblioref">1967</a>)</span>). Dissimilarities are averages over a group of 100 students from an introductory psychology course.</p>
+<p>We compute optimal solutions for all four types AC1-AC4 (two dimensions, Torgerson initial estimate, no weights). We iterate until the difference in consecutive stress values is less than 1e-10. For each of the four runs we give the number of iterations, the final stress, and the additive constant in case of AC2 and AC4. We also make three plots: the Shepard plot with points <span class="math inline">\((\delta_{ij},d_{ij}(X))\)</span> in blue and with points <span class="math inline">\((\delta_{ij},\hat d_{ij})\)</span> in red, the configuration plot with a labeled <span class="math inline">\(X\)</span>, and the dist-dhat plot with points <span class="math inline">\((d_{ij}(X),\hat d_{ij})\)</span> scattered around the line <span class="math inline">\(d=\hat d\)</span>. Line segments are drawn in the plots to show the fit of all pairs <span class="math inline">\((i,j)\)</span>.</p>
+</section>
+<section id="type-ac1-1" class="level2">
+<h2 class="anchored" data-anchor-id="type-ac1-1">Type AC1</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="smacofAC_files/figure-html/gruijterh00-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="smacofAC_files/figure-html/gruijterh00-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>For AC1 we find a minimum stress of 32.2208145 after 112 iterations. The Shepard plot has a substantial intercept, which suggest that an additive constant may improve the fit. This is typical for average similarity judgments over heterogeneous groups of individuals. It is the reason why <span class="citation" data-cites="ekman_54">Ekman (<a href="#ref-ekman_54" role="doc-biblioref">1954</a>)</span> linearly transformed his average similarities so that the smallest became zero and the largest became one. That amounts to applying the additive constant before the MDS analysis.</p>
+<p>To give some content to the configuration plot: CPN (communists), PSP (pacifists), and PvdA (social democrats) are leftists parties, ARP (protestants), CHU (other protestants), KVP (catholics) are religious parties, BP (farmers) is a right-wing protest party, VVD (classical liberals) is a conservative party, and D’66 (pragmatists, centrists) was brand new in 1967 and was supposedly beyond left and right.</p>
+</section>
+<section id="type-ac2-1" class="level2">
+<h2 class="anchored" data-anchor-id="type-ac2-1">Type AC2</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="smacofAC_files/figure-html/gruijterh10-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="smacofAC_files/figure-html/gruijterh10-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As expected, the additive constant improves the fit. We have convergence after 25 iterations to stress 3.6661492. The additive constant is -3.2, which means the smallest <span class="math inline">\(\delta_{ij}+c\)</span>, between ARP and CHU, is now zero. The configuration shows the same three groups, but they cluster a bit more tightly. This is to be expected. Without the additive constant the dissimilarities are more equal and consequently the distances are more equal to. The configuration tends more to what we see if all dissimilarities are equal, i.e.&nbsp;to points regularly spaced on a circle (<span class="citation" data-cites="deleeuw_stoop_A_84">De Leeuw and Stoop (<a href="#ref-deleeuw_stoop_A_84" role="doc-biblioref">1984</a>)</span>).</p>
+</section>
+<section id="type-ac3-1" class="level2">
+<h2 class="anchored" data-anchor-id="type-ac3-1">Type AC3</h2>
+<div class="cell" data-layout-align="center" data-verbose="false">
+<div class="cell-output cell-output-stdout">
+<pre><code>itel  1 sold    97.4130852810 smid    41.9550246691 snew     8.4543139218 
+itel  2 sold     8.4543139218 smid     7.4098292411 snew     6.6451369923 
+itel  3 sold     6.6451369923 smid     5.8490240542 snew     5.2489286201 
+itel  4 sold     5.2489286201 smid     4.6072125696 snew     4.1502164078 
+itel  5 sold     4.1502164078 smid     3.6168200275 snew     3.2322363271 
+itel  6 sold     3.2322363271 smid     2.7379930587 snew     2.4414269275 
+itel  7 sold     2.4414269275 smid     2.1593556178 snew     1.9752760141 
+itel  8 sold     1.9752760141 smid     1.8092882729 snew     1.6764432789 
+itel  9 sold     1.6764432789 smid     1.5582549338 snew     1.4557443279 
+itel  10 sold     1.4557443279 smid     1.3629036613 snew     1.2793695305 
+itel  11 sold     1.2793695305 smid     1.2025292754 snew     1.1324574520 
+itel  12 sold     1.1324574520 smid     1.0674066563 snew     1.0078467610 
+itel  13 sold     1.0078467610 smid     0.9522276636 snew     0.9013064460 
+itel  14 sold     0.9013064460 smid     0.8535746120 snew     0.8098200136 
+itel  15 sold     0.8098200136 smid     0.7685362919 snew     0.7305939018 
+itel  16 sold     0.7305939018 smid     0.6945836967 snew     0.6615054424 
+itel  17 sold     0.6615054424 smid     0.6300498204 snew     0.6011559114 
+itel  18 sold     0.6011559114 smid     0.5735956560 snew     0.5483309878 
+itel  19 sold     0.5483309878 smid     0.5241981027 snew     0.5020869304 
+itel  20 sold     0.5020869304 smid     0.4809112562 snew     0.4614299495 
+itel  21 sold     0.4614299495 smid     0.4425815492 snew     0.4251667367 
+itel  22 sold     0.4251667367 smid     0.4082440772 snew     0.3925990995 
+itel  23 sold     0.3925990995 smid     0.3773608282 snew     0.3632632528 
+itel  24 sold     0.3632632528 smid     0.3494646668 snew     0.3366780605 
+itel  25 sold     0.3366780605 smid     0.3241244799 snew     0.3124866156 
+itel  26 sold     0.3124866156 smid     0.3010402505 snew     0.2904279430 
+itel  27 sold     0.2904279430 smid     0.2799638410 snew     0.2702326078 
+itel  28 sold     0.2702326078 smid     0.2606115288 snew     0.2516575222 
+itel  29 sold     0.2516575222 smid     0.2427970344 snew     0.2345497021 
+itel  30 sold     0.2345497021 smid     0.2263873344 snew     0.2187862641 
+itel  31 sold     0.2187862641 smid     0.2112642137 snew     0.2042558938 
+itel  32 sold     0.2042558938 smid     0.1973219792 snew     0.1908667641 
+itel  33 sold     0.1908667641 smid     0.1844985022 snew     0.1785576365 
+itel  34 sold     0.1785576365 smid     0.1726814275 snew     0.1672223800 
+itel  35 sold     0.1672223800 smid     0.1618749397 snew     0.1568871640 
+itel  36 sold     0.1568871640 smid     0.1520054971 snew     0.1474133814 
+itel  37 sold     0.1474133814 smid     0.1429220273 snew     0.1386839988 
+itel  38 sold     0.1386839988 smid     0.1345340757 snew     0.1306172696 
+itel  39 sold     0.1306172696 smid     0.1267823207 snew     0.1231570280 
+itel  40 sold     0.1231570280 smid     0.1195991686 snew     0.1162371624 
+itel  41 sold     0.1162371624 smid     0.1129422950 snew     0.1098197491 
+itel  42 sold     0.1098197491 smid     0.1067564820 snew     0.1038529288 
+itel  43 sold     0.1038529288 smid     0.1009986094 snew     0.0982958229 
+itel  44 sold     0.0982958229 smid     0.0956394236 snew     0.0931205429 
+itel  45 sold     0.0931205429 smid     0.0906400571 snew     0.0882903384 
+itel  46 sold     0.0882903384 smid     0.0859714475 snew     0.0837774185 
+itel  47 sold     0.0837774185 smid     0.0816103623 snew     0.0795595988 
+itel  48 sold     0.0795595988 smid     0.0775350522 snew     0.0756158480 
+itel  49 sold     0.0756158480 smid     0.0737069060 snew     0.0718997892 
+itel  50 sold     0.0718997892 smid     0.0700922565 snew     0.0683803581 
+itel  51 sold     0.0683803581 smid     0.0666579412 snew     0.0650295657 
+itel  52 sold     0.0650295657 smid     0.0633889911 snew     0.0618371988 
+itel  53 sold     0.0618371988 smid     0.0602695635 snew     0.0587893711 
+itel  54 sold     0.0587893711 smid     0.0572852862 snew     0.0558726314 
+itel  55 sold     0.0558726314 smid     0.0544335762 snew     0.0530845479 
+itel  56 sold     0.0530845479 smid     0.0517076720 snew     0.0504187686 
+itel  57 sold     0.0504187686 smid     0.0490986716 snew     0.0478667578 
+itel  58 sold     0.0478667578 smid     0.0466025175 snew     0.0454246636 
+itel  59 sold     0.0454246636 smid     0.0442126511 snew     0.0430859071 
+itel  60 sold     0.0430859071 smid     0.0419238186 snew     0.0408458015 
+itel  61 sold     0.0408458015 smid     0.0397344293 snew     0.0387034342 
+itel  62 sold     0.0387034342 smid     0.0376390715 snew     0.0366529538 
+itel  63 sold     0.0366529538 smid     0.0356351002 snew     0.0346922685 
+itel  64 sold     0.0346922685 smid     0.0337172756 snew     0.0328162870 
+itel  65 sold     0.0328162870 smid     0.0318859969 snew     0.0310252529 
+itel  66 sold     0.0310252529 smid     0.0301365454 snew     0.0293146845 
+itel  67 sold     0.0293146845 smid     0.0284661882 snew     0.0276818686 
+itel  68 sold     0.0276818686 smid     0.0268736638 snew     0.0261255295 
+itel  69 sold     0.0261255295 smid     0.0253515999 snew     0.0246386243 
+itel  70 sold     0.0246386243 smid     0.0239018541 snew     0.0232227235 
+itel  71 sold     0.0232227235 smid     0.0225233461 snew     0.0218768243 
+itel  72 sold     0.0218768243 smid     0.0212105688 snew     0.0205956586 
+itel  73 sold     0.0205956586 smid     0.0199609330 snew     0.0193766033 
+itel  74 sold     0.0193766033 smid     0.0187743001 snew     0.0182194345 
+itel  75 sold     0.0182194345 smid     0.0176476992 snew     0.0171212966 
+itel  76 sold     0.0171212966 smid     0.0165791103 snew     0.0160801664 
+itel  77 sold     0.0160801664 smid     0.0155665396 snew     0.0150940641 
+itel  78 sold     0.0150940641 smid     0.0146080603 snew     0.0141610730 
+itel  79 sold     0.0141610730 smid     0.0137017748 snew     0.0132793044 
+itel  80 sold     0.0132793044 smid     0.0128460418 snew     0.0124471117 
+itel  81 sold     0.0124471117 smid     0.0120383862 snew     0.0116620659 
+itel  82 sold     0.0116620659 smid     0.0112774626 snew     0.0109227851 
+itel  83 sold     0.0109227851 smid     0.0105587161 snew     0.0102248820 
+itel  84 sold     0.0102248820 smid     0.0098838778 snew     0.0095698425 
+itel  85 sold     0.0095698425 smid     0.0092487574 snew     0.0089536963 
+itel  86 sold     0.0089536963 smid     0.0086521341 snew     0.0083751510 
+itel  87 sold     0.0083751510 smid     0.0080919781 snew     0.0078322169 
+itel  88 sold     0.0078322169 smid     0.0075666147 snew     0.0073232264 
+itel  89 sold     0.0073232264 smid     0.0070742856 snew     0.0068464430 
+itel  90 sold     0.0068464430 smid     0.0066132474 snew     0.0064001456 
+itel  91 sold     0.0064001456 smid     0.0061817952 snew     0.0059826528 
+itel  92 sold     0.0059826528 smid     0.0057802663 snew     0.0055942116 
+itel  93 sold     0.0055942116 smid     0.0054047931 snew     0.0052311501 
+itel  94 sold     0.0052311501 smid     0.0050539660 snew     0.0048920336 
+itel  95 sold     0.0048920336 smid     0.0047266122 snew     0.0045756432 
+itel  96 sold     0.0045756432 smid     0.0044211081 snew     0.0042792136 
+itel  97 sold     0.0042792136 smid     0.0041326493 snew     0.0039985613 
+itel  98 sold     0.0039985613 smid     0.0038606482 snew     0.0037337299 
+itel  99 sold     0.0037337299 smid     0.0036026143 snew     0.0034825438 
+itel  100 sold     0.0034825438 smid     0.0033580833 snew     0.0032445924 
+itel  101 sold     0.0032445924 smid     0.0031268398 snew     0.0030196948 
+itel  102 sold     0.0030196948 smid     0.0029084545 snew     0.0028074476 
+itel  103 sold     0.0028074476 smid     0.0027025336 snew     0.0026074631 
+itel  104 sold     0.0026074631 smid     0.0025086875 snew     0.0024193512 
+itel  105 sold     0.0024193512 smid     0.0023262643 snew     0.0022424654 
+itel  106 sold     0.0022424654 smid     0.0021553797 snew     0.0020768877 
+itel  107 sold     0.0020768877 smid     0.0019953227 snew     0.0019219223 
+itel  108 sold     0.0019219223 smid     0.0018458400 snew     0.0017772963 
+itel  109 sold     0.0017772963 smid     0.0017057245 snew     0.0016446713 
+itel  110 sold     0.0016446713 smid     0.0015838944 snew     0.0015303032 
+itel  111 sold     0.0015303032 smid     0.0014763882 snew     0.0014277542 
+itel  112 sold     0.0014277542 smid     0.0013787501 snew     0.0013340577 
+itel  113 sold     0.0013340577 smid     0.0012890894 snew     0.0012477951 
+itel  114 sold     0.0012477951 smid     0.0012064204 snew     0.0011681595 
+itel  115 sold     0.0011681595 smid     0.0011299951 snew     0.0010944827 
+itel  116 sold     0.0010944827 smid     0.0010585786 snew     0.0010256055 
+itel  117 sold     0.0010256055 smid     0.0009925089 snew     0.0009618597 
+itel  118 sold     0.0009618597 smid     0.0009313870 snew     0.0009028660 
+itel  119 sold     0.0009028660 smid     0.0008742102 snew     0.0008476717 
+itel  120 sold     0.0008476717 smid     0.0008210857 snew     0.0007963649 
+itel  121 sold     0.0007963649 smid     0.0007716538 snew     0.0007485214 
+itel  122 sold     0.0007485214 smid     0.0007255726 snew     0.0007038565 
+itel  123 sold     0.0007038565 smid     0.0006822460 snew     0.0006618474 
+itel  124 sold     0.0006618474 smid     0.0006414818 snew     0.0006223115 
+itel  125 sold     0.0006223115 smid     0.0006031260 snew     0.0005851042 
+itel  126 sold     0.0005851042 smid     0.0005670511 snew     0.0005501055 
+itel  127 sold     0.0005501055 smid     0.0005331016 snew     0.0005171660 
+itel  128 sold     0.0005171660 smid     0.0005012225 snew     0.0004862336 
+itel  129 sold     0.0004862336 smid     0.0004712550 snew     0.0004571555 
+itel  130 sold     0.0004571555 smid     0.0004430868 snew     0.0004298229 
+itel  131 sold     0.0004298229 smid     0.0004166114 snew     0.0004041327 
+itel  132 sold     0.0004041327 smid     0.0003917278 snew     0.0003799870 
+itel  133 sold     0.0003799870 smid     0.0003683391 snew     0.0003572921 
+itel  134 sold     0.0003572921 smid     0.0003463530 snew     0.0003359581 
+itel  135 sold     0.0003359581 smid     0.0003256809 snew     0.0003158995 
+itel  136 sold     0.0003158995 smid     0.0003062400 snew     0.0002970358 
+itel  137 sold     0.0002970358 smid     0.0002879569 snew     0.0002792959 
+itel  138 sold     0.0002792959 smid     0.0002707632 snew     0.0002626133 
+itel  139 sold     0.0002626133 smid     0.0002545945 snew     0.0002469255 
+itel  140 sold     0.0002469255 smid     0.0002393903 snew     0.0002321738 
+itel  141 sold     0.0002321738 smid     0.0002250933 snew     0.0002183027 
+itel  142 sold     0.0002183027 smid     0.0002116497 snew     0.0002052599 
+itel  143 sold     0.0002052599 smid     0.0001990090 snew     0.0001929963 
+itel  144 sold     0.0001929963 smid     0.0001871232 snew     0.0001814652 
+itel  145 sold     0.0001814652 smid     0.0001756810 snew     0.0001703685 
+itel  146 sold     0.0001703685 smid     0.0001649346 snew     0.0001599422 
+itel  147 sold     0.0001599422 smid     0.0001548371 snew     0.0001501463 
+itel  148 sold     0.0001501463 smid     0.0001453494 snew     0.0001409426 
+itel  149 sold     0.0001409426 smid     0.0001364348 snew     0.0001322952 
+itel  150 sold     0.0001322952 smid     0.0001280586 snew     0.0001241703 
+itel  151 sold     0.0001241703 smid     0.0001201882 snew     0.0001165364 
+itel  152 sold     0.0001165364 smid     0.0001127934 snew     0.0001093639 
+itel  153 sold     0.0001093639 smid     0.0001058460 snew     0.0001026255 
+itel  154 sold     0.0001026255 smid     0.0000993192 snew     0.0000962953 
+itel  155 sold     0.0000962953 smid     0.0000931880 snew     0.0000903490 
+itel  156 sold     0.0000903490 smid     0.0000874289 snew     0.0000847637 
+itel  157 sold     0.0000847637 smid     0.0000820194 snew     0.0000795176 
+itel  158 sold     0.0000795176 smid     0.0000769388 snew     0.0000745906 
+itel  159 sold     0.0000745906 smid     0.0000721671 snew     0.0000699633 
+itel  160 sold     0.0000699633 smid     0.0000676859 snew     0.0000656178 
+itel  161 sold     0.0000656178 smid     0.0000634777 snew     0.0000615371 
+itel  162 sold     0.0000615371 smid     0.0000595259 snew     0.0000577052 
+itel  163 sold     0.0000577052 smid     0.0000558151 snew     0.0000541071 
+itel  164 sold     0.0000541071 smid     0.0000523308 snew     0.0000507287 
+itel  165 sold     0.0000507287 smid     0.0000490594 snew     0.0000475568 
+itel  166 sold     0.0000475568 smid     0.0000459880 snew     0.0000445788 
+itel  167 sold     0.0000445788 smid     0.0000431046 snew     0.0000417832 
+itel  168 sold     0.0000417832 smid     0.0000403977 snew     0.0000391588 
+itel  169 sold     0.0000391588 smid     0.0000379805 snew     0.0000368139 
+itel  170 sold     0.0000368139 smid     0.0000357070 snew     0.0000346100 
+itel  171 sold     0.0000346100 smid     0.0000335698 snew     0.0000325382 
+itel  172 sold     0.0000325382 smid     0.0000315605 snew     0.0000305904 
+itel  173 sold     0.0000305904 smid     0.0000296716 snew     0.0000287591 
+itel  174 sold     0.0000287591 smid     0.0000278957 snew     0.0000270375 
+itel  175 sold     0.0000270375 smid     0.0000262261 snew     0.0000254189 
+itel  176 sold     0.0000254189 smid     0.0000246563 snew     0.0000238972 
+itel  177 sold     0.0000238972 smid     0.0000231804 snew     0.0000224647 
+itel  178 sold     0.0000224647 smid     0.0000217632 snew     0.0000210923 
+itel  179 sold     0.0000210923 smid     0.0000204335 snew     0.0000198033 
+itel  180 sold     0.0000198033 smid     0.0000191846 snew     0.0000185926 
+itel  181 sold     0.0000185926 smid     0.0000180116 snew     0.0000174556 
+itel  182 sold     0.0000174556 smid     0.0000169099 snew     0.0000163878 
+itel  183 sold     0.0000163878 smid     0.0000158752 snew     0.0000153849 
+itel  184 sold     0.0000153849 smid     0.0000149035 snew     0.0000144430 
+itel  185 sold     0.0000144430 smid     0.0000139910 snew     0.0000135586 
+itel  186 sold     0.0000135586 smid     0.0000131340 snew     0.0000127280 
+itel  187 sold     0.0000127280 smid     0.0000123292 snew     0.0000119480 
+itel  188 sold     0.0000119480 smid     0.0000115735 snew     0.0000112155 
+itel  189 sold     0.0000112155 smid     0.0000108639 snew     0.0000105277 
+itel  190 sold     0.0000105277 smid     0.0000101975 snew     0.0000098819 
+itel  191 sold     0.0000098819 smid     0.0000095718 snew     0.0000092755 
+itel  192 sold     0.0000092755 smid     0.0000089843 snew     0.0000087061 
+itel  193 sold     0.0000087061 smid     0.0000084327 snew     0.0000081715 
+itel  194 sold     0.0000081715 smid     0.0000079148 snew     0.0000076696 
+itel  195 sold     0.0000076696 smid     0.0000074285 snew     0.0000071984 
+itel  196 sold     0.0000071984 smid     0.0000069720 snew     0.0000067559 
+itel  197 sold     0.0000067559 smid     0.0000065434 snew     0.0000063406 
+itel  198 sold     0.0000063406 smid     0.0000061410 snew     0.0000059506 
+itel  199 sold     0.0000059506 smid     0.0000057633 snew     0.0000055845 
+itel  200 sold     0.0000055845 smid     0.0000054083 snew     0.0000052405 
+itel  201 sold     0.0000052405 smid     0.0000050750 snew     0.0000049176 
+itel  202 sold     0.0000049176 smid     0.0000047623 snew     0.0000046145 
+itel  203 sold     0.0000046145 smid     0.0000044687 snew     0.0000043301 
+itel  204 sold     0.0000043301 smid     0.0000041932 snew     0.0000040631 
+itel  205 sold     0.0000040631 smid     0.0000039346 snew     0.0000038125 
+itel  206 sold     0.0000038125 smid     0.0000036919 snew     0.0000035773 
+itel  207 sold     0.0000035773 smid     0.0000034642 snew     0.0000033566 
+itel  208 sold     0.0000033566 smid     0.0000032504 snew     0.0000031494 
+itel  209 sold     0.0000031494 smid     0.0000030498 snew     0.0000029550 
+itel  210 sold     0.0000029550 smid     0.0000028615 snew     0.0000027726 
+itel  211 sold     0.0000027726 smid     0.0000026845 snew     0.0000026011 
+itel  212 sold     0.0000026011 smid     0.0000025174 snew     0.0000024393 
+itel  213 sold     0.0000024393 smid     0.0000023599 snew     0.0000022866 
+itel  214 sold     0.0000022866 smid     0.0000022111 snew     0.0000021425 
+itel  215 sold     0.0000021425 smid     0.0000020706 snew     0.0000020064 
+itel  216 sold     0.0000020064 smid     0.0000019381 snew     0.0000018781 
+itel  217 sold     0.0000018781 smid     0.0000018130 snew     0.0000017570 
+itel  218 sold     0.0000017570 smid     0.0000016951 snew     0.0000016428 
+itel  219 sold     0.0000016428 smid     0.0000015840 snew     0.0000015352 
+itel  220 sold     0.0000015352 smid     0.0000014793 snew     0.0000014338 
+itel  221 sold     0.0000014338 smid     0.0000013806 snew     0.0000013422 
+itel  222 sold     0.0000013422 smid     0.0000013125 snew     0.0000012735 
+itel  223 sold     0.0000012735 smid     0.0000012451 snew     0.0000012080 
+itel  224 sold     0.0000012080 smid     0.0000011811 snew     0.0000011458 
+itel  225 sold     0.0000011458 smid     0.0000011202 snew     0.0000010867 
+itel  226 sold     0.0000010867 smid     0.0000010624 snew     0.0000010305 
+itel  227 sold     0.0000010305 smid     0.0000010074 snew     0.0000009771 
+itel  228 sold     0.0000009771 smid     0.0000009551 snew     0.0000009264 
+itel  229 sold     0.0000009264 smid     0.0000009055 snew     0.0000008783 
+itel  230 sold     0.0000008783 smid     0.0000008584 snew     0.0000008326 
+itel  231 sold     0.0000008326 smid     0.0000008137 snew     0.0000007892 
+itel  232 sold     0.0000007892 smid     0.0000007713 snew     0.0000007480 
+itel  233 sold     0.0000007480 smid     0.0000007310 snew     0.0000007089 
+itel  234 sold     0.0000007089 smid     0.0000006927 snew     0.0000006718 
+itel  235 sold     0.0000006718 smid     0.0000006564 snew     0.0000006366 
+itel  236 sold     0.0000006366 smid     0.0000006220 snew     0.0000006033 
+itel  237 sold     0.0000006033 smid     0.0000005897 snew     0.0000005723 
+itel  238 sold     0.0000005723 smid     0.0000005599 snew     0.0000005439 
+itel  239 sold     0.0000005439 smid     0.0000005326 snew     0.0000005175 
+itel  240 sold     0.0000005175 smid     0.0000005072 snew     0.0000004925 
+itel  241 sold     0.0000004925 smid     0.0000004681 snew     0.0000004546 
+itel  242 sold     0.0000004546 smid     0.0000004332 snew     0.0000004206 
+itel  243 sold     0.0000004206 smid     0.0000004013 snew     0.0000003894 
+itel  244 sold     0.0000003894 smid     0.0000003720 snew     0.0000003610 
+itel  245 sold     0.0000003610 smid     0.0000003451 snew     0.0000003349 
+itel  246 sold     0.0000003349 smid     0.0000003204 snew     0.0000003108 
+itel  247 sold     0.0000003108 smid     0.0000002976 snew     0.0000002887 
+itel  248 sold     0.0000002887 smid     0.0000002767 snew     0.0000002683 
+itel  249 sold     0.0000002683 smid     0.0000002573 snew     0.0000002496 
+itel  250 sold     0.0000002496 smid     0.0000002396 snew     0.0000002323 
+itel  251 sold     0.0000002323 smid     0.0000002231 snew     0.0000002164 
+itel  252 sold     0.0000002164 smid     0.0000002080 snew     0.0000002017 
+itel  253 sold     0.0000002017 smid     0.0000001941 snew     0.0000001881 
+itel  254 sold     0.0000001881 smid     0.0000001812 snew     0.0000001757 
+itel  255 sold     0.0000001757 smid     0.0000001694 snew     0.0000001643 
+itel  256 sold     0.0000001643 smid     0.0000001585 snew     0.0000001538 
+itel  257 sold     0.0000001538 smid     0.0000001486 snew     0.0000001441 
+itel  258 sold     0.0000001441 smid     0.0000001393 snew     0.0000001352 
+itel  259 sold     0.0000001352 smid     0.0000001308 snew     0.0000001269 
+itel  260 sold     0.0000001269 smid     0.0000001228 snew     0.0000001192 
+itel  261 sold     0.0000001192 smid     0.0000001155 snew     0.0000001121 
+itel  262 sold     0.0000001121 smid     0.0000001086 snew     0.0000001054 
+itel  263 sold     0.0000001054 smid     0.0000001023 snew     0.0000000993 
+itel  264 sold     0.0000000993 smid     0.0000000964 snew     0.0000000936 
+itel  265 sold     0.0000000936 smid     0.0000000910 snew     0.0000000883 
+itel  266 sold     0.0000000883 smid     0.0000000859 snew     0.0000000834 
+itel  267 sold     0.0000000834 smid     0.0000000812 snew     0.0000000788 
+itel  268 sold     0.0000000788 smid     0.0000000768 snew     0.0000000746 
+itel  269 sold     0.0000000746 smid     0.0000000727 snew     0.0000000706 
+itel  270 sold     0.0000000706 smid     0.0000000689 snew     0.0000000670 
+itel  271 sold     0.0000000670 smid     0.0000000654 snew     0.0000000637 
+itel  272 sold     0.0000000637 smid     0.0000000622 snew     0.0000000606 
+itel  273 sold     0.0000000606 smid     0.0000000593 snew     0.0000000577 
+itel  274 sold     0.0000000577 smid     0.0000000565 snew     0.0000000550 
+itel  275 sold     0.0000000550 smid     0.0000000539 snew     0.0000000525 
+itel  276 sold     0.0000000525 smid     0.0000000515 snew     0.0000000502 
+itel  277 sold     0.0000000502 smid     0.0000000492 snew     0.0000000479 
+itel  278 sold     0.0000000479 smid     0.0000000471 snew     0.0000000459 
+itel  279 sold     0.0000000459 smid     0.0000000451 snew     0.0000000439 
+itel  280 sold     0.0000000439 smid     0.0000000432 snew     0.0000000421 
+itel  281 sold     0.0000000421 smid     0.0000000414 snew     0.0000000404 
+itel  282 sold     0.0000000404 smid     0.0000000397 snew     0.0000000388 
+itel  283 sold     0.0000000388 smid     0.0000000382 snew     0.0000000373 
+itel  284 sold     0.0000000373 smid     0.0000000367 snew     0.0000000359 
+itel  285 sold     0.0000000359 smid     0.0000000354 snew     0.0000000345 
+itel  286 sold     0.0000000345 smid     0.0000000341 snew     0.0000000333 
+itel  287 sold     0.0000000333 smid     0.0000000328 snew     0.0000000321 
+itel  288 sold     0.0000000321 smid     0.0000000317 snew     0.0000000310 
+itel  289 sold     0.0000000310 smid     0.0000000306 snew     0.0000000300 
+itel  290 sold     0.0000000300 smid     0.0000000296 snew     0.0000000290 
+itel  291 sold     0.0000000290 smid     0.0000000286 snew     0.0000000281 
+itel  292 sold     0.0000000281 smid     0.0000000278 snew     0.0000000274 
+itel  293 sold     0.0000000274 smid     0.0000000271 snew     0.0000000268 
+itel  294 sold     0.0000000268 smid     0.0000000265 snew     0.0000000262 
+itel  295 sold     0.0000000262 smid     0.0000000260 snew     0.0000000258 
+itel  296 sold     0.0000000258 smid     0.0000000256 snew     0.0000000255 
+itel  297 sold     0.0000000255 smid     0.0000000253 snew     0.0000000251 
+itel  298 sold     0.0000000251 smid     0.0000000250 snew     0.0000000249 
+itel  299 sold     0.0000000249 smid     0.0000000247 snew     0.0000000246 
+itel  300 sold     0.0000000246 smid     0.0000000245 snew     0.0000000244 
+itel  301 sold     0.0000000244 smid     0.0000000243 snew     0.0000000242 
+itel  302 sold     0.0000000242 smid     0.0000000241 snew     0.0000000241 
+itel  303 sold     0.0000000241 smid     0.0000000239 snew     0.0000000240 
+itel  304 sold     0.0000000240 smid     0.0000000238 snew     0.0000000238 
+itel  305 sold     0.0000000238 smid     0.0000000237 snew     0.0000000237 
+itel  306 sold     0.0000000237 smid     0.0000000236 snew     0.0000000236 </code></pre>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="smacofAC_files/figure-html/gruijterh01-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="smacofAC_files/figure-html/gruijterh01-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The bounds we use are <span class="math inline">\(\delta_{ij}\pm 1\)</span>. After 306 iterations we arrive at stress 2.3629831^{-8}. In the configuration plot the centrists have moved to the center. ## Type AC4</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="smacofAC_files/figure-html/gruijterh11-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="smacofAC_files/figure-html/gruijterh11-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>After 306 iterations stress is 2.3629831^{-8}, i.e.&nbsp;practically zero. We succeeded in moving all distances within the bounds. The additive constant is -3.0664907. The configuration is again pretty much the same with D’66 in the center. VVD moves closer to the Christian Democrats, and BP is more isolated. # References</p>
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-cooper_72" class="csl-entry" role="listitem">
+Cooper, L. G. 1972. <span>“<span class="nocase">A New Solution to the Additive Constant Problem in Metric Multidimensional Scaling</span>.”</span> <em>Psychometrika</em> 37 (3): 311–22.
+</div>
+<div id="ref-degruijter_67" class="csl-entry" role="listitem">
+De Gruijter, D. N. M. 1967. <span>“<span class="nocase">The Cognitive Structure of Dutch Political Parties in 1966</span>.”</span> Report E019-67. Psychological Institute, University of Leiden.
+</div>
+<div id="ref-deleeuw_stoop_A_84" class="csl-entry" role="listitem">
+De Leeuw, J., and I. Stoop. 1984. <span>“Upper Bounds for Kruskal’s Stress.”</span> <em>Psychometrika</em> 49: 391–402.
+</div>
+<div id="ref-ekman_54" class="csl-entry" role="listitem">
+Ekman, G. 1954. <span>“<span class="nocase">Dimensions of Color Vision</span>.”</span> <em>Journal of Psychology</em> 38: 467–74.
+</div>
+<div id="ref-heiser_91" class="csl-entry" role="listitem">
+Heiser, W. J. 1991. <span>“<span class="nocase">A Generalized Majorization Method for Least Squares Multidimensional Scaling of Pseudodistances that May Be Negative</span>.”</span> <em>Psychometrika</em> 56 (1): 7–27.
+</div>
+<div id="ref-messick_abelson_56" class="csl-entry" role="listitem">
+Messick, S. J., and R. P. Abelson. 1956. <span>“<span class="nocase">The Additive Constant Problem in Multidimensional Scaling</span>.”</span> <em>Psychometrika</em> 21 (1–17).
+</div>
+</div></section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
