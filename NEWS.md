@@ -1,4 +1,4 @@
-**12/08/24**
+**12/08/2024**
 
 * Added NEWS.md file.<br>
 * Started smacofNW (Newton-Raphson).<br>
@@ -7,6 +7,6 @@
 * .gitignore ignores cache and files directories.<br>
 * Started smacofIN (Introduction), split off from smacofBA. (Basics)<br>
 * Added Conventions, Notations, and Reserved Symbols to smacofIN.<br>
-* Cut introductory section from smacofBA, which will now be comoutational only.
+* Cut introductory section from smacofBA, which will now be computational only.
 
 

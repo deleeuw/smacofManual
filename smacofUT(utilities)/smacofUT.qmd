@@ -1,7 +1,7 @@
 ---
 title: |
-    | Smacof at 50: Part xx
-    | Utilities
+    | Smacof at 50
+    | Part xx: Utilities
 author: 
     - name: Jan de Leeuw
       orcid: 0000-0003-1420-1797
@@ -190,6 +190,21 @@ smacofDoubleCenterGeneralizedInverse <- function(v) {
 ```
 
 # Data formats
+
+Square, Symmetric, Metric, Unreplicated
+
+* dist object, non-negative, possibly with NA
+* symmetric, hollow, non-negative matrix 
+* indices, skip NA, column-major
+
+We need conversion routines
+
+dist to symmetric = as.matrix
+symmetric to dist = as.dist
+dist to indices
+indices to dist
+symmetric to indices
+indices to symmetric
 
 ```{r datautils, eval = FALSE}
 smacofMakeData <-
