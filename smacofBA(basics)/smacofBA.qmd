@@ -1,7 +1,7 @@
 ---
 title: |
     | Smacof at 50: A Manual
-    | Part 2: The Basics 
+    | Basics 
 author: 
     - name: Jan de Leeuw
       orcid: 0000-0003-1420-1797
@@ -45,12 +45,7 @@ suppressPackageStartupMessages(library(knitr, quietly = TRUE))
 suppressPackageStartupMessages(library(tinytex, quietly = TRUE))
 ```
 
-**Note:** This is a working manuscript which will be expanded/updated
-frequently. All suggestions for improvement are welcome. All Rmd, tex,
-html, pdf, R, and C files are in the public domain. Attribution will be
-appreciated, but is not required. The files can be found at
-<https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
-and smacofExamples.
+**Note:** This manual is a working manuscript which will be expanded/updated frequently. All suggestions for improvement are welcome. All Rmd, tex, html, pdf, R, and C files are in the public domain and can be copied, modified, and used by anybody in any way they see fit. Attribution will be appreciated, but is not required. The files can be found at <https://github.com/deleeuw> in the repositories smacofCode, smacofManual, and smacofExamples.
 
 \sectionbreak
 
@@ -125,7 +120,7 @@ the dissimilarities. As we have seen, that if some dissimilarities are
 missing metric MDS can handle this by using zero weights. In some
 situations, however, we only know the rank order of the non-missing
 dissimilarities. We do not know, or we refuse to use, their actual
-numeric values. Or, to put it differently, even if we have numerical
+numerical values. Or, to put it differently, even if we have numerical
 dissimilarities we are looking for a *transformation* of the non-missing
 dissimilarities, where the transformation is chosen from a set of
 admissible transformations (for instance from all linear or monotone
@@ -176,7 +171,7 @@ $X$ and all admissible disparities $\Delta$.
 Equation \@ref(eq:nstressdef) is only one way to normalize raw stress. 
 Some obvious alternatives are discussed in detail in
 @kruskal_carroll_69 and @deleeuw_U_75a. In the terminology of
-@deleeuw_U_75a there are *explicit* and *implicit* normalizations.
+@deleeuw_U_75a there are both *explicit* and *implicit* normalizations.
 
 In implicit normalization we minimize either 
 \begin{equation}
@@ -191,7 +186,7 @@ or
 over $X$ and $\Delta\in\mathfrak{D}$.
 
 As we have seen, @kruskal_64a chooses definition \@ref(eq:implicit2) and
-calls the explicitly normalized loss function *normalized stress*. Note that we overload the symbol $\sigma$ to denote any one of the least squares loss
+calls the implicitly normalized loss function *normalized stress*. Note that we overload the symbol $\sigma$ to denote any one of the least squares loss
 functions. It will always be clear from the text which $\sigma$ we are
 talking about.
 
@@ -209,7 +204,11 @@ or the constraint
 @kruskal_carroll_69 and @deleeuw_E_19d show that these
 four normalizations all lead to essentially the same solution for $X$
 and $\hat D$, up to scale factors dictated by the choice of the particular
-normalization. It is also possible to normalize both $X$ and $\hat D$,
+normalization. 
+
+explicit derivation
+
+It is also possible to normalize both $X$ and $\hat D$,
 either explicitly or implicitly, and again this will give the same
 solutions, suitably normalized. These invariance results assume the
 admissible transformations form a closed cone with apex at the origin,
@@ -230,7 +229,7 @@ In the version of non-metric MDS discussed in this manual we need more flexibili
 Kruskal's stress. For the final results the choice between normalizations should not make a difference, but the iterative computations will be different for the
 different choices.
 
-## Some thoughts on ALS
+## Single-Phase and Two-Phase
 
 The formulation in equations \@ref(eq:gmdsdef1) and \@ref(eq:gmdsdef2) neatly separates the
 metric MDS part \@ref(eq:gmdsdef1) and the transformation/quantification part \@ref(eq:gmdsdef2).
@@ -260,9 +259,6 @@ X^{(k+1)}\in\mathfrak{X}&\ni\{\sigma(X^{(k+1)},\Delta^{(k)})<\sigma(X^{(k)},\Del
 \Delta^{(k+1)}\in\mathfrak{D}&\ni\{\sigma(X^{(k+1)},\Delta^{(k+1)})<\sigma(X^{(k+1)},\Delta^{(k)})\}.
 \end{align}
 \end{subequations}
-
-
-### The Single-Phase approach
 
 In @kruskal_64a defines 
 \begin{equation}
@@ -317,8 +313,6 @@ approach, mostly because the rank-image transformations are not
 differentiable, and there is no analog of \@ref(eq:partials) and of the
 equivalence of the different implicit and explicit normalizations.
 
-### The Two-Phase Approach
-
 The *two-phase approach* or *alternating least squares (ALS)* approach
 alternates minimization of $\sigma(\hat D,X)$ over $X$ for our current
 best estimate of $\hat D$ with minimization of $\sigma(\hat D,X)$ over
@@ -356,6 +350,14 @@ and several inner iterations in the second phase. How many of each,
 nobody knows. In our current implementation of smacof we take several
 inner iteration steps in the first phase and a single inner iteration
 step in the second phase.
+
+## Alternative LS Loss Functions
+
+GL / McGee / Sammon
+Reverse: $\sum w_{ij}(\delta_{ij}-f(d_{ij}(X)))^2$
+or: $\sum w_{ij}(f(\delta_{ij})-f(d_{ij}(X)))^2$
+where $f$ is known or $f$ is partially known.
+Power: $f(x)=x^r$
 
 \sectionbreak
 
@@ -477,6 +479,20 @@ where $J$ is the centering matrix $I-\frac{1}{n}ee'$, and thus
 $V^+=\frac{1}{n}J$. The Guttman transform is then simply
 $G(X)=n^{-1}B(X)X$.
 
+We have defined stress as a function on $\mathbb{R}^{n\times p}$, the space of $n\times p$ matrices. For some purposes it is convenient to
+use an alternative, but equivalent, definition of stress on $\mathbb{R}^{np}$, the space of all vectors of length $np$. Define
+$\mathfrak{A}_{ij}$ as the direct sum of $p$ copies of $A_{ij}$. Thus $\mathfrak{A}_{ij}$ is block-diagonal of order $np$. Now
+redefine stress as
+$$
+\sigma(x):=\frac12\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}(\delta_{ij}-x'\mathfrak{A}_{ij}x)^2.
+$$
+$$
+\sigma(x)=1-x'\mathfrak{B}(x)x+\frac12 x'\mathfrak{V}x
+$$
+where $\mathfrak{B}(x)$ and $\mathfrak{V}$ are direct sums of
+$p$ copies of our previous $B(X)$ and $V$.
+
+
 # Intermezzo: Explicit Normalization
 
 $$
@@ -535,176 +551,8 @@ $$
 
 # Smacof Algorithm
 
-## Introduction to Majorization
 
-Majorization, these days better known as MM (@lange_16), is a general
-approach for the construction of minimization algorithms. There is also
-minorization, which leads to maximization algorithms, which explains the
-MM acronym: minorization for maximization and majorization for
-minimization.
-
-Before the MM principle was formulated as a general approach to
-algorithm construction there were some important predecessors. Major
-classes of MM algorithms avant la lettre were the *EM Algorithm* for
-maximum likelihood estimation of @dempster_laird_rubin_77, the *Smacof
-Algorithm* for MDS of @deleeuw_C_77, the *Generalized Weiszfeldt Method*
-of @vosz_eckhardt_80, and the *Quadratic Approximation Method* of
-@boehning_lindsay_88. The first formulation of the general majorization
-principle seems to be @deleeuw_C_94c.
-
-Let's start with a brief introduction to majorization. Minimize a real
-valued function $\sigma$ over $x\in\mathbb{S}$, where $\mathbb{S}$ is
-some subset of $\mathbb{R}^n$. There are obvious extensions of
-majorization to functions defined on more general spaces, with values in
-any partially ordered set, but we do not need that level of generality
-in this manual. Also majorization applied to $\sigma$ is minorization
-applied to $-\sigma$, so concentrating on majorization-minimization and
-ignoring minorization-maximization causes no loss of generality
-
-Suppose there is a real-valued function $\eta$ on
-$\mathbb{S}\otimes\mathbb{S}$ such that
-
-```{=tex}
-\begin{align}
-\sigma(x)&\leq\eta(x,y)\qquad\forall x,y\in\mathbb{S},(\#eq:maj1)\\
-\sigma(x)&=\eta(x,x)\qquad\forall x\in\mathbb{S}.(\#eq:maj2)
-\end{align}
-```
-The function $\eta$ is called a *majorization scheme* for $\sigma$ on
-$S$. A majorization scheme is *strict* if $\sigma(x)<\eta(x,y)$ for all
-$x,y\in S$ withj $x\not=y$.
-
-Define \begin{equation}
-x^{(k+1)}\in\mathop{\text{argmin}}_{x\in\mathbb{S}}\eta(x,x^{(k)}),
-(\#eq:majalg)
-\end{equation} assuming that $\eta(\bullet,y)$ attains its (not
-necessarily unique) minimum over $x\in\mathbb{S}$ for each $y$. If
-$x^{(k)}\in\mathop{\text{argmin}}_{x\in\mathbb{S}}\eta(x,x^{(k)})$ 
-then we stop.
-
-By majorization property \@ref(eq:maj1) 
-\begin{equation}
-\sigma(x^{(k+1)})\leq\eta(x^{(k+1)},x^{(k)}).
-\end{equation}
-Because we did not stop update rule \@ref(eq:majalg) implies 
-\begin{equation}
-\eta(x^{(k+1)},x^{(k)})<\eta(x^{(k)},x^{(k)}).
-\end{equation} 
-and finally by majorization property \@ref(eq:maj1)
-\begin{equation}
-\eta(x^{(k)},x^{(k)})=\sigma(x^{(k)}).
-\end{equation}
-
-If the minimum in \@ref(eq:majalg) is attained for a unique $x$ then
-$\eta(x^{(k+1)},x^{(k)})<\eta(x^{(k)},x^{(k)})$. If the majorization
-scheme is strict then $\sigma(x^{(k+1)})<\eta(x^{(k+1)},x^{(k)})$. Under
-either of these two additional conditions
-$\sigma(x^{(k+1)})<\sigma(x^{(k)})$, which means that the majorization
-algorithm is a monotone descent algorithm, and if $\sigma$ is bounded
-below on $\mathbb{S}$ the sequence $\sigma(x^{(k)})$ converges.
-
-Note that we only use the order relation to prove convergence of the
-sequence of function values. To prove convergence of the $x^{(k)}$ we
-need stronger compactness and continuity assumptions to apply the
-general theory of @zangwill_69a. For such a proof the argmin in update
-formula \@ref(eq:majalg) can be generalized to
-$x^{(k+1)}=\phi(x^{(k)})$, where $\phi$ maps $\mathbb{S}$ into
-$\mathbb{S}$ such that $\eta(\phi(x),x)\leq\sigma(x)$ for all $x$.
-
-We give a small illustration in which we minimize $\sigma$ with
-$\sigma(x)=\sqrt{x}-\log{x}$ over $x>0$. Obviously we do not need
-majorization here, because solving $\mathcal{D}\sigma(x)=0$ immediately
-gives $x=4$ as the solution we are looking for.
-
-To arrive at this solution using majorization we start with
-\begin{equation}
-\sqrt{x}\leq\sqrt{y}+\frac12\frac{x-y}{\sqrt{y}},
-(\#eq:sqrtmaj)
-\end{equation} which is true because a differentiable concave function
-such as the square root is majorized by its tangent everywhere.
-Inequality \@ref(eq:sqrtmaj) implies \begin{equation}
-\sigma(x)\leq\eta(x,y):=\sqrt{y}+\frac12\frac{x-y}{\sqrt{y}}-\log{x}.
-(\#eq:examplemaj)
-\end{equation} Note that $\eta(\bullet,y)$ is convex in its first
-argument for each $y$. We have $\mathcal{D}_1\eta(x,y)=0$ if and only if
-$x=2\sqrt{y}$ and thus the majorization algorithm is \begin{equation}
-x^{(k+1)}=2\sqrt{x^{(k)}}
-(\#eq:examplealg)
-\end{equation} The sequence $x^{(k)}$ converges monotonically to the
-fixed point $x=2\sqrt{x}$, i.e. to $x=4$. If $x^{(0)}<4$ the sequence is
-increasing, if $x^{(0)}<4$ it is decreasing. Also, by l'Hôpital,
-\begin{equation}
-\lim_{x\rightarrow 4}\frac{2\sqrt{x}-4}{x-4}=\frac12
-(\#eq:hopi1)
-\end{equation} and thus convergence to the minimizer is linear with
-asymptotic convergence rate $\frac12$. By another application of
-l'Hôpital \begin{equation}
-\lim_{x\rightarrow 4}\frac{\sigma(2\sqrt{x)})-\sigma(4)}{\sigma(x)-\sigma(4)}=\frac14,
-(\#eq:hopi2)
-\end{equation} and convergence to the minimum is linear with asymptotic
-convergence rate $\frac14$. Linear convergence to the minimizer is
-typical for majorization algorithms, as is the twice-as-fast linear
-convergence to the minimum value.
-
-This small example is also of interest, because we minimize a *DC
-function*, the difference of two convex functions. In our example the
-convex functions are minus the square root and minus the logarithm.
-Algorithms for minimizing DC functions define other important subclasses
-of MM algorithms, the *DC Algorithm* of Tao Pham Dinh (see @lethi_tao_18
-for a recent overview), the *Concave-Convex Procedure* of
-@yuille_rangarajan_03, and the *Half-Quadratic Method* of Donald Geman
-(see @nikolova_ng_05 for a recent overview). For each of these methods
-there is a huge literature, with surprisingly little non-overlapping
-literatures. The first phase of the smacof algorithm, in which we
-improve the configuration for given disparities, is DC, concave-convex,
-and half-quadratic.
-
-In the table below we show convergence of \@ref(eq:examplealg) starting
-at $x=1.5$. The first column show how far $x^{(k)}$ deviates from the
-minimizer (i.e. from 4), the second shows how far$\sigma(x^{(k)})$
-deviates from the minimum (i.e. from $2-\log 4$). We clearly see the
-convergence rates $\frac12$ and $\frac14$ in action.
-
-```{r majiter, echo = FALSE}
-x <- 1.5
-f <- sqrt(x) - log(x)
-f0 <- 2 - log(4)
-for (i in  1:15) {
-  cat("itel ", formatC(i, digits = 0, width = 2, format = "d"),
-      formatC(4 - x, digits = 10, format = "f"),
-      formatC(f - f0, digits = 10, format = "f"),
-      "\n")
-  x <- 2 * sqrt(x)
-  f <- sqrt(x) - log(x)
-}
-```
-
-The first three iterations are shown in the figure below. The vertical
-lines indicate the value of $x$, function is in red, and the first three
-majorizations are in blue.
-
-```{r majplot, fig.align = "center", echo = FALSE}
-x <- 100:500/100
-y <- sqrt(x) - log(x)
-plot(x, y, type = "l", lwd = 3, col = "RED")
-g <- function(x, y) {
-return(sqrt(y)+ (x - y) / (2 * sqrt(y)) - log(x))
-}
-x1 <- 1.5
-abline(v = x1)
-z1 <- g(x, x1)
-lines(x, z1, col = "BLUE")
-x2 <- 2 * sqrt(x1)
-abline(v = x2)
-z2 <- g(x, x2)
-lines(x, z2, col = "BLUE")
-x3 <- 2 * sqrt(x2)
-abline(v = x3)
-z3 <- g(x, x3)
-lines(x, z3, col = "BLUE")
-```
-
-### Majorizing Stress
+### Majorizing Raw Stress
 
 $$
 \sigma(X)=\frac12\sum w_{ij}(\delta_{ij}-d_{ij}(X))^2=1-\rho(X)+\frac12\eta^2(X)
@@ -753,6 +601,9 @@ X^+=\frac12(1+\beta)\overline{X}+\frac12(1-\beta)X
 $$
 Regular smacof $\beta = 1$. Accelerated $\beta=3$
 
+
+## Majorizing Normalized Stress
+
 ## Stress formula two
 
 Minorization result
@@ -794,7 +645,7 @@ The programs for the techniques discussed in this manual are (currently) written
 in R (@r_core_team_24). There are plans to translate them, or at least their computational
 cores, to C, but I am not sure I'll ever get to that.
 
-The functions in the R files that I wrote are all called smacofFoo, using Camel Case, where Foo is something more or less descriptive of what the function is doing. Of course functions that come with R, or with packages written by others, keep their original names. Plots are made in ggplot2 (@wickham_), the manual is written in quarto ().
+The functions in the R files that I wrote are all called smacofFoo, using Camel Case, where Foo is something more or less descriptive of what the function is doing. Of course functions that come with R, or with packages written by others, keep their original names. Plots are made in ggplot2 (@wickham_16), the manual is written in quarto ().
 
 Each chapter of the manual has one main function implementing the technique discussed in the chapter. Since the programs share a lot of code there are many subroutines or
 modules implementing common operations. For my private use the code for each chapter is compiled into a barebones R package.

@@ -64,21 +64,10 @@ dissimilarities are missing, or ignored even if they are available, and only the
 If we define $Z$ as
 \begin{equation}
 Z:=
-\kbordermatrix{
-\mbox{\ }&p\\
-n&X\\
-m&Y
-}
-(\#eq:ufzdef)
 \end{equation}
 and $U$ as
 \begin{equation}
 U:=
-\kbordermatrix{
-&n&m\\
-n&0&W\\
-m&W'&0
-}
 (\#eq:ufudef)
 \end{equation}
 then we can also write
@@ -100,8 +89,76 @@ preference judgments. We merely are interested in mapping off-diagonal dissimila
 relations into low-dimensional Euclidean space, i.e. in making a picture of the
 data. In some cases (distance completion, distances with errors, spatial basis)
 
-Challenges: degeneracy
+Sixty years ago Joseph B. Kruskal published his basic non-metric multidimensional scaling
+papers (@kruskal_64a, @kruskal_64b). They provided the necessary tools to analyze what
+later became known as symmetric one-mode data, i.e. symmetric dissimilarities between
+$n$ objects. It did not take long before @roskam_68 and @kruskal_carroll_69 generalized
+to rectangular two-mode data, i.e. to non-metric multidimensional unfolding. The canonical 
+example of such data is a number of individuals ranking their preferences (interpreted as similarities) for a number of objects. The ordinal information in unfolding data is much smaller
+than that in symmetric one mode data. Not only are there no dissimilarities between the individuals
+and between the objects, but in addition the rankings are conditional, which means that
+preferences can only be compared within individuals. It is safe to say that as a consequence 
+of this paucity of information the unmodified Kruskal approach to non-metric unfolding did not work.
 
+If one applies a Kruskal-type non-metric scaling program to preference rank orders, then
+one invariable finds what has become known as a trivial solution. To understand this, let
+us consider what non-metric multidimensional unfolding want to accomplish. Suppose there 
+are $n$ individuals, and each individual $i$ provides us with a partial order $\prec_i$
+on the $m$ objects. We want to represent the individuals as $n$ points $x_i$ and the
+objects as $m$ points $y_j$ in a low-dimensional Euclidean space, in such a way
+that $j\prec_i\ell$ in the data corresponds with $d(x_i,y_j)<d(x_i,y_\ell)$ in the
+representation. Here $d(x,y)$ is Euclidean distance. 
+
+The Kruskal approach quantifies this objective using a least squares
+loss function called stress. The stress for individual $i$ is
+$$
+\sigma_i(X,Y):=\min_{\delta\in K_i}\sum_{j=1}^m w_{ij}(\delta_j-d(x_i,y_j))^2.
+$$
+Here $K_i$ is the set of all vectors $\delta_i$ with $m$ elements that satisfy 
+$\delta_{ij}\leq\delta_{i\ell}$ for all $(i,j,\ell)$ for which $j\prec_i\ell$.
+The total stress $\sigma(X,Y)$ is the sum of the $\sigma_i(X,Y)$ stresses 
+over the $n$ individuals.
+
+Thus we do not require directly that the distances satify the ordinal constraints, 
+we require that the distances are numerically as close as possible to a vector
+$\delta$ that does satisfy the ordinal constraints. Note, however, that
+the constraints on $\delta$ use $\leq$, *less than or equal to*, instead if $<$, 
+*less than*, which means we are OK with $\delta_{ij}=\delta_{i\ell}$ for some, 
+or even all, $j\prec_i\ell$. And that is where the trivial solutions come in.
+
+The most obvious trivial solution collapses all $x_i$ and all $y_j$ into a single point.
+This makes all distances zero, and thus $\sigma(X,Y)=0$. We have achieved our
+objective, which was minimizing stress, but the solution is completely independent
+of the data. A slightly more elaborate, but equally trivial, solution puts all
+$x_i$ in one point and all $y_j$ in another. All distances are non-zero, but equal.
+Even more elaborately, we can put all $x_i$ in the origin, and all $y_j$ on a 
+circle with the origin as center. 
+
+Ever since @roskam_68 and @kruskal_carroll_69 trivial solutions have been acknowledged
+and ways to avoid them in non-metric multidimensional unfolding have been proposed,
+since 1980 mostly by Willem Heiser and his students. There are excellent discussions 
+of these proposed solutions in the recent dissertations of @vandeun_05 and @busing_10.
+None of them, however, solves the version of the 
+non-metric multidimensional unfolding problem where we require that $d(x_i,y_j)\leq d(x_i,y_\ell)$
+if $j\prec_i\ell$. In that version we do not need a computer to find a perfect solution
+of the relevant inequalities, we just choose one of the trivial solutions.
+
+In this paper we study one early attempt to salvage the Kruskal-Roskam approach, using
+row-wise normalization of stress. The trivial solutions have in common that the
+$d(x_i,y_j)=d(x_i,y_\ell)$ for all $(i,j,\ell)$, and we can prevent them from happening by
+redefining stress as
+$$
+\sigma(X,Y)=\sum_{i=1}^n\frac{\min_{\delta\in K_i}\sum_{j=1}^m w_{ij}(\delta_j-d(x_i,y_j))^2}
+{\min_{\delta\in L}\sum_{j=1}^m w_{ij}(\delta_j-d(x_i,y_j))^2},
+$${#eq-rosstress}
+where $L$ is the set of all vectors for which all $m$ elements are the same. The optimal $\delta_j$
+in denominator $i$ are all equal to the weighted mean of the $d(x_i,y_j)$. Thus, at a trivial
+solution, both nominators and denominators are zero for all $i$, and since $0/0$ is undefined,
+stress is undefined at trivial solutions. Thus the algorithm cannot converge to a trivial
+solution. 
+
+In practice, however, the Kruskal-Roskam approach does not work well. All to often solutions still look like trivial solutions, or are partly trivial. An early attempt to explain why there are these failures
+was @deleeuw_R_83 (reissued as @deleeuw_R_06a). That paper studies how the loss function from @eq-rosstress behaves near trivial solutions. Since the 1983 paper is somewhat tentative, we present a more complete, more general, and more rigorous version in this paper. We look again at the idea that since we do not like $0/0$ the iterative algorithm must not like it too.
 # Loss function
 
 ## Metric
@@ -149,11 +206,6 @@ on $X$ and $Y$
 Let
 \begin{equation}
 \overline{Z}:=
-\kbordermatrix{
-\mbox{\ }&p\\
-n&\overline{X}\\
-m&\overline{Y}
-}
 (\#eq:ufolzdef)
 \end{equation}
 be the Guttman transform of $Z^{(k)}$. In constrained smacof we 

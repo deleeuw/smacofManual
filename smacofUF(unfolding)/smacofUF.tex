@@ -1,11 +1,13 @@
 % Options for packages loaded elsewhere
 \PassOptionsToPackage{unicode}{hyperref}
 \PassOptionsToPackage{hyphens}{url}
-%
 \documentclass[
   12pt,
 ]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{5}
 \usepackage{iftex}
 \ifPDFTeX
   \usepackage[T1]{fontenc}
@@ -37,8 +39,6 @@
 }{% if KOMA class
   \KOMAoptions{parskip=half}}
 \makeatother
-\usepackage{xcolor}
-\usepackage[margin=1in]{geometry}
 \usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
 % Correct order of tables after \paragraph or \subparagraph
@@ -51,21 +51,19 @@
 \makesavenoteenv{longtable}
 \usepackage{graphicx}
 \makeatletter
-\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
-\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
-\makeatother
-% Scale images if necessary, so that they will not overflow the page
-% margins by default, and it is still possible to overwrite the defaults
-% using explicit options in \includegraphics[width, height, ...]{}
-\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
 % Set default figure placement to htbp
-\makeatletter
 \def\fps@figure{htbp}
 \makeatother
-\setlength{\emergencystretch}{3em} % prevent overfull lines
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-\setcounter{secnumdepth}{5}
 % definitions for citeproc citations
 \NewDocumentCommand\citeproctext{}{}
 \NewDocumentCommand\citeproc{mm}{%
@@ -99,12 +97,13 @@
 \newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
 \newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
 \newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \usepackage{tcolorbox}
 \usepackage{amssymb}
 \usepackage{yfonts}
 \usepackage{bm}
-\usepackage{titlesec}
-\usepackage{kbordermatrix}
 
 
 \newtcolorbox{greybox}{
@@ -142,9 +141,6 @@
 \newcommand{\jis}{\mathop{\sum\sum}_{1\leq j<i\leq n}}
 \newcommand{\sij}{\sum_{i=1}^n\sum_{j=1}^n}
 	
-\ifLuaTeX
-  \usepackage{selnolig}  % disable illegal ligatures
-\fi
 \usepackage{bookmark}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
@@ -156,7 +152,7 @@
 \title{Smacof at 50: A Manual\\
 Part 5: Unfolding in Smacof}
 \author{Jan de Leeuw - University of California Los Angeles}
-\date{Started December 12 2022, Version of April 29, 2024}
+\date{Started December 12 2022, Version of December 22, 2024}
 
 \begin{document}
 \maketitle
@@ -196,21 +192,10 @@ dissimilarities are missing, or ignored even if they are available, and only the
 If we define \(Z\) as
 \begin{equation}
 Z:=
-\kbordermatrix{
-\mbox{\ }&p\\
-n&X\\
-m&Y
-}
-\label{eq:ufzdef}
 \end{equation}
 and \(U\) as
 \begin{equation}
 U:=
-\kbordermatrix{
-&n&m\\
-n&0&W\\
-m&W'&0
-}
 \label{eq:ufudef}
 \end{equation}
 then we can also write
@@ -232,9 +217,77 @@ preference judgments. We merely are interested in mapping off-diagonal dissimila
 relations into low-dimensional Euclidean space, i.e.~in making a picture of the
 data. In some cases (distance completion, distances with errors, spatial basis)
 
-Challenges: degeneracy
+Sixty years ago Joseph B. Kruskal published his basic non-metric multidimensional scaling
+papers (Kruskal (1964a), Kruskal (1964b)). They provided the necessary tools to analyze what
+later became known as symmetric one-mode data, i.e.~symmetric dissimilarities between
+\(n\) objects. It did not take long before Roskam (1968) and Kruskal and Carroll (1969) generalized
+to rectangular two-mode data, i.e.~to non-metric multidimensional unfolding. The canonical
+example of such data is a number of individuals ranking their preferences (interpreted as similarities) for a number of objects. The ordinal information in unfolding data is much smaller
+than that in symmetric one mode data. Not only are there no dissimilarities between the individuals
+and between the objects, but in addition the rankings are conditional, which means that
+preferences can only be compared within individuals. It is safe to say that as a consequence
+of this paucity of information the unmodified Kruskal approach to non-metric unfolding did not work.
 
-\section{Loss function}\label{loss-function}
+If one applies a Kruskal-type non-metric scaling program to preference rank orders, then
+one invariable finds what has become known as a trivial solution. To understand this, let
+us consider what non-metric multidimensional unfolding want to accomplish. Suppose there
+are \(n\) individuals, and each individual \(i\) provides us with a partial order \(\prec_i\)
+on the \(m\) objects. We want to represent the individuals as \(n\) points \(x_i\) and the
+objects as \(m\) points \(y_j\) in a low-dimensional Euclidean space, in such a way
+that \(j\prec_i\ell\) in the data corresponds with \(d(x_i,y_j)<d(x_i,y_\ell)\) in the
+representation. Here \(d(x,y)\) is Euclidean distance.
+
+The Kruskal approach quantifies this objective using a least squares
+loss function called stress. The stress for individual \(i\) is
+\[
+\sigma_i(X,Y):=\min_{\delta\in K_i}\sum_{j=1}^m w_{ij}(\delta_j-d(x_i,y_j))^2.
+\]
+Here \(K_i\) is the set of all vectors \(\delta_i\) with \(m\) elements that satisfy
+\(\delta_{ij}\leq\delta_{i\ell}\) for all \((i,j,\ell)\) for which \(j\prec_i\ell\).
+The total stress \(\sigma(X,Y)\) is the sum of the \(\sigma_i(X,Y)\) stresses
+over the \(n\) individuals.
+
+Thus we do not require directly that the distances satify the ordinal constraints,
+we require that the distances are numerically as close as possible to a vector
+\(\delta\) that does satisfy the ordinal constraints. Note, however, that
+the constraints on \(\delta\) use \(\leq\), \emph{less than or equal to}, instead if \(<\),
+\emph{less than}, which means we are OK with \(\delta_{ij}=\delta_{i\ell}\) for some,
+or even all, \(j\prec_i\ell\). And that is where the trivial solutions come in.
+
+The most obvious trivial solution collapses all \(x_i\) and all \(y_j\) into a single point.
+This makes all distances zero, and thus \(\sigma(X,Y)=0\). We have achieved our
+objective, which was minimizing stress, but the solution is completely independent
+of the data. A slightly more elaborate, but equally trivial, solution puts all
+\(x_i\) in one point and all \(y_j\) in another. All distances are non-zero, but equal.
+Even more elaborately, we can put all \(x_i\) in the origin, and all \(y_j\) on a
+circle with the origin as center.
+
+Ever since Roskam (1968) and Kruskal and Carroll (1969) trivial solutions have been acknowledged
+and ways to avoid them in non-metric multidimensional unfolding have been proposed,
+since 1980 mostly by Willem Heiser and his students. There are excellent discussions
+of these proposed solutions in the recent dissertations of Van Deun (2005) and Busing (2010).
+None of them, however, solves the version of the
+non-metric multidimensional unfolding problem where we require that \(d(x_i,y_j)\leq d(x_i,y_\ell)\)
+if \(j\prec_i\ell\). In that version we do not need a computer to find a perfect solution
+of the relevant inequalities, we just choose one of the trivial solutions.
+
+In this paper we study one early attempt to salvage the Kruskal-Roskam approach, using
+row-wise normalization of stress. The trivial solutions have in common that the
+\(d(x_i,y_j)=d(x_i,y_\ell)\) for all \((i,j,\ell)\), and we can prevent them from happening by
+redefining stress as
+\[
+\sigma(X,Y)=\sum_{i=1}^n\frac{\min_{\delta\in K_i}\sum_{j=1}^m w_{ij}(\delta_j-d(x_i,y_j))^2}
+{\min_{\delta\in L}\sum_{j=1}^m w_{ij}(\delta_j-d(x_i,y_j))^2},
+\]\{\#eq-rosstress\}
+where \(L\) is the set of all vectors for which all \(m\) elements are the same. The optimal \(\delta_j\)
+in denominator \(i\) are all equal to the weighted mean of the \(d(x_i,y_j)\). Thus, at a trivial
+solution, both nominators and denominators are zero for all \(i\), and since \(0/0\) is undefined,
+stress is undefined at trivial solutions. Thus the algorithm cannot converge to a trivial
+solution.
+
+In practice, however, the Kruskal-Roskam approach does not work well. All to often solutions still look like trivial solutions, or are partly trivial. An early attempt to explain why there are these failures
+was De Leeuw (1983) (reissued as De Leeuw (2006)). That paper studies how the loss function from (\textbf{eq-rosstress?}) behaves near trivial solutions. Since the 1983 paper is somewhat tentative, we present a more complete, more general, and more rigorous version in this paper. We look again at the idea that since we do not like \(0/0\) the iterative algorithm must not like it too.
+\# Loss function
 
 \subsection{Metric}\label{metric}
 
@@ -270,6 +323,31 @@ So we minimize
 \]
 
 \subsection{Constraints}\label{constraints-1}
+
+Basic smacof theory ((\textbf{deleeuw\_heiser\_C\_81?})) tells us that having constraints
+on \(X\) and \(Y\)
+
+Let
+\begin{equation}
+\overline{Z}:=
+\label{eq:ufolzdef}
+\end{equation}
+be the Guttman transform of \(Z^{(k)}\). In constrained smacof we
+have to minimize, in each iteration,
+\[
+\text{tr}\ (X-\overline{X})'V_{11}(X-\overline{X})+
+2\ \text{tr}\ (X-\overline{X})'V_{12}(Y-\overline{Y})+
+\text{tr}\ (Y-\overline{Y})'V_{22}(Y-\overline{Y})
+\]
+over \(X\) and \(Y\) satisfying the constraints. That defines \(Z^{(k+1)}\). As in
+other block relaxation cases it is not necessary to actually minimize \ldots, it suffices to
+decrease it in some systematic way.
+
+If there are no constraints we have \(Z^{(k+1)}=\Gamma(Z^{(k)})\).
+
+\section{Normalization Restrictions}\label{normalization-restrictions}
+
+\(X'V_{11}X=I\) or \(\text{tr}\ X'V_{11}X=1\).
 
 \subsubsection{Centroid Restriction}\label{centroid-restriction}
 
@@ -343,24 +421,9 @@ Let \(H=-V_{21}(X-\overline{X})-V_{22}\overline{Y}\). Minimize using \(z'V_{22}z
 \[
 a=H'z=\{\overline{Y}'V_{22}-(X-\overline{X})'V_{12})\}z
 \]
+\# Only You
 
-\section{Indicator Matrices}\label{indicator-matrices}
-
-Suppose \(G_1,\cdots,G_m\) are indicator matrices, all with \(n\) rows, but with
-\(k_1,\cdots,k_m\) columns. Their elements are \(g_{il}^j\) with \(i=1,\cdots,n\)
-and \(l=1,\cdots,k_j\). Thus \(g_{il}^j\) is either zero or one, and
-\[
-\sum_{l=1}^{k_j}g_{il}^j=1
-\]
-for all \(i=1,\cdots,n\) and \(j=1,\cdots,m\).
-
-Now define the smacof loss function
-\[
-\sigma(X,Y_1,\cdots,Y_m)=\sum_{j=1}^m\sum_{i=1}^n\sum_{l=1}^{k_j}w_{il}^j(\delta_{il}^j-d(x_i,y^j_l))^2
-\]
-with \(w_{il}^j=g_{il}^j\) and \(\delta_{il}^j=1-g_{il}^j\). This means we are
-aiming for \(d(x_i,y^j_l)=0\) whenever \(g_{il}^j=1\) and we do not care what
-\(d(x_i,y^j_l)\) is when \(g_{il}^j=0\).
+Each row object coincides with the first choice column object
 
 \section{Examples}\label{examples}
 
@@ -377,20 +440,38 @@ aiming for \(d(x_i,y^j_l)=0\) whenever \(g_{il}^j=1\) and we do not care what
 
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-busing_10}
+Busing, Frank M. T. A. 2010. {``Advances in Multidimensional Unfolding.''} PhD thesis, Leiden University.
+
 \bibitem[\citeproctext]{ref-coombs_64}
 Coombs, C. H. 1964. \emph{{A Theory of Data}}. Wiley.
 
 \bibitem[\citeproctext]{ref-coombs_50}
 Coombs, Clyde H. 1950. {``Psychological Scaling Without a Unit of Measurement.''} \emph{Psychological Review} 57: 148--58.
 
+\bibitem[\citeproctext]{ref-deleeuw_R_83}
+De Leeuw, J. 1983. {``{On Degenerate Multidimensional Unfolding Solutions}.''} Research Report. Leiden, The Netherlands: Department of Data Theory FSW/RUL.
+
+\bibitem[\citeproctext]{ref-deleeuw_R_06a}
+---------. 2006. {``{On Degenerate Nonmetric Unfolding Solutions}.''} Preprint Series 507. Los Angeles, CA: UCLA Department of Statistics. \url{https://jansweb.netlify.app/publication/deleeuw-r-06-a/deleeuw-r-06-a.pdf}.
+
 \bibitem[\citeproctext]{ref-deleeuw_groenen_pietersz_U_06}
 De Leeuw, J., P. J. F. Groenen, and R. Pietersz. 2006. {``{Optimizing Functions of Squared Distances}.''} UCLA Department of Statistics. \url{https://jansweb.netlify.app/publication/deleeuw-groenen-pietersz-u-06/deleeuw-groenen-pietersz-u-06.pdf}.
+
+\bibitem[\citeproctext]{ref-kruskal_64a}
+Kruskal, J. B. 1964a. {``{Multidimensional Scaling by Optimizing Goodness of Fit to a Nonmetric Hypothesis}.''} \emph{Psychometrika} 29: 1--27.
+
+\bibitem[\citeproctext]{ref-kruskal_64b}
+---------. 1964b. {``{Nonmetric Multidimensional Scaling: a Numerical Method}.''} \emph{Psychometrika} 29: 115--29.
 
 \bibitem[\citeproctext]{ref-kruskal_carroll_69}
 Kruskal, J. B., and J. D. Carroll. 1969. {``{Geometrical Models and Badness of Fit Functions}.''} In \emph{Multivariate Analysis, Volume II}, edited by P. R. Krishnaiah, 639--71. North Holland Publishing Company.
 
 \bibitem[\citeproctext]{ref-roskam_68}
 Roskam, E. E. 1968. {``{Metric Analysis of Ordinal Data in Psychology}.''} PhD thesis, University of Leiden.
+
+\bibitem[\citeproctext]{ref-vandeun_05}
+Van Deun, K. 2005. {``Degeneracies in Multidimensional Scaling.''} PhD thesis, KU Leuven.
 
 \end{CSLReferences}
 

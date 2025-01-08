@@ -230,7 +230,7 @@
 \title{Smacof at 50: A Manual\\
 Part 1: Introduction}
 \author{Jan de Leeuw}
-\date{December 8, 2024}
+\date{December 9, 2024}
 
 \begin{document}
 \maketitle
@@ -597,8 +597,6 @@ Jan de Leeuw at La Jolla, August 1975}
 
 \sectionbreak
 
-\section{Introduction}\label{intro}
-
 In this manual we study the smacof family of \emph{Multidimensional
 Scaling (MDS)} techniques. In MDS the data consist of some type of
 information about the \emph{dissimilarities} between a pairs of
@@ -664,7 +662,7 @@ different ways. For ordinal and nominal dissimilarities the notion of
 approximation is less clear, and we have to develop more specialized
 techniques to measure how well the distances fit the dissimilarities.
 
-\subsection{Brief History}\label{introhist}
+\section{Brief History}\label{introhist}
 
 De Leeuw and Heiser (\citeproc{ref-deleeuw_heiser_C_80}{1980})
 
@@ -678,10 +676,16 @@ presidential address of W. S. Torgerson
 Our history review takes the form of brief summaries of what we consider
 to be milestone papers or books.
 
-\subsubsection{Milestones}\label{milestones}
+\subsection{Prehistory}\label{prehistory}
+
+Young-Householder, etc.
+
+\subsection{Torgerson}\label{torgerson}
 
 W. S. Torgerson (\citeproc{ref-torgerson_52}{1952}) W. S. Torgerson
 (\citeproc{ref-torgerson_65}{1965})
+
+\subsection{Bell Laboratories}\label{bell-laboratories}
 
 Shepard (\citeproc{ref-shepard_62a}{1962a}) Shepard
 (\citeproc{ref-shepard_62b}{1962b})
@@ -689,7 +693,13 @@ Shepard (\citeproc{ref-shepard_62a}{1962a}) Shepard
 Kruskal (\citeproc{ref-kruskal_64a}{1964a}) Kruskal
 (\citeproc{ref-kruskal_64b}{1964b})
 
+\subsection{Guttman-Lingoes}\label{guttman-lingoes}
+
 Guttman (\citeproc{ref-guttman_68}{1968})
+
+\subsection{Alternating Least Squares}\label{alternating-least-squares}
+
+\subsection{Majorization}\label{majorization}
 
 De Leeuw (\citeproc{ref-deleeuw_C_77}{1977}) De Leeuw and Heiser
 (\citeproc{ref-deleeuw_heiser_C_77}{1977})
@@ -741,9 +751,9 @@ Department of Data Theory in Leiden (Heiser and De Leeuw
 (\citeproc{ref-heiser_deleeuw_R_77}{1977})). Eventually they migrated to
 SPSS (for example, Meulman and Heiser
 (\citeproc{ref-meulman_heiser_12}{2012})) and to R (De Leeuw and Mair
-(\citeproc{ref-deleeuw_mair_A_09c}{2009})). The SPSS branch and the R
-branch have diverged somewhat, and they continue to be developed
-independently.
+(\citeproc{ref-deleeuw_mair_A_09c}{2009})). The SPSS branch, now the IBM
+SPSS branch, and the R branch have diverged somewhat, and they continue
+to be developed independently.
 
 Parallel to this book there is an attempt to rewrite the various smacof
 programs in C, with the necessary wrappers to call them from R (De Leeuw
@@ -751,7 +761,7 @@ programs in C, with the necessary wrappers to call them from R (De Leeuw
 test routines, is at
 \href{https://github.com/deleeuw/smacof}{github.com/deleeuw/smacof}
 
-\subsection{Basic MDS}\label{introbasic}
+\section{Basic MDS}\label{introbasic}
 
 Following Kruskal, and to a lesser extent Shepard, we measure the fit of
 distances to dissimilarities using an explicit real-valued \emph{loss
@@ -882,7 +892,7 @@ just do not know the precise location and distances of the points. For
 more discussion of the different uses of MDS we refer to De Leeuw and
 Heiser (\citeproc{ref-deleeuw_heiser_C_82}{1982}).
 
-\subsubsection{Kruskal's stress}\label{kruskals-stress}
+\subsection{Kruskal's stress}\label{kruskals-stress}
 
 Definition @ref(eq:stressall) differs from Kruskal's original stress in
 at least three ways: in Kruskal's use of the square root, in our use of
@@ -993,7 +1003,7 @@ Using normalized dissimilarities amounts to the same defining stress as
 This is useful to remember when we discuss the various normalizations
 for non-metric MDS in section @ref(nmdsnorm).
 
-\subsection{Local and Global}\label{seclocglob}
+\subsection{Local and Global Minima}\label{seclocglob}
 
 In basic MDS our goal is to compute both \(\min_X\sigma(X)\) and
 \(\mathop{\text{Argmin}}_X\sigma(X)\), where \(\sigma(X)\) is defined as
@@ -1009,19 +1019,16 @@ Emphasis local minima
 
 Compute stationary points
 
-Note we use the notation \(\mathop{\text{Argmin}}_{x\in X}f(x)\) for the
-set of minimizers of \(f\) over \(X\). Thus
-\(z\in\mathop{\text{Argmin}}_{x\in X}f(x)\) means \(z\) minimizes \(f\)
-over \(X\), i.e.~\(f(z)=\min_{x\in X} f(x)\). If it is clear from theory
-that the minimum is necessarily unique, we use \(\text{argmin}\) instead
-of \(\text{Argmin}\).
+\subsection{Partitioning Loss}\label{partitioning-loss}
 
-\subsection{Generalizations}\label{introgeneralize}
+\section{Generalizations}\label{introgeneralize}
 
 The most important generalizations of basic MDS we will study in later
 chapters of this book are discussed briefly in the following sections.
 
-\subsubsection{Non-metric MDS}\label{gennonmetric}
+\subsection{Non-linear MDS}\label{non-linear-mds}
+
+\subsection{Non-metric MDS}\label{gennonmetric}
 
 Basic MDS is a form of \emph{Metric Multidimensional Scaling} or
 \emph{MMDS}, in which dissimilarities are either known or missing. In
@@ -1084,11 +1091,11 @@ out right away. Also, the use of the Shepard plot, with dissimilarities
 on the horizontal axis and fitted distances on the vertical axis,
 suggests there is more to dissimilarities than just their rank order.
 
-\subsubsection{fstress}\label{genfstress}
+\subsection{Fstress and Friends}\label{genfstress}
 
 Instead of defining the residuals in the least squares loss function as
 \(\delta_{ij}-d_{ij}(X)\) chapter @ref(chrstress) discusses the more
-general cases where the residuals are \(f(\delta_{ij})-f(d_{ij}(X))\)
+general cases where the residuals are \(f(\delta_{ij})-g(d_{ij}(X))\)
 for some known non-negative increasing function \(f\). This defines the
 \emph{fstress} loss function.
 
@@ -1102,7 +1109,7 @@ weighted version \emph{strain}. The case of rstress with
 \(r\rightarrow 0\) is also of interest, because it leads to the loss
 function in Ramsay (\citeproc{ref-ramsay_77}{1977}).
 
-\subsubsection{Constraints}\label{gencons}
+\subsection{Constraints}\label{gencons}
 
 Instead of minimizing stress over all \(X\) in
 \(\mathbb{R}^{n\times p}\) we will look in chapter @ref(cmds) at various
@@ -1122,6 +1129,8 @@ directly, because the necessary replication frameworks are missing.
 
 and we do not attach much value to locating the true configuration.
 
+Primal and Dual
+
 \[
 \min_{X\in\Omega}\sigma(X)
 \]
@@ -1131,7 +1140,7 @@ and we do not attach much value to locating the true configuration.
 \] where \(\kappa(X,\Omega)\geq 0\) and \(\kappa(X,\Omega)=0\) if and
 only if \(X\in\Omega\).
 
-\subsubsection{Individual Differences}\label{inreplic}
+\subsection{Individual Differences}\label{inreplic}
 
 Now consider the situation in which we have \(m\) different
 dissimilarity matrices \(\Delta_k\) and \(m\) different weight matrices
@@ -1154,7 +1163,7 @@ have a component that is common to all \(k\) and a component that is
 specific or unique to each \(k\). This approach, which generalizes
 constrained MDS, is discussed in detail in chapter @ref(chindif).
 
-\subsubsection{Distance Asymmetry}\label{genasym}
+\subsection{Asymmetry}\label{genasym}
 
 We have seen in section @ref(datasym) of this chapter that in basic MDS
 the assumption that \(W\) and \(\Delta\) are symmetric and hollow can be
@@ -1172,6 +1181,8 @@ covered by the title of this book. But as long as we stay close to
 Euclidean distances, least squares, and the smacof approach, I now feel
 reasonably confident the chapter is not too much of a foreign body.
 
+\subsection{Non-Euclidean Distances}\label{non-euclidean-distances}
+
 When Kruskal introduced gradient-based methods to minimize stress he
 also discussed the possibility to use Minkovski metrics other than the
 Euclidean metric. This certainly was part of the appeal of the new
@@ -1186,6 +1197,172 @@ this book. But it made me decide to ignore Minkovski distances (and
 hyperbolic and elliptic non-Euclidean distances), because life with
 stress is complicated and challenging enough as it is.
 
+Groenen, Mathar, and Heiser
+(\citeproc{ref-groenen_mathar_heiser_95}{1995}), Mathar and Meyer
+(\citeproc{ref-mathar_meyer_94}{1994})
+
+\section{Principles of Algorithm
+Constuction}\label{principles-of-algorithm-constuction}
+
+\subsection{Alternating Least
+Squares}\label{alternating-least-squares-1}
+
+\subsection{Majorization}\label{majorization-1}
+
+\subsection{Introduction to
+Majorization}\label{introduction-to-majorization}
+
+Majorization, these days better known as MM (Lange
+(\citeproc{ref-lange_16}{2016})), is a general approach for the
+construction of minimization algorithms. There is also minorization,
+which leads to maximization algorithms, which explains the MM acronym:
+minorization for maximization and majorization for minimization.
+
+Before the MM principle was formulated as a general approach to
+algorithm construction there were some important predecessors. Major
+classes of MM algorithms avant la lettre were the EM Algorithm for
+maximum likelihood estimation of Dempster, Laird, and Rubin
+(\citeproc{ref-dempster_laird_rubin_77}{1977}), the \emph{Smacof
+Algorithm} for MDS of De Leeuw (\citeproc{ref-deleeuw_C_77}{1977}), the
+Generalized Weiszfeldt Method* of Vosz and Eckhardt
+(\citeproc{ref-vosz_eckhardt_80}{1980}), and the Quadratic Approximation
+Method of Böhning and Lindsay
+(\citeproc{ref-boehning_lindsay_88}{1988}). The first formulation of the
+general majorization principle seems to be De Leeuw
+(\citeproc{ref-deleeuw_C_94c}{1994}).
+
+Let's start with a brief introduction to majorization. Minimize a real
+valued function \(\sigma\) over \(x\in\mathbb{S}\), where \(\mathbb{S}\)
+is some subset of \(\mathbb{R}^n\). There are obvious extensions of
+majorization to functions defined on more general spaces, with values in
+any partially ordered set, but we do not need that level of generality
+in this manual. Also majorization applied to \(\sigma\) is minorization
+applied to \(-\sigma\), so concentrating on majorization-minimization
+and ignoring minorization-maximization causes no loss of generality
+
+Suppose there is a real-valued function \(\omega\) on
+\(\mathbb{S}\otimes\mathbb{S}\) such that \begin{align}
+\sigma(x)&\leq\omega(x,y)\qquad\forall x,y\in\mathbb{S},\label{eq-maj1}\\
+\sigma(x)&=\omega(x,x)\qquad\forall x\in\mathbb{S}.\label{eq-maj2}
+\end{align} The function \(\omega\) is called a \emph{majorization
+scheme} for \(\sigma\) on \(S\). A majorization scheme is \emph{strict}
+if \(\sigma(x)<\omega(x,y)\) for all \(x,y\in S\) withj \(x\not=y\).
+
+Define \begin{equation}\phantomsection\label{eq-majalg}{
+x^{(k+1)}\in\mathop{\text{argmin}}_{x\in\mathbb{S}}\omega(x,x^{(k)}),
+}\end{equation} assuming that \(\omega\) attains its (not necessarily
+unique) minimum over \(x\in\mathbb{S}\) for each \(y\). If
+\(x^{(k)}\in\mathop{\text{argmin}}_{x\in\mathbb{S}}\omega(x,x^{(k)})\)
+then we stop.
+
+By majorization property \eqref{eq-maj1}
+\(\sigma(x^{(k+1)})\leq\omega(x^{(k+1)},x^{(k)})\). Because we did not
+stop update rule Equation~\ref{eq-majalg} implies
+\(\omega(x^{(k+1)},x^{(k)})<\omega(x^{(k)},x^{(k)})\). and finally by
+majorization property \eqref{eq-maj2}
+\(\omega(x^{(k)},x^{(k)})=\sigma(x^{(k)})\).
+
+If the minimum in Equation~\ref{eq-majalg} is attained for a unique
+\(x\) then \(\omega(x^{(k+1)},x^{(k)})<\omega(x^{(k)},x^{(k)})\). If the
+majorization scheme is strict then
+\(\sigma(x^{(k+1)})<\omega(x^{(k+1)},x^{(k)})\). Under either of these
+two additional conditions \(\sigma(x^{(k+1)})<\sigma(x^{(k)})\), which
+means that the majorization algorithm is a monotone descent algorithm,
+and if \(\sigma\) is bounded below on \(\mathbb{S}\) the sequence
+\(\sigma(x^{(k)})\) converges.
+
+Note that we only use the order relation to prove convergence of the
+sequence of function values. To prove convergence of the \(x^{(k)}\) we
+need stronger compactness and continuity assumptions to apply the
+general theory of Zangwill (\citeproc{ref-zangwill_69a}{1969}). For such
+a proof the argmin in update formula Equation~\ref{eq-majalg} can be
+generalized to \(x^{(k+1)}=\phi(x^{(k)})\), where \(\phi\) maps
+\(\mathbb{S}\) into \(\mathbb{S}\) such that
+\(\omega(\phi(x),x)\leq\sigma(x)\) for all \(x\).
+
+We give a small illustration in which we minimize \(\sigma\) with
+\(\sigma(x)=\sqrt{x}-\log{x}\) over \(x>0\). Obviously we do not need
+majorization here, because solving \(\mathcal{D}\sigma(x)=0\)
+immediately gives \(x=4\) as the solution we are looking for.
+
+To arrive at this solution using majorization we start with
+\begin{equation}
+\sqrt{x}\leq\sqrt{y}+\frac12\frac{x-y}{\sqrt{y}},
+(\#eq:sqrtmaj)
+\end{equation} which is true because a differentiable concave function
+such as the square root is majorized by its tangent everywhere.
+Inequality @ref(eq:sqrtmaj) implies \begin{equation}
+\sigma(x)\leq\eta(x,y):=\sqrt{y}+\frac12\frac{x-y}{\sqrt{y}}-\log{x}.
+(\#eq:examplemaj)
+\end{equation} Note that \(\eta(\bullet,y)\) is convex in its first
+argument for each \(y\). We have \(\mathcal{D}_1\eta(x,y)=0\) if and
+only if \(x=2\sqrt{y}\) and thus the majorization algorithm is
+\begin{equation}
+x^{(k+1)}=2\sqrt{x^{(k)}}
+(\#eq:examplealg)
+\end{equation} The sequence \(x^{(k)}\) converges monotonically to the
+fixed point \(x=2\sqrt{x}\), i.e.~to \(x=4\). If \(x^{(0)}<4\) the
+sequence is increasing, if \(x^{(0)}<4\) it is decreasing. Also, by
+l'Hôpital, \begin{equation}
+\lim_{x\rightarrow 4}\frac{2\sqrt{x}-4}{x-4}=\frac12
+(\#eq:hopi1)
+\end{equation} and thus convergence to the minimizer is linear with
+asymptotic convergence rate \(\frac12\). By another application of
+l'Hôpital \begin{equation}
+\lim_{x\rightarrow 4}\frac{\sigma(2\sqrt{x)})-\sigma(4)}{\sigma(x)-\sigma(4)}=\frac14,
+(\#eq:hopi2)
+\end{equation} and convergence to the minimum is linear with asymptotic
+convergence rate \(\frac14\). Linear convergence to the minimizer is
+typical for majorization algorithms, as is the twice-as-fast linear
+convergence to the minimum value.
+
+This small example is also of interest, because we minimize a \emph{DC
+function}, the difference of two convex functions. In our example the
+convex functions are minus the square root and minus the logarithm.
+Algorithms for minimizing DC functions define other important subclasses
+of MM algorithms, the \emph{DC Algorithm} of Tao Pham Dinh (see Le Thi
+and Tao (\citeproc{ref-lethi_tao_18}{2018}) for a recent overview), the
+\emph{Concave-Convex Procedure} of Yuille and Rangarajan
+(\citeproc{ref-yuille_rangarajan_03}{2003}), and the
+\emph{Half-Quadratic Method} of Donald Geman (see Niikolova and Ng
+(\citeproc{ref-nikolova_ng_05}{2005}) for a recent overview). For each
+of these methods there is a huge literature, with surprisingly little
+non-overlapping literatures. The first phase of the smacof algorithm, in
+which we improve the configuration for given disparities, is DC,
+concave-convex, and half-quadratic.
+
+In the table below we show convergence of @ref(eq:examplealg) starting
+at \(x=1.5\). The first column show how far \(x^{(k)}\) deviates from
+the minimizer (i.e.~from 4), the second shows how far\(\sigma(x^{(k)})\)
+deviates from the minimum (i.e.~from \(2-\log 4\)). We clearly see the
+convergence rates \(\frac12\) and \(\frac14\) in action.
+
+\begin{verbatim}
+itel   1 2.5000000000 0.2055741244 
+itel   2 1.5505102572 0.0554992066 
+itel   3 0.8698308399 0.0144357214 
+itel   4 0.4615431837 0.0036822877 
+itel   5 0.2378427379 0.0009299530 
+itel   6 0.1207437506 0.0002336744 
+itel   7 0.0608344795 0.0000585677 
+itel   8 0.0305337787 0.0000146606 
+itel   9 0.0152961358 0.0000036675 
+itel  10 0.0076553935 0.0000009172 
+itel  11 0.0038295299 0.0000002293 
+itel  12 0.0019152235 0.0000000573 
+itel  13 0.0009577264 0.0000000143 
+itel  14 0.0004788919 0.0000000036 
+itel  15 0.0002394531 0.0000000009 
+\end{verbatim}
+
+The first three iterations are shown in the figure below. The vertical
+lines indicate the value of \(x\), function is in red, and the first
+three majorizations are in blue.
+
+\begin{center}
+\pandocbounded{\includegraphics[keepaspectratio]{smacofIntro_files/figure-pdf/majplot-1.pdf}}
+\end{center}
+
 \sectionbreak
 
 \section*{References}\label{references}
@@ -1193,6 +1370,11 @@ stress is complicated and challenging enough as it is.
 
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-boehning_lindsay_88}
+Böhning, D., and B. G. Lindsay. 1988. {``{Monotonicity of
+Quadratic-approximation Algorithms}.''} \emph{Annals of the Institute of
+Statistical Mathematics} 40 (4): 641--63.
+
 \bibitem[\citeproctext]{ref-borg_groenen_05}
 Borg, I., and P. J. F. Groenen. 2005. \emph{Modern Multidimensional
 Scaling}. Second Edition. Springer.
@@ -1236,6 +1418,12 @@ The Netherlands: DSWO Press.
 Multidimensional Scaling.''} \emph{Journal of Classification} 5:
 163--80.
 
+\bibitem[\citeproctext]{ref-deleeuw_C_94c}
+---------. 1994. {``{Block Relaxation Algorithms in Statistics}.''} In
+\emph{Information Systems and Data Analysis}, edited by H. H. Bock, W.
+Lenski, and M. M. Richter, 308--24. Berlin: Springer Verlag.
+\url{https://jansweb.netlify.app/publication/deleeuw-c-94-c/deleeuw-c-94-c.pdf}.
+
 \bibitem[\citeproctext]{ref-deleeuw_E_17e}
 ---------. 2017a. {``{Shepard Non-metric Multidimensional Scaling}.''}
 2017.
@@ -1277,6 +1465,11 @@ of the Royal Statistical Society} B39: 1--38.
 Gifi, A. 1990. \emph{Nonlinear Multivariate Analysis}. New York, N.Y.:
 Wiley.
 
+\bibitem[\citeproctext]{ref-groenen_mathar_heiser_95}
+Groenen, P. J. F., R. Mathar, and W. J. Heiser. 1995. {``{The
+Majorization Approach to Multidimensional Scaling for Minkowski
+Distances}.''} \emph{Journal of Classification} 12: 3--19.
+
 \bibitem[\citeproctext]{ref-groenen_vandevelden_16}
 Groenen, P. J. F., and M. Van de Velden. 2016. {``{Multidimensional
 Scaling by Majorization: A Review}.''} \emph{Journal of Statistical
@@ -1305,6 +1498,13 @@ Goodness of Fit to a Nonmetric Hypothesis}.''} \emph{Psychometrika} 29:
 ---------. 1964b. {``{Nonmetric Multidimensional Scaling: a Numerical
 Method}.''} \emph{Psychometrika} 29: 115--29.
 
+\bibitem[\citeproctext]{ref-lange_16}
+Lange, K. 2016. \emph{MM Optimization Algorithms}. SIAM.
+
+\bibitem[\citeproctext]{ref-lethi_tao_18}
+Le Thi, H. A., and P. D. Tao. 2018. {``{DC Programming and DCA: Thirty
+Years of Developments}.''} \emph{Mathematical Programming, Series B}.
+
 \bibitem[\citeproctext]{ref-lingoes_roskam_73}
 Lingoes, J. C., and E. E. Roskam. 1973. {``{A Mathematical and Empirical
 Analysis of Two Multidimensional Scaling Algorithms}.''}
@@ -1316,9 +1516,19 @@ Multidimensional Scaling in R: smacof Version 2}.''} \emph{Journal of
 Statistical Software} 102 (10): 1--47.
 \url{https://www.jstatsoft.org/article/view/v102i10}.
 
+\bibitem[\citeproctext]{ref-mathar_meyer_94}
+Mathar, R., and R. Meyer. 1994. {``Algorithms in Convex Analysis to Fit
+l\_p -Distance Matrices.''} \emph{Journal of Multivariate Analysis} 51:
+102--20.
+
 \bibitem[\citeproctext]{ref-meulman_heiser_12}
 Meulman, J. J., and W. J. Heiser. 2012. \emph{IBM SPSS Categories 21}.
 IBM Corporation.
+
+\bibitem[\citeproctext]{ref-nikolova_ng_05}
+Niikolova, M., and M. Ng. 2005. {``Analysis of Half-Quadratic
+Minimization Methods for Signal and Image Recovery.''} \emph{SIAM
+Journal Scientific Computing} 27 (3): 937--66.
 
 \bibitem[\citeproctext]{ref-ramsay_77}
 Ramsay, J. O. 1977. {``{Maximum Likelihood Estimation in
@@ -1369,10 +1579,22 @@ Van Loghum Slaterus.
 ---------. 1971. \emph{{Introduction to Multivariate Analysis for the
 Social Sciences}}. San Francisco, CA: Freeman.
 
+\bibitem[\citeproctext]{ref-vosz_eckhardt_80}
+Vosz, H., and U. Eckhardt. 1980. {``{Linear Convergence of Generalized
+{W}eiszfeld's Method}.''} \emph{Computing} 25: 243--51.
+
 \bibitem[\citeproctext]{ref-young_householder_38}
 Young, G., and A. S. Householder. 1938. {``{Discussion of a Set of
 Points in Terms of Their Mutual Distances}.''} \emph{Psychometrika} 3
 (19-22).
+
+\bibitem[\citeproctext]{ref-yuille_rangarajan_03}
+Yuille, A. L., and A. Rangarajan. 2003. {``{The Concave-Convex
+Procedure}.''} \emph{Neural Computation} 15: 915--36.
+
+\bibitem[\citeproctext]{ref-zangwill_69a}
+Zangwill, W. I. 1969. \emph{{Nonlinear Programming: a Unified
+Approach}}. Englewood-Cliffs, N.J.: Prentice-Hall.
 
 \end{CSLReferences}
 

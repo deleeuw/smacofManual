@@ -1,0 +1,1230 @@
+---
+title: "Smacof Meets Newton"
+author: 
+- Jan de Leeuw - University of California Los Angeles
+date: '`r paste("Started September 02 2023, Version of",format(Sys.Date(),"%B %d, %Y"))`'
+output:
+  bookdown::pdf_document2:
+    latex_engine: lualatex
+    includes:
+      in_header: preamble.tex
+    keep_tex: yes
+    toc: true
+    toc_depth: 4
+    number_sections: yes
+  bookdown::html_document2:
+    keep_md: yes
+    css: preamble.css
+    toc: true
+    toc_depth: 4
+    number_sections: yes
+graphics: yes
+mainfont: Times New Roman
+fontsize: 12pt
+bibliography: ["mypubs.bib","total.bib"]
+abstract: We present theory, algorithms, and R code for a version of the **smacof** method for multidimensional scaling that (1) allows for possibly different linear constraints on different dimensions and that (2) uses second derivatives to study and possibly accelerate convergence. Several examples are analyzed and discussed.   
+---
+```{r loadpackages, echo = FALSE}
+suppressPackageStartupMessages(library(smacof, quietly = TRUE))
+suppressPackageStartupMessages(library(microbenchmark, quietly = TRUE))
+suppressPackageStartupMessages(library(MASS, quietly = TRUE))
+suppressPackageStartupMessages(library(zeallot, quietly = TRUE))
+```
+
+```{r load code, echo = FALSE}
+source("../../smacofCode/smacofNW(newton)/utils.R")
+source("../../smacofCode/smacofNW(newton)/sNewton.R")
+source("../../smacofCode/smacofNW(newton)/basis.R")
+source("../../smacofCode/smacofNW(newton)/derivatives.R")
+source("../../smacofCode/smacofNW(newton)/exampleRun.R")
+```
+
+**Note:** This manual is a working manuscript which will be expanded/updated frequently. All suggestions for improvement are welcome. All Rmd, tex, html, pdf, R, and C files are in the public domain and can be copied, modified, and used by anybody in any way they see fit. Attribution will be appreciated, but is not required. The files can be found at <https://github.com/deleeuw> in the repositories smacofCode, smacofManual, and smacofExamples.
+
+# Notation {-}
+
+## Conventions {-}
+
+Since we only work in finite dimensional vector spaces, and since our emphasis is on computation, we adopt the following conventions.
+
+* A vector *is* a matrix with one column.
+* A row-vector *is* a matrix with one row.
+* Derivatives *are* matrices.
+
+## Notations {-}
+
+The length of vectors and the dimension of matrices will generally 
+be clear from the context.
+
+* $e_i\quad$ unit vector  (element $i$ is one, other elements zero).
+* $e\quad$ vector with all elements one.
+* $E\quad$ matrix with all elements one.
+* $0\quad$ real number zero, also vector or matrix with all elements $0$.
+* $I\quad$ identity matrix.
+* $J=I-\frac{ee'}{e'e}\quad$ centering matrix.
+* $A\otimes B\quad$ Kronecker product of matrices $A$ and $B$.
+* $X\oplus Y\quad$ direct sum of matrices $X$ and $Y$.
+* $X\times Y\quad$ elementwise (Hadamard) product of matrices $X$ and $Y$.
+* $\text{vec}(X)\quad$ matrix $X$ to vector (columns on top of each other).
+* $\text{vecr}(X)\quad$ elements below diagonal of matrix $X$ to vector (columns on top of each other).
+* $X'\quad$ transpose of matrix $X$.
+* $X^+\quad$ Moore-Penrose inverse of matrix $X$.
+* $X^{-T}\quad$ inverse of the transpose $X'$ (and transpose of the inverse).
+* $X\gtrsim Y\quad$ Loewner order of symmetric matrices ($X-Y$ is positive semi-definite).
+* $X\lesssim Y\quad$ Loewner order of symmetric matrices ($Y-X$ is positive semi-definite).
+* $:=\quad$ definition.
+* $X\times Y\quad$ Cartesian product of sets $X$ and $Y$.
+* $(x,y)\quad$ is an ordered pair, i.e. an element of $X\times Y$. 
+* $x_{is}$ or $\{X\}_{is}\quad$ element $(i,s)$ of matrix $X$.
+* $a_{\bullet s}\quad$ column $s$ of matrix $A$.
+* $a_{i\bullet\quad}$ row $i$ of matrix $A$.
+* $[A]_{is}\quad$ submatrix $(i,s)$ of block-matrix $A$.
+* $A^{[p]}\quad$ direct sum of $p$ copies of matrix $A$.
+* $a^{(k)}\quad$ the $k^{th}$ element of the sequence $\{a\}=a^{(1)},\cdots,a^{(k)},\cdots$.
+* $\mathbb{R}^n\quad$ space of all vectors of length $n$.
+* $\overline{\mathbb{R}}^n\quad$ space of all centered vectors of length $n$ (i.e. $x'e=0$).
+* $\mathbb{R}^{n\times p}\quad$ space of all $n\times p$ matrices.
+* $\overline{\mathbb{R}}^{n\times p}\quad$ space of all column-centered $n\times p$ matrices (i.e. with $X'e=0$).
+* $f:X\Rightarrow Y\quad$ function with arguments in $X$ and values in $Y$.
+* If $f:X\times Y\Rightarrow Z$ then $f(\bullet,y):X\Rightarrow Z$
+and $f(x,\bullet):Y\Rightarrow Z$.
+* $x'y\quad$ inner product in $\mathbb{R}^n$.
+* $\text{tr}\ X'Y\quad$ inner product in $\mathbb{R}^{n\times p}$.
+* $\|x\|=\sqrt{x'x}\quad$ Euclidean norm of $x\in\mathbb{R}^n$.
+* $\|X\|=\sqrt{\text{tr}\ X'X}\quad$ Euclidean norm of $X\in\mathbb{R}^{n\times p}$.
+* $\mathcal{D}f(x)\quad$ derivative of $f$ at $x$.
+* $\mathcal{D}^2f(x)\quad$ second derivative of $f$ at $x$.
+* $\mathcal{D}_sf(x)=\{\mathcal{D}f(x)\}_s\quad$ partial derivative with respect to $x_s$ at $x$.
+* $\mathcal{D}_{st}f(x)=\{\mathcal{D}^2f(x)\}_{st}\quad$ second partial with respect to $x_s$ and $x_t$ at $x$.
+
+
+# Introduction
+
+# The Problem
+
+## General Problem
+
+The most general problem we will study in this report is minimization over all $n$-element vectors $x$ of a least squares loss function of the form
+\begin{equation}
+\sigma(\theta):=\frac12\sum_{k=1}^K w_k(\delta_k-\sqrt{\theta'A_k\theta})^2,
+(\#eq:genstressdef)
+\end{equation}
+where the $A_k$ are arbitrary positive semi-definite matrices. Different types of MDS problems in this framework are characterized by the fact that they have different sequences $A_k$. We can consequently
+say that a particular MDS problem is of type $(A_1,\cdots,A_k)$.
+
+In definition \@ref(eq:genstressdef) the $w_k$ are positive *weights*, 
+the $\delta_k$ are non-negative *dissimilarities*, the $d_k(\theta):=\sqrt{\theta'A_k\theta}$ are 
+*distances*, and the objective function is called stress (following @kruskal_64a, @kruskal_64b).
+For general $A_k$ the $d_k(\theta)$ are just semi-norms, and they may not be actual distances,
+but we'll stick with the standard MDS terminology using distance anyway.
+
+Minimizing \@ref(eq:genstressdef) is an unconstrained least squares problem with a non-convex and non-smooth objective function. It can, of course, be tackled with general purpose methods for optimization of functions of this type. For an excellent overview of the various solvers that can be used in R we refer to the task view of @schwendinger_borchers_23. In this report, however, we develop special purpose algorithms that depend on the specific properties of our objective function.
+
+First, some notation and terminology that applies to all MDS problems that minimize a function of the form \@ref(eq:genstressdef). Convenient notation for standard MDS problems was introduced in @deleeuw_C_77 and @deleeuw_heiser_C_77. Since then it has been used broadly, for example in the vignettes @deleeuw_mair_A_09c and @mair_groenen_deleeuw_A_22, in the review article @groenen_vandevelden_16, as well as in the comprehensive textbook of @borg_groenen_05, and in the textbook *in statu nascendi* of @deleeuw_B_21. We generalize this notation here to the problem
+of minimizing \@ref(eq:genstressdef).
+
+
+We assume, without loss of generality, that
+\begin{align}
+&\sum_{k=1}^K w_k=1,\\
+&\sum_{k=1}^K w_k^{\ }\delta_k^2=1.
+\end{align}
+Multiplying the $w_k$ by a positive constant does not change the solution of the minimization
+problem, only the scale of stress. Multiplying the $\delta_k$ by a positive constant
+changes both the scale of both stress and of the solution of the minimization problem, but the scale
+change is easily undone after the solution has been found.
+
+Define, following @deleeuw_C_77, 
+\begin{align}
+\rho(\theta)&:=\sum_{k=1}^K w_k\delta_k\sqrt{\theta'A_k\theta},\\
+\eta^2(\theta)&:=\sum_{k=1}^K w_k\theta'A_k\theta.
+\end{align}
+
+The function $\rho$ is convex and homogenous of order one. It is not differentiable
+at those $\theta$ for which there is a $k$ such that $w_k\delta_k>0$ and 
+$\delta_k(\theta)=0$. The function $\eta^2$ is a convex quadratic, homogeneous
+of order two, and everywhere differentiable. 
+
+If 
+\begin{equation}
+V:=\sum_{k=1}^K w_kA_k
+(\#eq:genvdef)
+\end{equation}
+then $\eta^2(\theta)=\theta'V\theta$. Also define the matrix-valued 
+function $B(\theta)$ by
+\begin{equation}
+B(\theta):=\sum_{k=1}^K w_kr_k(\theta)A_k,
+(\#eq:genbdef)
+\end{equation}
+with
+\begin{equation}
+r_k(\theta):=\begin{cases}\frac{\delta_k}{d_k(\theta)}&\text{ if }d_k(\theta)>0,\\
+0&\text{ if }d_k(\theta)=0.
+\end{cases}
+(\#eq:rkdef)
+\end{equation}
+The $r_k(\theta)$ can be interpreted as residuals, where a residual is larger the further it deviates from one. Note that $V$ is a constant matrix, but $B$ is a matrix-valued function.
+
+Now
+\begin{equation}
+\sigma(\theta)=\frac12\left\{1-2\ \rho(\theta)+\eta^2(\theta)\right\}=
+\frac12\left\{1-2\ \theta'B(\theta)\theta+\theta'V\theta\right\}.
+(\#eq:genstressalt)
+\end{equation}
+Thus $\sigma$ is a difference of two convex functions, also known as a DC-function.
+Clearly MDS problems of the general type we discuss here are also characterized by their
+$B$-function and their $V$-matrix.
+
+
+## Basic MDS
+
+### Configuration Space
+
+In Metric, Euclidean, Least Squares MDS we minimize
+\begin{equation}
+\sigma(X):=\frac12\jis w_{ij}(\delta_{ij}-d_{ij}(X))^2,
+(\#eq:sdefconf)
+\end{equation}
+over *configurations* $X$ in $\mathbb{R}^{n\times p}$, the space of all
+$n\times p$ matrices. The weights $W=\{w{ij}\}$ are assumed to be
+non-negative, so they can be zero (for missing dissimilarities or for
+unfolding, for example). The $d_{ij}(X)$ are Euclidean distances 
+between the $n$ *objects*, represented numerically by the $n$ rows of $X$
+and geometrically by the $n$ corresponding *points* in $\mathbb{R}^p$. Thus
+\begin{equation}
+d_{ij}(X):=\sqrt{\sum_{s=1}^p(x_{is}-x_{js})^2}.
+(\#eq:ddefconf)
+\end{equation}
+
+In addition we assume that $W$ is *irreducible*, which means there is no permutation
+$P$ such that $P'WP$ is the direct sum of two smaller matrices. In other words: irreducibility means
+the $n$ objects cannot be partitioned into groups in such a way that all between-group
+weights are zero. If $W$ is reducible the MDS problem decomposes into two or more smaller MDS problems, so assuming irreducibility causes no loss of generality (@deleeuw_C_77).
+
+
+Define for all $j>i$ the matrices
+\begin{equation}
+E_{ij}:=(e_i-e_j)(e_i-e_j)',
+(\#eq:adef)
+\end{equation}
+where $e_i$ is the $i^{th}$ unit vector, i.e. the vector of length $n$ with all elements equal to zero, except for element $i$, which is one.
+The $E_{ij}$ are symmetric, positive semi-definite, of rank one, and doubly-centered, i.e.
+with rows and columns adding up to zero.
+Using $E_{ij}$ we can define distance by
+$d_{ij}(X)=\sqrt{\text{tr}\ X'E_{ij}X}$.
+
+Now define $x=\text{vec}(X)$ and
+$$
+A_{ij}:=I_p\otimes E_{ij}=\underbrace{E_{ij}\oplus\cdots\oplus E_{ij}}_{p\ \text{times}}
+$$
+Here $I_p$ is the identity matrix of order $p$. Thus $A_{ij}$ is block-diagonal with $p$ copies of $E_{ij}$ in the diagonal blocks. The distance as function of $x$ is $d_{ij}(x):=\sqrt{x'A_{ij}x}$.
+We also define for $s=1,\cdots,p$
+\begin{align}
+V_s&:=\jis  w_{ij}E_{ij}(\#eq:vdef),\\
+B_s(x)&:=\jis w_{ij}r_{ij}(x)E_{ij}.(\#eq:bdef),
+\end{align}
+with $r_{ij}(x)$ defined as in \@ref(eq:rkdef).
+
+For basic MDS all $V_s$ are the same, and so are all $B_s(X)$. Thus the
+block-diagonal matrices
+\begin{align}
+V:&=V_1\oplus\cdots\oplus V_p,\\
+B(x):&=B_1(x)\oplus\cdots\oplus B_p(x),
+\end{align}
+have equal blocks. 
+
+Because the $E_{ij}$ are symmetric, doubly-centered, block-diagonal, and positive 
+semi-definite, so are the non-negative linear combinations $V_s$ and the $B_s(X)$. 
+By irreducibility each of the $p$ identical blocks $V_s$ has rank $p(n-1)$, with only the
+vectors proportional to $e$, the vector with all elements equal to one,
+in its null space (@deleeuw_C_77). In the important special case that $w_{ij}=1$ for all $j<i$ the $V_s$ are $nI-ee'=nJ$, with $J$ the centering matrix. 
+
+With this new notation stress becomes
+\begin{equation}
+\sigma(x):=\frac12\sum_{k=1}^Kw_k(\delta_k-\sqrt{x'A_kx})^2=\frac12\left\{1-2\text{tr}\ x'B(x)x+x'Vx)\right\}.
+(\#eq:sigqf)
+\end{equation}
+We have now written stress as a function of the $np$-vector $x$, and we have gotten rid of the
+double indexing by given each of the pairs $(i,j)$ with $j>i$ and $w_{ij}>0$ a number from
+$\mathcal{K}=\{1,\cdots,K\}$, with different pairs getting different numbers. Clearly
+\@ref(eq:sigqf) is of the form \@ref(eq:genstressdef).
+
+### Full Basis
+
+First we introduce $Y_s$ as $p$ matrices with dimension
+$n\times(n-1)$, with the columns of each of the $Y_s$ forming a basis
+for the subspace of all centered vectors in $\mathbb{R}^n$. Column
+$s$ of $X$ will be written as $Y_s\theta_s$, so that $X$, and consequently
+stress, becomes a function of the $\theta_s$.
+
+The $Y_s$ need not be the same, but we assume, without loss of generality, that
+$Y_s'V_sY_s=I$ for all $s$. If $V_s$ has eigen-decomposition $V_s=K\Lambda^2 K'$,
+with $\Lambda^2$ the diagonal matrix with the $n-1$ non-zero eigenvalues,
+then the singular value decompositions of the $Y_s$ are $Y_s=K\Lambda^{-1} L_s'$.
+Thus different choices of $Y_s$ differ by at most a rotation.
+Also $Y_sY_s'=V_s^+$, the Moore-Penrose inverse of $V_s$. 
+
+Define
+\begin{equation}
+Y:=Y_1\oplus\cdots\oplus Y_p,
+(\#eq:ydef)
+\end{equation}
+and
+\begin{equation}
+\theta:=\begin{bmatrix}\theta_1\\\vdots\\\theta_p\end{bmatrix}.
+(\#eq:thetadef)
+\end{equation}
+Then $\text{vec}(X)=Y\theta$. If
+\begin{equation}
+B_s(\theta):=Y_s'B_s(x)Y_s
+(\#eq:bthetadef)
+\end{equation}
+with
+\begin{equation}
+d_{ij}(\theta)=\sqrt{\theta'Y'A_{ij}Y\theta},
+(\#eq:dthetadef)
+\end{equation}
+with the same provision for $d_{ij}(\theta)=0$. 
+
+We can now recast stress as a function of $\theta\in\mathbb{R}^{p(n-1)}$.
+\begin{equation}
+\sigma(\theta)=\frac12\left\{1-2\theta'B(\theta)\theta+\theta'\theta\right\}.
+(\#eq:sthetadef)
+\end{equation}
+Of course if $x=\text{vec}(X)=Y\theta$ then $\sigma(\theta)$ from \@ref(eq:sthetadef) is equal to $\sigma(x)$ from ... and to $\sigma(X)$ from \@ref(eq:sigqf).
+
+Our MDS task has been transformed into from minimization of stress over $\mathbb{R}^{n\times p}$ to minimization over *coefficient space * $\theta\in\mathbb{R}^m$. If we are done we can transform back to configuration space with $x_{\bullet s}=Y_s\theta_s$, or equivalently $\text{vec}(X)=Y\theta$.
+
+Equivalent to $X=Y\Theta$.
+
+
+### Reduced Basis
+
+Working in $\mathbb{S}^n$ gets rid of the translational indeterminacy in the MDS problem,
+but not the rotational indeterminacy. 
+
+Alternatively we can choose the $Y_s$ in such a way that they each span the $n-s$-dimensional space of column-centered vectors with their first $s-1$ elements are zero. Thus the $Y_s$ are dfferent
+and the $\theta_s$ have length $n-1,\cdots,n-p$. This defines the *reduced basis*. Using this reduced basis eliminates both translational and rotational indeterminacy from the original MDS problem. The reduced basis has dimension $np-\sum_{s=1}^p s=np-\frac12p(p+1)$.
+
+## DCDD
+
+In the terminology of @takane_kiers_deleeuw_A_95 choosing different bases for different $s$ is called DCDD (Different sets of Constraints on Different Dimensions). Although it is not within the scope of this report, DCDD also makes it possible to incorporate the various linear constraints on the configuration discussed in detail in @deleeuw_heiser_C_80. A proper choice of bases can be used to cover fitting simplexes, circumplexes, unique variances, and the rectangles of @borg_leutner_83.
+
+We give one example. Basic scaling with unique variances (@bentler_weeks_78) has $p$ standard
+dimensions, for which we can use the full basis, and $n$ additional dimensions equal to the $e_i$,
+reprensenting uniquenesses. Thus there are $p+n>n$ dimensions, and $p+n$ matrices $Y_s$. The
+first $p$ are $n\times(n-1)$, the last $n$ are the one-dimensional vectors $e_i$. There are problems
+with this parametrization, very much like the factor indeterminacy problem, but the algorithm
+does not care and picks one of the solutions.
+
+
+
+
+
+# Properties of Stress
+
+It is convenient, following @deleeuw_C_77, to define
+\begin{equation}
+\rho(X):=\jis w_{ij}\delta_{ij}d_{ij}(X)=\text{tr}\ X'B(X)X,
+(\#eq:rhodefconf)
+\end{equation}
+and
+\begin{equation}
+\eta^2(X):=\jis w_{ij}d_{ij}^2(X)=\text{tr}\ X'VX,
+(\#eq:eta2defconf)
+\end{equation}
+Both $\rho$ and $\eta^2$ are convex functions on configuration space, which means that
+\begin{equation}
+\sigma(X)=\frac12\left\{1-2\rho(X)+\eta^2(X)\right\}
+(\#eq:sdcdef)
+\end{equation}
+is a difference of two convex functions (a.k.a. a DC-function).
+
+$$
+\sigma(\lambda\theta)=\frac12\left\{1-2|\lambda|\rho(\theta)+\lambda^2\eta^2(\theta)\right\}
+$$
+This shows that stress is a convex quadratic on any ray emanating from the origin. On the ray $\lambda\theta$ the unique minimum is attained at $\lambda=\rho(\theta)/eta^2(\theta)$
+and the minimum is 
+$$
+\min_{\lambda\geq 0}\sigma(\lambda\theta)=\frac12\left\{1-\frac{\rho^2(\theta)}{\eta^2(\theta)}\right\}
+$$
+
+At a local minimum differentiable
+
+At a local minimum norm
+
+One local maximum
+
+
+
+
+
+# Derivatives
+
+The relevant general result for going from $x\in\mathbb{R}^{np}$ to $\theta\in\mathbb{R}^m$ is that if $g(\theta):=f(Y\theta)$ then $\mathcal{D}g(\theta)=Y'\mathcal{D}f(x)$ and $\mathcal{D}^2g(\theta)=Y'\mathcal{D}^2f(x)Y$, where $x=Y\theta$.
+
+## First
+
+\begin{equation}
+\mathcal{D}_sd_{ij}(\theta)=\frac{1}{d_{ij}(\theta)}Y_s'A_{ij}Y_s\theta_s,
+(\#eq:firstder)
+\end{equation}
+thus
+\begin{equation}
+\mathcal{D}\sigma(\theta)=Y'(V-B^{[p]}(\theta))Y\theta=Y'(V-B^{[p]}(\theta))x.
+(\#eq:firder2)
+\end{equation}
+Since $Y'VY=I$ we can also write this as
+\begin{equation}
+\mathcal{D}\sigma(\theta)=\theta-Y'B^{[p]}(\theta))Y\theta.
+(\#eq:firder3)
+\end{equation}
+Thus the stationary equation $\mathcal{D}\sigma(\theta)=0$ says that
+$Y'B^{[p]}(\theta))Y\theta=\theta$, i.e. $Y'B^{[p]}(\theta))Y$
+has an eigenvalue equal to one, with eigenvector $\theta$.
+
+## Second
+
+Differentiating equation \@ref(eq:firstder) again gives
+\begin{equation}
+\mathcal{D}_{st}d_{ij}(\theta)=\delta^{st}\frac{1}{d_{ij}(\theta)}Y_s'A_{ij}Y_s-\frac{1}{d_{ij}^3(\theta)}Y_s'A_{ij}Y_s\theta_s\theta_t'Y_t'A_{ij}Y_t.
+(\#eq:secondder)
+\end{equation}
+Using
+\begin{equation}
+A_{ij}Y_s\theta_s=(e_i-e_j)(e_i-e_j)'x_s=(e_i-e_j)(x_{is}-x_{js}),
+(\#eq:secaux)
+\end{equation}
+we have
+\begin{equation}
+\mathcal{D}_{st}d_{ij}(\theta)=\delta^{st}\frac{1}{d_{ij}(\theta)}Y_s'A_{ij}Y_s-\frac{1}{d_{ij}^3(\theta)}(x_{is}-x_{js})(x_{it}-x_{jt})Y_s'A_{ij}Y_t,
+(\#eq:secder2)
+\end{equation}
+or
+\begin{equation}
+\mathcal{D}^2\sigma(\theta)=Y'\left\{\delta^{st}(V^{[p]}-B^{[p]}(\theta))+H(\theta)\right\}Y,
+(\#eq:secder3)
+\end{equation}
+where $H(\theta)$ is a partitioned matrix with
+\begin{equation}
+[H]_{st}(\theta)=\jis w_{ij}\frac{\delta_{ij}}{d_{ij}^3(\theta)}(x_{is}-x_{js})(x_{it}-x_{jt})A_{ij}.
+(\#eq:secder4)
+\end{equation}
+Using the Loewner order, we see that
+\begin{equation}
+B^{[p]}(\theta)\gtrsim H(\theta)\gtrsim 0,
+(\#eq:loewner)
+\end{equation}
+which implies
+\begin{equation}
+\mathcal{D}^2\sigma(\theta)\lesssim I.
+(\#eq:evald2)
+\end{equation}
+Thus all eigenvalues of the Hessian are less than or equal to one. This does not mean 
+that the Hessian is bounded, because it can have arbitrarily large negative eigenvalues.
+At a local minimum all eigenvalues are non-negative, at an isolated local minimum
+they are all positive. If the Hessian at the stationary value has a negative eigenvalue,
+then it is a saddle point. If the smallest eigenvalue is zero, then the stationary
+value can be either a local minimum or a saddle point, depending on the values of the higher
+derivatives. Stress has no local maxima, except at the origin $\theta=0$ where its value
+is one.
+
+Note that if we use the full basis then the Hessian has $\frac12 p(p-1)$ zero
+eigenvalues. Although we have eliminated translational indeterminacy, we still
+have rotational indeterminacy. The eigenvectors corresponding with the
+zero eigenvalues can be constructed from $\theta$ by interchanging a pair
+$\theta_s$ and $\theta_t$ and changing the sign of one of the two (@deleeuw_A_88b). The reduced basis generally leads to a non-singular Hessian. Both for the full and reduced basis the Hessian has one eigenvalue equal to one (its largest eigenvalue), corresponding with eigenvector $\theta$.
+
+## Third
+
+Why look at third derivatives ? One reason is that if we have a solution with
+gradient equal to zero and Hessian both positive semi-definite and singular then
+we do not know if this solution is a saddle point or local minimum. The
+third derivatives can help us in deciding this. A second reason could be,
+although we do not exploit this possibility here, that third derivatives
+could be used in some form of cubic regularization to stabilize the **newton**
+method (@nesterov_polyak_06). 
+
+In order to not get involved right away in large scale manipulation of indices 
+we look at the more general problem, where 
+\begin{equation}
+d(\theta)=\sqrt{\theta'A\theta},
+(\#eq:gendis)
+\end{equation}
+with $A$ any positive semi-definite matrix. In **smacof** $A$ is one of the $Y'A_{ij}^{[p]}Y$. 
+
+Now
+\begin{equation}
+\mathcal{D}_sd(\theta)=\frac{1}{d(\theta)}\theta'a_{s\bullet},
+(\#eq:genfirst)
+\end{equation}
+and 
+\begin{equation}
+\mathcal{D}_{st}d(\theta)=\frac{1}{d(\theta)}a_{st}-\frac{1}{d^3(\theta)}(\theta'a_{s\bullet}\times\theta'a_{t\bullet})
+(\#eq:gensecond)
+\end{equation}
+and
+\begin{equation}
+\mathcal{D}_{stu}d(\theta)=\frac{1}{d^3(\theta)}(\theta'a_{s\bullet}\times\theta'a_{t\bullet}\times \theta'a_{u\bullet})-\frac{1}{d^5(\theta)}
+(a_{st}\times\theta'a_{u\bullet}+a_{su}\times\theta'a_{t\bullet}+a_{tu}\times\theta'a_{s\bullet} )
+(\#eq:genthird)
+\end{equation}
+Of course the quadratic part of stress has third derivative equal to zero. Thus
+\begin{equation}
+\mathcal{D}_{stu}\sigma(\theta)=-\jis w_{ij}\delta_{ij}\mathcal{D}_{stu}d_{ij}(\theta)
+(\#eq:gencombined)
+\end{equation}
+Combined with equation \@ref(eq:genthird) this gives us enough information to compute the third partials, although directly using the rows and elements of $Y'A_{ij}^{[p]}Y$ is computationally horribly inefficient. The
+R function *deriv123()* in *mSmacof.R* computes the three-dimensional array of partials using this inefficient technique. It will be improved over time.
+
+# Convergence
+
+# Algorithms
+
+In this report we calculate with $\theta\in\mathbb{R}^m$, and not with $x\in\mathbb{R}^{np}$
+or with $X\in\mathbb{R}^{n\times p}$.
+
+## Smacof
+
+Following @deleeuw_heiser_C_80 we define the *Guttman transform* of $\theta$ as
+\begin{equation}
+\Gamma(\theta):=Y'B^{[p]}(\theta)Y\theta.
+(\#eq:gutdef)
+\end{equation}
+Then
+\begin{equation}
+\sigma(\theta)=1-\theta'\Gamma(\theta)+\frac12\theta'\theta,
+(\#eq:sdeft2)
+\end{equation}
+which we can also write, by completing the square and using the Euclidean norm, as
+\begin{equation}
+\sigma(\theta)=1+\frac12\|\theta-\Gamma(\theta))\|^2-\frac12\|\Gamma(\theta)\|^2,
+(\#eq:sdeft3)
+\end{equation}
+
+Now suppose $\theta$ and $\xi$ are two vectors in $\mathbb{R}^m$ and that $d_{ij}(\xi)>0$. Then, by Cauchy-Schwartz,
+\begin{equation}
+d_{ij}(\theta)\geq\frac{1}{d_{ij}(\xi)}\theta'Y'A_{ij}^{[p]}Y\xi,
+(\#eq:csineq)
+\end{equation}
+and thus, using weighted summation on both sides of equation \@ref(eq:csineq),
+\begin{equation}
+\theta'\Gamma(\theta)\geq\theta'\Gamma(\xi).
+(\#eq:smacs)
+\end{equation}
+This implies that if we define
+\begin{equation}
+\tau(\theta,\xi):=1+\frac12\|\theta-\Gamma(\xi)\|^2-\frac12\|\Gamma(\xi)\|^2
+(\#eq:etadef)
+\end{equation}
+then 
+\begin{align}
+\sigma(\theta)\leq\tau(\theta,\xi)&\qquad\forall(\theta,\xi)\in\mathbb{R}^m\times\mathbb{R}^m,\\
+\sigma(\theta)=\tau(\theta,\theta)&\qquad\forall\theta\in\mathbb{R}^m.
+\end{align}
+Thus $\tau:\mathbb{R}^m\times\mathbb{R}^m\Rightarrow\mathbb{R}^+$ is a *majorization function* for
+$\sigma:\mathbb{R}^m\Rightarrow\mathbb{R}^+$  in the sense of @deleeuw_C_77. It follows that
+\begin{equation}
+\sigma(\Gamma(\theta))\leq\tau(\Gamma(\theta),\theta)\leq\tau(\theta,\theta)=\sigma(\theta).
+(\#eq:mmchain)
+\end{equation}
+In the majorization literature \@ref(eq:mmchain) is called the *sandwich inequality*. Alternatively, we could call it the *MM chain*, because the first inequality follows from  majorization, and the second from  minimization (see @lange_16, for an excellent general overview of theory and applications of MM algorithms). We have equality in the second inequality if and only if $\theta=\Gamma(\theta)$. A necessary and sufficient conditions for equality in the first inequality is equality in all Cauchy-Schwartz inequalities \@ref(eq:csineq) with $w_{ij}\delta_{ij}>0$, which is the case if and only if for those index pairs
+\begin{equation}
+\frac{x_{i\bullet}-x_{j\bullet }}{d_{ij}(X)}=\pm\frac{z_{i\bullet}-z_{j\bullet}}{d_{ij}(X)},
+(\#eq:equality)
+\end{equation}
+where $\text{vec}(X)=Y\theta$ and $\text{vec}(Z)=Y\xi$.
+It is clearly sufficient for equality that $\theta$ is proportional to $\xi$.
+
+The iterations of the **smacof** algorithm are
+\begin{equation}
+\theta^{(k+1)}_s=\Gamma(\theta^{(k)}).
+(\#eq:smaupd)
+\end{equation}
+If $Y_s$ has rank $n-1$, which means there are no constraints, then $Y_sY_s'$ is equal to the Moore-Penrose inverse $V^+$\, and thus \@ref(eq:smaupd) becomes
+\begin{equation}
+x_{\bullet s}^{(k+1)}=V^+B(\theta^{(k)})x_{\bullet s}^{(k)},
+(\#eq:smaxupd)
+\end{equation}
+which is the usual **smacof** update.
+
+@guttman_68 already observed that we can also write \@ref(eq:smaupd) as a gradient algorithm with unit step size.
+\begin{equation}
+\theta^{(k+1)}_s=\theta^{(k)}-\mathcal{D}\sigma(\theta^{(k)}).
+(\#eq:smaupdg)
+\end{equation}
+As pointed out by @deleeuw_C_77 a slightly more elegant points of view is to write
+\begin{equation}
+\theta^{(k+1)}_s=\theta^{(k)}-\gamma^{(k)},
+(\#eq:smaupdgsg)
+\end{equation}
+where $\gamma^{(k)}\in\partial\sigma(\theta^{(k)})$, the subgradient of $\sigma$ at
+$\theta^{(k)}$. This makes **smacof** a subgradient algorithm with unit step size.
+
+Using subgradients instead of gradients makes it unnecessary to single out the
+case where $d_{ij}(\theta)=0$ for one or more index pairs, for example in the \@ref(eq:bdef),
+because even if the distance is zero the subgradient continues to exist. Computationally the gradient and subgradient formulations are basically the same, because if $w_{ij}\delta_{ij}>0$ for all pairs
+then stress is differentiable at a local minimum (@deleeuw_A_84f).
+
+The usual qualitative and quantitative convergence analysis (@deleeuw_heiser_C_80, @deleeuw_A_88b) also applies to our **smacof** inn $\mathbb{R}^m$. First the qualitative results.
+
+1. $\{\sigma(\theta^{(k)})\}$ is a boundex decreasing sequence converging to, say, $\sigma_\infty$.
+2. The sequence $\{\theta^{(k)}\}$ is bounded and has one or more accumulation points.
+3. Accumulation points are fixed points of the Guttman transform, i.e. $\theta=\Gamma(\theta)$.
+4. All accumulation points have stress value $\sigma_\infty$.
+5. The sequence $\{\theta^{(k)}\}$ is asymptotically regular, i.e. the sequence $\{\|\theta^{(k)}-\theta^{(k-1)}\}$ converges to zero.
+6. Either there is a single accumulation point, and the sequence $\{\theta^{(k)}\}$ converges, or the accumulation points form a continuum (a set which is not the union of disjoint closed sets).
+
+The main quantitative convergence result for **smacof** is that the sequence $\{\mu^{(k)}\}$ of empirical convergence rates
+\begin{equation}
+\mu^{(k)}:=\frac{\|\theta^{(k+1)}-\theta^{(k)}\|}{\|\theta^{(k)}-\theta^{(k-1)}\|},
+(\#eq:defmu)
+\end{equation}
+converges to the largest eigenvalue of $\mathcal{D}\Gamma$ at the solution, with
+\begin{equation}
+\mathcal{D}\Gamma(\theta)=Y'(B^{[p]}(\theta)-H(\theta))Y.
+(\#eq:dergam)
+\end{equation}
+
+It follows that $\mathcal{D}\Gamma(\theta)\gtrsim 0$, with one eigenvalue
+equal to zero, corresponding with the eigenvector $\theta$. We assume in this
+section that $\sigma$ is two times differentiable. @deleeuw_A_84f shows that
+if $w_{ij}\delta_{ij}>0$ for all $j<i$ then this is always the case near a 
+local minimum.
+
+Thisa is also the place to say something about *full-dimensional smacof*. It is defined 
+simply as **smacof** with $p=n-1$. If we define
+\begin{equation}
+C:=\sum_{s=1}^pY_s\theta_s\theta_s'Y_s',
+(\#eq:cdef)
+\end{equation}
+then we can write
+$$
+\sigma(C):=1-\jis w_{ij}\delta_{ij}\sqrt{\text{tr}\ A_{ij}C}+\text{tr}\ C.
+$$
+By ... $C$ has rank $p$, and **smacof** is equivalent to minimizing stress over all
+$C$ with $\text{rank}(C)\leq p$. Now stress is defined on the set $\mathbb{C}_p$ of all
+positive semi-definite matrices of rank less than or equal to $p$. Moreover
+$\sqrt{\text{tr}\ A_{ij}C}$ is concave on $\mathbb{C}_p$ and $\text{tr}\ C$ is
+linear, and thus stress is convex on $\mathbb{C}_p$. Now $\mathbb{C}_p$ is
+a rather nasty set, except when $p=n-1$, in which case it is the cone of
+positive semi-definite matrices. Thus full-dimensional scaling minimizes a 
+convex function over a convex set, and is consequently a convex programming
+problem in which all local minima are global. In fact stress is strictly
+convex and the global minimum is unique.
+
+The necessary and sufficient conditions for $C$ to be a solution of the
+full-dimensional **smacof** are
+\begin{align}
+C&\geq 0,(\#eq:fds1)\\
+V-B(C)&\geq 0,(\#eq:fds2)\\
+\text{tr}\ C(V-B(C))&=0.(\#eq:fds3)
+\end{align}
+It is easy to see that $\theta$ is a solution of the **smacof** problem on $\mathbb{R}^m$
+with $p=n-1$ if and only $C$ defined by \@ref(eq:cdef) solves the full-dimensional
+problem on $\mathbb{C}_p$. A **smacof** solution in any dimension $p$ is the full-dimensional
+solution if $V^+B(\theta)\lesssim 1$, i.e. if the $p$ unit eigenvalues of $B(\theta)$
+at the solution are actually the largest ones.
+
+Empirically we find that the optimal $C$ usually has rank strictly less than $p-1$. The
+rank of the optimal $C$ is called the *Gower rank* of the dissimilarity matrix (or, more
+precisely, the Gower rank of the pair $(\Delta,W)$). One plausible alternative method
+of metric multidimensional scaling in dimension $p$ is computing the full-dimensional solution $X$
+and then using its first $p$ principal components as the $p$-dimensional solution. This
+is similar to classical scaling and may provide at least a good (although rather expensive) 
+initial estimate. Full-dimensional scaling has also been used as a method to find the
+global minimum of stress for $p<n-1$ (@deleeuw_E_19e).
+
+## Relax !
+
+@deleeuw_heiser_C_80 were the first to propose a technique to accelerate convergence of the **smacof** iterations. They considered the family of updates
+\begin{equation}
+\Gamma_\alpha(\theta):=(1+\alpha)\Gamma(\theta)-\alpha\theta
+(\#eq:gutalp)
+\end{equation}
+For $\alpha>0$ this over-relaxes and for $\alpha<0$ it under-relaxes the Guttman transform. For $\alpha=0$ we recover the Guttman transform and for $\alpha=-1$ we have the identity transform.
+By \@ref(eq:etadef)
+\begin{equation}
+\eta(\Gamma_\alpha(\theta),\theta)=1+\frac12\alpha^2\|\theta-\Gamma(\theta)\|^2-\frac12\|\Gamma(\theta)\|^2
+(\#eq:etaalp)
+\end{equation}
+Thus if $-1<\alpha<+1$ and $\theta\not=\Gamma(\theta)$  we have $\eta(\Gamma_\alpha(\theta),\theta)<\sigma(\theta)$.
+The sandwich inequality still applies, and we have global convergence of the stable algorithm
+\begin{equation}
+\theta^{(k+1)}=\Gamma_{\alpha}(\theta^{(k)}).
+(\#eq:smarel)
+\end{equation}
+
+For **smacof**, with either basis, the largest eigenvalue of $\mathcal{D}^2\sigma(\theta)$ is $0<\lambda<1$ and the smallest eigenvalue is zero. The convergence rate of the relaxed update \@ref(eq:smarel) is
+\begin{equation}
+\lambda(\alpha):=\max(|(1+\alpha)\lambda-\alpha|,|\alpha|).
+(\#eq:labalp)
+\end{equation}
+The minimum of \@ref(eq:labalp) is attained at $\lambda/(2-\lambda)$ and is also equal to
+$\lambda/(2-\lambda)$. Note that for $0<\lambda<1$
+\begin{equation}
+0<\frac{\lambda}{2-\lambda}<\lambda<1.
+(\#eq:labbnds)
+\end{equation}
+If $\lambda=1-\epsilon$, with $\epsilon$ a small positive number, then
+\begin{equation}
+\frac{\lambda}{2-\lambda}=\frac{1-\epsilon}{1+\epsilon}\approx(1-\epsilon)^2=\lambda^2
+(\#eq:labeps)
+\end{equation}
+and thus the rate of convergence is approximately squared and the number of iterations to attain
+a given precision is approximately halved.
+
+This derivation assume we know the largest eigenvalue of $\mathcal{D}\Gamma(\theta)$ at the solution from the start, which of course we don't. Thus we use an adaptive scheme, where $\lambda$ is
+approximated by the empirical convergence rate at iteration $k$. This still produces the
+desired improvement (@deleeuw_R_06b).
+
+The original analysis in @deleeuw_heiser_C_80 suggested, perhaps, to define
+a related update as $2\Gamma(\theta)-\theta$. The reasoning was to go as far as possible 
+in the right direction, while maintaining global convergence. The choice $\alpha=1$ was implemented in some early versions of the **smacof** program. It is not a good choice,
+however. For this relaxed update \@ref(eq:etaalp) shows
+$\eta(\Gamma_\alpha(\theta),\theta)=\eta(\theta,\theta)$. The sandwich
+inequality partially breaks down and we do not have a decrease of stress if
+$\Gamma_\alpha(\theta)$ is proportional to $\theta$. As a consequence the
+sequence $\{\theta^{(k)}\}$ of solutions has multiple accumulation points
+and does not converge. The change of $\theta$ from one iteration to the next does not
+converge to zero. The reported minimum value of stress will not be the correct
+value. Two simple changes correct this problem with $\alpha=1$. The first
+is to normalize $\Gamma_1(\theta)$ in each iteration. The second is
+to define the update as $\Gamma(\Gamma_1(\theta))$. See @deleeuw_R_06b
+for details. In this report we prefer the adaptive strategy that
+estimates $\lambda$ by using the empirical convergence rate.
+
+
+## Newton
+
+
+$$
+\theta^{(k+1)}=\theta^{(k)}-\{\}^{-1}(\theta^{(k)}-\Gamma(\theta^{(k)}))
+$$
+
+
+Safeguard ?
+
+## Combines 
+
+The arguments *eps3* and *strategy* regulate the trade-off between
+**smacof** and **newton** iterations. Remember that **smacof** generates a decreasing and converging sequence of stress values. The vector sequence of $\theta$ values converges to a local minimum (from almost all starting points). Convergence is linear and can be very slow. The sequence of stress values generated by the **newton** method, on the other hand, may not be monotone and may not converge. The corresponding $\theta$ sequence may not converge either. But if started close enough to a local minimum convergence is quadratic and very fast. 
+
+**newton** updates are computationally much more expensive than **smacof** updates.
+
+We will try out three combinations of **smacof** and **newton** in this report, chosen by 
+setting the *eps3* and *strategy* parameters.
+
+1. The first strategy is to start with **smacof** iterations (the burn-in) before switching to **newton**. We switch when $\|\theta^{(k)}-\theta^{(k-1)}\|$ is less than some small $\epsilon$. This strategy may switch back to **smacof**, but eventually it will be **newton**. If $\epsilon$ is zero,
+we never switch to **newton** and it's smacof all the way, when $\epsilon$ is large we switch to 
+**newton** in the first iteration and it's **newton** all the way. 
+2. The second strategy is to see if a **newton** iteration lowers the current best function value. If it does, keep it. If it does not, use the **smacof** iteration. 
+3. The third strategy updates using either the **smacof** update or the **newton**
+update, depending on which has the lowest function value. 
+
+The second and third strategies produce a decreasing sequence of stress values.
+In all three strategies eventually **newton** wil take over. But "eventually"
+make take a long time. In the second and third strategies we compute both
+the smacof and newton updates in each step. This is expensive. The first strategy
+may produce a non-monotone sequence of stress values, but it will tend to
+be much faster because with the default settings the percentage of **newton**
+iterations will be small.
+
+
+
+# Software
+
+## General
+
+IO in configuration (X) space, calcultate in $\theta$ space.
+
+triangular storage
+
+extended precision
+
+In various places we use the multiple assignment operator from the
+zeallot package (@teetor_18). See the vignette for details. We only use
+the simplest case, illustrated in this small example.
+```{r}
+f <- function(x) return(list(p = x + 1, q = x - 1))
+c(a, b) %<-% f(3)
+a
+b
+```
+So the %<-% operator makes it possible to emulate functins that return multiple values.
+
+not production versions
+
+Computationally we also use the fact that any symmetric matrix of the form
+\begin{equation}
+R=\jis r_{ij}A_{ij}
+(\#eq:dcmat)
+\end{equation}
+can be computed by setting the off-diagonal elements of $R$ equal to $-r_{ij}$ and then filling the diagonal elements such that rows and columns sum to zero. No multiplications are required. Although the  (very sparse) matrices $A_{ij}$ appear in the definitions of $V$, $B_s(\theta)$, and $H_{st}(\theta)$, they do not appear in the actual computations. 
+
+## mSmacof
+
+The arguments for the *mSmacof* function (with their defaults) are
+```{r funcargs, eval = FALSE}
+mSmacof <- function(delta,
+                    w = oneDist(attr(delta, "Size")),
+                    p = 2L,
+                    xold = NULL,
+                    basis = "B",
+                    itmax = 100000L,
+                    relax = TRUE,
+                    strategy = 1L,
+                    eps1 = 15L,
+                    eps2 = 10L,
+                    eps3 = 15L,
+                    verbose = FALSE
+)
+```
+Let's go over these briefly. Arguments *delta* and *w* are obvious, and *xold*
+is the starting configuration for the iterations. Previous results have shown
+that the most effective method for avoiding non-global local minima is to start
+with as good an initial estimate as possible. We use the classical MDS solution
+from @torgerson_58 and @gower_66. The basis we choose is a list of matrices
+$Y$, one $Y_s$ for each of the $p$ dimensions. Default is the full basis, with all $Y_s$ the same matrix spanning $\overline{\mathbb{R}}^n$.
+
+*itmax* is the maximum number of iterations, and *eps1* and *eps2* are 
+cut-offs to decide when to stop iterating. We stop when the 
+change in stress value from one iteration to the next is less than
+$10^{-eps1}$ and when the change in $\theta$ from one iteration to the next,
+measured by the least squares norm of the difference, is less that $10^{-eps2}$.
+
+*relax* allows us to choose between the regular **smacof** update and the
+*relaxed update* (@deleeuw_heiser_C_80).
+
+If *verbose* is `r TRUE` *mSmacof* print intermediate results for each iteration
+(iteration counter, stress, stress improvement in this iteration, the norm of the change in $\theta$ for this iteration, and the ratio of this change to the previous change in $\theta$).
+
+The return value of *mSmacof* is a list with fifteen elements
+
+```{r funcreturn, eval = FALSE}
+    return(
+      list(
+        xmat = xnew,
+        bmat = bmat,
+        dmat = dnew,
+        itel = itel,
+        loss = snew,
+        thet = tnew,
+        grax = grax,
+        grat = grat,
+        hesx = hesx,
+        hest = hest,
+        evlt = evlt,
+        evlx = evlx,
+        evlb = evlb,
+        erat = erat,
+        trat = trat
+      )
+    )
+```
+
+*xmat* is the configuration matrix $X$, *bmat* is $B(X)$, and *dmat*
+is the matrix $d(X)$. *itel* is the number of iterations until convergence, or
+*itmax* if there is no convergence. *loss* is the minimum value stress obtained,
+and *thet* is $\theta$ as a list of $p$ vectors. *gradx* is the gradient at $X$
+as a matrix and *gradt* the gradient at $\theta$ as llist of vectors,
+*hessx* is the hessian at $X$ as a partioned matrix and *hesst* the Hessian at $\theta$ as a partitioned matrix. Partitioned matrices are lists of lists,
+*evlt* and *evlx* are the eigenvalues of these two Hessians, and *evlb* are the eigenvalues of
+$V^+B(\theta)$. The *erat* is the observed convergence rate from equation \@ref(eq:defmu) and *trat* is the theoretical convergence rate, the largest non-trivial eigenvalue
+of $I-\mathcal{D}^2\sigma(\theta)=B(\theta)-H(\theta)$. For a convergent **smacof**
+sequence *erat* and *trat* will be equal, for a convergent **newton** sequence
+*erat* will rapidly converge to zero.
+
+Note that at a solution the matrix $V^+B(\theta)$ will have $p$ eigenvalues
+equal to one. If these are the largest eigenvalues, then the Gower rank is $p$, and 
+we have found the global minimum of stress (@deleeuw_U_14b). In MDS practice, however,
+a Gower rank of $p$ is exceedingly rare, and the $p$ unit eigenvalues are usually among the smaller
+eigenvalues of $V^+B(\theta)$.
+
+
+# Examples
+
+In this section we give the results of running *mSmacof*, with the various
+strategies, on seven small to medium examples. All runs use the classical Torgerson-Gower MDS solution as the initial estimate, with a multiplicative scaling to minimize stress (@malone_tarazaga_trosset_02). All weights are equal to one.
+
+Iteration control parameters of the program
+are set to the default, which means *eps1* = 15 and *eps2* = 10, and *itmax*
+= 1,000,000. This, of course, is requiring a ridiculous precision for almost all MDS applications I am aware of. But comparing the various strategies, and deciding on the nature of a stationary point, is easier if we use enhanced precision. Moreover, it is a well-known claim (@kearsley_tapia_trosset_94) that the standard **smacof** program "stops too soon". This probably means that the R version from @deleeuw_mair_A_09c, with the default stopping criteria, may stop in an area where stress is
+merely flat, and possibly still far from a local minimumn.
+By requiring high precision we prevent this from happening in our examples (at the cost of many more iterations, of course).
+
+To compare the full and the reduced basis we use both bases for every strategy.
+Default is the full basis, the runs with the reduced basis are coded
+by adding an *a* at the end of their names.
+
+We run strategy 1 (and strategy 1a) with *eps3* equal to *eps1*. This means **smacof** all the way. strategy1 and strategy1a are also run with *eps3* equal to -1, which
+means **newton** all the way. In order to prevent computing 1,000,000 **newton** iterations we set
+*itmax* equal to 250 for **newton** and **newtona**. 
+For all examples we do run **strategy2** and **strategy2a**, as well as **strategy3** and **strategy3a**, as well as **strategy1** with *eps3* equal to 2, 4, and 6. 
+
+The table of results for each example is generated automatically by the R program *exampleRun()*
+in the appendix. It shows *itel*, the number of iterations, *stress*, the loss
+at the stopping point, *emprate*, the empirical rate of convergence,
+*theorate*, the theoretical rate, *minhess*, the smallest eigenvalue of
+the Hessian, and *time*. The time is computed with the microbenchmark
+package (@mersmann_23). Microbenchmark is made to repeat each run eleven times and report the
+median running time as *time*. For the other strategies, that
+generally end with **newton** iterations, the *emprate* should be 
+close to zero.
+For the strategies that use the full basis the *minhess* should be zero,
+for the reduced basis the *minhess* should be positive (for a local
+minimum). For *smacofa* the *minhess* and *emprate* add up to one.
+Using the full basis runs the risk of sublinear convergence,
+because of zero or negative eigenvalues of the Hessian.
+
+## Trosset/Mathar
+
+In @trosset_mathar_97 the authors set themselves the task of finding a non-global
+local minimum in MDS (and the task of showing that the standard **smacof** 
+interpretation stops too soon and that consequently **newton** is to be preferred).
+Their two examples both have $n=4$. 
+
+```{r trosmatdata}
+trosmat <- as.dist(matrix(c(0,1,sqrt(2),1,1,0,1,sqrt(2),sqrt(2),1,0,1,1,sqrt(2),1,0),4,4))
+dlmat <- as.dist(1 - diag(4))
+xtria <- rbind(0, apply(matrix(c(0,1,1/2,0,0,sqrt(3)/2), 3, 2), 2, function(x) x - mean(x)))
+xsqua <- matrix(c(-1,1,1,-1,-1,-1,1,1), 4, 2) # correct square
+xstar <- matrix(c(-1,1,-1,1,-1,-1,1,1), 4, 2) # incorrect square
+```
+
+The first example, also analyzed by @deleeuw_A_88b,
+has all six dissimilarities equal to one. This is fitted perfectly by a regular
+tetrahedron, and consequently the Gower rank is three. It is generally assumed that
+the global minimizer in two dimensions is a square, with the four points in the
+four corners. In @deleeuw_A_88b a second stationary point was found, with three
+points in the vertices of an equilateral triangle and the fourth point in the
+centroid of the triangle. De Leeuw claimed that this stationary point was a
+non-isolated local minimum, which is a confusing claim because all local
+minima are non-isolated because of translation and rotation. The reason for
+the confusion is that the triangle + centroid solution has a positive-semidefinite 
+Hessian with a zero non-trivial eigenvalue. @trosset_mathar_97 point out that this
+means the solution fails the second derivative test, and by finding a descent direction
+they actually show we have found a saddle point. 
+
+### Results
+
+For the Trosset/Mathar first example, with all dissimilarities equal to one, the 
+Torgerson initial configuration turns out to be the triangle+centroid, which is
+a stationary point. Thus all 13 strategies stop after the first iteration.
+
+```{r dlresults}
+h <- mSmacof(dlmat, basis = "A")
+mPrint(h$evlt, digits = 6)
+mPrint(h$evlx, digits = 6)
+```
+
+```{r mtdata, cache = TRUE}
+htrosmat <- exampleRun(trosmat)
+```
+
+### Discussion
+```{r mtresults, echo = FALSE}
+print(htrosmat$results, digits = 10)
+```
+
+
+
+```{r trosmatplot, echo = FALSE}
+par(pty = "s", mfrow = c(1, 2))
+plot(htrosmat$run[[1]]$xmat, type = "n", main = "smacof", xlab = "dim 1", ylab = "dim 2")
+text(htrosmat$run[[1]]$xmat, as.character(1:4))
+plot(htrosmat$run[[3]]$xmat, type = "n", main = "smacofa", xlab = "dim 1", ylab = "dim 2")
+text(htrosmat$run[[3]]$xmat, as.character(1:4))
+```
+
+## Ekman
+
+We start with the canonical MDS example: average similarity judgments between 14 colors from @ekman_54.
+
+```{r ekmandata, cache = TRUE}
+data(ekman, package = "smacof")
+ekman <- (1 - ekman) ^ 3
+hekman <- exampleRun(ekman)
+```
+
+Note that we use power three to compute dissimilarities from the similarities, because previous research has shown that for these transformed dissimilarities **smacof** in two dimensions computes the global minimum (@deleeuw_E_19e). The ekman example is definitely atypical in this respect.
+
+
+### Results
+
+
+```{r ekmanresults}
+print(hekman$results, digits = 10)
+```
+
+
+### Discussion
+
+This small example has a good fit in two dimensions. It can be characterized as very well-behaved and very easy.
+All eight strategies give the same solution, which we shall show to be the global minimum.
+relaxed **smacof** takes the least time to converge. Both **newton**, **strategy 2**, and 
+**strategy 3** are quite competative, being less than a second slower.
+
+The eigenvalues of $V^+B(\theta)$ at the **smacof** solution are
+```{r evlb, echo = FALSE}
+mPrint(hekman$run[[1]]$evlb, digits = 15)
+```
+The fact that the two largest eigenvalues are equal to one verifies that the Gower rank is two, and that the solution is indeed the two-dimensional global minimum (@deleeuw_E_16k). Remember this is for the dissimilarities $\delta_{ij}=(1-s_{ij})^3$. Powering dissimilarities generally decreases the Gower rank (@deleeuw_E_23b).
+
+The reduced basis leads to many more iterations, and a much more time-consuming run, compared to the full
+basis. It seems that **smacof** likes the additional freedom of the full basis, and does not like 
+to be forced into a fixed rotation. We will find this throughout our examples, so there is no need
+to point this out every time. 
+
+
+## Equal Distances
+
+The next example has 15 objects. All dissimilarities are equal.
+```{r equidata, cache = TRUE}
+equi <- oneDist(15)
+hequi <- exampleRun(equi)
+```
+This is a wordt-case example in most respects. The MDS problem is known to have many local minima, mainly because permuting the points of any local minimizer gives other local minimizers with the same stress. Given previous research
+(@deleeuw_stoop_A_84) we think that the global minimum is attained with twelve points
+equally spaced on a circle and the remaining three points as corners of an equilateral triangle in the interior of the circle. Which of the 15 points ultimately occupy each of the fifteen possible positions on the circle and triangle is obviously arbitrary.
+
+
+
+### Results 
+
+
+```{r equiprint, echo = FALSE}
+print(hequi$results, digits = 12)
+```
+
+### Discussion
+
+This example, though small, is tough, because it has $\text{factorial}(15)$ local minima, all
+with the same function value. The Gower rank is 14, with the points in the
+optimal configuration in 14 dimensions on a regular simplex. The fact that
+all singular values of the full-dimensional solution are equal indicates
+there will be difficulties projecting into two dimensions (think of 
+the power method with all eigenvalues equal). 
+
+Both **smacof** and **smacofa** have not converged in 100,000 iterations.
+To more clearly distinguish the two, we now set *itmax* equal to 1,000,000 and
+run **smacof** and **smacofa** again.
+
+The final **smacof** configuration consists of eleven points equally spaced on a circle 
+and four points in the corners of a square inside the circle. The final **smacofa**
+configuration is the presumed global minimum with twelve points on the circle and an equilateral triangle within the circle.
+
+```{r equiplot, echo = FALSE, eval = FALSE}
+par(pty = "s", mfrow = c(1, 2))
+plot(hequi$run[[1]]$xmat, type = "n", main = "smacof", xlab = "dim 1", ylab = "dim 2")
+text(hequi$run[[1]]$xmat, as.character(1:15))
+plot(hequi$run[[3]]$xmat, type = "n", main = "smacofa", xlab = "dim 1", ylab = "dim 2")
+text(hequi$run[[3]]$xmat, as.character(1:15))
+```
+
+
+It is not impossible that if we continue iterating then 
+in the distant future, after life on earth has long disappeared, 
+eigenvalue 24 will be zero, and the convergence rate will consequently 
+be one. The only way to be sure is to use study the two configurations
+using exact arithmetic to see if eigenvalue 24 is really zero.
+
+
+Both **strategy2a** and **strategy2b** seem to converge to the same stationary value as
+**smacofa**, which is not surprising because they all use the reduced basis. 
+**strategy2** and **strategy3** seem to converge a saddlepoint. 
+
+## Morse
+
+Next, similarities between 36 morse signals, taken from @rothkopf_57.
+
+```{r morsedata, cache = TRUE}
+data(morse, package = "smacof")
+morse <- 1 - morse
+hmorse <- exampleRun(morse)
+```
+
+
+
+
+### Results
+
+
+```{r morseprint, echo = FALSE}
+print(hmorse$results, digits = 10)
+```
+
+### Discussion
+
+## De Gruijter
+
+Similarities between nine Dutch political parties in 1966, taken from @degruijter_67.
+They were computed by using the complete method of triads, followed by
+averaging over a politically heterogeneous group of 100 students.
+
+```{r gruijterdata, cache = TRUE}
+source("gruijter.R")
+hgruijter <- exampleRun(gruijter)
+```
+
+
+
+
+### Results
+
+
+```{r gruijterprint, echo = FALSE}
+print(hgruijter$results, digits = 10)
+```
+
+### Discussion
+
+
+
+## Trading
+
+Trading between countries, taken from @cox_cox_01
+
+```{r tradingdata, cache = TRUE}
+data(trading, package = "smacof")
+htrading <- exampleRun(trading)
+```
+
+
+### Results
+
+
+```{r tradingprint, echo = FALSE}
+print(htrading$results, digits = 10)
+```
+
+
+### Discussion
+
+## Wish
+
+Eighteen students rated similarities between
+12 nations (@kruskal_wish_78, p 31) on a scale from zero to nine. The data are the average similarity ratings, converted to dissimilarities by subtracting them from nine.
+
+```{r wishdata, cache = TRUE}
+source("wish.R")
+hwish <- exampleRun(wish)
+```
+
+
+
+### Results
+
+
+```{r wishprint, echo = FALSE}
+print(hwish$results, digits = 10)
+```
+
+
+### Discussion
+
+This is small example, with a good fit. There seem to be three different stationary points.
+**newtona** converges to a saddle point. One of the local minima is found by
+**smacofa**, **newton**, **strategy 2a**, and **strategy 3a**. Its stress (for **newton**) is . The other local minimum is found by
+**smacof**, **strategy2** and **strategy 3**. It has a slightly higher stress (for **smacof**) of . In the two plots the first and "best" local minimum is on the
+left, the second is on the right. Although the grouping of the nations in the two plots
+is similar, their actual locations are quite different.
+
+```{r wishplot, echo = FALSE}
+par(pty = "s", mfrow = c(1, 2))
+plot(hwish$run[[1]]$xmat, type = "n", main = "smacof", xlab = "dim 1", ylab = "dim 2")
+text(hwish$run[[1]]$xmat, labels(wish), cex = .7)
+plot(hwish$run[[3]]$xmat, type = "n", main = "smacofa", xlab = "dim 1", ylab = "dim 2")
+text(hwish$run[[3]]$xmat, labels(wish), cex = .7)
+```
+
+## Airline Distances
+
+Airline distances between 18 cities are taken from @izenman_08, page 466, who collected them from the National Geographic Society's *Atlas of the World*, sixth edition, 1995. Because of the spherical earth the larger distances cannot properly be
+projected on the plane, and the MDS will be like a spherical projection.
+
+```{r airlinedata, cache = TRUE}
+source("airline.R")
+hairline <- exampleRun(airline)
+```
+The cities are `r row.names(airline)`.
+
+
+
+### Results
+
+
+```{r airlineprint, echo = FALSE}
+print(hairline$results, digits = 10)
+```
+
+
+### Discussion
+
+
+```{r airlineplot, fig.align = "center", echo = FALSE, eval = FALSE}
+par(pty = "s", mfrow = c(1,2))
+plot(airline1$xmat, type = "n", xlim = c(-.07, .07), ylim = c(-.07, .07))
+text(airline1$xmat, row.names(airline), cex = .5)
+plot(airline, airline1$dmat)
+```
+
+# General Discussion
+
+1. MDS may have local minima which are quite different but have very close stress values.
+2. If the dissimilarities have little variation there tend to be many local minima and
+   smacof converges very slowly.
+3. It is imperative to iterate smacof to (very) high precision.
+4. The reduced basis may have some theoretical appeal but greatly slows down computation.
+5. strategy 1 iterates smacof to low precision and then switches to newton. This seems to work
+well, especially for larger examples.
+6. strategy 2 and 3 require computation of both the smacof and newton update in each iteration.
+This is (maybe too) expensive.
+7. It is imperative to inspect the eigenvalues of the Hessian at convergence.
+8. The adaptive version of the relaxed update works well and does approximately
+half the number of iterations.
+9. The relaxed update $2\Gamma(\theta)-\theta$ should not be used.
+10. It is informative to inspect the eigenvalues of $B(\theta)$ at convergence.
+11. Since using the full basis for unrestricted MDS is equivalent to
+working with $x$ in $\mathbb{R}^{np}$, we may as well not use $Y$ and $\theta$
+if there are no constraints.
+12. It is informative to compute the full-dimensional MDS solution.
+13. It is informative to use the Hessian to draw pseudo-confidence ellipses.
+14. It is a good idea to use more than one of the computational strategies
+outlined in this report on a single data set.
+15. Using unsafeguarded newton from the start is a bad idea.
+16. For really large examples iterating smacof to high precision may take
+an eternity.
+17. smacof always converges to a local minimum, except when started in a
+saddle point. Strategies that mix smacof and newton could end up in 
+saddle points.
+
+# Appendix: R Code
+
+
+
+## utils.R
+
+```{r file_auxilary1, code = readLines("utils.R")}
+```
+
+## basis.R
+
+```{r file_auxilary2, code = readLines("basis.R")}
+```
+
+## derivatives.R
+
+```{r file_auxilary3, code = readLines("derivatives.R")}
+```
+
+## sNewton.R
+
+```{r file_auxilary4, code = readLines("sNewton.R")}
+```
+
+## exampleRun.R
+
+```{r file_auxilary7, code = readLines("exampleRun.R")}
+```
+# References

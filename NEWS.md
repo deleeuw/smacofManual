@@ -7,6 +7,7 @@
 * .gitignore ignores cache and files directories.<br>
 * Started smacofIN (Introduction), split off from smacofBA. (Basics)<br>
 * Added Conventions, Notations, and Reserved Symbols to smacofIN.<br>
-* Cut introductory section from smacofBA, which will now be computational only.
+* Cut introductory section from smacofBA, which will now be computational only.<br>
+* Data handling routines in smacofUT to transform between dist, matrix, and index list.
 
 

@@ -760,6 +760,39 @@ jacob4f <- smacofYbasJacobianFormula(h4$x, h4$delta, h4$wgth)
 smacofMatrixPrint(Re(eigen(jacob4f)$values))
 ```
 
+# Symmetric Iteration
+
+$$
+C^+=V^+B(C)CB(C)V^+
+$$
+$$
+V^+B(C+\Xi)(C+\Xi)B(C+\Xi)V^+
+$$
+
+$$
+V^+B(C)C\mathcal{D}B(C)(\Xi)V^++V^+\mathcal{D}B(C)(\Xi)CB(C)V^++V^+B(C)\Xi B(C)V^+
+$$
+If $V^+B(C)C=C$ then 
+$$
+C\mathcal{D}B(C)(\Xi)V^++V^+\mathcal{D}B(C)(\Xi)C+V^+B(C)\Xi B(C)V^+
+$$
+
+$$
+B(C)=\sum_{i<j} w_{ij}\frac{\delta_{ij}}{d_{ij}(C)}A_{ij}
+$$
+with $d_{ij}(C)=\sqrt{\text{tr}\ A_{ij}C}$
+
+$$
+d_{ij}^{-1}(C+\Xi)=d_{ij}^{-1}(C)-\frac12\frac{\text{tr}\ A_{ij}\Xi}{d_{ij}(C)}
+$$
+$$
+B(C+\Xi)=B(C)-\frac12\sum_{i<j}w_{ij}\frac{\delta_{ij}}{d_{ij}(C)}\text{tr}\ A_{ij}\Xi A_{ij}
+$$
+
+$$
+\mathcal{D}B(C)(\Xi)=-\frac12\sum_{i<j}w_{ij}\frac{\delta_{ij}}{d_{ij}(C)}(\xi_{ii}+\xi_{jj}-2\xi_{ij}) A_{ij}
+$$
+
 # Relaxed
 
 ## Modification

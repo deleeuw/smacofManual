@@ -1,30 +1,46 @@
 ---
 title: |
     | Smacof at 50: A Manual
-    | Part 8: Homogeneity Analysis 
+    | Indicator Matrices
 author: 
-- Jan de Leeuw - University of California Los Angeles
-date: '`r paste("Started April 13 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
-output:
-  bookdown::pdf_document2:
-    latex_engine: lualatex 
-    includes:
-      in_header: preamble.tex
-    keep_tex: yes
-    toc: true
-    toc_depth: 3
-    number_sections: yes
-  bookdown::html_document2:
-    keep_md: yes
-    css: preamble.css
-    toc: true
-    toc_depth: 3
-    number_sections: yes
-graphics: yes
+    - name: Jan de Leeuw
+      orcid: 0000-0003-1420-1797
+      email: jan@deleeuwpdx.net
+      affiliation: 
+        - name: University of California Los Angeles
+          city: Los Angeles
+          state: CA
+          url: www.ucla.edu
+      license: "CC0"
+date: last-modified
+date-format: long
+bibliography: [mypubs.bib, total.bib]
+number-sections: true
+pdf-engine: lualatex
+keep-tex: true
+format:
+   pdf:
+    fontsize: 12pt
+    include-in-header: 
+     - preamble.tex
+    keep-tex: true
+    link-citations: true
+    documentclass: scrartcl
+    number-sections: true
+   html:
+    fontsize: 12pt
+    include-in-header: 
+     - preamble.css
+    keep-md: true
+    number-sections: true
+toc: true
+toc-depth: 3
+editor: source
+papersize: letter
+graphics: true
+link-citations: true
 mainfont: Times New Roman
-fontsize: 12pt
-bibliography: ["mypubs.bib","total.bib"]
-abstract: smacofHO
+abstract: TBD
 ---
 ```{r loadpackages, echo = FALSE}
 suppressPackageStartupMessages(library(smacofHO, quietly = TRUE))
@@ -312,19 +328,43 @@ want objects to coincide with all categories they score in. The geometric interp
 objects to be closer to the categories they score in than to the categories
 they do not score in. 
 
-This can be formalized using the notion of *Voronoi regions*. The Voronoi region of
-category $l$ of variable $j$ is the polyhedral convex set of all points of $\mathbb{R}^p$ closer to category $l$ than to any other category of variable $j$. The plot of the the $k_j$ categories of variable $j$ defines $k_j$ Voronoi regions that
+This can be formalized using the notion of *Voronoi regions*. The Voronoi region of category $l$ of variable $j$ is the polyhedral convex set of all points of $\mathbb{R}^p$ closer to category $l$ than to any other category of variable $j$. The plot of the the $k_j$ categories of variable $j$ defines $k_j$ Voronoi regions that
 partition $\mathbb{R}^p$. For a wealth of information about Voronoi regions we refer to
 
 Loss function \@ref(eq:snmu) with $\Delta$ defined by constraint\@ref(eq:hocons) vanishes if for each variable all $x_i$ are in the Voronoi regions of the categories they score in. This condition implies, by the way, that the interiors of the $k_j$ convex hulls of the $x_i$ in a given category are disjoint, and the point clouds can consequently be weakly separated by hyperplanes. Since the category points themselves are in their own Voronoi region the convex hulls of the stars are also disjoint.
-
-
 
 The initial configuration for the iterations is computed using homogeneity analysis. In each iteration configuration updates are alternated with updates of the $\hat D_j$. 
 The general majorization theory for MDS with restrictions (@deleeuw_heiser_C_80) calls for configuration updates
 in two steps. In the first step we compute the Guttman transform of the current configuration, and in the second step we project the Guttman transform on the set of constrained configurations.
 
 Minimizing loss \@ref(eq:snmu)  over the $\hat d_i^j$ is a monotone regression problem for a simple tree order. This is easily solved by using Kruskal's primary approach to ties (@kruskal_64a, @kruskal_64b, @deleeuw_A_77).
+
+## Dual Formulation
+
+Instead of requiring that $d^j_{il}\leq g\d^j_{i\nu}$ for all $\nu$ if $g^j_{il}=1$ we can also require that $d^j_{il}\leq d^j_{kl}$ if
+$1=g^j_{il}<g^j_{kl}=0$. This means requiring monotonicity, using
+the primary approach to ties, for each column of $G$. 
+
+Geometrically for each category we want the $x_i$ in that category to be inside a sphere, and each $x_i$ not in that category outside the sphere. With the
+provision that points on the sphere are both inside and outside.
+There are positive real numbers $\rho^j_l$ such that
+$d^j_{il}\leq\rho^j_l$ if $g^j_{il}=1$ and $d^j_{il}\geq\rho^j_l$if if $g^j_{il}=0$. This does not imply, by the way that the interiors of the
+spheres are disjoint. 
+
+If the spheres are not disjoint there cannot be any points in the 
+interior of the intersection.
+
+It is true, of course, that a sphere containing
+all $x_i$ from a category also contains the convex hull of those
+$x_i$. 
+
+If the $\rho^j_l$ for variable $j$ are all equal then $d^j_{il}\leq\rho^j\leq d^j_{i\nu}$ if $1=g^j_{il}<g^j_{kl}=0$. Thus in that case our column-wise
+sphere constraints imply our row-wise Voronoi constraints. 
+
+It is also possible to combine the Voronoi and sphere constraints. We then
+require that the points of a category are in a sphere which lies in the Voronoi
+region of that category. The center of the sphere and the Voronoi point
+of the category coincide.
 
 ## The Guttman Transform
 
@@ -416,7 +456,7 @@ If there are further constraints on $X$, besides $X_j=X$, and if there
 are constraints on $Y_j$ the updates in the projection phase must
 be modified. 
 
-### Rank Constraints for Y
+### Rank Constraints
 
 If ww choose to do we can require the $Y_j$ to have rank $r_j\leq\min(k_j,p)$, i.e. $Y_j=Q_jA_j'$
 with $Q_j$ a $k_j\times r_j$ matrix and $A_j$ a $p\times r_j$ matrix.
@@ -443,7 +483,7 @@ $$
 \{Y_j'C_j-(X-\tilde X_j)'W_j\}'A_j=C_jQ_jA_jA_j'
 $$
 
-### Centroid Constraints on Y
+### Centroid Constraints
 
 If we require that $Y_j=(G_j'R_jG_j)^{-1}G_j'R_jX$ then this effectively eliminates the $Y_j$ as variables from the optimization problem and we only have to optimize over $X$. We must minimize
 \begin{multline}
@@ -496,7 +536,7 @@ $$
 with $\Lambda$ a symmetric matrix of Lagrange multipliers.
 
 
-### Normalization of X
+### Normalization Constraints
 
 Besides $X_j=X$ we can also optionally require the normalization constraint $X'R_\star X=I$. In both cases the stationary equation \@ref(eq:stateq1) remains the same, while \@ref(eq:stateq1) becomes
 $$
@@ -512,6 +552,8 @@ $$
 X=R_\star^{-1}P(P'R_\star^{-1}P)^{-\frac12}.
 $$
 Thus requiring normalized object scores only needs small modifications in the $X$ update step of the unnormalized update $R_\star^{-1}P$.
+
+# Dual Formulation
 
 # Convergence and Degeneracy
 
