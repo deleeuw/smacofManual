@@ -1,43 +1,57 @@
 ---
-title: |
-    | Smacof at 50: A Manual
-    | Part x: Non-linear smacof with power functions
+title: Multidimensional Scaling of Power-Transformed Dissimilarities
 author: 
-- Jan de Leeuw - University of California Los Angeles
-date: '`r paste("Started May 14, 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
-output:
-  bookdown::pdf_document2:
-    latex_engine: lualatex 
-    includes:
-      in_header: preamble.tex
-    keep_tex: yes
-    toc: true
-    toc_depth: 3
-    number_sections: yes
-  bookdown::html_document2:
-    keep_md: yes
-    css: preamble.css
-    toc: true
-    toc_depth: 3
-    number_sections: yes
-graphics: yes
+    - name: Jan de Leeuw
+      orcid: 0000-0003-1420-1797
+      email: jan@deleeuwpdx.net
+      affiliation: 
+        - name: University of California Los Angeles
+          city: Los Angeles
+          state: CA
+          url: www.ucla.edu
+      license: "CC0"
+date: last-modified
+date-format: long
+bibliography: [mypubs.bib, total.bib]
+number-sections: true
+pdf-engine: lualatex
+keep-tex: true
+format:
+   pdf:
+    fontsize: 12pt
+    include-in-header: 
+     - preamble.tex
+    keep-tex: true
+    link-citations: true
+    documentclass: scrartcl
+    number-sections: true
+   html:
+    fontsize: 12pt
+    include-in-header: 
+     - preamble.css
+    keep-md: true
+    number-sections: true
+toc: true
+toc-depth: 3
+editor: source
+papersize: letter
+graphics: true
+link-citations: true
 mainfont: Times New Roman
-fontsize: 12pt
-bibliography: ["mypubs.bib","total.bib"]
+abstract: We discuss a non-linear multidimensiopnal scaling method in which   the transformations of the dissimilarities are power functions. In the 
+ optimal scaling phase of the alternating least squares algorithm the loss
+ function is optimized over the power in the transformation.
 ---
-```{r loadpackages, echo = FALSE}
-suppressPackageStartupMessages(library(numDeriv, quietly = TRUE))
-```
 
 ```{r load code, echo = FALSE}
 source("gruijter.R")
 source("wish.R")
 source("smacofPO.R")
+source("smacofPODerivatives.R")
 data(ekman, package = "smacof")
 ekman <- 1 - ekman
 data(morse, package = "smacof")
 ```
-
 
 **Note:** This is a working manuscript which will be expanded/updated
 frequently. All suggestions for improvement are welcome. All Rmd, tex,
@@ -45,63 +59,60 @@ html, pdf, R, and C files are in the public domain. Attribution will be
 appreciated, but is not required. The various files can be found at
 <https://github.com/deleeuw> in the smacofPO directory of the repositories smacofCode, smacofManual, and smacofExamples. 
 
+
+\sectionbreak
+
 # Introduction
 
 In least squares MDS we minimize *stress*, defined as 
-\begin{equation}
-\sigma(X, r):=\frac12\sum\sum w_{ij}(\hat d_{ij}-d_{ij}(X))^2.
-(\#eq:stressdef)
-\end{equation}
-over the *configurations* $X\in\mathfrak{X}\subseteq\mathbb{R}^{n\times p}$ and over the *disparities* $\hat D\in\mathfrak{D}\subseteq\mathbb{R}^{n\times n}$.
+$$
+\sigma(X, r):=\frac12\mathop{\sum\sum}_{1\leq i<j\leq n} w_{ij}(\hat d_{ij}-d_{ij}(X))^2.
+$${#eq-stressdef}
+over the *configurations* $X\in\mathfrak{X}\subseteq\mathbb{R}^{n\times p}$ and over the *disparities* $\hat D\in\Delta\subseteq\mathbb{R}^{n\times n}$.
 (The symbol $:=$ is used for definitions). Assume, without loss of generality,
 that the *weights* $w_{ij}$ add up to one. The double summations in the 
-definion of stress are always over the elements below the diagonal of the
+definition of stress is over the elements above the diagonal of the
 symmetric matrices $\hat D$ and $D$.
 
-In metric MDS the set of disparities $\mathfrak{D}$ is the singleton $\{\Delta\}$, with $\Delta$ the
-observed *dissimilarities*. In non-metric MDS $\mathfrak{D}$ is the set of all
-monotone transformations of $\Delta$, and in non-linear MDS it is the set of all
-monotone polynomial or splinical transformations. There are some less familiar alternatives. In *additive constant* MDS $\mathfrak{D}$ is the set of all
-$\hat D$ of the form $\Delta+\alpha(E-I)$, where $I$ is the identity and
+In metric MDS the set of disparities $\Delta$ is the singleton $\{\Delta_0\}$, with $\Delta_0$ the
+observed *dissimilarities*. In non-metric MDS $\Delta$ is the set of all
+non-decreasing monotone transformations of $\Delta_0$, and in non-linear MDS it is the set of all
+polynomial or splinical transformations, possibly also required to be montonic. In *additive constant* MDS $\Delta$ is the set of all
+$\hat D$ of the form $\Delta_0+\alpha(E-I)$, where $I$ is the identity and
 $E$ has all elements equal to one. In *interval* MDS we require
-$\Delta_-\leq\hat D\leq\Delta_+$ elementwise, where $\Delta_-$ and 
-$\Delta_+$ are two given matrices of *disparity bounds*.
+$\hat D_-\leq\hat D\leq\hat D_+$ elementwise, where $\hat D_-$ and 
+$\hat D_+$ are two given matrices of *disparity bounds*.
 
-In this chapter we study and implement another set $\mathfrak{D}$,
-the set of all $\Delta^r$, the elementwise powers of the dissimilarities.
-This definition has some advantages and some disadvantages. Polynomials are often critisized as suitable for approximation because of their rigitidy. The values of
+In this chapter we study and implement another set $\Delta$,
+the set of all $\Delta_0^r$, the elementwise powers of the dissimilarities.
+This definition has some advantages and some disadvantages. Polynomials are often criticized as unsuitable for approximation purposes because of their rigitidy. The values of
 a polynomial in an interval, however small, determine the shape of the
 polynomial on the whole real line. This is one of the reasons for the
 popularity of splines, which are piecewise polynomials joined with a certain degree of smoothness at the knots. Splines are also popular because of their generality: 
-polynomials on an interval are splines without interior knots, while step functions splines of degree zero. 
+polynomials on an interval are splines without interior knots, while step functions are splines of degree zero. 
 
-The set of all monotone functions for $\mathfrak{D}$,
+The set of all monotone functions for $\Delta$,
 as in the original non-metric proposals of @kruskal_64a and @guttman_68,
 provides a great deal of flexibility. As the case of non-metric unfolding
-shows there can be too much flexibility, leading to perfect but trivial
-solutions of the MDS problem.
+shows, there can actually be too much flexibility, leading to perfect but trivial solutions of the MDS problem.
 
-In terms of flexibility power MDS studied in this paper performs badly. There
-is only one single parameter that completely determines the shape of the function on the non-negative real line. But this rigidity can also be seen as an advantage. If the
-power function fits the data well then it will presumably be quite stable
-under small perturbations of the data. There are other advantages. Power functions $x^r$ have some
+In terms of flexibility the power MDS studied in this paper performs badly. There is only one single parameter that completely determines the shape of the function on the non-negative real line. But this rigidity can also be seen as an advantage. If the power function fits the data well then it will presumably be quite stable under small perturbations of the data. There are other advantages. Power functions $x^r$ have some
 nice properties: they always start at the origin and they are monotone,
 either increasing or decreasing depending on the values of $x$ and $r$. Moreover for positive powers they are convex, for
 negative powers they are concave. In psychophysics power functions are
 prominent because of the work of @stevens_57 and @luce_59. And, perhaps most
 importantly, in many cases non-metric and non-linear MDS compute optimal
 transformations that look a lot like power functions, with some irregularities
-that are maybe mostly due to measurement error. Verbally describing what these
+that may be mostly due to measurement errors. Verbally describing what these
 optimal transformations look like often amounts to "they look like a power
 function with positive exponent of about two".
 
 # Loss Function
 
-So let us now define stress as
-\begin{equation}
+So let us now redefine stress as
+$$
 \sigma(X, r):=\frac12\sum\sum w_{ij}(\delta_{ij}^r-d_{ij}(X))^2.
-(\#eq:rstressdef)
-\end{equation}
+$${#eq-rstressdef}
 and consider the problem of minimizing thus stress over both configurations
 $X$ and powers $r$. Throughout the chapter we follow the convention
 that $0^0=1$.
@@ -111,56 +122,49 @@ current bext value of $r$ and minimization over $r$ for the
 current best value of $X$. In this chapter we will only
 consider the second *optimal scaling* phase of the ALS process, computing the optimal $r$ for given $X$, because minimizing over $X$ for fixed $r$ is a standard metric MDS problem.
 
-Minimizing \@ref(eq:rstressdef) differs from the more familiar forms of non-linear and non-metric scaling because the optimal scaling is not positively homogeneous. The set of matrices $\mathfrak{D}=\{\hat D\mid\hat D=\Delta^r\}$ does not define a cone, let alone a convex cone. It is also worth noting that the matrix $E-I$, with all off-diagonal disparities equal to one, is in $\mathfrak{D}$ (it corresponds with $r=0$).
+Minimizing stress from @eq-rstressdef differs from the more familiar forms of non-linear and non-metric scaling because the set of admissible optimal scaling is not positively homogeneous. The set of matrices $\Delta_0^r$ does not define a cone, let alone a convex cone. It is also worth noting that the matrix $E-I$, with all off-diagonal disparities equal to one, is always in $\Delta$ (it corresponds with $r=0$).
 
-Minimizing \@ref(eq:rstressdef) over $r$ for given $X$ is similar to two other MDS problems. Historically the first problem is to find the Minkowski power metric that best fits a set of dissimilarities or disparities. We minimize
-\begin{equation}
+Minimizing @eq-rstressdef over $r$ for given $X$ is similar to two other MDS problems. Historically the first problem is to find the Minkowski power metric that best fits a set of dissimilarities or disparities. We minimize
+$$
 \sigma(X,r):=\frac12\sum\sum w_{ij}(\delta_{ij}-d_{ij}^{\{r\}}(X))^2,
-(\#eq:mstressdef)
-\end{equation}
+$${#eq-mstressdef}
 with
-\begin{equation}
+$$
 d_{ij}^{\{r\}}(X)=\{\sum|x_{is}-x_{js}|^r\}^{1/r}.
-(\#eq:minkovski)
-\end{equation}
+$${#eq-minkovski}
 This particular problem has mainly been used in 
 comparing minimum stress for the city block metric ($r=1$) and the Euclidean metric ($r=2$).
 
 A second similar problem is minimization of a form of power stress
 defined by
-\begin{equation}
+$$
 \sigma(X,r):=\frac12\sum\sum w_{ij}(\delta_{ij}-d_{ij}^r(X))^2.
-(\#eq:pstressdef)
-\end{equation}
-Minimizing loss function for various values of $r$ \@ref(eq:pstressdef) has been studied by @groenen_deleeuw_U_10, @deleeuw_U_14c, @deleeuw_groenen_mair_E_16a, @deleeuw_groenen_mair_E_16h. For both power stress
+$${#eq-pstressdef}
+Minimizing the loss function in @eq-pstressdef for various values of $r$ has been studied by @groenen_deleeuw_U_10, @deleeuw_U_14c, @deleeuw_groenen_mair_E_16a, @deleeuw_groenen_mair_E_16h. For both power stress
 and Minkovski stress mostly the minimization over $X$ for fixed
 values of the power $r$ have been considered. Minimization over $r$ 
 is addressed, if at all, by comparing the minimum values of stress
 over $X$ for different values of $r$ and then choosing or guessing the
-$r$ corresponding with the smallest value of minimum stress. See, for example,
-figure 18 in @kruskal_64a. 
+$r$ corresponding with the smallest value of minimum stress. See, for example, figure 18 in @kruskal_64a. 
 
 We can formalize this search strategy using the *marginal function*
-\begin{equation}
+$$
 \sigma_\star(r):=\frac12\min_X\sum\sum w_{ij}(\delta_{ij}^r-d_{ij}(X))^2.
-(\#eq:marginal)
-\end{equation}
+$${#eq-marginal}
 Also define, for later use,
-\begin{equation}
+$$
 X(r):=\mathop{\text{argmin}}_X\sigma(X, r)=\{X\mid\sigma(X,r) = \sigma_\star(r)\}.
-(\#eq:argmin)
-\end{equation}
+$${#eq-argmin}
 The idea of the search strategy is to compute the value of the marginal function at a number of values of $r$, and then interpolate to approximate the minimum over $r$. There is nothing wrong with this, but it is somewhat ad-hoc and potentially rather expensive. It also supposes, of course, that
 in computing the marginal function the global minimum over $X$
 for given $r$ has been found.
 
 Zero and infinity, the extreme values of $r$, are of special interest.
 For $r=0$ the situation is clear.
-\begin{equation}
+$$
 \sigma(X, 0):=\frac12\sum\sum w_{ij}(\hat\delta_{ij}-d_{ij}(X))^2.
-(\#eq:rstressnull)
-\end{equation}
-with $\hat\delta_{ij}=1$. Computing $\sigma_star(0)$, i.e. minimizing $\sigma(X, 0)$ over $X$, means
+$${#eq-rstressnull}
+with $\hat\delta_{ij}=1$. Computing $\sigma_\star(0)$, i.e. minimizing $\sigma(X, 0)$ over $X$, means
 fitting $p$-dimensional distances to the distance matrix of an
 $(n-1)$-dimensional regular simplex. This problem has been
 studied, in a different context, by @deleeuw_stoop_A_84.
@@ -175,21 +179,15 @@ without changing stress.
 
 If $r\rightarrow+\infty$ limit behavior depends on $\Delta$.
 
-
-
-
-
 # Theory
-
-
 
 ## Derivatives of stress
 
 If $f(r)=x^r$ then 
 \begin{subequations}
 \begin{align}
-\mathcal{D}f(r)&=x^r\log x,(\#eq:der1)\\
-\mathcal{D}^2f(r)&=x^r(\log x)^2(\#eq:der2).
+\mathcal{D}f(r)&=x^r\log x,\label{eq-der1}\\
+\mathcal{D}^2f(r)&=x^r(\log x)^2\label{eq-der2}.
 \end{align}
 \end{subequations}
 
@@ -209,9 +207,9 @@ Now define
 \end{align}
 \end{subequations}
 so that
-\begin{equation}
+$$
 \sigma(r)=\frac12\{\eta^2(r)-2\rho(r)+\omega^2\}.
-\end{equation}
+$${#eq-sigmar}
 Now
 
 * both $\eta^2$ and $\rho$ are convex,
@@ -220,16 +218,14 @@ $\eta^2$ and $\rho$ are non-increasing,
 * if $\delta_{ij}\geq 1$ for all $(i,j)$ then both
 $\eta^2$ and $\rho$ are non-decreasing.
 
-Using equation \@ref(eq:der1) the first derivative of stress is
-\begin{equation}
-\mathcal{D}\sigma(r)=\sum\sum w_{ij}\delta_{ij}^r\log\delta_{ij}(\delta_{ij}^r-d_{ij}(X)),
-(\#eq:first)
-\end{equation}
-and using \@ref(eq:der2)  the second derivative is
-\begin{equation}
-\mathcal{D}^2\sigma(r)=\sum\sum w_{ij}\delta_{ij}^r(\log\delta_{ij})^2(2\delta_{ij}^r-d_{ij}(X))
-(\#eq:second)
-\end{equation}
+Using equation \eqref{eq-der1} the first derivative of stress is
+$$
+\mathcal{D}\sigma(r)=\mathop{\sum\sum}_{1\leq i<j\leq n} w_{ij}\delta_{ij}^r\log\delta_{ij}(\delta_{ij}^r-d_{ij}(X)),
+$${#eq-first}
+and using \eqref{eq-der2} the second derivative is
+$$
+\mathcal{D}^2\sigma(r)=\mathop{\sum\sum}_{1\leq i<j\leq n} w_{ij}\delta_{ij}^r(\log\delta_{ij})^2(2\delta_{ij}^r-d_{ij}(X))
+$${#eq-second}
 If either $\delta_{ij}\leq 1$ for all $(i,j)$ or
 $\delta_{ij}\geq 1$ for all $(i,j)$ then all
 quantities $w_{ij}\delta_{ij}^r\log\delta_{ij}$
@@ -297,6 +293,8 @@ $$
 $$
 where $X(0)$ is now the metric MDS solution if all dissimilarities are equal to one. This configuration has been studied in detail by @deleeuw_stoop_A_84, where it is shown that for small $n$ we find $n$ points equally spaced on a circle, while for larger $n$ it becomes points equally spaced on several concentric circles.
 
+\sectionbreak
+
 # Algorithm
 
 We'll use the R function optimize() to find the
@@ -304,6 +302,8 @@ optimal power $r$ for fixed $X$. Using optimize() is safe, but somewhat brute fo
 iterations, so every iteration has a "cold start". Given the convexity
 properties of the loss function we could probably
 use a lightly safeguarded Newton method for efficiency. Also, our algorithm uses only a single Guttman transform per major iteration. Performing more Guttman iterations between upgrades of $r$ may also improve performance.
+
+\sectionbreak
 
 # Examples
 
@@ -610,6 +610,8 @@ xe <- h$x
 plot(r, s, type = "l", lwd = 2, col = "RED", ylab = "stress")
 ```
 
+\sectionbreak
+
 # Code
 
 ```{r eval = FALSE}
@@ -682,3 +684,7 @@ smacofPO <-
     ))
   }
 ```
+
+\sectionbreak
+
+# References

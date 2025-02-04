@@ -1,48 +1,54 @@
 ---
 title: |
     | Smacof at 50: A Manual
-    | Part 9: Gifi with Centroid Constraints Smacofified
+    | Indicator Matrices 
 author: 
-- Jan de Leeuw - University of California Los Angeles
-date: '`r paste("Started June 24 2024, Version of",format(Sys.Date(),"%B %d, %Y"))`'
-output:
-  bookdown::pdf_document2:
-    latex_engine: lualatex 
-    includes:
-      in_header: preamble.tex
-    keep_tex: yes
-    toc: true
-    toc_depth: 3
-    number_sections: yes
-  bookdown::html_document2:
-    keep_md: yes
-    css: preamble.css
-    toc: true
-    toc_depth: 3
-    number_sections: yes
-graphics: yes
+    - name: Jan de Leeuw
+      orcid: 0000-0003-1420-1797
+      email: jan@deleeuwpdx.net
+      affiliation: 
+        - name: University of California Los Angeles
+          city: Los Angeles
+          state: CA
+          url: www.ucla.edu
+      license: "CC0"
+date: last-modified
+date-format: long
+bibliography: [mypubs.bib, total.bib]
+number-sections: true
+pdf-engine: lualatex
+keep-tex: true
+format:
+   pdf:
+    fontsize: 12pt
+    include-in-header: 
+     - preamble.tex
+    keep-tex: true
+    link-citations: true
+    documentclass: scrartcl
+    number-sections: true
+   html:
+    fontsize: 12pt
+    keep-md: true
+    number-sections: true
+toc: true
+toc-depth: 3
+editor: source
+papersize: letter
+graphics: true
+link-citations: true
 mainfont: Times New Roman
-fontsize: 12pt
-bibliography: ["mypubs.bib","total.bib"]
-abstract: smacofHO
 ---
+
 ```{r loadpackages, echo = FALSE}
-suppressPackageStartupMessages (library (smacofHO, quietly = TRUE))
+suppressPackageStartupMessages(library(knitr, quietly = TRUE))
+suppressPackageStartupMessages(library(tinytex, quietly = TRUE))
+source("/Users/deleeuw/Desktop/smacofProject/smacofCode/smacofHO(rank)/smacofHO.R")
 ```
 
-```{r load code, echo = FALSE}
-#dyn.load("foo.so")
-#source("janUtil.R")
-```
+**Note:** This manual is a working manuscript which will be expanded/updated frequently. All suggestions for improvement are welcome. All Rmd, tex, html, pdf, R, and C files are in the public domain and can be copied, modified, and used by anybody in any way they see fit. Attribution will be appreciated, but is not required. The files can be found at <https://github.com/deleeuw> in the repositories smacofCode, smacofManual, and smacofExamples.
 
-
-**Note:** This is a working manuscript which will be expanded/updated
-frequently. All suggestions for improvement are welcome. All Rmd, tex,
-html, pdf, R, and C files are in the public domain. Attribution will be
-appreciated, but is not required. The files can be found at
-<https://github.com/deleeuw> in the repositories smacofCode, smacofManual,
-and smacofExamples.
-
+\sectionbreak
 
 # Simultaneous Non-Metric Unfolding{#snmu}
 

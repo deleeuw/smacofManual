@@ -50,18 +50,6 @@ suppressPackageStartupMessages(library(splines2, quietly = TRUE))
 suppressPackageStartupMessages(library(smacofBS, quietly = TRUE))
 ```
 
-\sectionbreak 
-
-**Note:** This is a working manuscript which will be expanded/updated
-frequently. All suggestions for improvement are welcome. All Rmd, tex,
-html, pdf, R, and C files are in the public domain. Attribution will be
-appreciated, but is not required. The files can be found at
-<https://github.com/deleeuw> 
-
-\sectionbreak
-
-
-
 
 **Note:** This is a working manuscript which will be expanded/updated
 frequently. All suggestions for improvement are welcome. All Rmd, tex,
@@ -347,7 +335,7 @@ $1,\cdots,p$, which explains why the method is called "cyclic". There
 are variations of CCD in which the order within an iteration is random
 or greedy (choose the coordinate which gives the largest improvement) or
 zig-zag $1,\cdots,p,p-1,\cdots,1$. We have not tried out these
-alternatives in smacf, but we may in the future.
+alternatives in smacof, but we may in the future.
 
 The effect of changing a single coordinate on the loss function is $$
 \sigma(\beta+\epsilon e_j)=\sigma(\beta)+\epsilon\ g_j(\beta)+\frac12\epsilon^2s_{jj},

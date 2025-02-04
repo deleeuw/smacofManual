@@ -47,12 +47,14 @@ ekman <- as.matrix(1 - ekman)
 wgth <- 1 - diag(14)
 data(morse, package = "smacof")
 morse <- as.matrix(morse)
-source("gruijter.R")
+source("/Users/deleeuw/Desktop/smacofProject/smacofCode/smacofFA(accel)/gruijter.R")
 gruijter <- as.matrix(gruijter)
-source("smacofAccelerate.R")
-source("smacofUtils.R")
-source("smacofDerivatives.R")
-source("smacofCompare.R")
+source("/Users/deleeuw/Desktop/smacofProject/smacofCode/smacofFA(accel)/smacofFA.R")
+source("/Users/deleeuw/Desktop/smacofProject/smacofCode/smacofFA(accel)/smacofUtils.R")
+source("/Users/deleeuw/Desktop/smacofProject/smacofCode/smacofFA(accel)/smacofDerivatives.R")
+source("/Users/deleeuw/Desktop/smacofProject/smacofCode/smacofFA(accel)/smacofPCADerivative.R")
+source("/Users/deleeuw/Desktop/smacofProject/smacofCode/smacofFA(accel)/smacofQRDerivative.R")
+source("/Users/deleeuw/Desktop/smacofProject/smacofCode/smacofFA(accel)/smacofCompare.R")
 ```
 
 **Note:** This is a working manuscript which will be expanded/updated
@@ -763,35 +765,41 @@ smacofMatrixPrint(Re(eigen(jacob4f)$values))
 # Symmetric Iteration
 
 $$
-C^+=V^+B(C)CB(C)V^+
-$$
-$$
-V^+B(C+\Xi)(C+\Xi)B(C+\Xi)V^+
-$$
-
-$$
-V^+B(C)C\mathcal{D}B(C)(\Xi)V^++V^+\mathcal{D}B(C)(\Xi)CB(C)V^++V^+B(C)\Xi B(C)V^+
-$$
-If $V^+B(C)C=C$ then 
-$$
-C\mathcal{D}B(C)(\Xi)V^++V^+\mathcal{D}B(C)(\Xi)C+V^+B(C)\Xi B(C)V^+
+\Gamma(C):=V^+B(C)CB(C)V^+
 $$
 
 $$
 B(C)=\sum_{i<j} w_{ij}\frac{\delta_{ij}}{d_{ij}(C)}A_{ij}
 $$
 with $d_{ij}(C)=\sqrt{\text{tr}\ A_{ij}C}$
+$$
+B(C+\Xi)=B(C)-\frac12H(C,\Xi)
+$$
+with
+$$
+H(C,\Xi):=\sum_{i<j}w_{ij}\frac{\delta_{ij}}{d_{ij}(C)}\{\text{tr}\ A_{ij}\Xi\} A_{ij}
+$$
+Note $H(C,C)=B(C)$. If $\Xi$ is psd then $\text{tr}\ A_{ij}\Xi=d_{ij}^2(\Xi)$
+$$
+G(C,\Xi):=\lim_{\epsilon\downarrow 0}\frac{\Gamma(C+\epsilon\Xi)-\Gamma(C)}{\epsilon}=-\frac12V^+B(C)CH(C,\Xi)V^+-\frac12V^+H(C,\Xi)CB(C)V^++V^+B(C)\Xi B(C)V^+
+$$
+Note that $G(C,C)=0$. If $V^+B(C)C=C$ then
+$$
+G(C,\Xi)=-\frac12CH(C,\Xi)V^+-\frac12V^+H(C,\Xi)C+V^+B(C)\Xi B(C)V^+
+$$
+
+Now compare with $\Gamma(X)$.
 
 $$
-d_{ij}^{-1}(C+\Xi)=d_{ij}^{-1}(C)-\frac12\frac{\text{tr}\ A_{ij}\Xi}{d_{ij}(C)}
+H(X,\Theta)=\sum_{i<j}w_{ij}\frac{\delta_{ij}}{d_{ij}^3(X)}\{\text{tr}\ X'A_{ij}\Theta\}A_{ij}
 $$
-$$
-B(C+\Xi)=B(C)-\frac12\sum_{i<j}w_{ij}\frac{\delta_{ij}}{d_{ij}(C)}\text{tr}\ A_{ij}\Xi A_{ij}
-$$
+Note $H(X,X)=B(X)$. If $\Theta=XT$ with $T$ antisymmetric then $H(X,\Theta)=0$. Also note that 
 
 $$
-\mathcal{D}B(C)(\Xi)=-\frac12\sum_{i<j}w_{ij}\frac{\delta_{ij}}{d_{ij}(C)}(\xi_{ii}+\xi_{jj}-2\xi_{ij}) A_{ij}
+G(X,\Theta):=\lim_{\epsilon\downarrow 0}\frac{\Gamma(X+\epsilon\Theta)-\Gamma(C)}{\epsilon}=V^+B(X)\Theta-V^+H(X,\Theta)X
 $$
+If $\Theta=XT$ with $T$ antisymmetric then $G(X,\Theta)=V^+B(X)XT$ and if also $V^+B(X)X=X$ then $G(X,\Theta)=\Theta$. Thus $\mathcal{D}\Gamma(X)$ at a stationary point has $\frac12p(p-1)$ eigenvalues equal to one. For all $X$ it a one zero eigenvalue
+with eigenvector $X$.
 
 # Relaxed
 
@@ -1063,32 +1071,32 @@ smacofCompare(morse)
 
 ## smacofAccelerate.R
 
-```{r code1, code = readLines("smacofAccelerate.R"), eval = FALSE}
+```{r code1, code = readLines("/Users/deleeuw/Desktop/smacofProject/smacofCode/smacofFA(accel)/smacofFA.R"), eval = FALSE}
 ```
 
 ## smacofDerivatives.R
 
-```{r code2, code = readLines("smacofDerivatives.R"), eval = FALSE}
+```{r code2, code = readLines("/Users/deleeuw/Desktop/smacofProject/smacofCode/smacofFA(accel)/smacofDerivatives.R"), eval = FALSE}
 ```
 
 ## smacofPCADerivative.R
 
-```{r code3, code = readLines("smacofPCADerivative.R"), eval = FALSE}
+```{r code3, code = readLines("/Users/deleeuw/Desktop/smacofProject/smacofCode/smacofFA(accel)/smacofPCADerivative.R"), eval = FALSE}
 ```
 
 ## smacofQRDerivative.R
 
-```{r code4, code = readLines("smacofQRDerivative.R"), eval = FALSE}
+```{r code4, code = readLines("/Users/deleeuw/Desktop/smacofProject/smacofCode/smacofFA(accel)/smacofQRDerivative.R"), eval = FALSE}
 ```
 
 ## smacofCompare.R
 
-```{r code5, code = readLines("smacofCompare.R"), eval = FALSE}
+```{r code5, code = readLines("/Users/deleeuw/Desktop/smacofProject/smacofCode/smacofFA(accel)/smacofCompare.R"), eval = FALSE}
 ```
 
 ## smacofUtils.R
 
-```{r code6, code = readLines("smacofUtils.R"), eval = FALSE}
+```{r code6, code = readLines("/Users/deleeuw/Desktop/smacofProject/smacofCode/smacofFA(accel)/smacofUtils.R"), eval = FALSE}
 ```
 
 # References

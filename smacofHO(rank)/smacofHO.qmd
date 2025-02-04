@@ -1,7 +1,7 @@
 ---
 title: |
     | Smacof at 50: A Manual
-    | Indicator Matrices
+    | Indicator Matrices 
 author: 
     - name: Jan de Leeuw
       orcid: 0000-0003-1420-1797
@@ -33,6 +33,8 @@ format:
      - preamble.css
     keep-md: true
     number-sections: true
+crossref:
+  eq-prefix: ""
 toc: true
 toc-depth: 3
 editor: source
@@ -40,7 +42,6 @@ papersize: letter
 graphics: true
 link-citations: true
 mainfont: Times New Roman
-abstract: TBD
 ---
 ```{r loadpackages, echo = FALSE}
 suppressPackageStartupMessages(library(smacofHO, quietly = TRUE))
@@ -64,15 +65,80 @@ and smacofExamples.
 
 # Introduction: Categorical Data{#cat}
 
-In this chapter we shall analyze categorical data structures, with the following components.
+## The Data
+
+We shall analyze categorical data structures, with the following components.
 
 * There are $m$ *variables*. 
-* Variable $j$ has $k_j>1$ *categories*.
 * There are $n$ *objects*.
+* Variable $j$ has $1\leq k_j\leq n$ *categories*.
+* Each object is in at most one category of each variable.
+
+continuous vs discrete
+
+## The Coding
+
+The data are coded as $m$ *indicator matrices* $G_j$, where $G_j$ is $n\times k_j$.
+Each variable has its own indicator matrix.
+Indicator matrices are binary matrices, with rows that add up to one or to zero. 
+Thus each row has either a single element equal to one and the rest zeroes, or it has all elements equal to zero. Rows correspond with objects (or individuals or instances), columns correspond with the categories (or levels or modalities) of variable $j$. Element $g_{il}^j$ is one if object $i$ is in category $l$ of variable $j$, and all other elements in row $i$ are zero. If an object is *missing* on variable $j$ then the whole row is zero.
+
+The *indicator tableau* is the $n\times k_\star$ partitioned binary matrix $G:=\begin{bmatrix}G_1&G_2&\cdots& G_m\end{bmatrix}$, with $k_\star:=\sum_{j=1}^m k_j$. 
+
+## The Representation
+
+In MDS of indicator matrices we represent the $n$ objects and the $k_\star$ categories as $n+k_\star$ points in  
+$p$-dimensional Euclidean space $\mathbb{R}^p$. The type of representation we look for is defined by a partial order on the
+$nk_\star$ distances between the $n$ object points and the $k_\star$ category points. We distinguish a
+number of different models, defined by different sets of inequalities between the distances.
+
+### Model A1
+
+Comparisons are row-conditional within variables. We require
+$$
+\text{if }\ 0=g^j_{iv}<g^j_{il}=1\text{ then }d(x_i,y^j_l)<d(x_i,y^j_v)
+$${#eq-modela1}
+If object $i$ is in category $l$ of variable $j$ then $x_i$ must be closer to
+category point $y^j_l$ than to any of the other $k_j-1$ category points of the
+variable. This can be formulated in terms of Voronoi regions.
+The Voronoi region of $y^j_l$ is the set of all points in $\mathbb{R}^p$ that 
+are closer to $y^j_l$ than to any other of the  category points of variable $j$.
+The $k_j$ category points of variable $j$ partition $\mathbb{R}^p$ into
+$k_j$ polyhedral regions that are build up from pieces of perpendicular bisectors
+of lines between points of differenty categories. The requirement @eq-modela now
+translates to the requirement that for all variables the objects are in the interior
+of the Voronoi region of the categories they are in.
+
+### Model A2
+
+Comparisons are row-conditional over all variables. We require
+$$
+\text{if }\ 0=g^j_{iv}<g^\nu_{il}=1\text{ then }d(x_i,y^\nu_l)<d(x_i,y^j_v)
+$${#eq-modela}
+Each object defines a sphere. The points for the categories the object is in
+must be in the interior of the objects sphere, the points for the categories
+the object is not in must be outside the objects sphere.
+
+The model is a partial order over the $nk_\star$ elements of the indicator matrix.
+If 
+$$
+\text{if }\ 0=g^j_{il}<g^\nu_{kv}=1\text{ then }d(x_k,y^\nu_v)\prec d(x_i,y^j_l)
+$$
+$$
+\text{if }\ 0=g^j_{il}<g^j_{iv}=1\text{ then }d(x_i,y^j_v)\prec d(x_i,y^j_l)
+$$
+$$
+\text{if }\ 0=g^j_{il}<g^j_{kl}=1\text{ then }d(x_k,y^j_l)\prec d(x_i,y^j_l)
+$$
+Geometry: the objects $x_i$ for which $g^j_{il}=1$ are in a sphere with the cetegory $y^j_l$ as its center.
+
 * Each object defines a *partial order* over the categories of each variable. Make this the simple tree.
 
-Introduce indicators
+## The Loss Function
 
+$$
+\sigma(X,Y_1,\cdots,Y_m):=\sum_{i=1}^n\sum_{j=1}^m\sum_{l=1}^{k_j}w^j_{il}(\hat d^j_{il}-d(x_i,y^j_l))^2
+$$
 Discuss: separation and compactness. categories as points or regions.
 circles, stars, voronoi regions
 

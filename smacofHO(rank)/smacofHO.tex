@@ -270,13 +270,10 @@
 \title{Smacof at 50: A Manual\\
 Indicator Matrices}
 \author{Jan de Leeuw}
-\date{January 7, 2025}
+\date{January 16, 2025}
 
 \begin{document}
 \maketitle
-\begin{abstract}
-TBD
-\end{abstract}
 
 \renewcommand*\contentsname{Table of contents}
 {
@@ -294,25 +291,90 @@ smacofCode, smacofManual, and smacofExamples.
 
 \section{Introduction: Categorical Data}\label{cat}
 
-In this chapter we shall analyze categorical data structures, with the
-following components.
+\subsection{The Data}\label{the-data}
+
+We shall analyze categorical data structures, with the following
+components.
 
 \begin{itemize}
 \tightlist
 \item
   There are \(m\) \emph{variables}.
 \item
-  Variable \(j\) has \(k_j>1\) \emph{categories}.
-\item
   There are \(n\) \emph{objects}.
+\item
+  Variable \(j\) has \(1\leq k_j\leq n\) \emph{categories}.
+\item
+  Each object is in at most one category of each variable.
+\end{itemize}
+
+continuous vs discrete
+
+\subsection{The Coding}\label{the-coding}
+
+The data are coded as \(m\) \emph{indicator matrices} \(G_j\), where
+\(G_j\) is \(n\times k_j\). Each variable has its own indicator matrix.
+Indicator matrices are binary matrices, with rows that add up to one or
+to zero. Thus each row has either a single element equal to one and the
+rest zeroes, or it has all elements equal to zero. Rows correspond with
+objects (or individuals or instances), columns correspond with the
+categories (or levels or modalities) of variable \(j\). Element
+\(g_{il}^j\) is one if object \(i\) is in category \(l\) of variable
+\(j\), and all other elements in row \(i\) are zero. If an object is
+\emph{missing} on variable \(j\) then the whole row is zero.
+
+The \emph{indicator tableau} is the \(n\times k_\star\) partitioned
+binary matrix \(G:=\begin{bmatrix}G_1&G_2&\cdots& G_m\end{bmatrix}\),
+with \(k_\star:=\sum_{j=1}^m k_j\).
+
+\subsection{The Representation}\label{the-representation}
+
+In MDS of indicator matrices we represent the \(n\) objects and the
+\(k_\star\) categories as \(n+k_\star\) points in\\
+\(p\)-dimensional Euclidean space \(\mathbb{R}^p\). The type of
+representation we look for is defined by a partial order on the
+\(nk_\star\) distances between the \(n\) object points and the
+\(k_\star\) category points. We distinguish a number of different
+models, defined by different sets of inequalities between the distances.
+
+\subsubsection{Model A1}\label{model-a1}
+
+Comparisons are row-conditional within variables. We require
+\begin{equation}\phantomsection\label{eq-modela}{
+\text{if }\ 0=g^j_{iv}<g^j_{il}=1\text{ then }d(x_i,y^j_l)<d(x_i,y^j_v)
+}\end{equation} If object \(i\) is in category \(l\) of variable \(j\)
+then \(x_i\) must be closer to category point \(y^j_l\) than to any of
+the other \(k_j-1\) category points of the variable. This can be
+formulated in terms of Voronoi regions. The Voronoi region of \(y^j_l\)
+is the set of all points in \(\mathbb{R}^p\) that are closer to
+\[y^j_l\] than to any other of the category points of variable \(j\).
+The \(k_j\) category points of variable \(j\) partition \(\mathbb{R}^p\)
+into \(k_j\) polyhedral regions that are build up from pieces of
+perpendicular bisectors of lines between points of differenty
+categories. The requirement opa~\ref{eq-modela} now translates to the
+
+The model is a partial order over the \(nk_\star\) elements of the
+indicator matrix. If \[
+\text{if }\ 0=g^j_{il}<g^\nu_{kv}=1\text{ then }d(x_k,y^\nu_v)\prec d(x_i,y^j_l)
+\] \[
+\text{if }\ 0=g^j_{il}<g^j_{iv}=1\text{ then }d(x_i,y^j_v)\prec d(x_i,y^j_l)
+\] \[
+\text{if }\ 0=g^j_{il}<g^j_{kl}=1\text{ then }d(x_k,y^j_l)\prec d(x_i,y^j_l)
+\] Geometry: the objects \(x_i\) for which \(g^j_{il}=1\) are in a
+sphere with the cetegory \(y^j_l\) as its center.
+
+\begin{itemize}
+\tightlist
 \item
   Each object defines a \emph{partial order} over the categories of each
   variable. Make this the simple tree.
 \end{itemize}
 
-Introduce indicators
+\subsection{The Loss Function}\label{the-loss-function}
 
-Discuss: separation and compactness. categories as points or regions.
+\[
+\sigma(X,Y_1,\cdots,Y_m):=\sum_{i=1}^n\sum_{j=1}^m\sum_{l=1}^{k_j}w^j_{il}(\hat d^j_{il}-d(x_i,y^j_l))^2
+\] Discuss: separation and compactness. categories as points or regions.
 circles, stars, voronoi regions
 
 Start with MSA and De Leeuw (\citeproc{ref-deleeuw_R_69d}{1969}), De
@@ -699,6 +761,37 @@ using Kruskal's primary approach to ties (Kruskal
 (\citeproc{ref-kruskal_64b}{1964b}), De Leeuw
 (\citeproc{ref-deleeuw_A_77}{1977})).
 
+\subsection{Dual Formulation}\label{dual-formulation}
+
+Instead of requiring that \(d^j_{il}\leq g\d^j_{i\nu}\) for all \(\nu\)
+if \(g^j_{il}=1\) we can also require that \(d^j_{il}\leq d^j_{kl}\) if
+\(1=g^j_{il}<g^j_{kl}=0\). This means requiring monotonicity, using the
+primary approach to ties, for each column of \(G\).
+
+Geometrically for each category we want the \(x_i\) in that category to
+be inside a sphere, and each \(x_i\) not in that category outside the
+sphere. With the provision that points on the sphere are both inside and
+outside. There are positive real numbers \(\rho^j_l\) such that
+\(d^j_{il}\leq\rho^j_l\) if \(g^j_{il}=1\) and
+\(d^j_{il}\geq\rho^j_l\)if if \(g^j_{il}=0\). This does not imply, by
+the way that the interiors of the spheres are disjoint.
+
+If the spheres are not disjoint there cannot be any points in the
+interior of the intersection.
+
+It is true, of course, that a sphere containing all \(x_i\) from a
+category also contains the convex hull of those \(x_i\).
+
+If the \(\rho^j_l\) for variable \(j\) are all equal then
+\(d^j_{il}\leq\rho^j\leq d^j_{i\nu}\) if \(1=g^j_{il}<g^j_{kl}=0\). Thus
+in that case our column-wise sphere constraints imply our row-wise
+Voronoi constraints.
+
+It is also possible to combine the Voronoi and sphere constraints. We
+then require that the points of a category are in a sphere which lies in
+the Voronoi region of that category. The center of the sphere and the
+Voronoi point of the category coincide.
+
 \subsection{The Guttman Transform}\label{the-guttman-transform}
 
 The smacof iterations, or Guttman transforms, more or less ignore the
@@ -790,7 +883,7 @@ If there are further constraints on \(X\), besides \(X_j=X\), and if
 there are constraints on \(Y_j\) the updates in the projection phase
 must be modified.
 
-\subsubsection{Rank Constraints for Y}\label{rank-constraints-for-y}
+\subsubsection{Rank Constraints}\label{rank-constraints}
 
 If ww choose to do we can require the \(Y_j\) to have rank
 \(r_j\leq\min(k_j,p)\), i.e.~\(Y_j=Q_jA_j'\) with \(Q_j\) a
@@ -830,8 +923,7 @@ those \(j\) we have to minimize \[
 \{Y_j'C_j-(X-\tilde X_j)'W_j\}'A_j=C_jQ_jA_jA_j'
 \]
 
-\subsubsection{Centroid Constraints on
-Y}\label{centroid-constraints-on-y}
+\subsubsection{Centroid Constraints}\label{centroid-constraints}
 
 If we require that \(Y_j=(G_j'R_jG_j)^{-1}G_j'R_jX\) then this
 effectively eliminates the \(Y_j\) as variables from the optimization
@@ -880,7 +972,8 @@ the Procrustus problem \[
 (\mu R_\star-P_\star)\overline X - Q_\star=R_\star X\Lambda
 \] with \(\Lambda\) a symmetric matrix of Lagrange multipliers.
 
-\subsubsection{Normalization of X}\label{normalization-of-x}
+\subsubsection{Normalization
+Constraints}\label{normalization-constraints}
 
 Besides \(X_j=X\) we can also optionally require the normalization
 constraint \(X'R_\star X=I\). In both cases the stationary equation
@@ -895,6 +988,8 @@ X=R_\star^{-1}P(P'R_\star^{-1}P)^{-\frac12}.
 \] Thus requiring normalized object scores only needs small
 modifications in the \(X\) update step of the unnormalized update
 \(R_\star^{-1}P\).
+
+\section{Dual Formulation}\label{dual-formulation-1}
 
 \section{Convergence and Degeneracy}\label{convergence-and-degeneracy}
 

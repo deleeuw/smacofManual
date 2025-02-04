@@ -270,7 +270,7 @@
 \title{Smacof at 50: A Manual\\
 Part x: Acceleration}
 \author{Jan de Leeuw}
-\date{November 3, 2024}
+\date{January 8, 2025}
 
 \begin{document}
 \maketitle
@@ -1117,6 +1117,42 @@ simple indeed. We
 [25]   -0.0000000000   -0.0000000000   -0.0000000000   +0.0000000000
 \end{verbatim}
 
+\section{Symmetric Iteration}\label{symmetric-iteration}
+
+\[
+\Gamma(C):=V^+B(C)CB(C)V^+
+\]
+
+\[
+B(C)=\sum_{i<j} w_{ij}\frac{\delta_{ij}}{d_{ij}(C)}A_{ij}
+\] with \(d_{ij}(C)=\sqrt{\text{tr}\ A_{ij}C}\)
+
+\[
+B(C+\Xi)=B(C)-\frac12H(C,\Xi)
+\] with \[
+H(C,\Xi):=\sum_{i<j}w_{ij}\frac{\delta_{ij}}{d_{ij}(C)}\{\text{tr}\ A_{ij}\Xi\} A_{ij}
+\] Note \(H(C,C)=B(C)\). If \(\Xi\) is psd then
+\(\text{tr}\ A_{ij}\Xi=d_{ij}^2(\Xi)\) \[
+G(C,\Xi):=\lim_{\epsilon\downarrow 0}\frac{\Gamma(C+\epsilon\Xi)-\Gamma(C)}{\epsilon}=-\frac12V^+B(C)CH(C,\Xi)V^+-\frac12V^+H(C,\Xi)CB(C)V^++V^+B(C)\Xi B(C)V^+
+\] Note that \(G(C,C)=0\). If \(V^+B(C)C=C\) then \[
+G(C,\Xi)=-\frac12CH(C,\Xi)V^+-\frac12V^+H(C,\Xi)C+V^+B(C)\Xi B(C)V^+
+\]
+
+Now compare with \(\Gamma(X)\).
+
+\[
+H(X,\Theta)=\sum_{i<j} w_{ij}\frac{\delta_{ij}}{d_{ij}^3(X)}\{\text{tr}\ X'A_{ij}\Theta\}A_{ij}
+\] Note \(H(X,X)=B(X)\). If \(\Theta=XT\) with \(T\) antisymmetric then
+\(H(X,\Theta)=0\). Also note that
+
+\[
+G(X,\Theta):=\lim_{\epsilon\downarrow 0}\frac{\Gamma(X+\epsilon\Theta)-\Gamma(C)}{\epsilon}=V^+B(X)\Theta-V^+H(X,\Theta)X
+\] If \(\Theta=XT\) with \(T\) antisymmetric then
+\(G(X,\Theta)=V^+B(X)XT\) and if also \(V^+B(X)X=X\) then
+\(G(X,\Theta)=\Theta\). Thus \(\mathcal{D}\Gamma(X)\) at a stationary
+point has \(\frac12p(p-1)\) eigenvalues equal to one. For all \(X\) it a
+one zero eigenvalue with eigenvector \(X\).
+
 \section{Relaxed}\label{relaxed}
 
 \subsection{Modification}\label{modification-3}
@@ -1163,16 +1199,18 @@ It turns out (Groenen, Glunt, and Hayden
 (\citeproc{ref-deleeuw_R_06b}{2006})), however, that applying the
 relaxed update has some unintended consequences, which basically imply
 that it should never be used without additional precautions. Let's take
-a look at the Ekman results.
+a look at the Ekman results. ::: \{.cell\} ::: \{.cell-output
+.cell-output-stdout\}
 
 \begin{verbatim}
 itel   25 sold 3.994627066568261 snew 3.994627066568263 chng 3.766431585321326 labd 1.000000000000000 
 \end{verbatim}
 
-In iteration 25, the final iteration, stress is 3.99462706656826. The
-``change'' \(\eta(X^{(k)}-X^{(k+1)})\) is 3.76643158532133 and the
-estimate of the asymptotic convergence ratio, the ``change'' divided by
-the ``change'' of the previous iteration, is 1.
+::: ::: In iteration 25, the final iteration, stress is
+3.99462706656826. The ``change'' \(\eta(X^{(k)}-X^{(k+1)})\) is
+3.76643158532133 and the estimate of the asymptotic convergence ratio,
+the ``change'' divided by the ``change'' of the previous iteration, is
+1.
 
 The loss function values converge and the number of iterations is
 reduced from 57 to 23. But we see that \(\eta(X^{(k+1)}-X^{(k)})\) does
@@ -1209,7 +1247,9 @@ Ekman sequence gives us a final stress equal to 2.11141127390763.
 \subsection{Asymptotic Rate of
 Convergence}\label{asymptotic-rate-of-convergence-4}
 
-The eigenvalues of the Jacobian are
+The eigenvalues of the Jacobian are ::: \{.cell\}
+
+:::
 
 \section{Doubling}\label{doubling}
 
@@ -1235,10 +1275,11 @@ a fixed point of \(\Psi^2\) for all \(\tau>0\). Thus we cannot exclude
 the possibility that the sequence converges to a fixed point
 proportional to \(X\), but not equal to \(X\).
 
-Here are the results for the Ekman data if we use \(\Psi^2\).
+Here are the results for the Ekman data if we use \(\Psi^2\). :::
+\{.cell\}
 
-In iteration 13, the final iteration, stress is 3.99462706656826. The
-CHNG is 3.76583425614514e-16 and the EARC is 0.273802752120992.
+::: In iteration 13, the final iteration, stress is 3.99462706656826.
+The CHNG is 3.76583425614514e-16 and the EARC is 0.273802752120992.
 
 Again we need some adjustment. A final update using \(\Phi\) will do the
 trick. After this adjustment stress is 3.99462706656826
@@ -1252,7 +1293,7 @@ Convergence}\label{asymptotic-rate-of-convergence-5}
 
 The asymptotic convergence rate is \[
 \max_s (2\lambda_s-1)^2=\max\{ (2\lambda_\text{max}-1)^2, (2\lambda_\text{min}-1)^2\}
-\].
+\]
 
 \section{Dilation}\label{dilation}
 
@@ -1267,9 +1308,10 @@ defines Defines \[
 \Xi(X):=\Pi(\Psi(X))
 \] \#\# Function Values
 
-Here are the results for the Ekman data if we use dilation.
+Here are the results for the Ekman data if we use dilation. :::
+\{.cell\}
 
-In iteration 26, the final iteration, stress is 2.1114112739076. The
+::: In iteration 26, the final iteration, stress is 2.1114112739076. The
 CHNG is 1.77621337696992e-16 and the EARC is 0.533991473995601.
 
 \subsection{Asymptotic Rate of
@@ -1317,13 +1359,30 @@ Another strategy
 
 \subsection{Function Values}\label{function-values-6}
 
-Here are the results for the Ekman data if we use stabilization.
+Here are the results for the Ekman data if we use stabilization. :::
+\{.cell\}
 
-In iteration 19, the final iteration, stress is 2.1114112739076. The
+::: In iteration 19, the final iteration, stress is 2.1114112739076. The
 CHNG is 1.29239746041767e-16 and the EARC is 0.40956832382978.
 
 \subsection{Asymptotic Rate of
 Convergence}\label{asymptotic-rate-of-convergence-7}
+
+\section{Averaging}\label{averaging}
+
+\subsection{Modification}\label{modification-7}
+
+\[
+\Xi(X):=\frac12\{\Psi(\Psi(X))+\Psi(X))\}
+\]
+
+\subsection{Function Values}\label{function-values-7}
+
+\subsection{ARC}\label{arc}
+
+\[
+\frac12\{(2\lambda - 1)\{1 + (2\lambda - 1)\}\}=\max_s\lambda_s(2\lambda_s-1)
+\]
 
 \section{Benchmarking}\label{benchmarking}
 
@@ -1415,9 +1474,6 @@ Unit: milliseconds
 \FunctionTok{library}\NormalTok{(MASS)}
 \FunctionTok{library}\NormalTok{(microbenchmark)}
 \FunctionTok{library}\NormalTok{(numDeriv)}
-
-\FunctionTok{source}\NormalTok{(}\StringTok{"smacofUtils.R"}\NormalTok{)}
-\FunctionTok{source}\NormalTok{(}\StringTok{"smacofDerivatives.R"}\NormalTok{)}
 
 \NormalTok{smacofAccelerate }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(delta,}
                              \AttributeTok{wgth =} \DecValTok{1} \SpecialCharTok{{-}} \FunctionTok{diag}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(delta)),}
@@ -1668,10 +1724,6 @@ Unit: milliseconds
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{library}\NormalTok{(numDeriv)}
-
-\FunctionTok{source}\NormalTok{(}\StringTok{"smacofUtils.R"}\NormalTok{)}
-\FunctionTok{source}\NormalTok{(}\StringTok{"smacofPCADerivative.R"}\NormalTok{)}
-\FunctionTok{source}\NormalTok{(}\StringTok{"smacofQRDerivative.R"}\NormalTok{)}
 
 \NormalTok{smacofRhoHessian }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, delta, wgth) \{}
 \NormalTok{  nobj }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(x)}
